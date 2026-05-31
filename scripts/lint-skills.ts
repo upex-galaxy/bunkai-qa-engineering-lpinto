@@ -886,7 +886,7 @@ function main(): void {
 
   for (const entry of readdirSync(SKILLS_DIR)) {
     const slugPath = join(SKILLS_DIR, entry);
-    if (!statSync(slugPath).isDirectory()) { continue; }
+    if (!existsSync(slugPath) || !statSync(slugPath).isDirectory()) { continue; }
 
     const skillMd = join(slugPath, 'SKILL.md');
     if (!existsSync(skillMd)) {
