@@ -8,6 +8,7 @@
         "@clack/prompts": "^1.4.0",
         "@inquirer/prompts": "^8.1.0",
         "boxen": "^8.0.1",
+        "caveman": "^0.1.6",
         "cli-table3": "^0.6.5",
         "figures": "^6.1.0",
         "picocolors": "^1.1.1",
@@ -405,6 +406,8 @@
     "camelcase": ["camelcase@8.0.0", "", {}, "sha512-8WB3Jcas3swSvjIeA2yvCJ+Miyz5l1ZmB6HFb9R1317dt9LCQoswg/BGrmAmkWVEszSrrg4RwmO46qIm2OEnSA=="],
 
     "caniuse-lite": ["caniuse-lite@1.0.30001761", "", {}, "sha512-JF9ptu1vP2coz98+5051jZ4PwQgd2ni8A+gYSN7EA7dPKIMf0pDlSUxhdmVOaV3/fYK5uWBkgSXJaRLr4+3A6g=="],
+
+    "caveman": ["caveman@0.1.6", "", {}, "sha512-XIwMxCLOdhqtCDJoZ4XoE5tPgpE/yJLH6PQuQxEiZQ6rCbnyjRdlU8GYhso3+0OItDhlrA9cNQ35fOEE9pTs4A=="],
 
     "ccount": ["ccount@2.0.1", "", {}, "sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg=="],
 
