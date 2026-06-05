@@ -1,8 +1,20 @@
 {
   "schemaVersion": 7,
   "templateRepo": "upex-galaxy/agentic-qa-boilerplate",
-  "templateCommit": "",
-  "perComponentCommit": {},
+  "templateCommit": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
+  "perComponentCommit": {
+    "skills": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
+    "commands": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
+    "scripts": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
+    "docs": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
+    "cli": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
+    "vscode": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
+    "husky": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
+    "agents-docs": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
+    "claude-config": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
+    "tooling": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
+    "env-template": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1"
+  },
   "syncedComponents": [],
   "ignoreFileSync": {
     ".prettierignore": {
@@ -31,6 +43,6 @@
     }
   },
   "cliVersion": "7.0",
-  "lastSyncedAt": "2026-06-05T10:32:27.737Z",
+  "lastSyncedAt": "2026-06-05T10:43:43.476Z",
   "variableSystemVersion": 1
 }
