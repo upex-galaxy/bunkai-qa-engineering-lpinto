@@ -377,6 +377,52 @@ Engram MCP configured. Call `mem_save` IMMEDIATELY (no user prompt needed) after
 
 Self-check after every task: *did I make decision, fix bug, learn something non-obvious, or establish convention? If yes → `mem_save` NOW.*
 
+## Project Assessment (Phase 1)
+
+Assessment Date: 2026-06-06
+
+### Testing Maturity: 1/4
+- Current state: Basic (boilerplate stub tests only)
+- Test files: ~9 ATCs across 4 KATA components (all boilerplate stubs — ExampleApi, ExamplePage, LoginPage, AuthApi)
+- Frameworks: Playwright (configured), KATA architecture (wired)
+- Coverage: unknown — no Bunkai-specific tests written yet
+- Target repo has ZERO test deps — greenfield for QA automation
+
+### Documentation State: Complete (target repo)
+- README: yes (comprehensive)
+- API docs: yes (OpenAPI 3.1 + Scalar UI)
+- Architecture: yes (SRS with C4 diagrams, ERD)
+- Setup guide: yes (`.env.example`, INSTALLER.md)
+
+### Code Quality (target repo)
+- [x] ESLint: configured (`@antfu/eslint-config`)
+- [x] Prettier: configured
+- [x] TypeScript: strict mode enabled
+- [x] Pre-commit hooks: Husky + lint-staged
+
+### CI/CD Maturity: Minimal
+- Target repo: no GitHub Actions workflows
+- QA repo: 4 workflows (build, smoke, sanity, regression) — pre-configured in boilerplate
+
+### Identified Risks
+
+| Risk | Severity | Mitigation |
+|------|----------|------------|
+| No CI in target repo | MEDIUM | Manual smoke testing until CI is established; QA boilerplate CI runs independently |
+| DBHub MCP not configured | MEDIUM | Complete env var setup for database access |
+| Boilerplate ATC stubs not Bunkai-specific | LOW | `/adapt-framework` will rewire KATA components for target stack |
+| Target has no test deps/framework | LOW (expected) | QA boilerplate IS the test framework — no changes needed in target |
+
+### Phase Prioritization
+
+- Phase 1: Normal — target well-documented
+- Phase 2: Normal — target has full PRD/SRS, adapt for QA
+- Phase 3: Normal — infra docs must be discovered from source
+- Phase 4: Normal — Jira BK project accessible
+
+### Blockers
+- [x] No blockers identified for Phase 1
+
 ---
 
 *AI persistent memory. Update when behaviors / skills / rules change.*
