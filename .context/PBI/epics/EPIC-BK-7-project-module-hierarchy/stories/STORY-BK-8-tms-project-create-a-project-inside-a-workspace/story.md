@@ -59,12 +59,17 @@ As a Workspace member, I want to create a Project inside a Workspace so that I c
 - [BK-55](https://jira.upexgalaxy.com/browse/BK-55): BK-8: Project detail route /projects/{slug} is not workspace-scoped _(Open)_
 - [BK-56](https://jira.upexgalaxy.com/browse/BK-56): BK-8: Non-Latin (CJK/Cyrillic) project names rejected as name_no_alphanumeric _(Open)_
 
+### Storys (2)
+
+- [BK-4](https://jira.upexgalaxy.com/browse/BK-4): TMS-Workspace | Create a workspace _(QA Approved)_
+- [BK-9](https://jira.upexgalaxy.com/browse/BK-9): TMS-Module | Create modules with nested sub-modules _(In Test)_
+
 ---
 
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 5/6/2026
+- **Updated:** 8/6/2026
 - **Reporter:** Ely
 - **Assignee:** Ely
 - **Labels:** hierarchy, mvp, shift-left-2026-05-28, shift-left-reviewed, wave-1

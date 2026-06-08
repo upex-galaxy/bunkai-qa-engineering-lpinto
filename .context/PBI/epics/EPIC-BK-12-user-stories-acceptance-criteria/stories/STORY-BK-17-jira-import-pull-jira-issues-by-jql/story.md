@@ -87,12 +87,17 @@ The user opens Project settings, picks ***Import from Jira***, enters a JQL, and
 
 - [BK-84](https://jira.upexgalaxy.com/browse/BK-84): [Staging] PAT bearer auth rejected on member/owned-resource routes (Imports, Projects, Modules, Tokens) — requireAuth middleware regression _(Open)_
 
+### Storys (2)
+
+- [BK-14](https://jira.upexgalaxy.com/browse/BK-14): TMS-US | Manage user stories anchored to a module _(Ready For QA)_
+- [BK-15](https://jira.upexgalaxy.com/browse/BK-15): TMS-AC | Manage criteria under a user story _(Ready For QA)_
+
 ---
 
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 7/6/2026
+- **Updated:** 8/6/2026
 - **Reporter:** Ely
 - **Assignee:** Andrés Daniel Cumare Morales
 - **Labels:** integration, jira-import, mvp, shift-left-2026-05-27, shift-left-reviewed, wave-2

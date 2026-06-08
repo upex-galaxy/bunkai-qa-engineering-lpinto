@@ -253,5 +253,11 @@ Two pending invites for same email allowed. No DB constraint or application chec
 
 ---
 
+### Carlos Alberto Chiavassa - 8/6/2026, 10:06:46
+
+Como ejercicio del Dojo Edition 3, realicé Shift-Left Testing sobre esta US (consciente de que ya está en Ready For QA). Análisis disponible en mi repo: https://github.com/chiavassacar-ops/qa-harness-lab/blob/main/docs/upex-dojo/07-shift-left-BK-5-invite-teammate.md. Si alguno de los gaps/riesgos identificados resulta útil para retest o regression, queda como referencia.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

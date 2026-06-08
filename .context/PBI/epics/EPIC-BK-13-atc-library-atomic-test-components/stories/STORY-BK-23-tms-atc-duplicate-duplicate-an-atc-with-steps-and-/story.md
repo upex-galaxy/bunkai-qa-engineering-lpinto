@@ -28,10 +28,18 @@
 
 ---
 
+## Traceability
+
+### Story (1)
+
+- [BK-18](https://jira.upexgalaxy.com/browse/BK-18): TMS-ATC API | Create and edit ATCs with steps and assertions _(BLOCKED)_
+
+---
+
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 5/6/2026
+- **Updated:** 8/6/2026
 - **Reporter:** Ely
 - **Assignee:** Benjamin Segovia
 - **Labels:** atc, clone, mvp, wave-2

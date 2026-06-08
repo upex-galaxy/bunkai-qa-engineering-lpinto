@@ -66,10 +66,18 @@
 
 ---
 
+## Traceability
+
+### Story (1)
+
+- [BK-8](https://jira.upexgalaxy.com/browse/BK-8): TMS-Project | Create a project inside a workspace _(In Test)_
+
+---
+
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 5/6/2026
+- **Updated:** 8/6/2026
 - **Reporter:** Ely
 - **Assignee:** Ely
 - **Labels:** mvp, shift-left-2026-05-27, shift-left-reviewed, tenancy, wave-1

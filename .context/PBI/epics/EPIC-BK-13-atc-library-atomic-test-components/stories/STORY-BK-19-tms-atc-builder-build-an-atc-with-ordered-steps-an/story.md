@@ -3,7 +3,7 @@
 **Jira Key:** [BK-19](https://jira.upexgalaxy.com/browse/BK-19)
 **Epic:** [BK-13](https://jira.upexgalaxy.com/browse/BK-13) (ATC Library (Atomic Test Components))
 **Type:** Story
-**Status:** Estimation
+**Status:** Ready For QA
 **Priority:** Medium
 **Story Points:** 5
 
@@ -56,12 +56,20 @@
 
 ---
 
+## Traceability
+
+### Story (1)
+
+- [BK-18](https://jira.upexgalaxy.com/browse/BK-18): TMS-ATC API | Create and edit ATCs with steps and assertions _(BLOCKED)_
+
+---
+
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 5/6/2026
+- **Updated:** 8/6/2026
 - **Reporter:** Ely
-- **Assignee:** Juan Ignacio Marmo
+- **Assignee:** Ely
 - **Labels:** atc, frontend, mvp, shift-left-2026-06-05, shift-left-reviewed, ui, wave-2
 
 ---

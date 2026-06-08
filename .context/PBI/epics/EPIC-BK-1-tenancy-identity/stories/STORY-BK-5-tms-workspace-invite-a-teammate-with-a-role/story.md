@@ -83,7 +83,7 @@ Implements ***FR-003***.
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 5/6/2026
+- **Updated:** 8/6/2026
 - **Reporter:** Ely
 - **Assignee:** Nahuel Gomez
 - **Labels:** mvp, shift-left-2026-05-27, shift-left-reviewed, tenancy, wave-1

@@ -3,9 +3,9 @@
 **Jira Key:** [BK-33](https://jira.upexgalaxy.com/browse/BK-33)
 **Epic:** [BK-24](https://jira.upexgalaxy.com/browse/BK-24) (Tests (chains of ATCs))
 **Type:** Story
-**Status:** Estimation
+**Status:** Ready For Dev
 **Priority:** Medium
-**Story Points:** 1
+**Story Points:** 8
 
 ---
 
@@ -102,9 +102,9 @@ Ready for Estimation after PO confirms the MVP reserved tag vocabulary and accep
 ## Metadata
 
 - **Created:** 28/5/2026
-- **Updated:** 6/6/2026
+- **Updated:** 7/6/2026
 - **Reporter:** Ely
-- **Assignee:** jesusgpythondev
+- **Assignee:** Ely
 - **Labels:** bk-70-child, shift-left-2026-06-06, shift-left-reviewed, test-tags, tms
 
 ---

@@ -89,19 +89,22 @@ Shift-Left QA reviewed this Story. The full ATP DRAFT (25 scenarios across Posit
 
 ## Traceability
 
-### Storys (4)
+### Storys (7)
 
-- [BK-33](https://jira.upexgalaxy.com/browse/BK-33): TMS-Test Tags | Assign reserved and custom tags to a test _(Estimation)_
-- [BK-34](https://jira.upexgalaxy.com/browse/BK-34): TMS-Run Execution | Start a manual run in a chosen environment _(Backlog)_
+- [BK-33](https://jira.upexgalaxy.com/browse/BK-33): TMS-Test Tags | Assign reserved and custom tags to a test _(Ready For Dev)_
+- [BK-34](https://jira.upexgalaxy.com/browse/BK-34): TMS-Run Execution | Start a manual run in a chosen environment _(Ready For Dev)_
 - [BK-32](https://jira.upexgalaxy.com/browse/BK-32): TMS-Test View | View a test with all chained ATCs expanded _(Backlog)_
 - [BK-28](https://jira.upexgalaxy.com/browse/BK-28): TMS-Test Builder | Reorder ATCs inside a test _(Shift-Left QA)_
+- [BK-18](https://jira.upexgalaxy.com/browse/BK-18): TMS-ATC API | Create and edit ATCs with steps and assertions _(BLOCKED)_
+- [BK-21](https://jira.upexgalaxy.com/browse/BK-21): TMS-ATC Propagation | Cascade ATC edits to all tests _(Shift-Left QA)_
+- [BK-22](https://jira.upexgalaxy.com/browse/BK-22): TMS-ATC Usage | See a "Used in N tests" report _(Ready For Dev)_
 
 ---
 
 ## Metadata
 
 - **Created:** 27/5/2026
-- **Updated:** 6/6/2026
+- **Updated:** 8/6/2026
 - **Reporter:** Ely
 - **Assignee:** Ely
 - **Labels:** master-sprint-4, mvp, shift-left-2026-06-06, shift-left-reviewed, tests-epic

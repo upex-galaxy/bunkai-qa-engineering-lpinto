@@ -199,5 +199,150 @@ Merged to `staging` and deployed. Ready for testing on the staging environment.
 
 ---
 
+### Jorgelina Abdo - 8/6/2026, 5:04:20
+
+## Acceptance Test Results (ATR)
+
+***Story:*** BK-10 — TMS-Module | Rename and soft-delete a module
+***Tested:*** 2026-06-08
+***Environment:*** Staging — https://staging-upexbunkai.vercel.app
+***Tester:*** Jorgelina Abdo
+***Result:*** FAILED (25/28 TCs)
+
+---
+
+### Summary
+
+Tested rename and soft-delete functionality for the TMS Module entity. All core positive, negative, and boundary cases passed. TC-I04 definitively failed: PAT bearer tokens are rejected on module/workspace endpoints despite returning 200 on GET /api/v1/me. TC-I01 and TC-I03 were not testable (require dev DB injection and a search endpoint not yet deployed).
+
+---
+
+### Test Cases
+
+| TC | Type | Name | Expected | Result |
+|----|------|------|----------|--------|
+| TC-A01 | API | PATCH valid name | 200 | PASS |
+| TC-A02 | API | PATCH empty name | 422 | PASS |
+| TC-A03 | API | DELETE valid module | 200 | PASS |
+| TC-A04 | API | DELETE non-existent UUID | 404 | PASS |
+| TC-N01 | Negative | PATCH name=1 char | 422 | PASS |
+| TC-N02 | Negative | PATCH name="" | 422 | PASS |
+| TC-N03 | Negative | PATCH name=spaces-only | 422 (stripped) | PASS |
+| TC-N04 | Negative | PATCH name=81 chars | 422 | PASS |
+| TC-N05 | Negative | Viewer PATCH | 403 | PASS |
+| TC-N06 | Negative | Viewer DELETE | 403 | PASS |
+| TC-N07 | Negative | DELETE non-existent | 404 | PASS |
+| TC-N08 | Negative | DELETE already-archived | 409 | PASS |
+| TC-B01 | Boundary | PATCH name=2 chars (min) | 200 | PASS |
+| TC-B02 | Boundary | PATCH name=1 char (below min) | 422 | PASS |
+| TC-B03 | Boundary | PATCH name=80 chars (max) | 200 | PASS |
+| TC-B04 | Boundary | PATCH name=81 chars (above max) | 422 | PASS |
+| TC-P01 | Positive | Rename happy path | 200 | PASS |
+| TC-P02 | Positive | Rename + description simultaneously | 200 | PASS |
+| TC-P03 | Positive | Breadcrumb rebuild after parent rename | path updated | PASS |
+| TC-P04 | Positive | Soft-delete leaf module | 200 {modules:1} | PASS |
+| TC-P05 | Positive | Cascade 2-level delete | 200 {modules:3} | PASS |
+| TC-P06 | Positive | 4-deep atomic cascade delete | 200 {modules:4} | PASS |
+| TC-P07 | Positive | Archived excluded from active listing | 404/empty | PASS |
+| TC-I01 | Integration | Rollback on partial DB failure | all reverted | NOT TESTABLE |
+| TC-I02 | Integration | Archived excluded from US listing | [] | PASS |
+| TC-I03 | Integration | Archived excluded from search | no results | NOT TESTABLE |
+| TC-I04 | Integration | PAT bearer auth for PATCH | 200 | FAIL |
+| TC-I05 | Integration | Cascade all entity types | counts verified | PASS |
+
+---
+
+### Test Data
+
+- Workspace: 7049b1a0-2ff9-4309-8754-f99ee7f8f4be
+- Project: 696bfcbf-0eb9-4c62-889f-31918493ce3d
+- Viewer: bk10-viewer@fenooldeav.resend.app
+
+---
+
+### Bugs Found
+
+[BUG-KEY TBD] — Moderate: PAT bearer token rejected on module/workspace endpoints
+
+---
+
+### Observations
+
+- Viewer 403 returns reason=not*a*member (membership-level, not role-level; functionally correct per AC)
+- Sibling name collision PATCH returns 409 module*slug*duplicate (extra coverage confirmed)
+- TC-I04 recalibration gate applied: PAT scoped to identity endpoints only — supported by facts; user confirmed BLOCKED verdict (real integration gap)
+- TC-I01 requires dev DB injection; TC-I03 requires search endpoint not yet deployed
+
+---
+
+### Recommendations
+
+- Automate TC-A01 through TC-B04 (API layer) — high value, low maintenance
+- Automate TC-P04, TC-P05, TC-P06 (cascade logic) — complex but stable
+- TC-I01: move to dev integration test suite
+- TC-I03: defer until search endpoint ships
+- PAT scope: dev team to confirm intended PAT coverage for resource endpoints
+
+---
+
+### Jorgelina Abdo - 8/6/2026, 6:33:01
+
+## QA Testing Complete — BK-10
+
+***Environment:*** Staging — https://staging-upexbunkai.vercel.app
+***Result:*** FAILED (25/28 TCs)
+
+---
+
+### Test Data Used
+
+- Workspace: 7049b1a0-2ff9-4309-8754-f99ee7f8f4be
+- Project: 696bfcbf-0eb9-4c62-889f-31918493ce3d
+- Viewer user: bk10-viewer@fenooldeav.resend.app (invited as viewer)
+
+---
+
+### Verified Behaviors
+
+- Rename module (happy path, 2-char min, 80-char max, simultaneous name+description) — VERIFIED
+- Breadcrumb path rebuild after parent rename — VERIFIED
+- Soft-delete leaf module → 200 {modules:1} — VERIFIED
+- Cascade 2-level and 4-level atomic delete — VERIFIED
+- Archived modules excluded from active listing and US listing — VERIFIED
+- Validation: empty, whitespace, 1-char, 81-char name → 422 — VERIFIED
+- Viewer role denied (403) on rename and delete — VERIFIED
+- 404 on non-existent module, 409 on already-archived module — VERIFIED
+
+---
+
+### Failed Verification
+
+***TC-I04: PAT bearer authentication on module endpoints — FAILED***
+
+- Expected: 200 — PAT is the headless auth mechanism; should work on resource endpoints
+- Actual: 401 unauthorized — session-cookie auth required; PAT rejected on module and workspace endpoints
+- Impact: Agents, CLI tools, and headless integrations cannot perform module operations via PAT
+
+---
+
+### Defect
+
+***BK-93*** — PAT bearer token rejected on module/workspace resource endpoints (401)
+
+---
+
+### Not Testable (2 TCs)
+
+- TC-I01: Rollback on partial DB failure — requires dev DB injection
+- TC-I03: Search exclusion — search endpoint not yet deployed
+
+---
+
+### Artifacts
+
+ATP and ATR posted as comments on this story (jira-native modality — fields not on screen).
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

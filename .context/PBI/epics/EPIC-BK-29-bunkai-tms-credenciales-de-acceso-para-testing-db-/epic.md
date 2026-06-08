@@ -2,7 +2,7 @@
 
 **Jira Key:** [BK-29](https://jira.upexgalaxy.com/browse/BK-29)
 **Priority:** Medium
-**Status:** Backlog
+**Status:** Planning
 **Total Story Points:** 0
 
 ---
@@ -85,7 +85,7 @@ El OpenAPI MCP no tiene archivo de config: se maneja con 3 variables de entorno.
 
 ```bash
 # .env — OpenAPI MCP
-API*BASE*URL=https://staging-upexbunkai.vercel.app/api
+API*BASE*URL=https://staging-upexbunkai.vercel.app
 OPENAPI*SPEC*PATH=https://staging-upexbunkai.vercel.app/api/openapi
 API_TOKEN=
 ```
@@ -129,7 +129,7 @@ Guía pública de testeo (arquitectura, trifuerza UI/API/DB, paso a paso — sin
 ## Metadata
 
 - **Created:** 27/5/2026
-- **Updated:** 7/6/2026
+- **Updated:** 8/6/2026
 - **Reporter:** Ely
 - **Assignee:** Unassigned
 
