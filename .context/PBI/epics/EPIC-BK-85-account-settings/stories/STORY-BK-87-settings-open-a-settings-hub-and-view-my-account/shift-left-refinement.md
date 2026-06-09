@@ -214,11 +214,14 @@ This story has zero original ACs. All scenarios below are inferred from the user
 > These BLOCK sprint planning until answered.
 
 1. **What is the exact boundary between BK-86 and BK-87?**
-   - **Context**: BK-86 says "Account | View my identity, role, and sign out". BK-87 says "Settings | Open a settings hub and view my account". If BK-87 delivers the Account section within Settings, does it include sign-out? Or is sign-out exclusive to BK-86?
-   - **Impact if unanswered**: Duplicate implementation or missing sign-out. Test scope unclear.
-   - **Suggested answer**: BK-86 delivers sign-out as a standalone action (e.g., from a user menu dropdown). BK-87 delivers the Settings hub with Account section showing identity + workspace list. Sign-out in Settings links to or reuses BK-86's implementation.
+   - ~~**Context**: BK-86 says "Account | View my identity, role, and sign out". BK-87 says "Settings | Open a settings hub and view my account". If BK-87 delivers the Account section within Settings, does it include sign-out? Or is sign-out exclusive to BK-86?~~
+   - ~~**Impact if unanswered**: Duplicate implementation or missing sign-out. Test scope unclear.~~
+   - ~~**Suggested answer**: BK-86 delivers sign-out as a standalone action (e.g., from a user menu dropdown). BK-87 delivers the Settings hub with Account section showing identity + workspace list. Sign-out in Settings links to or reuses BK-86's implementation.~~
+   - ✅ **RESPUESTA PO (2026-06-08)**: Sign-out es exclusivo de BK-86. BK-87 muestra solo identidad + workspace list.
 
 2. **Where does the Settings entry point live in the app chrome?**
+   - ~~**Answer**: Topbar user menu (avatar/initials) → dropdown with "Settings" and "Sign out". Also accessible via direct URL `/settings`.~~
+   - ✅ **RESPUESTA PO (2026-06-08)**: Menú de usuario en el Topbar — es el entry point único para Settings.
    - **Context**: The Topbar currently has no user menu, avatar, or settings icon. The Sidebar has no settings link.
    - **Impact if unanswered**: Settings is unreachable. Feature cannot be tested.
    - **Suggested answer**: Add a user menu to the Topbar (right side) with avatar/initials → dropdown containing "Settings" and "Sign out". Settings also accessible via direct URL `/settings`.
@@ -283,8 +286,8 @@ No data feasibility risks identified.
 
 | # | Risk | Likelihood | Impact | Mitigated by which outlines |
 |---|------|-----------|--------|-----------------------------|
-| 1 | Settings entry point late-bound (not decided until implementation starts) | Medium | High — feature unreachable | Positive #3 (navigation outline); requires PO answer before sprint |
-| 2 | BK-86/BK-87 overlap on sign-out | Medium | Medium — duplicate or missing feature | PO Critical Question #1; refined ACs clarify scope |
+| 1 | ~~Settings entry point late-bound~~ ✅ RESUELTO (2026-06-08): Topbar user menu | ~~Medium~~ Resolved | ~~High~~ Resolved | Positive #3 (navigation outline) |
+| 2 | ~~BK-86/BK-87 overlap on sign-out~~ ✅ RESUELTO (2026-06-08): sign-out exclusivo BK-86 | ~~Medium~~ Resolved | ~~Medium~~ Resolved | PO Critical Question #1; refined ACs clarify scope |
 | 3 | `user_metadata` empty for existing users | High | Low — email-only fallback works | Test-only edge case #6 |
 | 4 | Workspace list query does not scale (>50 workspaces) | Low | Low — MVP scale | Test-only edge case #3 |
 
@@ -292,7 +295,8 @@ No data feasibility risks identified.
 
 ## Next steps
 
-- [ ] PO answers Critical Questions before sprint planning
+- [x] PO answered Q2 (2026-06-08): Topbar user menu = entry point
+- [x] PO answered Q1 (2026-06-08): sign-out exclusivo BK-86; BK-87 solo identidad + workspace list
 - [ ] Dev answers Technical Questions before estimation
 - [ ] Story enters sprint at status `estimation` once refined
 - [ ] When Story reaches `ready_for_qa`, `/sprint-testing` will short-circuit refinement (label `shift-left-reviewed` detected)
