@@ -141,7 +141,7 @@ export function detectGitVersion(): GitVersion {
     throw new Error('GIT_NOT_FOUND');
   }
 
-  const match = /\bgit version (\d+)\.(\d+)\.(\d+)(?:\.\w+(?:\.\d+)?)?/.exec(raw);
+  const match = /\bgit version (\d+)\.(\d+)\.(\d+)/.exec(raw);
   if (!match) {
     throw new Error(`GIT_VERSION_UNPARSEABLE: ${raw}`);
   }
