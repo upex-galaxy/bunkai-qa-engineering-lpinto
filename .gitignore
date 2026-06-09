@@ -90,6 +90,9 @@ dbhub.local.toml
 # already did so re-runs are idempotent.
 .template/installer.state.json
 
+# Stray artifact (literal dash file created by git output mishandling)
+/-
+
 # ===== Local Useful Files =====
 
 # AI Tool Specific (user-local settings only)
