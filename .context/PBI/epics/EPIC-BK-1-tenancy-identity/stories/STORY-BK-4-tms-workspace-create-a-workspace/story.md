@@ -3,9 +3,10 @@
 **Jira Key:** [BK-4](https://jira.upexgalaxy.com/browse/BK-4)
 **Epic:** [BK-1](https://jira.upexgalaxy.com/browse/BK-1) (Tenancy & Identity)
 **Type:** Story
-**Status:** QA Approved
+**Status:** Ready For Release
 **Priority:** Medium
 **Story Points:** -
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -62,7 +63,11 @@
 
 > Each rich-text field is a separate file in this folder.
 
-- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
 
 ---
 
@@ -70,7 +75,7 @@
 
 ### Story (1)
 
-- [BK-8](https://jira.upexgalaxy.com/browse/BK-8): TMS-Project | Create a project inside a workspace _(In Test)_
+- [BK-8](https://jira.upexgalaxy.com/browse/BK-8): TMS-Project | Create a project inside a workspace _(QA Approved)_
 
 ---
 

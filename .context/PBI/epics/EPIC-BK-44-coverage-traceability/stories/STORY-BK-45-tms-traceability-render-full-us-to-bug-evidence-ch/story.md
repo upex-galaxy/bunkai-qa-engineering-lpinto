@@ -3,9 +3,10 @@
 **Jira Key:** [BK-45](https://jira.upexgalaxy.com/browse/BK-45)
 **Epic:** [BK-44](https://jira.upexgalaxy.com/browse/BK-44) (Coverage & Traceability)
 **Type:** Story
-**Status:** Shift-Left QA
+**Status:** Estimation
 **Priority:** Medium
 **Story Points:** -
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -13,7 +14,18 @@
 
 ## User story
 
-As a QA Lead, I want to open any user story and see its full evidence chain — acceptance criteria, the test components that satisfy them, the tests they belong to, the latest run result, and any defect raised — so that I can answer audit and coverage questions without assembling the picture by hand.
+As a QA Lead, I want to open any user story and see its full evidence chain — acceptance criteria, the ATCs that satisfy them, the tests they belong to, the latest run result, and any defect raised — so that I can answer audit and coverage questions without assembling the picture by hand.
+
+---
+
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
 
@@ -21,7 +33,7 @@ As a QA Lead, I want to open any user story and see its full evidence chain — 
 
 ### Story (1)
 
-- [BK-50](https://jira.upexgalaxy.com/browse/BK-50): TMS-Traceability | Export the assembled chain as a read-only snapshot _(Shift-Left QA)_
+- [BK-50](https://jira.upexgalaxy.com/browse/BK-50): TMS-Traceability | Export the assembled chain as a read-only snapshot _(Estimation)_
 
 ### Epics (3)
 
@@ -34,10 +46,10 @@ As a QA Lead, I want to open any user story and see its full evidence chain — 
 ## Metadata
 
 - **Created:** 1/6/2026
-- **Updated:** 5/6/2026
+- **Updated:** 11/6/2026
 - **Reporter:** Ely
-- **Assignee:** Unassigned
-- **Labels:** new-feature
+- **Assignee:** Benjamin Segovia
+- **Labels:** shift-left-2026-06-11, shift-left-reviewed
 
 ---
 

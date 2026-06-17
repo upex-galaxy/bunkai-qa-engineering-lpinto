@@ -3,9 +3,10 @@
 **Jira Key:** [BK-17](https://jira.upexgalaxy.com/browse/BK-17)
 **Epic:** [BK-12](https://jira.upexgalaxy.com/browse/BK-12) (User Stories & Acceptance Criteria)
 **Type:** Story
-**Status:** Ready For QA
+**Status:** BLOCKED
 **Priority:** Medium
 **Story Points:** 5
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -81,11 +82,25 @@ The user opens Project settings, picks ***Import from Jira***, enters a JQL, and
 
 ---
 
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
+- [Implementation Plan (Dev)](./implementation-plan.md)
+
+---
+
 ## Traceability
 
-### Bug (1)
+### Bugs (2)
 
-- [BK-84](https://jira.upexgalaxy.com/browse/BK-84): [Staging] PAT bearer auth rejected on member/owned-resource routes (Imports, Projects, Modules, Tokens) — requireAuth middleware regression _(Open)_
+- [BK-84](https://jira.upexgalaxy.com/browse/BK-84): [Staging] PAT bearer auth rejected on member/owned-resource routes (Imports, Projects, Modules, Tokens) — requireAuth middleware regression _(Closed)_
+- [BK-142](https://jira.upexgalaxy.com/browse/BK-142): [BK-17] Staging Jira import fails instantly with jira_unauthorized — ATLASSIAN_* credentials not configured in staging deployment _(Open)_
 
 ### Storys (2)
 
@@ -97,9 +112,9 @@ The user opens Project settings, picks ***Import from Jira***, enters a JQL, and
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 8/6/2026
+- **Updated:** 15/6/2026
 - **Reporter:** Ely
-- **Assignee:** Andrés Daniel Cumare Morales
+- **Assignee:** Ely
 - **Labels:** integration, jira-import, mvp, shift-left-2026-05-27, shift-left-reviewed, wave-2
 
 ---

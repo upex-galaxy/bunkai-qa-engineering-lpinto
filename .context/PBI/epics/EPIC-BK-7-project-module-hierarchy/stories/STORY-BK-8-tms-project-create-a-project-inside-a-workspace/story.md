@@ -3,9 +3,10 @@
 **Jira Key:** [BK-8](https://jira.upexgalaxy.com/browse/BK-8)
 **Epic:** [BK-7](https://jira.upexgalaxy.com/browse/BK-7) (Project & Module Hierarchy)
 **Type:** Story
-**Status:** In Test
+**Status:** QA Approved
 **Priority:** Medium
 **Story Points:** 8
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -51,27 +52,42 @@ As a Workspace member, I want to create a Project inside a Workspace so that I c
 
 ---
 
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
+- [Implementation Plan (Dev)](./implementation-plan.md)
+- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
+- [Acceptance Test Results (QA)](./acceptance-test-results.md)
+
+---
+
 ## Traceability
 
 ### Bugs (3)
 
-- [BK-54](https://jira.upexgalaxy.com/browse/BK-54): BK-8: Reserved project slugs are not rejected (AC-11) — created with HTTP 201 _(Open)_
-- [BK-55](https://jira.upexgalaxy.com/browse/BK-55): BK-8: Project detail route /projects/{slug} is not workspace-scoped _(Open)_
-- [BK-56](https://jira.upexgalaxy.com/browse/BK-56): BK-8: Non-Latin (CJK/Cyrillic) project names rejected as name_no_alphanumeric _(Open)_
+- [BK-54](https://jira.upexgalaxy.com/browse/BK-54): BK-8: Reserved project slugs are not rejected (AC-11) — created with HTTP 201 _(Duplicated)_
+- [BK-55](https://jira.upexgalaxy.com/browse/BK-55): BK-8: Project detail route /projects/{slug} is not workspace-scoped _(Duplicated)_
+- [BK-56](https://jira.upexgalaxy.com/browse/BK-56): BK-8: Non-Latin (CJK/Cyrillic) project names rejected as name_no_alphanumeric _(Duplicated)_
 
 ### Storys (2)
 
-- [BK-4](https://jira.upexgalaxy.com/browse/BK-4): TMS-Workspace | Create a workspace _(QA Approved)_
-- [BK-9](https://jira.upexgalaxy.com/browse/BK-9): TMS-Module | Create modules with nested sub-modules _(In Test)_
+- [BK-4](https://jira.upexgalaxy.com/browse/BK-4): TMS-Workspace | Create a workspace _(Ready For Release)_
+- [BK-9](https://jira.upexgalaxy.com/browse/BK-9): TMS-Module | Create modules with nested sub-modules _(QA Approved)_
 
 ---
 
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 8/6/2026
+- **Updated:** 15/6/2026
 - **Reporter:** Ely
-- **Assignee:** Ely
+- **Assignee:** Nahuel Gomez
 - **Labels:** hierarchy, mvp, shift-left-2026-05-28, shift-left-reviewed, wave-1
 
 ---

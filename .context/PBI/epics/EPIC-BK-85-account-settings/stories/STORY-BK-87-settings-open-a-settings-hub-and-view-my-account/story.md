@@ -3,9 +3,9 @@
 **Jira Key:** [BK-87](https://jira.upexgalaxy.com/browse/BK-87)
 **Epic:** [BK-85](https://jira.upexgalaxy.com/browse/BK-85) (Account & Settings)
 **Type:** Story
-**Status:** Shift-Left QA
+**Status:** Ready For Dev
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 2
 
 ---
 
@@ -17,12 +17,24 @@ As a Full-Stack Developer (Sara Iglesias) I want a Settings area with an Account
 
 ---
 
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Mockup](./mockup.md)
+- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
+
+---
+
 ## Traceability
 
 ### Storys (3)
 
-- [BK-86](https://jira.upexgalaxy.com/browse/BK-86): Account | View my identity, role, and sign out _(Estimation)_
-- [BK-88](https://jira.upexgalaxy.com/browse/BK-88): Settings | Manage Personal Access Tokens _(Shift-Left QA)_
+- [BK-86](https://jira.upexgalaxy.com/browse/BK-86): Account | View my identity, role, and sign out _(Ready For Dev)_
+- [BK-88](https://jira.upexgalaxy.com/browse/BK-88): Settings | Manage Personal Access Tokens _(Ready For Dev)_
 - [BK-89](https://jira.upexgalaxy.com/browse/BK-89): TMS-Workspace | View the workspaces I belong to _(Shift-Left QA)_
 
 ---
@@ -30,9 +42,10 @@ As a Full-Stack Developer (Sara Iglesias) I want a Settings area with an Account
 ## Metadata
 
 - **Created:** 7/6/2026
-- **Updated:** 8/6/2026
+- **Updated:** 14/6/2026
 - **Reporter:** Ely
-- **Assignee:** pinto.lucas.nahuel
+- **Assignee:** Ely
+- **Labels:** shift-left-2026-06-08, shift-left-reviewed
 
 ---
 

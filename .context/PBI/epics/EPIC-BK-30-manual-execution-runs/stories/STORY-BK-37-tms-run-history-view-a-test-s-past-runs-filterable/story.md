@@ -6,6 +6,7 @@
 **Status:** Backlog
 **Priority:** Medium
 **Story Points:** 1
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -30,6 +31,18 @@
 
 ---
 
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
+
+---
+
 ## Traceability
 
 ### Story (1)
@@ -41,9 +54,9 @@
 ## Metadata
 
 - **Created:** 28/5/2026
-- **Updated:** 5/6/2026
+- **Updated:** 15/6/2026
 - **Reporter:** Ely
-- **Assignee:** Unassigned
+- **Assignee:** Andrés Daniel Cumare Morales
 
 ---
 

@@ -1,11 +1,12 @@
 # TMS-ATC Builder | Build an ATC with ordered steps and assertions
 
 **Jira Key:** [BK-19](https://jira.upexgalaxy.com/browse/BK-19)
-**Epic:** [BK-13](https://jira.upexgalaxy.com/browse/BK-13) (ATC Library (Atomic Test Components))
+**Epic:** [BK-13](https://jira.upexgalaxy.com/browse/BK-13) (ATC Library (Acceptance Test Cases))
 **Type:** Story
 **Status:** Ready For QA
 **Priority:** Medium
 **Story Points:** 5
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -52,7 +53,11 @@
 
 > Each rich-text field is a separate file in this folder.
 
-- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
 
 ---
 
@@ -60,16 +65,16 @@
 
 ### Story (1)
 
-- [BK-18](https://jira.upexgalaxy.com/browse/BK-18): TMS-ATC API | Create and edit ATCs with steps and assertions _(BLOCKED)_
+- [BK-18](https://jira.upexgalaxy.com/browse/BK-18): TMS-ATC API | Create and edit ATCs with steps and assertions _(In Test)_
 
 ---
 
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 8/6/2026
+- **Updated:** 10/6/2026
 - **Reporter:** Ely
-- **Assignee:** Ely
+- **Assignee:** maibeth vega
 - **Labels:** atc, frontend, mvp, shift-left-2026-06-05, shift-left-reviewed, ui, wave-2
 
 ---

@@ -3,9 +3,10 @@
 **Jira Key:** [BK-27](https://jira.upexgalaxy.com/browse/BK-27)
 **Epic:** [BK-24](https://jira.upexgalaxy.com/browse/BK-24) (Tests (chains of ATCs))
 **Type:** Story
-**Status:** Ready For Dev
+**Status:** In Test
 **Priority:** Medium
 **Story Points:** 8
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -83,6 +84,12 @@ Shift-Left QA reviewed this Story. The full ATP DRAFT (25 scenarios across Posit
 
 > Each rich-text field is a separate file in this folder.
 
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
+- [Implementation Plan (Dev)](./implementation-plan.md)
 - [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
@@ -93,10 +100,10 @@ Shift-Left QA reviewed this Story. The full ATP DRAFT (25 scenarios across Posit
 
 - [BK-33](https://jira.upexgalaxy.com/browse/BK-33): TMS-Test Tags | Assign reserved and custom tags to a test _(Ready For Dev)_
 - [BK-34](https://jira.upexgalaxy.com/browse/BK-34): TMS-Run Execution | Start a manual run in a chosen environment _(Ready For Dev)_
-- [BK-32](https://jira.upexgalaxy.com/browse/BK-32): TMS-Test View | View a test with all chained ATCs expanded _(Backlog)_
-- [BK-28](https://jira.upexgalaxy.com/browse/BK-28): TMS-Test Builder | Reorder ATCs inside a test _(Shift-Left QA)_
-- [BK-18](https://jira.upexgalaxy.com/browse/BK-18): TMS-ATC API | Create and edit ATCs with steps and assertions _(BLOCKED)_
-- [BK-21](https://jira.upexgalaxy.com/browse/BK-21): TMS-ATC Propagation | Cascade ATC edits to all tests _(Shift-Left QA)_
+- [BK-32](https://jira.upexgalaxy.com/browse/BK-32): TMS-Test View | View a test with all chained ATCs expanded _(Ready For Dev)_
+- [BK-28](https://jira.upexgalaxy.com/browse/BK-28): TMS-Test Builder | Reorder ATCs inside a test _(Ready For Dev)_
+- [BK-18](https://jira.upexgalaxy.com/browse/BK-18): TMS-ATC API | Create and edit ATCs with steps and assertions _(In Test)_
+- [BK-21](https://jira.upexgalaxy.com/browse/BK-21): TMS-ATC Propagation | Cascade ATC edits to all tests _(Ready For Dev)_
 - [BK-22](https://jira.upexgalaxy.com/browse/BK-22): TMS-ATC Usage | See a "Used in N tests" report _(Ready For Dev)_
 
 ---
@@ -104,7 +111,7 @@ Shift-Left QA reviewed this Story. The full ATP DRAFT (25 scenarios across Posit
 ## Metadata
 
 - **Created:** 27/5/2026
-- **Updated:** 8/6/2026
+- **Updated:** 15/6/2026
 - **Reporter:** Ely
 - **Assignee:** Ely
 - **Labels:** master-sprint-4, mvp, shift-left-2026-06-06, shift-left-reviewed, tests-epic
