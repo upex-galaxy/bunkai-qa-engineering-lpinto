@@ -4,6 +4,11 @@
 
 ---
 
-_No comments_
+### Benjamin Segovia - 11/6/2026, 13:19:15
+
+Shift-Left QA refinement completed (2026-06-11). AC field updated with 7 refined scenarios. ATP DRAFT field updated with 23 test outlines. Story ready for estimation. Top blockers: (1) BK-24/BK-30/BK-31 still in Planificación — chain layers not sprintable yet. (2) 11 open PO/Dev questions in ATP DRAFT. SP recommendation: 8 (or split BK-45a SP3 + BK-45b SP5). @Ely please review open questions before sprint planning.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

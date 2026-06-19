@@ -218,5 +218,120 @@ Artifacts: ATP posted on BK-6, ATR posted on BK-6, BK-83 filed and linked as blo
 
 ---
 
+### Ely - 10/6/2026, 18:48:07
+
+## ✅ Blocking defect resolved — story resumed
+
+The defect blocking this story is fixed, merged to staging, and now in ***Ready For QA***:
+
+| Bug | Status | Fix evidence |
+| --- | --- | --- |
+| BK-83 — POST /api/v1/me/active-workspace response missing workspace fields (id, slug, name, role) | Ready For QA | PR #32 merged to staging · verification details in the bug's fix comment |
+
+This story has been moved back to ***In Test*** so testing can resume. Please re-test the defect and continue the story run.
+
+---
+
+### Luis Eduardo Flores Villarroel - 11/6/2026, 23:22:19
+
+BK-83 has been resolved and closed. Fix verified on staging (2026-06-12). Retest passed (4/4 TCs). Story can proceed with QA — the blocker is cleared.
+
+Related tech debt: BK-118 (legacy response fields cleanup — non-blocking).
+
+---
+
+### Luis Eduardo Flores Villarroel - 11/6/2026, 23:38:30
+
+## Acceptance Test Results (ATR) — Re-test 2026-06-12
+
+***BK-6 TEST RESULTS***
+Tested: 2026-06-12
+Environment: Staging
+Result: PASSED (4/4 TCs — 100%)
+
+---
+
+## Summary
+
+TMS-Workspace | Switch between workspaces — all 4 acceptance criteria verified across API, DB, and UI layers.
+
+TC1 originally FAILED on 2026-06-06 due to BK-83 (API response schema missing `{id, slug, name, role}`). BK-83 has been fixed and closed. TC1 re-verified on 2026-06-12 — fix confirmed, response schema now matches AC1 specification. Story verdict: ***PASSED***.
+
+---
+
+## Test Cases
+
+| TC | AC | Scenario | Status | Notes |
+| --- | --- | --- | --- | --- |
+| TC1 | AC1 | Happy path — switch + response schema | PASSED | Re-verified 2026-06-12 after BK-83 fix |
+| TC2 | AC2 | Non-member workspace rejected (403) | PASSED | Original 2026-06-06 |
+| TC3 | AC3 | Suspended membership rejected (403) | PASSED | Original 2026-06-06 |
+| TC4 | AC4 | UI switcher reflects active workspace | PASSED | Original 2026-06-06 |
+
+---
+
+## Test Data
+
+- ***User***: bunkai-staging-userlf@ambuusteln.resend.app (ID: 2742da39-e0ff-4f0c-a0a1-88dae804e14f)
+- ***Workspace switch***: Bünkāï QA (a808499e-f437-43b8-9fdb-8cee7dcceb3e) → Extra Test (9a2c3de7-18af-45e5-a36f-e0ef9377af69)
+- ***Non-member workspace***: bd947203-5318-4724-9608-7676c7af83c0
+- ***Suspended-membership workspace***: BK5 Test Workspace (c828d131-f1c7-413c-9ba4-723fa1c45c00)
+
+---
+
+## Bugs Found
+
+- ***BK-83*** (CLOSED): POST /api/v1/me/active-workspace response missing `{id, slug, name, role}`. Fix verified 2026-06-12. Severity: Moderate.
+- ***BK-118*** (OPEN — tech debt): Legacy fields `ok` and `active*workspace*id` still present in response alongside new fields. Additive, non-breaking. Accepted by PO.
+
+---
+
+## Observations
+
+- ***OBS-001***: Error codes for negative paths (AC2, AC3) use generic `forbidden` instead of spec-required `NOT*A*MEMBER` / `MEMBERSHIP_SUSPENDED`. API uses RLS for membership filtering — suspended memberships treated identically to non-memberships at the RLS layer. Accepted by PO as non-blocking.
+- ***OBS-002***: Empty workspaces show onboarding modal without the workspace switcher in the header. Expected UX — not a defect.
+- ***TC1 Re-verification (2026-06-12)***: Full response body: `{"ok":true,"active*workspace*id":"9a2c3de7...","id":"9a2c3de7...","slug":"extra-test","name":"Extra Test","role":"member"}`. All 4 required fields (`id`, `slug`, `name`, `role`) confirmed present. HTTP 200.
+
+---
+
+## Recommendations
+
+- TC1, TC2, TC3 are strong candidates for API automation (workspace switch + rejection paths are stable, deterministic, fast).
+- TC4 (UI switcher) is a candidate for E2E automation with Playwright.
+
+---
+
+### Luis Eduardo Flores Villarroel - 11/6/2026, 23:38:57
+
+QA Testing Complete - BK-6
+
+Environment: Staging
+Result: PASSED (4/4 TCs — 100%)
+
+TEST DATA USED:
+
+- User: bunkai-staging-userlf@ambuusteln.resend.app (ID: 2742da39-e0ff-4f0c-a0a1-88dae804e14f)
+- Workspace switch: Bünkāï QA → Extra Test (9a2c3de7-18af-45e5-a36f-e0ef9377af69)
+- Non-member workspace: bd947203-5318-4724-9608-7676c7af83c0
+- Suspended-membership workspace: BK5 Test Workspace (c828d131-f1c7-413c-9ba4-723fa1c45c00)
+
+VERIFIED BEHAVIORS:
+
+- AC1: Workspace switch succeeds, response returns `{id, slug, name, role}` — VERIFIED (re-verified 2026-06-12 after BK-83 fix)
+- AC2: Non-member workspace rejected with 403 — VERIFIED
+- AC3: Suspended membership rejected with 403 — VERIFIED
+- AC4: UI switcher reflects active workspace before and after page reload — VERIFIED
+
+CLARIFICATIONS:
+
+- TC1 originally FAILED (2026-06-06) due to BK-83 (response schema missing `{id, slug, name, role}`). BK-83 has been fixed and closed. TC1 re-verified 2026-06-12 — fix confirmed.
+- OBS-001: Error codes for negative paths use generic `forbidden` instead of `NOT*A*MEMBER` / `MEMBERSHIP_SUSPENDED`. Accepted by PO — not blocking.
+- OBS-002: Empty workspaces show onboarding modal without switcher. Expected UX.
+- BK-118: Legacy fields `ok` + `active*workspace*id` still present in response alongside new fields. Additive, non-breaking. Tech debt, accepted.
+
+Artifacts: ATR posted as comment (ID: 11567) — 2026-06-12
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

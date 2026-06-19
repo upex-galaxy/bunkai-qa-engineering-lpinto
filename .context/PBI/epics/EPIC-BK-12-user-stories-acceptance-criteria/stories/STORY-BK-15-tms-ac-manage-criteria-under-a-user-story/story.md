@@ -39,6 +39,7 @@
 - [Out Of Scope](./out-of-scope.md)
 - [Workflow](./workflow.md)
 - [Implementation Plan (Dev)](./implementation-plan.md)
+- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
 
@@ -55,10 +56,10 @@
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 8/6/2026
+- **Updated:** 18/6/2026
 - **Reporter:** Ely
 - **Assignee:** maibeth vega
-- **Labels:** acceptance-criteria, mvp, wave-2
+- **Labels:** acceptance-criteria, mvp, shift-left-reviewed, wave-2
 
 ---
 

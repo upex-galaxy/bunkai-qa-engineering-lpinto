@@ -52,7 +52,7 @@
 # ATC create + edit REST API (POST/PATCH /atcs, transactional steps + assertions)
 
 ***Jira Key:*** [BK-18](https://jira.upexgalaxy.com/browse/BK-18)
-***Epic:*** [BK-13](https://jira.upexgalaxy.com/browse/BK-13) (ATC Library (Atomic Test Components))
+***Epic:*** [BK-13](https://jira.upexgalaxy.com/browse/BK-13) (ATC Library (Acceptance Test Cases))
 ***Priority:*** Medium
 ***Story Points:*** -
 ***Status:*** Shift-Left QA
@@ -63,7 +63,7 @@
 
 ******Source spec:**** FR-010a — ATC server surface (REST)
 
-As an automation engineer or API consumer, I want a REST API to create and edit ATCs (Atomic Test Components) with their steps and assertions in a single transactional call, so that I can compose reusable test building blocks from CLI tools, scripts, and the UI client.
+As an automation engineer or API consumer, I want a REST API to create and edit ATCs (Acceptance Test Cases) with their steps and assertions in a single transactional call, so that I can compose reusable test building blocks from CLI tools, scripts, and the UI client.
 
 Implements ***FR-010a*** — server surface only. UI form is [https://jira.upexgalaxy.com/browse/BK-19#icft=BK-19](https://jira.upexgalaxy.com/browse/BK-19#icft=BK-19), downstream Test composition is EPIC-BK-5.
 
@@ -583,6 +583,16 @@ Desplegado en ***staging***: https://staging-upexbunkai.vercel.app
 ***Verdict******:*** FAILED. Recommend NOT QA Sign-Off until BK-96 is fixed and the H2 happy-path PATCH re-runs green. The 12 passing scenarios remain eligible for ROI evaluation.
 
 ***Artifacts******:*** ATP BK-94 · ATR BK-95 · Defect BK-96
+
+---
+
+### Ely - 10/6/2026, 18:48:13
+
+## ✅ Blocker no longer applies — story resumed
+
+This story was blocked in relation to BK-96, which is already ***Closed*** — no open defect blocks this story anymore.
+
+This story has been moved back to ***In Test*** so testing can resume. Please continue the story run.
 
 ---
 

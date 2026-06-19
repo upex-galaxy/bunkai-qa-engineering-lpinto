@@ -3,7 +3,7 @@
 **Jira Key:** [BK-10](https://jira.upexgalaxy.com/browse/BK-10)
 **Epic:** [BK-7](https://jira.upexgalaxy.com/browse/BK-7) (Project & Module Hierarchy)
 **Type:** Story
-**Status:** In Test
+**Status:** QA Approved
 **Priority:** Medium
 **Story Points:** 2
 **Web Link:** https://staging-upexbunkai.vercel.app/
@@ -54,9 +54,9 @@
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 11/6/2026
+- **Updated:** 17/6/2026
 - **Reporter:** Ely
-- **Assignee:** Ely
+- **Assignee:** Andrés Daniel Cumare Morales
 - **Labels:** hierarchy, mvp, shift-left-2026-06-01, shift-left-reviewed, wave-1
 
 ---

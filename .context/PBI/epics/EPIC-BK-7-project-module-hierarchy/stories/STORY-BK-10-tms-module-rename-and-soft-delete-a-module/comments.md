@@ -344,5 +344,65 @@ ATP and ATR posted as comments on this story (jira-native modality — fields no
 
 ---
 
+### Ely - 11/6/2026, 9:13:21
+
+## ✅ Blocking defect resolved — story resumed
+
+The defect behind TC-I04 (the only real FAIL in your 25/28 run) is fixed and verifiable:
+
+| Defect | Resolution |
+| --- | --- |
+| BK-93 — PAT bearer rejected on module/workspace endpoints (401) | Closed as duplicate of BK-84. BK-84 was fixed by the unified auth gateway (ADR-0001) and live-verified on staging 2026-06-10 with an 8-route matrix including module and workspace endpoints — 0×401. BK-84 is ***Ready For QA***. |
+
+This story has been moved back to ***In Test*** so testing can resume. Please re-run TC-I04 (PAT bearer on PATCH/DELETE module endpoints) and continue the story run.
+
+TC-I01 (dev DB injection) and TC-I03 (search endpoint not yet deployed) remain not-testable as you recorded — they are not blockers for this story.
+
+---
+
+### Andrés Daniel Cumare Morales - 17/6/2026, 5:37:35
+
+## TC-I04 Retest Results — BK-10
+
+***Story******:*** BK-10 — TMS-Module | Rename and soft-delete a module
+***Retest Date******:*** 2026-06-17
+***Environment******:*** Staging — https://staging-upexbunkai.vercel.app
+***Tester******:*** Jorgelina Abdo
+***Blocker resolved******:*** BK-93 (dup of BK-84) — unified auth gateway (ADR-0001)
+
+---
+
+### TC-I04: PAT bearer authentication on module endpoints
+
+| Step | Endpoint | Expected | Actual | Result |
+| --- | --- | --- | --- | --- |
+| 1 | `GET /api/v1/me` | 200 + user identity | 200 `{user: {id: "c4cb73a7...", email: "bunkai-staging-user@..."}}` | :white*check*mark: PASS |
+| 2 | `PATCH /api/v1/modules/{id}` (rename AB → AB-PAT-Test) | 200 + updated module | 200 `{module: {name: "AB-PAT-Test", path: "ab-pat-test"}}` | :white*check*mark: PASS |
+| 3 | `PATCH /api/v1/modules/{id}` (restore AB) | 200 + restored module | 200 `{module: {name: "AB", path: "ab"}}` | :white*check*mark: PASS |
+| 4 | `DELETE /api/v1/modules/{id}` (soft-delete DescMax) | 200 + archive counts | 200 `{archived: {modules:1, user*stories:0, acceptance*criteria:0, atcs:0}}` | :white*check*mark: PASS |
+
+***Verdict******:***  — PAT bearer auth works on both PATCH and DELETE module endpoints.
+
+---
+
+### Updated ATR Summary
+
+| Metric | Prior (2026-06-08) | After Retest (2026-06-17) |
+| --- | --- | --- |
+| PASS | 25/28 | ***26/28*** |
+| FAIL | 1 (TC-I04) | ***0*** |
+| NOT TESTABLE | 2 (TC-I01, TC-I03) | 2 (unchanged) |
+
+***TC-I01*** (rollback on partial DB failure) remains NOT TESTABLE — requires dev DB injection.
+***TC-I03*** (search exclusion) remains NOT TESTABLE — search endpoint not deployed.
+
+---
+
+### Recommendation
+
+All functional and integration tests that CAN be verified on staging are passing. Story is ready for QA sign-off.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

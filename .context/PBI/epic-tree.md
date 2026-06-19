@@ -20,7 +20,7 @@ _Project: BK_
 
 - [BK-8](https://jira.upexgalaxy.com/browse/BK-8) TMS-Project | Create a project inside a workspace _(8 pts, QA Approved)_
 - [BK-9](https://jira.upexgalaxy.com/browse/BK-9) TMS-Module | Create modules with nested sub-modules _(13 pts, QA Approved)_
-- [BK-10](https://jira.upexgalaxy.com/browse/BK-10) TMS-Module | Rename and soft-delete a module _(2 pts, In Test)_
+- [BK-10](https://jira.upexgalaxy.com/browse/BK-10) TMS-Module | Rename and soft-delete a module _(2 pts, QA Approved)_
 - [BK-11](https://jira.upexgalaxy.com/browse/BK-11) TMS-Module | Move a module to a different parent _(3 pts, QA Approved)_
 - [BK-98](https://jira.upexgalaxy.com/browse/BK-98) TMS-Projects | Switch between Tree, Table & Mind map views in a hardened explorer _(1 pts, QA Approved)_
 
@@ -48,7 +48,7 @@ _Project: BK_
 
 **Status:** Planning | **Stories:** 4 | **Points:** 24
 
-- [BK-27](https://jira.upexgalaxy.com/browse/BK-27) TMS-Test Builder | Assemble a test by chaining ATCs _(8 pts, In Test)_
+- [BK-27](https://jira.upexgalaxy.com/browse/BK-27) TMS-Test Builder | Assemble a test by chaining ATCs _(8 pts, QA Approved)_
 - [BK-28](https://jira.upexgalaxy.com/browse/BK-28) TMS-Test Builder | Reorder ATCs inside a test _(5 pts, Ready For Dev)_
 - [BK-32](https://jira.upexgalaxy.com/browse/BK-32) TMS-Test View | View a test with all chained ATCs expanded _(3 pts, Ready For Dev)_
 - [BK-33](https://jira.upexgalaxy.com/browse/BK-33) TMS-Test Tags | Assign reserved and custom tags to a test _(8 pts, Ready For Dev)_
@@ -70,9 +70,9 @@ _Project: BK_
 
 ## [BK-31](https://jira.upexgalaxy.com/browse/BK-31) - Bugs & Defect Heatmap
 
-**Status:** Planning | **Stories:** 4 | **Points:** 4
+**Status:** Planning | **Stories:** 4 | **Points:** 8
 
-- [BK-40](https://jira.upexgalaxy.com/browse/BK-40) TMS-Defect Filing | File a defect from a failing run step _(1 pts, Backlog)_
+- [BK-40](https://jira.upexgalaxy.com/browse/BK-40) TMS-Defect Filing | File a defect from a failing run step _(5 pts, Ready For Dev)_
 - [BK-41](https://jira.upexgalaxy.com/browse/BK-41) TMS-Defect List | List and filter defects by module, status, severity _(1 pts, Backlog)_
 - [BK-42](https://jira.upexgalaxy.com/browse/BK-42) TMS-Defect Heatmap | View count and week-over-week trend per module _(1 pts, Backlog)_
 - [BK-43](https://jira.upexgalaxy.com/browse/BK-43) TMS-Defect Sync | Sync defects one-way to the external tracker _(1 pts, Backlog)_

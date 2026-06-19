@@ -92,7 +92,7 @@
 ### Storys (4)
 
 - [BK-8](https://jira.upexgalaxy.com/browse/BK-8): TMS-Project | Create a project inside a workspace _(QA Approved)_
-- [BK-10](https://jira.upexgalaxy.com/browse/BK-10): TMS-Module | Rename and soft-delete a module _(In Test)_
+- [BK-10](https://jira.upexgalaxy.com/browse/BK-10): TMS-Module | Rename and soft-delete a module _(QA Approved)_
 - [BK-11](https://jira.upexgalaxy.com/browse/BK-11): TMS-Module | Move a module to a different parent _(QA Approved)_
 - [BK-14](https://jira.upexgalaxy.com/browse/BK-14): TMS-US | Manage user stories anchored to a module _(Ready For QA)_
 

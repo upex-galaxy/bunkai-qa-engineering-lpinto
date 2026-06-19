@@ -235,7 +235,7 @@ Pending confirmation: Delivery/PO confirms whether BK-28 is estimated now or hel
 
 ### Story (1)
 
-- [BK-27](https://jira.upexgalaxy.com/browse/BK-27): TMS-Test Builder | Assemble a test by chaining ATCs _(In Test)_
+- [BK-27](https://jira.upexgalaxy.com/browse/BK-27): TMS-Test Builder | Assemble a test by chaining ATCs _(QA Approved)_
 
 ---
 

@@ -165,5 +165,42 @@ Recommendation: keep [https://jira.upexgalaxy.com/browse/BK-21#icft=BK-21](https
 
 ---
 
+### Ramiro Majdalani - 15/6/2026, 23:10:35
+
+## QA Result: CAUTION
+
+BK-21 was tested on staging in learning mode with a user-approved `Ready For Dev` override. This is not a formal Ready For QA approval.
+
+### What passed
+
+- ATC edit increments version through API and UI paths.
+- Stale `X-If-Match` edit is rejected with 409.
+- Invalid AC anchor is rejected with 422.
+- UI magic-link login works when the link is requested and opened in the same browser session.
+- UI can create Story, Acceptance Criterion, ATC, and Test chain.
+- Test Builder creates `test*steps` rows that reference the live ATC by `atc*id`.
+- After editing the chained ATC, the Test still points to the same ATC and sees the updated title/version.
+
+### Gaps / risks
+
+- Missing `X-If-Match` is accepted and increments version; contract needs confirmation.
+- API/UI save does not return or display affected Test count.
+- UI ATC edit uses a Next Server Action `POST /projects/.../atcs/{id}`, not the target `PATCH /api/v1/atcs/{id}`.
+- `test*steps` has no `atc*version_id` or snapshot column, so historical Run snapshot behavior is not proven.
+- Historical Run snapshot preservation was not validated because the Run snapshot path was not available in this flow.
+
+### Evidence
+
+- API ATC: `6ca40721-7ae8-4076-a0ba-a1775d5d7635`, final version `4`.
+- UI ATC: `a622398b-c4fe-4247-bdb4-198958af199a`, final version `3`.
+- UI Test: `3476bacd-76e2-4168-9630-9e3ba1196321` with one `test_steps` row pointing to the UI ATC.
+- Local ATR: `.context/PBI/epics/EPIC-BK-13-atc-library-acceptance-test-cases/stories/STORY-BK-21-tms-atc-propagation-cascade-atc-edits-to-all-tests/test-report.md`
+
+### Recommendation
+
+CAUTION. Core live-reference propagation works partially, but BK-21 should not be accepted until affected Test count, optimistic-lock contract, UI/API contract alignment, and historical Run snapshot behavior are resolved or explicitly accepted.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

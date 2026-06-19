@@ -348,5 +348,24 @@ BK-69 [IMPROVEMENT] Module name stores raw HTML; description IS sanitized — in
 
 ---
 
+### Andrés Daniel Cumare Morales - 14/6/2026, 16:52:50
+
+## QA Testing Complete - BK-9 (Retest Close-Out)
+
+***Environment******:*** Staging
+***Result******:*** PASSED (25/25 TCs) — all linked bugs verified & closed
+
+### Linked Bugs Resolved
+
+- ***BK-67*** [Closed]: Success + deep-nesting warning toasts now both fire at depth>=5; depth 1-4 unaffected.
+- ***BK-68*** [Closed]: Create-module form now blocks 1-char names client-side ("Name must be at least 2 characters."), 2+ char names unaffected.
+- ***BK-69*** [Closed]: Module name with HTML tags now sanitized (stripped) at storage; UI-06 XSS-safe rendering still holds.
+
+All retest regression checks passed. Story ready for QA Approved.
+
+***Artifacts******:*** ATP/ATR posted 2026-06-06; retest verifications on BK-67/BK-68/BK-69.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_
