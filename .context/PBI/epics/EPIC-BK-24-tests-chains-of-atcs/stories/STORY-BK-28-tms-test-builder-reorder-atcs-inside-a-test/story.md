@@ -3,7 +3,7 @@
 **Jira Key:** [BK-28](https://jira.upexgalaxy.com/browse/BK-28)
 **Epic:** [BK-24](https://jira.upexgalaxy.com/browse/BK-24) (Tests (chains of ATCs))
 **Type:** Story
-**Status:** Ready For Dev
+**Status:** Ready For QA
 **Priority:** Medium
 **Story Points:** 5
 **Web Link:** https://staging-upexbunkai.vercel.app/
@@ -228,6 +228,7 @@ Pending confirmation: Delivery/PO confirms whether BK-28 is estimated now or hel
 - [Scope](./scope.md)
 - [Out Of Scope](./out-of-scope.md)
 - [Workflow](./workflow.md)
+- [Implementation Plan (Dev)](./implementation-plan.md)
 
 ---
 
@@ -242,9 +243,9 @@ Pending confirmation: Delivery/PO confirms whether BK-28 is estimated now or hel
 ## Metadata
 
 - **Created:** 27/5/2026
-- **Updated:** 15/6/2026
+- **Updated:** 19/6/2026
 - **Reporter:** Ely
-- **Assignee:** Ely
+- **Assignee:** jesusgpythondev
 - **Labels:** master-sprint-4, mvp, shift-left-2026-06-09, shift-left-reviewed, tests-epic
 
 ---

@@ -388,5 +388,112 @@ The expert panel recommends keeping BK-32 in refinement, not Estimation, until P
 
 ---
 
+### Ely - 19/6/2026, 10:47:56
+
+# Spec Implementation Plan (Dev) — Appendix
+
+> Overflow from the Spec Implementation Plan (Dev) field (CONTENT_LIMIT). Core plan (Overview, Technical Approach, Data Model, Domain/API/UI layers, Implementation Steps) is in the field.
+
+## Traceability — ATP TC + AC → Implementation Steps
+
+> BK-32-ATC-05 (zero-ATC empty state) is DROPPED per confirmation §3.1. All other in-scope ATP rows and Gherkin ACs are mapped; none unmapped.
+
+| ATP / AC | Title (abridged) | Steps that make it pass |
+| --- | --- | --- |
+| BK-32-ATC-01 | Open Test with 3 ATCs, all expanded inline | 1 (compose), 4 (route), 5 (TestDetailView/cards) |
+| BK-32-ATC-02 | Position numbers match saved execution order | 1 (`order by test_steps.position`), 5 (render in array order) |
+| BK-32-ATC-03 | Edited ATC content appears (live, not snapshot) | 1 (joins live atcs/steps/assertions at query time), 4, 5 |
+| BK-32-ATC-04 | ATC with 0 steps / 0 assertions → clear section state | 1 (`coalesce '[]'`), 5 (empty-section copy) |
+| ~~BK-32-ATC-05~~ | ~~Zero-ATC empty state~~ | DROPPED (§3.1 — BK-27 requires ≥1 ATC) |
+| BK-32-ATC-06 | Cross-workspace access denied, no leakage | 1 (read-membership assert, uniform P0002), 3 (P0002→404), 4, 7 (isolation test) |
+| BK-32-ATC-07 | No edit/add/remove/reorder controls anywhere | 5 (pure projection, no mutation affordances) |
+| BK-32-ATC-08 | 7-ATC expanded read meets p95 (one round trip) | 1 (single composed RPC, no N+1), 4, 7 (perf sanity) |
+| BK-32-ATC-09 | Long steps/assertions remain readable | 5 (wrap/break-words, no hiding) |
+| AC Happy (open populated, expanded, ordered, "N ATCs") | — | 1, 4, 5 |
+| AC Read-only | — | 5 |
+| AC Order (longer chain 1..n, no gaps/repeats) | — | 1 (position ordering), 5 |
+| AC Live (latest saved ATC version) | — | 1, 4, 5 |
+| AC Not-found (missing/deleted → safe state, way back, no ATC content) | — | 1 (P0002), 3, 5 (notFound page) |
+| AC Cross-workspace (denied, non-disclosing) | — | 1, 3, 4, 7 |
+| AC Perf (one round trip, <500ms p95 @ 7 ATCs) | — | 1, 4, 7 |
+
+---
+
+## Technical Decisions
+
+> Story-local decisions. Only genuinely cross-cutting + hard-to-reverse items are flagged as ADR candidates.
+
+| # | Question | Decision | Status |
+| --- | --- | --- | --- |
+| 1 | Zero-ATC empty state? | NO. A Test requires ≥1 ATC (BK-27 rule wins). BK-32-ATC-05 + "Test has no ATCs" Gherkin scenario DROPPED. `business-rules.md` line ~10 is ***overridden*** by this plan; recommend PM/glossary reconcile the story field (do NOT edit from the plan). | DECIDED (per §3.1; PM reconciliation recommended, non-blocking) |
+| 2 | Read architecture: DEFINER RPC vs RLS nested select | ***DEFINER RPC ***`bunkai*get*test*expanded` with explicit `p*actor*user*id` + in-band read-membership re-check. RLS nested select is unusable from the admin-client API route (NULL `auth.uid()`); RPC keeps one rulebook across both surfaces and isolates non-disclosure logic in one place. | DECIDED-IN-PLAN |
+| 3 | Read-level membership helper | NEW `bunkai*assert*actor*can*read_workspace` (any active role incl. viewer), raising P0002 (not 42501) for non-disclosure. Existing write-asserts wrongly deny viewers. | DECIDED-IN-PLAN |
+| 4 | `expand` query param handling | Accept and IGNORE — always return fully expanded (minimal viable). Documented in OpenAPI. Conditional composition is dead weight; the only consumer needs full expansion. | DECIDED-IN-PLAN |
+| 5 | Not-found code | Reuse canonical `not*found` (404), non-disclosing copy `Test not found.`. NO new `test*not_found` code (a distinct code is itself a weak existence signal; mirrors `mapAtcRpcError` P0002 + BK-27 D5). No error-envelope/registry edits. | DECIDED-IN-PLAN |
+| 6 | PAT scope for the read | Reuse the existing read auth path (`auth: 'required'`, no `requires` write scope). No new PAT scope (§3.4 / BK-27 D16 parity). | DECIDED-IN-PLAN |
+| 7 | UI surface (tab vs routed page) | ***Routed page*** `/projects/{slug}/tests/{testId}`, by analogy with `atcs/[atcId]/page.tsx`; explorer rows become `Link`s (mirrors `AtcTable`). BK-27 explicitly deferred the in-pane `t:` tab to BK-32; a routed page is the lower-risk, deep-linkable choice and matches the §8 "Projects detail (test view)" row. | DECIDED-IN-PLAN |
+| 8 | Derived Test-detail screen (no authored mockup) | DERIVED by analogy (ATCDetail steps/assertions/used-by anatomy + BK-27 explorer Tests group). ***Orchestrator must record this as a §5 ratified divergence in ****`master-design-plan.md`**** before Stage 2 UI work*** (Critical Rule #15 — silent invention is a defect). Suggested §5 entry text provided below. | DECIDED-IN-PLAN (ratification entry required) |
+| 9 | `step*id` in payload | Include `test*steps.id` per chain item now (stable reorder handle for BK-28; React key for BK-32). Additive, no cost. | DECIDED-IN-PLAN |
+| 10 | Snapshot vs live | Live references only (§3.3). No snapshot column added; reads join live tables at request time. | DECIDED-IN-PLAN |
+
+***No ADR candidate flagged.**** The read-contract / RPC-vs-RLS choice (Decision 2) is a **direct application* of the already-ratified ADR-0001 admin-client + explicit-actor doctrine and the established `bunkai*get*atc` precedent — it introduces no new cross-cutting, hard-to-reverse policy. (Contrast: BK-27 flagged idempotency-key scoping as an ADR candidate because that genuinely set new cross-cutting policy.)
+
+***Suggested §5 ratification entry (for the orchestrator to add to ****`master-design-plan.md`****)******:***
+
+> D10 (or next free) | Test detail view (BK-32): mockup `TestDetail` is a placeholder (`project.jsx:564-570`) — no authored spec | ***UI (derived)**** | ****Ratified DERIVATION (BK-32 Stage 1).*** Read-only expanded Test view implemented as a routed page `/projects/{slug}/tests/{testId}` (analogy with `atcs/[atcId]` detail page); explorer Test rows become navigating `Link`s (mirrors `AtcTable`). Each ATC rendered as an expanded card reusing ATCDetail anatomy: "Used by"-row header (`project.jsx:528-546`), ordered steps `<ol>` (`:476-501`), stacked assertions `<code>` (`:502-518`) — neutral styling, no pass/fail color (no Runs, §7 gate). Frozen §2 tokens only. Strictly read-only (no edit/add/remove/reorder — those are BK-28+). Empty per-section state for ATCs with 0 steps/0 assertions; NO zero-ATC empty Test (BK-27 ≥1-ATC rule wins, overrides BK-32 `business-rules.md` line ~10).
+
+---
+
+## Review Workload Forecast
+
+```
+## Review Workload Forecast
+
+Estimated: 545 additions + 8 deletions = 553 total lines
+400-line budget risk: Medium
+Chain strategy: feature-branch-chain
+Decision needed before apply: No
+```
+
+Per-file estimates (new ×1.5, modified ×1.0, ×1.2 tests/docs buffer; `lib/types/supabase.ts` excluded as generated):
+
+| File | Op | Base | Weighted |
+| --- | --- | --- | --- |
+| `supabase/migrations/0025*test*read.sql` | new | 110 | 165 |
+| `app/api/v1/tests/[id]/route.ts` | new | 35 | 53 |
+| `app/api/v1/tests/[id]/route.openapi.ts` | new | 80 | 120 |
+| `components/tests/TestDetailView.tsx` | new | 45 | 68 |
+| `components/tests/ChainedAtcCard.tsx` | new | 80 | 120 |
+| `app/(app)/projects/[projectSlug]/tests/[testId]/page.tsx` | new | 45 | 68 |
+| `lib/supabase/rpc.ts` | mod | 8 | 8 |
+| `lib/tests/errors.ts` | mod | 6 | 6 |
+| `lib/tests/errors.test.ts` | mod | 10 | 12 |
+| `app/(app)/projects/[projectSlug]/project-explorer.tsx` | mod | 8 | 8 |
+| `lib/tests/read-isolation.test.ts` | new | 55 | 83 |
+| ***Sum**** |  | ****~******492**** | ****×1.2 ≈ 553*** |
+
+***Proposed chain (concrete)******:*** integration branch `feature/BK-32-test-detail-view` off `staging`; child PRs merge into it; final merge to `staging` is one `--no-ff` merge commit (main-integration flow).
+
+- ***PR-1*** — Steps 1–3: migration 0025 + generated types + rpc wrapper + error map (~190 reviewable; types marked `// generated, do not review`).
+- ***PR-2*** — Step 4: route + OpenAPI sibling (~175).
+- ***PR-3*** — Steps 5–6: page + `TestDetailView` + `ChainedAtcCard` + explorer Link wiring (~330; ≈45% declarative JSX/classNames — low cognitive density).
+- ***PR-4*** — Step 7: env-gated read-isolation test (~85).
+
+Notes: no child PR exceeds 400 reviewable lines; generated Supabase types excluded per forecast doctrine. Risk Medium (not Low) only because PR-3 bundles the page + two components + explorer edit; split `ChainedAtcCard`-first if the reviewer objects.
+
+---
+
+### Automation for Jira - 19/6/2026, 13:43:54
+
+🔎 Pull Request created. Task is pending to ANALYZE and REVIEW by the team. Waiting for PR Approval.
+
+---
+
+### Automation for Jira - 19/6/2026, 13:46:31
+
+✅ Pull Request is successfully MERGED. Task is Done.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

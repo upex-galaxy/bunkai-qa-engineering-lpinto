@@ -92,5 +92,42 @@ blocked-by BK-27 (Test assembly) — tests table does not exist yet.
 
 ---
 
+### Automation for Jira - 19/6/2026, 14:29:19
+
+🔎 Pull Request created. Task is pending to ANALYZE and REVIEW by the team. Waiting for PR Approval.
+
+---
+
+### Automation for Jira - 19/6/2026, 15:11:55
+
+✅ Pull Request is successfully MERGED. Task is Done.
+
+---
+
+### Ely - 19/6/2026, 15:13:13
+
+## Ready for QA — BK-28 reorder ATCs
+
+Merged to ***staging*** and deploying.
+
+- ***PR******:*** [#42](https://github.com/upex-galaxy/upex-bunkai-tms/pull/42) (merged, `--no-ff`)
+- ***Branch******:*** `feature/BK-28-reorder-atcs`
+- ***Staging******:*** https://staging-upexbunkai.vercel.app/ (deploy in progress)
+- ***DB******:*** migration `0026*tests*reorder.sql` applied (shared Supabase project)
+
+### What to test
+
+- Drag-reorder an ATC inside a Test (member/admin/owner) → Save → order persists across reload; activity log gets one entry.
+- No-op: save the same order → no change, no log entry.
+- Viewer role: no drag handles, cannot reorder.
+- Concurrent edit: second saver gets a "reordered by someone else" notice with the current order.
+- Headless: `PATCH /api/v1/tests/{id}/reorder` with `X-If-Match` (Bearer `atc:write`).
+
+### ATP coverage
+
+12 scenarios — automated RPC suite green (`lib/tests/reorder.test.ts`); see PR Spec Compliance Matrix.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

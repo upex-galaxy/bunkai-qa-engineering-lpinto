@@ -3,7 +3,7 @@
 **Jira Key:** [BK-86](https://jira.upexgalaxy.com/browse/BK-86)
 **Epic:** [BK-85](https://jira.upexgalaxy.com/browse/BK-85) (Account & Settings)
 **Type:** Story
-**Status:** Ready For Dev
+**Status:** Ready For QA
 **Priority:** Medium
 **Story Points:** 3
 
@@ -57,9 +57,9 @@ Re-validation of the codebase against the real ACs' "global chrome" / "account a
 ## Metadata
 
 - **Created:** 7/6/2026
-- **Updated:** 15/6/2026
+- **Updated:** 20/6/2026
 - **Reporter:** Ely
-- **Assignee:** Ely
+- **Assignee:** Andrés Daniel Cumare Morales
 - **Labels:** shift-left-2026-06-08, shift-left-reviewed
 
 ---

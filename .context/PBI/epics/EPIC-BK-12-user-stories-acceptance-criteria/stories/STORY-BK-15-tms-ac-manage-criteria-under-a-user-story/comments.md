@@ -537,5 +537,46 @@ Staging — `https://staging-upexbunkai.vercel.app`
 
 ---
 
+### maibeth vega - 18/6/2026, 17:34:59
+
+## QA Sign-off — BK-15
+
+***Result***: PASSED WITH ISSUES
+***Environment***: Staging — https://staging-upexbunkai.vercel.app
+***Date***: 2026-06-18
+***QA***: Maibeth
+
+***Coverage***: 28/36 TCs passed (77.8%). All 6 original ACs verified. All Critical and High scenarios passed.
+
+***Defect found (non-blocking)***:
+
+- Description byte cap uses decimal KB (50,000 bytes) instead of binary KiB (51,200 bytes). Medium severity — does not block core AC management flow.
+
+***Under confirmation (pending Dev input)***:
+
+- TC-19: Re-archive returns 409 `already_archived` instead of expected 404 — may be intentional.
+
+***Key behaviors verified***:
+
+- AC add / insert / reorder / soft-archive (gap-free, contiguous)
+- Ready-to-test gate (409 with correct error code)
+- Auto-revert to draft on last AC removal
+- Workspace isolation (outsider 404, read-only member 403)
+- Title validation 3-200 chars (422 at boundaries)
+- Up/down arrow edge behavior (disabled at list boundaries)
+- XSS in Markdown detail rendered inert
+
+***Skipped***: TC-30 (ATC binding cascade — blocked on BK-18)
+
+***Next steps***: file Medium bug for byte cap; await Dev confirmation on TC-19 behavior; proceed to Stage 4 test-documentation.
+
+---
+
+### maibeth vega - 18/6/2026, 17:54:01
+
+Bug found during exploratory testing: BK-143 — AC Management: Description Validation: Byte cap enforces 50,000 bytes (decimal) instead of 51,200 bytes (binary KiB)
+
+---
+
 
 _Synced from Jira by sync-jira-issues_
