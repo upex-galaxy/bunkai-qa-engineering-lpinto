@@ -43,16 +43,16 @@ As a Senior QA Engineer, I want to manage the list of environments for a project
 
 ### Story (1)
 
-- [BK-34](https://jira.upexgalaxy.com/browse/BK-34): TMS-Run Execution | Start a manual run in a chosen environment _(Ready For QA)_
+- [BK-34](https://jira.upexgalaxy.com/browse/BK-34): TMS-Run Execution | Start a manual run in a chosen environment _(QA Approved)_
 
 ---
 
 ## Metadata
 
 - **Created:** 20/6/2026
-- **Updated:** 20/6/2026
+- **Updated:** 23/6/2026
 - **Reporter:** Ely
-- **Assignee:** Unassigned
+- **Assignee:** micaelavirgagarcia
 - **Labels:** feature-extension, post-mvp
 
 ---

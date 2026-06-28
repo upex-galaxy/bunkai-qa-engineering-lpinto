@@ -180,7 +180,8 @@
       "comments": "on",
       "strings": "on",
       "other": "on"
-    }
+    },
+    "diffEditor.ignoreTrimWhitespace": false
   },
   // CSS / SCSS / LESS
   "[css]": {

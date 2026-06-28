@@ -115,7 +115,7 @@ The following rules were extracted from analysis but are NOT stated explicitly i
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 20/6/2026
+- **Updated:** 24/6/2026
 - **Reporter:** Ely
 - **Assignee:** Andrés Daniel Cumare Morales
 - **Labels:** atc, mvp, reporting, shift-left-2026-06-02, shift-left-reviewed, wave-2

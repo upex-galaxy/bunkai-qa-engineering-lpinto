@@ -3,7 +3,7 @@
 **Jira Key:** [BK-11](https://jira.upexgalaxy.com/browse/BK-11)
 **Epic:** [BK-7](https://jira.upexgalaxy.com/browse/BK-7) (Project & Module Hierarchy)
 **Type:** Story
-**Status:** QA Approved
+**Status:** Ready For Release
 **Priority:** Medium
 **Story Points:** 3
 **Web Link:** https://staging-upexbunkai.vercel.app/
@@ -53,7 +53,7 @@
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 15/6/2026
+- **Updated:** 26/6/2026
 - **Reporter:** Ely
 - **Assignee:** Nahuel Gomez
 - **Labels:** hierarchy, mvp, wave-1

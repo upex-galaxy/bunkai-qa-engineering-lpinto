@@ -1,9 +1,9 @@
 # BUG: BK-7: Module: PAT bearer token rejected on module/workspace resource endpoints (401)
 
 **Jira Key:** [BK-92](https://jira.upexgalaxy.com/browse/BK-92)
-**Priority:** Medium
+**Priority:** High
 **Status:** Duplicated
-**Components:** None
+**Components:** Tenancy & Identity
 
 ---
 
@@ -58,7 +58,7 @@ PAT bearer tokens are rejected with 401 on module and workspace resource endpoin
 ## Metadata
 
 - **Created:** 8/6/2026
-- **Updated:** 10/6/2026
+- **Updated:** 26/6/2026
 - **Reporter:** Jorgelina Abdo
 - **Assignee:** Jorgelina Abdo
 - **Labels:** api, bug, exploratory-testing

@@ -3,7 +3,7 @@
 **Jira Key:** [BK-100](https://jira.upexgalaxy.com/browse/BK-100)
 **Priority:** Medium
 **Status:** Closed
-**Components:** None
+**Components:** User Stories & Acceptance Criteria
 
 ---
 
@@ -55,7 +55,7 @@ Minor: the counter uses KiB (divided by 1024) instead of KB (divided by 1000). A
 ## Metadata
 
 - **Created:** 9/6/2026
-- **Updated:** 10/6/2026
+- **Updated:** 26/6/2026
 - **Reporter:** Facu Barea
 - **Assignee:** Facu Barea
 - **Labels:** bug, exploratory-testing, markdown-editor

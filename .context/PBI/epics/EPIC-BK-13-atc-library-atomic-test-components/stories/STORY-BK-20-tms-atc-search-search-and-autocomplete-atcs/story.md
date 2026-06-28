@@ -53,7 +53,7 @@
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 20/6/2026
+- **Updated:** 24/6/2026
 - **Reporter:** Ely
 - **Assignee:** Facu Barea
 - **Labels:** atc, fts, mvp, search, shift-left-2026-06-01, shift-left-reviewed, wave-2

@@ -3,7 +3,7 @@
 **Jira Key:** [BK-23](https://jira.upexgalaxy.com/browse/BK-23)
 **Epic:** [BK-13](https://jira.upexgalaxy.com/browse/BK-13) (ATC Library (Acceptance Test Cases))
 **Type:** Story
-**Status:** Ready For QA
+**Status:** In Test
 **Priority:** Medium
 **Story Points:** 5
 **Web Link:** https://staging-upexbunkai.vercel.app/
@@ -38,10 +38,15 @@
 - [Scope](./scope.md)
 - [Out Of Scope](./out-of-scope.md)
 - [Workflow](./workflow.md)
+- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
 
 ## Traceability
+
+### Bug (1)
+
+- [BK-175](https://jira.upexgalaxy.com/browse/BK-175): Auth: Login: Magic-link OTP email has no code-entry field on staging _(Open)_
 
 ### Story (1)
 
@@ -52,7 +57,7 @@
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 20/6/2026
+- **Updated:** 26/6/2026
 - **Reporter:** Ely
 - **Assignee:** Benjamin Segovia
 - **Labels:** atc, clone, mvp, wave-2

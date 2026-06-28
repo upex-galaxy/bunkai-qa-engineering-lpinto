@@ -241,5 +241,25 @@ Recommendation: keep [https://jira.upexgalaxy.com/browse/BK-23#icft=BK-23](https
 
 ---
 
+### Benjamin Segovia - 22/6/2026, 10:40:01
+
+## QA session paused — blocked by BK-175
+
+QA started a sprint-testing session on this story today but could not reach the ATC library to verify any of the 4 ACs.
+
+> ***WARNING:**** ****Blocker******:**** the staging login flow (magic-link) is broken — the OTP email has no matching code-entry field on the "Check your inbox" screen. Filed as ****BK-175**** (links as **Blocks* this story). Confirmed by reproducing twice with independent OTP emails; see BK-175 for full repro + evidence.
+
+***Separately, worth a check once unblocked******:*** a static review of `upex-bunkai-tms` (git log + branches) found no commits, routes, migrations, or RPC related to duplicating an ATC, despite automated comments on this ticket reporting a PR merged on 2026-06-20. Please confirm the feature is actually deployed to staging before QA resumes — testing against code that isn't there would just waste another pass.
+
+***Status******:**** leaving this ticket at **Ready For QA* — nothing about the duplicate-ATC feature itself has been disproven, we simply couldn't reach it. QA will resume once BK-175 is resolved and the deployment status above is confirmed.
+
+---
+
+### Ely - 24/6/2026, 15:49:03
+
+Dev clarification: the ATC Duplicate feature IS merged to staging — PR #45, merge commit 5f02be9 (files app/api/v1/atcs/[id]/duplicate, migration 0028, tests). The "PR merged" automation that fired earlier was correct for this ticket. It was also blocked by BK-175 on the QA side. If staging shows no feature, this is a staging DEPLOYMENT/refresh gap (cf. BK-142 Vercel staging env), not missing code — please re-verify against the latest staging deploy before sending back to Dev.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

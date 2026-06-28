@@ -3,7 +3,7 @@
 **Jira Key:** [BK-21](https://jira.upexgalaxy.com/browse/BK-21)
 **Epic:** [BK-13](https://jira.upexgalaxy.com/browse/BK-13) (ATC Library (Acceptance Test Cases))
 **Type:** Story
-**Status:** Ready For Dev
+**Status:** In Test
 **Priority:** Medium
 **Story Points:** 5
 **Web Link:** https://staging-upexbunkai.vercel.app/
@@ -55,7 +55,7 @@
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 18/6/2026
+- **Updated:** 27/6/2026
 - **Reporter:** Ely
 - **Assignee:** Ramiro Majdalani
 - **Labels:** atc, mvp, propagation, wave-2

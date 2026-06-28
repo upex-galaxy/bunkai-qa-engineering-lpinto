@@ -1,9 +1,9 @@
 # BUG: BK-8: Non-Latin (CJK/Cyrillic) project names rejected as name_no_alphanumeric
 
 **Jira Key:** [BK-56](https://jira.upexgalaxy.com/browse/BK-56)
-**Priority:** Medium
+**Priority:** Low
 **Status:** Duplicated
-**Components:** None
+**Components:** Project & Module Hierarchy
 
 ---
 
@@ -59,7 +59,7 @@ International users cannot name a project in their own script. Improvement-grade
 ## Metadata
 
 - **Created:** 3/6/2026
-- **Updated:** 10/6/2026
+- **Updated:** 25/6/2026
 - **Reporter:** Ely
 - **Assignee:** Ely
 - **Labels:** bk-8, sprint-defect, wave-1

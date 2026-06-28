@@ -1,9 +1,9 @@
 # BUG: [BK-17] Staging Jira import fails instantly with jira_unauthorized — ATLASSIAN_* credentials not configured in staging deployment
 
 **Jira Key:** [BK-142](https://jira.upexgalaxy.com/browse/BK-142)
-**Priority:** Medium
-**Status:** Open
-**Components:** None
+**Priority:** Highest
+**Status:** Closed
+**Components:** User Stories & Acceptance Criteria
 
 ---
 
@@ -68,7 +68,7 @@ Verify/restore `ATLASSIAN*URL`, `ATLASSIAN*EMAIL`, `ATLASSIAN*API*TOKEN` on the 
 ## Metadata
 
 - **Created:** 15/6/2026
-- **Updated:** 15/6/2026
+- **Updated:** 26/6/2026
 - **Reporter:** Andrés Daniel Cumare Morales
 - **Assignee:** Andrés Daniel Cumare Morales
 

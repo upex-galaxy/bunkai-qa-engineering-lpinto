@@ -522,5 +522,50 @@ The button style stays as-is (`size="lg"`, full-width, default variant). No desi
 
 ---
 
+### Ely - 24/6/2026, 20:08:13
+
+> ***NOTE:**** ****PO decision — 2026-06-24******:****** AC-7 reversed (automatic identity linking).***
+
+Ely (Product Owner) decided to ***enable Supabase automatic identity linking*** (the platform default) instead of rejecting cross-provider same-email sign-ins.
+
+- ***Before******:*** second provider with an already-registered verified email → rejected with `EMAIL_EXISTS` (manual linking by support).
+- ***Now******:*** identities sharing the same VERIFIED email are auto-linked to one account across GitHub / Google / password. Same email = same user, seamless sign-in, no block.
+
+***Rationale******:*** sign-in UX first — avoid dead-end errors and support tickets. Explicit/manual multi-provider management UI stays Phase 2.
+
+Updated this issue: AC-7, Business Rules, Out Of Scope. Dev impact: the `email_exists` error path is removed from the OAuth flow (now unreachable). See ADR-0008.
+
+---
+
+### Automation for Jira - 24/6/2026, 20:16:29
+
+🔎 Pull Request created. Task is pending to ANALYZE and REVIEW by the team. Waiting for PR Approval.
+
+---
+
+### Automation for Jira - 24/6/2026, 20:31:42
+
+✅ Pull Request is successfully MERGED. Task is Done.
+
+---
+
+### Ely - 24/6/2026, 20:36:10
+
+> ***INFO:**** ****Ready for QA on staging.*** @@Andrés Daniel Cumare Morales
+
+***Merged******:**** PR #56 → `staging` (merge commit `d56316c`). ****Staging deploy******:*** verified READY, alias serving the new OAuth build.
+
+***Test here******:*** https://staging-upexbunkai.vercel.app/login
+
+***Config in place******:**** GitHub + Google OAuth providers enabled in Supabase; ****automatic identity linking is ON*** (AC-7 reversed by PO — same verified email across GitHub/Google/password = one account).
+
+***Already validated (PO live E2E)******:*** AC-1 GitHub first-time → /onboarding, AC-3 returning → /projects, AC-2/AC-7 Google same-email → auto-linked to the same account. Server cases AC-4 (denied), AC-5 (403 state mismatch), AC-9 (init failure) verified via direct callback checks. AC-10 buttons/copy verified.
+
+***Focus for QA******:*** AC-6 (third-party-cookie fallback within 30s), real consent-denial in-browser, and the magic-link/password rails still working alongside OAuth.
+
+***Note******:*** includes a sign-out fix (sign-out now redirects to /login immediately). Implementation plan + ADR-0008 + compliance matrix are in the BK-3 PBI folder.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_
