@@ -157,6 +157,20 @@ required:
     options: [blocked, failed, n_r, passed]
     description: Per-Test issue execution status (Jira-native TMS).
     used_by: [test-documentation]
+  # ---- Cross-work-type QA ownership (consumed by every work-type skill) ----
+  qa_assignee:
+    name: QA Assignee
+    type: user
+    fallback: { target: comment, label: QA Assignee }
+    description: |
+      The QA who owns testing for a work item — the QA-lane parallel of the native
+      `assignee` (dev owner), distinct from `reporter` (who raised it ≠ who retests it).
+      Set on EVERY work-type issue (story / tech_story / tech_debt / bug / defect /
+      improvement) to the authenticated session user (self-assign); NEVER overwrite an
+      existing owner except on an explicit, justified handover. Doctrine:
+      agentic-qa-core/references/defect-management-doctrine.md (Part 2).
+    used_by:
+      [sprint-testing, test-documentation, test-automation, regression-testing, shift-left-testing]
 
 optional:
   # Fields that enhance the workflow but won't break it if missing.
@@ -176,6 +190,34 @@ unmapped:
 # (No unmapped slugs at this time. See README §5.3 for the unmapped pattern
 # — declare a slug here when the methodology expects a field semantically but
 # no real Jira field exists yet, then promote it to `required:` once configured.)
+
+# Link types (Jira issue-link types). Declared here so {{jira.link_types.<slug>}}
+# references in skill files pass lint. Each entry maps to an issue-link type in
+# the user's Jira workspace. Sub-fields: name, outward, inward, fallback.
+# Validated by `bun run jira:check` against `.agents/jira-link-types.json`.
+link_types:
+  required:
+    blocks:
+      name: Blocks
+      description: Link an issue to another that blocks it.
+      used_by: [sprint-testing, test-documentation, agentic-qa-core]
+    problem_incident:
+      name: Problem/Incident
+      description: Link a bug to the story it blocks or relates to.
+      used_by: [sprint-testing, agentic-qa-core]
+    test:
+      name: Test
+      description: Link a Test issue to the Story it validates.
+      used_by: [shift-left-testing, sprint-testing, test-documentation, agentic-qa-core]
+    test_design:
+      name: Test Design
+      description: Link a Test issue to the Story or Epic it validates.
+      used_by: [test-documentation]
+    test_execute:
+      name: Test Execution
+      description: Link a Test Execution to a Test Plan or Test issue.
+      used_by: [test-documentation]
+  optional: {}
 
 # Issue types (`work_types`) plus the canonical statuses + transitions the
 # methodology requires per work type. Validated by `bun run jira:check` against
