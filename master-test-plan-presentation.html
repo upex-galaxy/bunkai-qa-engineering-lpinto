@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="es" data-theme="engineering-whiteprint">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Master Test Plan · Bunkai TMS</title>
+    <link rel="stylesheet" href="file:///C:/Users/QWolf/.agents/skills/html-ppt/assets/fonts.css" />
+    <link rel="stylesheet" href="file:///C:/Users/QWolf/.agents/skills/html-ppt/assets/base.css" />
+    <link
+      rel="stylesheet"
+      id="theme-link"
+      href="file:///C:/Users/QWolf/.agents/skills/html-ppt/assets/themes/engineering-whiteprint.css"
+    />
+    <link
+      rel="stylesheet"
+      href="file:///C:/Users/QWolf/.agents/skills/html-ppt/assets/animations/animations.css"
+    />
+    <style>
+      :root {
+        --font-sans: 'Inter', 'Noto Sans SC', sans-serif;
+        --font-display: 'Inter', 'Noto Sans SC', sans-serif;
+      }
+      .slide {
+        padding: 56px 80px;
+      }
+      .h1 {
+        font-size: 60px;
+      }
+      .h2 {
+        font-size: 42px;
+      }
+      .h3 {
+        font-size: 28px;
+      }
+      .h4 {
+        font-size: 20px;
+      }
+      .lede {
+        font-size: 18px;
+      }
+      .kicker {
+        font-size: 12px;
+      }
+      .grid.g2 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+      }
+      .grid.g3 {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      .grid.g4 {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+      }
+
+      /* Risk badges */
+      .risk-badge {
+        display: inline-block;
+        padding: 2px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-family: var(--font-mono);
+      }
+      .risk-critical {
+        background: #c42a10;
+        color: #fff;
+      }
+      .risk-high {
+        background: #c47a10;
+        color: #fff;
+      }
+      .risk-medium {
+        background: #1e5ac4;
+        color: #fff;
+      }
+      .risk-planned {
+        background: #8090a8;
+        color: #fff;
+      }
+      .risk-active {
+        background: #1a6a3a;
+        color: #fff;
+      }
+
+      /* Mini table */
+      .mini-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .mini-table th {
+        text-align: left;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-3);
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--border-strong);
+        font-weight: 600;
+      }
+      .mini-table td {
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      .mini-table tr:hover td {
+        background: var(--surface-2);
+      }
+
+      /* Checklist */
+      .checklist {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .checklist li {
+        padding: 6px 0 6px 28px;
+        position: relative;
+        border-bottom: 1px solid var(--border);
+      }
+      .checklist li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 10px;
+        width: 14px;
+        height: 14px;
+        border: 1.5px solid var(--border-strong);
+      }
+      .checklist li.done::before {
+        background: var(--good);
+        border-color: var(--good);
+      }
+
+      /* Stat number */
+      .stat-num {
+        font-size: 52px;
+        font-weight: 800;
+        line-height: 1;
+        font-family: var(--font-mono);
+      }
+      .stat-label {
+        font-size: 13px;
+        color: var(--text-3);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-top: 4px;
+      }
+
+      /* Flow diagram */
+      .flow {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        line-height: 1.3;
+        white-space: pre;
+        background: var(--surface-2);
+        padding: 16px 20px;
+        border: 1px solid var(--border);
+        overflow-x: auto;
+      }
+
+      /* Badge table */
+      .badge-table {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .badge-table span {
+        padding: 2px 8px;
+        font-size: 11px;
+        font-family: var(--font-mono);
+      }
+    </style>
+  </head>
+  <body
+    data-themes="engineering-whiteprint,blueprint,tokyo-night,sharp-mono"
+    data-theme-base="file:///C:/Users/QWolf/.agents/skills/html-ppt/assets/themes/"
+  >
+    <div class="deck">
+      <!-- 1. Cover -->
+      <section class="slide center tc" data-title="Portada">
+        <div>
+          <p class="kicker" style="margin-bottom: 8px">QA Engineering · 2026</p>
+          <h1 class="h1" style="font-size: 72px; line-height: 1.05">Master&nbsp;Test&nbsp;Plan</h1>
+          <p
+            class="h2"
+            style="font-size: 32px; font-weight: 400; color: var(--text-2); margin: 8px 0 24px"
+          >
+            Bunkai&nbsp;TMS
+          </p>
+          <div class="divider-accent" style="margin: 0 auto 24px"></div>
+          <p class="lede" style="max-width: 520px; margin: 0 auto">
+            Qué probar en este sistema, por qué, y en qué orden
+          </p>
+          <div class="deck-footer">
+            <span class="dim2">@bunkai-qa</span
+            ><span class="slide-number" data-current="1" data-total="17"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Agenda -->
+      <section class="slide" data-title="Agenda">
+        <p class="kicker">Agenda</p>
+        <h2 class="h2">¿Qué cubrimos hoy?</h2>
+        <div class="grid g2 mt-l" style="grid-template-columns: 1fr 1fr">
+          <div class="card" style="padding: 18px 22px">
+            <h4>01 · Contexto del sistema</h4>
+            <p class="dim" style="font-size: 13px">
+              Etapa temprana, 24 entidades, solo 2 con CRUD completo
+            </p>
+          </div>
+          <div class="card" style="padding: 18px 22px">
+            <h4>02 · Mapa de riesgo ejecutivo</h4>
+            <p class="dim" style="font-size: 13px">Prioridades CRITICAL → PLANNED con scoring</p>
+          </div>
+          <div class="card" style="padding: 18px 22px">
+            <h4>03 · Riesgos CRITICAL</h4>
+            <p class="dim" style="font-size: 13px">RLS, ATC save, auth de sesión</p>
+          </div>
+          <div class="card" style="padding: 18px 22px">
+            <h4>04 · Riesgos HIGH</h4>
+            <p class="dim" style="font-size: 13px">PAT, bearer dead code, anclaje ATC, módulos</p>
+          </div>
+          <div class="card" style="padding: 18px 22px">
+            <h4>05 · Máquinas de estado</h4>
+            <p class="dim" style="font-size: 13px">Invites, ATC version, runs (planned)</p>
+          </div>
+          <div class="card" style="padding: 18px 22px">
+            <h4>06 · Procesos silenciosos</h4>
+            <p class="dim" style="font-size: 13px">Triggers automáticos: solo 3/9 activos</p>
+          </div>
+          <div class="card" style="padding: 18px 22px">
+            <h4>07 · Integraciones + Cadena</h4>
+            <p class="dim" style="font-size: 13px">Solo Supabase activa, flujo end-to-end</p>
+          </div>
+          <div class="card" style="padding: 18px 22px">
+            <h4>08 · Casos borde + Checklist</h4>
+            <p class="dim" style="font-size: 13px">12 items testables hoy, 6 discovery gaps</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Contexto del sistema -->
+      <section class="slide" data-title="Contexto del sistema">
+        <p class="kicker">Estado actual</p>
+        <h2 class="h2">Contexto del sistema</h2>
+        <p class="lede" style="margin-bottom: 20px">
+          Bunkai está en <strong>etapa temprana</strong>. La base de datos tiene 28 entidades pero
+          solo 2 con CRUD completo via API versionada.
+        </p>
+        <div class="grid g4" style="margin-bottom: 20px">
+          <div class="card tc">
+            <div class="stat-num">28</div>
+            <div class="stat-label">Entidades en data-map</div>
+          </div>
+          <div class="card tc">
+            <div class="stat-num">2</div>
+            <div class="stat-label">CRUD completo (atcs, access_tokens)</div>
+          </div>
+          <div class="card tc">
+            <div class="stat-num">~5</div>
+            <div class="stat-label">Endpoints en OpenAPI spec</div>
+          </div>
+          <div class="card tc">
+            <div class="stat-num">9+</div>
+            <div class="stat-label">Tablas con RLS policies</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 14px">
+          <div class="card" style="flex: 1; padding: 16px 20px">
+            <h4 style="font-size: 14px; color: var(--bad)">Lo que NO existe aún</h4>
+            <ul style="font-size: 13px; margin: 6px 0 0; padding-left: 16px; color: var(--text-2)">
+              <li>Runs engine (runs, run_atcs, run_steps)</li>
+              <li>Tabla tests / test_steps</li>
+              <li>Defect management (bugs)</li>
+              <li>Jira sync</li>
+              <li>activity_log migrado</li>
+              <li>Idempotency store</li>
+            </ul>
+          </div>
+          <div class="card" style="flex: 1; padding: 16px 20px">
+            <h4 style="font-size: 14px; color: var(--accent-2)">Lo que SÍ es testeable hoy</h4>
+            <ul style="font-size: 13px; margin: 6px 0 0; padding-left: 16px; color: var(--text-2)">
+              <li>ATC authoring completo (CRUD versionado)</li>
+              <li>PAT token lifecycle</li>
+              <li>Tenant isolation (RLS) en toda entidad</li>
+              <li>Auth session middleware</li>
+              <li>Module tree integrity</li>
+              <li>Workspace invites (schema-level)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Executive Risk Map -->
+      <section class="slide" data-title="Mapa de Riesgo">
+        <p class="kicker">Priorización</p>
+        <h2 class="h2">Mapa de riesgo ejecutivo</h2>
+        <p class="dim" style="font-size: 13px; margin: -8px 0 12px">
+          Riesgo scoring sobre lo testeable hoy
+        </p>
+        <table class="mini-table">
+          <thead>
+            <tr>
+              <th style="width: 90px">Prioridad</th>
+              <th style="width: 140px">Flow</th>
+              <th>Por qué importa</th>
+              <th style="width: 90px">Testeable</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="risk-badge risk-critical">CRITICAL</span></td>
+              <td>RLS — Tenant isolation</td>
+              <td>Solo auth mechanism — una policy faltante = data leak cross-workspace</td>
+              <td>✅ API</td>
+            </tr>
+            <tr>
+              <td><span class="risk-badge risk-critical">CRITICAL</span></td>
+              <td>ATC save integrity</td>
+              <td>bunkai_save_atc RPC atómico — fallo parcial pierde header+steps+assertions+AC</td>
+              <td>✅ API</td>
+            </tr>
+            <tr>
+              <td><span class="risk-badge risk-critical">CRITICAL</span></td>
+              <td>Auth — session middleware</td>
+              <td>Edge middleware = gate — bypass o cookie vencida = acceso no autorizado</td>
+              <td>✅ E2E</td>
+            </tr>
+            <tr>
+              <td><span class="risk-badge risk-high">HIGH</span></td>
+              <td>PAT auth</td>
+              <td>Token hash, revoke-then-create race, scope enforcement en rutas</td>
+              <td>✅ API</td>
+            </tr>
+            <tr>
+              <td><span class="risk-badge risk-high">HIGH</span></td>
+              <td>ATC anchoring integrity</td>
+              <td>M:N binding — orphaned links, duplicate bindings</td>
+              <td>✅ API</td>
+            </tr>
+            <tr>
+              <td><span class="risk-badge risk-high">HIGH</span></td>
+              <td>Module tree integrity</td>
+              <td>Self-referential FK + path materializado — ciclos, depth-6</td>
+              <td>✅ API</td>
+            </tr>
+            <tr>
+              <td><span class="risk-badge risk-high">HIGH</span></td>
+              <td>Bearer middleware dead code</td>
+              <td>requireBearerToken() existe pero ninguna ruta lo llama</td>
+              <td>⚠️ No routes</td>
+            </tr>
+            <tr>
+              <td><span class="risk-badge risk-medium">MEDIUM</span></td>
+              <td>ATC versioning</td>
+              <td>Bump en save sin history UI — silent regression</td>
+              <td>✅ DB</td>
+            </tr>
+            <tr>
+              <td><span class="risk-badge risk-medium">MEDIUM</span></td>
+              <td>API error envelope</td>
+              <td>Bearer middleware retorna raw 401, no ErrorEnvelope</td>
+              <td>✅ API</td>
+            </tr>
+            <tr>
+              <td><span class="risk-badge risk-planned">PLANNED</span></td>
+              <td>Run execution engine</td>
+              <td>runs, run_atcs, run_steps — no existe aún</td>
+              <td>❌ Phase 2</td>
+            </tr>
+            <tr>
+              <td><span class="risk-badge risk-planned">PLANNED</span></td>
+              <td>ATC edit propagation</td>
+              <td>Core trust mechanism — tests no migrados</td>
+              <td>❌ Phase 2</td>
+            </tr>
+            <tr>
+              <td><span class="risk-badge risk-planned">PLANNED</span></td>
+              <td>Jira bug sync</td>
+              <td>Bugs nunca llegan al tracker externo</td>
+              <td>❌ Phase 3</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 5. CRITICAL: RLS -->
+      <section class="slide" data-title="CRITICAL — RLS">
+        <p class="kicker"><span class="risk-badge risk-critical">CRITICAL</span> FEAT-WS-004</p>
+        <h2 class="h2">Aislamiento de inquilinos (RLS)</h2>
+        <p class="lede" style="font-size: 17px">
+          Supabase Row-Level Security es el <strong>único</strong> mecanismo de autorización. Una
+          sola policy faltante expone datos entre workspaces sin alerta, sin log, sin UI.
+        </p>
+        <div class="grid g2" style="margin-top: 16px">
+          <div class="card" style="padding: 16px 20px">
+            <h4 style="font-size: 14px">¿Qué suele romperse?</h4>
+            <ul style="font-size: 13px; margin: 6px 0 0; padding-left: 16px; color: var(--text-2)">
+              <li>Endpoints PostgREST añadidos sin RLS</li>
+              <li>SECURITY DEFINER con recursión infinita</li>
+              <li>Bulk PATCH que salta policy checks</li>
+              <li>SELECT con IDs manipulados</li>
+            </ul>
+          </div>
+          <div class="card" style="padding: 16px 20px">
+            <h4 style="font-size: 14px">Qué revisar</h4>
+            <ul style="font-size: 13px; margin: 6px 0 0; padding-left: 16px; color: var(--text-2)">
+              <li>Create en workspace A → read/update/delete desde B → 403</li>
+              <li>PAT token no debe listar recursos de otro workspace</li>
+              <li>current_workspace_id() no retorna ID incorrecto en session switch</li>
+              <li>Flag ?include_archived no bypasses RLS</li>
+            </ul>
+          </div>
+        </div>
+        <div
+          class="card"
+          style="
+            margin-top: 14px;
+            padding: 12px 18px;
+            border-left: 3px solid var(--bad);
+            background: var(--surface-2);
+          "
+        >
+          <p style="font-size: 14px; margin: 0">
+            <strong>Riesgo:</strong> Falla silenciosa — no hay UI, log, ni alerta. Solo visible con
+            pruebas activas.
+          </p>
+        </div>
+      </section>
+
+      <!-- 6. CRITICAL: ATC save -->
+      <section class="slide" data-title="CRITICAL — ATC Save">
+        <p class="kicker"><span class="risk-badge risk-critical">CRITICAL</span> FEAT-ATC-001</p>
+        <h2 class="h2">Integridad del guardado de ATC</h2>
+        <p class="lede" style="font-size: 17px">
+          El RPC <code>bunkai_save_atc</code> es la <strong>única escritura atómica</strong> que
+          persiste header + steps + assertions + AC bindings. Si falla — network drop, constraint
+          violation, version collision — el ATC completo se pierde.
+        </p>
+        <div class="grid g2" style="margin-top: 16px">
+          <div class="card" style="padding: 16px 20px">
+            <h4 style="font-size: 14px">Casos de prueba clave</h4>
+            <ul style="font-size: 13px; margin: 6px 0 0; padding-left: 16px; color: var(--text-2)">
+              <li>Crear ATC con 5 steps, 3 assertions, 2 AC anchors → verificar GET</li>
+              <li>Editar title → verificar version bump</li>
+              <li>Save concurrente desde 2 tabs → segundo falla (version conflict)</li>
+              <li>Remover todos los steps → save → empty steps persistidos</li>
+              <li>YAML corrupto en assertions → 422 con error claro</li>
+            </ul>
+          </div>
+          <div class="card" style="padding: 16px 20px">
+            <h4 style="font-size: 14px">Dependencias</h4>
+            <ul style="font-size: 13px; margin: 6px 0 0; padding-left: 16px; color: var(--text-2)">
+              <li>ATC CRUD (FEAT-ATC-001)</li>
+              <li>ATC anchoring (FEAT-ATC-002)</li>
+              <li>Step/assertion parsing (FEAT-ATC-003)</li>
+            </ul>
+            <h4 style="font-size: 14px; margin-top: 14px">Lo que NO se prueba hoy</h4>
+            <ul style="font-size: 13px; margin: 6px 0 0; padding-left: 16px; color: var(--text-2)">
+              <li>Edit propagation a tests (no existen)</li>
+              <li>History table (no existe)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. CRITICAL: Session auth -->
+      <section class="slide" data-title="CRITICAL — Sesión Auth">
+        <p class="kicker"><span class="risk-badge risk-critical">CRITICAL</span> FEAT-AUTH-002</p>
+        <h2 class="h2">Autenticación de sesión</h2>
+        <p class="lede" style="font-size: 17px">
+          El edge middleware de sesión es la <strong>puerta de entrada</strong> a todas las páginas
+          autenticadas. Un bypass o cookie expirada sin refresh silencioso = acceso no autorizado.
+        </p>
+        <div style="display: flex; gap: 14px; margin-top: 16px">
+          <div class="card" style="flex: 1; padding: 16px 20px">
+            <h4 style="font-size: 14px">Flujo</h4>
+            <div class="flow" style="font-size: 11px; margin-top: 6px">
+              Session cookie │ ▼ Edge middleware ── válida ──► página renderizada │ ✗ inválida │ ▼
+              Supabase auto-refresh │ ├── éxito ──► cookie renovada, request continúa └── fallo ──►
+              redirect a login
+            </div>
+          </div>
+          <div class="card" style="flex: 1; padding: 16px 20px">
+            <h4 style="font-size: 14px">Qué revisar</h4>
+            <ul style="font-size: 13px; margin: 6px 0 0; padding-left: 16px; color: var(--text-2)">
+              <li>Cookie expirada → auto-refresh funciona?</li>
+              <li>Session de otro workspace → redirigir o 403</li>
+              <li>Middleware no deja pasar requests sin session</li>
+              <li>Logout → cookie invalidada</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. HIGH: PAT + Bearer Dead Code -->
+      <section class="slide" data-title="HIGH — PAT + Bearer">
+        <p class="kicker">
+          <span class="risk-badge risk-high">HIGH</span> FEAT-AUTH-005 · FEAT-API-006
+        </p>
+        <h2 class="h2">
+          PAT auth + Bearer middleware: <span style="color: var(--bad)">dead code</span>
+        </h2>
+        <p class="lede" style="font-size: 17px">
+          <code>requireBearerToken()</code> y <code>requireScope()</code> existen en
+          <code>lib/api/middleware/bearer.ts</code> pero <strong>ninguna ruta los llama</strong>.
+          Regresiones confirmadas en staging (BK-84, BK-135).
+        </p>
+        <div class="grid g2" style="margin-top: 16px">
+          <div class="card" style="padding: 16px 20px">
+            <h4 style="font-size: 14px">Hallazgo crítico</h4>
+            <div
+              style="
+                background: var(--surface-2);
+                border: 1px solid var(--border);
+                padding: 12px 16px;
+                font-family: var(--font-mono);
+                font-size: 12px;
+                margin-top: 6px;
+              "
+            >
+              // middleware definido pero NO usado:<br />
+              export function requireBearerToken() { ... }<br />
+              export function requireScope() { ... }<br /><br />
+              // ninguna ruta: router.use(requireBearerToken)
+            </div>
+            <p style="font-size: 13px; color: var(--bad); margin-top: 8px">
+              PAT auth no puede verificarse end-to-end vía API — solo CRUD de tokens
+            </p>
+          </div>
+          <div class="card" style="padding: 16px 20px">
+            <h4 style="font-size: 14px">Qué SÍ es testeable</h4>
+            <ul style="font-size: 13px; margin: 6px 0 0; padding-left: 16px; color: var(--text-2)">
+              <li>POST /api/v1/tokens → bk_pat_ prefix + SHA-256 hash</li>
+              <li>DELETE /api/v1/tokens/{id} → soft-revoke, verify no listable</li>
+              <li>PAT con scope workspace:member → admin op → 403</li>
+              <li>bk_pat_ prefijo + secret mostrado solo una vez</li>
+              <li>TTL enforcement: 1-day PAT, verify expired</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9. HIGH: Anclaje ATC + Árbol Módulos -->
+      <section class="slide" data-title="HIGH — Anclaje + Módulos">
+        <p class="kicker">
+          <span class="risk-badge risk-high">HIGH</span> FEAT-ATC-002 · FEAT-PROJ-002
+        </p>
+        <h2 class="h2">Anclaje de ATC + Árbol de módulos</h2>
+        <div class="grid g2" style="margin-top: 16px">
+          <div class="card" style="padding: 16px 20px">
+            <h4 style="font-size: 14px">ATC anchoring (M:N)</h4>
+            <p style="font-size: 13px; color: var(--text-2); margin: 4px 0 6px">
+              Binding via <code>atc_acceptance_criteria</code>. Si se pierde en re-save, la cadena
+              US → AC → ATC se rompe.
+            </p>
+            <ul style="font-size: 13px; margin: 0; padding-left: 16px; color: var(--text-2)">
+              <li>ATC → AC-1 save → 1 row in join table</li>
+              <li>Editar, añadir AC-2 → 2 rows (old preserved)</li>
+              <li>Remover AC-1 → 1 row (AC-2 only)</li>
+              <li>Save sin AC anchor → rejected</li>
+            </ul>
+          </div>
+          <div class="card" style="padding: 16px 20px">
+            <h4 style="font-size: 14px">Module tree (self-referential)</h4>
+            <p style="font-size: 13px; color: var(--text-2); margin: 4px 0 6px">
+              parent_id FK + depth max 6 + materialized path via trigger.
+            </p>
+            <ul style="font-size: 13px; margin: 0; padding-left: 16px; color: var(--text-2)">
+              <li>Depth 1 → 6 → success, tree renders</li>
+              <li>Depth 7 → rejected</li>
+              <li>Cycle detection (A→B→A) → rejected</li>
+              <li>Soft-delete parent → children archived</li>
+            </ul>
+          </div>
+        </div>
+        <div
+          class="card"
+          style="margin-top: 12px; padding: 10px 16px; background: var(--surface-2)"
+        >
+          <p style="font-size: 13px; margin: 0">
+            <strong>⚠️ No hay UI de creación:</strong> modules se crean via PostgREST directo. ATC
+            sin story+AC previos no puede crearse — bootstrap dependency manual.
+          </p>
+        </div>
+      </section>
+
+      <!-- 10. State Machines -->
+      <section class="slide" data-title="Máquinas de Estado">
+        <p class="kicker">State machines</p>
+        <h2 class="h2">Máquinas de estado que importan</h2>
+        <div class="grid g2" style="margin-top: 16px">
+          <div class="card" style="padding: 16px 20px">
+            <h4 style="font-size: 14px">Workspace invites</h4>
+            <div class="flow" style="font-size: 12px; margin: 6px 0">
+              pending ──┬── accepted │── expired (24h TTL) └── revoked
+            </div>
+            <ul style="font-size: 13px; margin: 6px 0 0; padding-left: 16px; color: var(--text-2)">
+              <li>Expiry no enforced vía API?</li>
+              <li>nullable expires_at bypasses guard</li>
+              <li>Revoked invites aún accionables?</li>
+            </ul>
+          </div>
+          <div class="card" style="padding: 16px 20px">
+            <h4 style="font-size: 14px">ATC version (bump on save)</h4>
+            <div class="flow" style="font-size: 12px; margin: 6px 0">
+              v1 ──► save ──► v2 ──► save ──► v3 (no history table — rollback imposible)
+            </div>
+            <ul style="font-size: 13px; margin: 6px 0 0; padding-left: 16px; color: var(--text-2)">
+              <li>Concurrent saves → version collision?</li>
+              <li>Negative version? (DB constraint?)</li>
+              <li>Partial edit → version no incrementado?</li>
+            </ul>
+          </div>
+        </div>
+        <div
+          class="card"
+          style="margin-top: 12px; padding: 12px 18px; background: var(--surface-2)"
+        >
+          <div class="flow" style="font-size: 12px">
+            PLANNED — Run state machine: running → passed / failed / aborted (Phase 2) PLANNED — Bug
+            state machine: open → in_progress → resolved → closed → open (Phase 2+)
+          </div>
+        </div>
+      </section>
+
+      <!-- 11. Silent killers -->
+      <section class="slide" data-title="Procesos Silenciosos">
+        <p class="kicker">Automated processes</p>
+        <h2 class="h2">Procesos silenciosos — triggers automáticos</h2>
+        <p class="dim" style="font-size: 13px; margin: -8px 0 12px">
+          Solo 3 de 9 procesos están activos. El resto son planeados.
+        </p>
+        <table class="mini-table">
+          <thead>
+            <tr>
+              <th style="width: 120px">Proceso</th>
+              <th>Qué hace</th>
+              <th>Qué pasa si falla</th>
+              <th style="width: 70px">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>atcs.search_vector refresh</td>
+              <td>tsvector en INSERT/UPDATE</td>
+              <td>Búsqueda ATC sin resultados</td>
+              <td><span class="risk-badge risk-active">ACTIVE</span></td>
+            </tr>
+            <tr>
+              <td>modules.path update</td>
+              <td>Materialized path en INSERT/UPDATE</td>
+              <td>Tree view con nesting incorrecto</td>
+              <td><span class="risk-badge risk-active">ACTIVE</span></td>
+            </tr>
+            <tr>
+              <td>Soft-delete cascade</td>
+              <td>Archiva hijos cuando padre se archiva</td>
+              <td>Datos huérfanos visibles</td>
+              <td><span class="risk-badge risk-active">ACTIVE</span></td>
+            </tr>
+            <tr>
+              <td>Idempotency cleanup cron</td>
+              <td>DELETE expired keys cada hora</td>
+              <td>Keys expiradas bloquean retries (false 200)</td>
+              <td><span class="risk-badge risk-planned">PLANNED</span></td>
+            </tr>
+            <tr>
+              <td>Run timeout sweeper</td>
+              <td>Auto-abort runs inactivos 15min</td>
+              <td>Runs abandonados forever "running"</td>
+              <td><span class="risk-badge risk-planned">PLANNED</span></td>
+            </tr>
+            <tr>
+              <td>Jira bug sync retry</td>
+              <td>Exponential backoff en sync fallido</td>
+              <td>Bugs nunca llegan a tracker externo</td>
+              <td><span class="risk-badge risk-planned">PLANNED</span></td>
+            </tr>
+            <tr>
+              <td>run_atcs.status recomputation</td>
+              <td>CASE WHEN trigger en run_steps</td>
+              <td>Run status nunca se actualiza</td>
+              <td><span class="risk-badge risk-planned">PLANNED</span></td>
+            </tr>
+            <tr>
+              <td>module_defect_stats MV</td>
+              <td>Nightly cron para refrescar heatmap</td>
+              <td>Heatmap con datos de ayer</td>
+              <td><span class="risk-badge risk-planned">PLANNED</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 12. Integraciones -->
+      <section class="slide" data-title="Integraciones">
+        <p class="kicker">External integrations</p>
+        <h2 class="h2">Integraciones externas</h2>
+        <p class="lede" style="font-size: 16px">
+          Solo <strong>Supabase</strong> está activamente integrada. Jira, Resend, OAuth tienen env
+          vars configurados pero <strong>cero código</strong> consumiéndolos.
+        </p>
+        <div class="grid g3" style="margin-top: 16px">
+          <div class="card" style="padding: 16px 20px; border-left: 3px solid var(--bad)">
+            <h4 style="font-size: 14px">Supabase ✅ ACTIVE</h4>
+            <ul style="font-size: 12px; margin: 6px 0 0; padding-left: 14px; color: var(--text-2)">
+              <li>RLS policy gap → data leak cross-workspace</li>
+              <li>Session expiry → user kicked mid-workflow</li>
+              <li>PostgREST auto-endpoints bypass versioned API</li>
+            </ul>
+          </div>
+          <div class="card" style="padding: 16px 20px; border-left: 3px solid var(--warn)">
+            <h4 style="font-size: 14px">Jira ⚠️ CONFIG ONLY</h4>
+            <ul style="font-size: 12px; margin: 6px 0 0; padding-left: 14px; color: var(--text-2)">
+              <li>ATLASSIAN_* env vars set</li>
+              <li>Import endpoint exists but may fail</li>
+              <li>AC extraction heuristic not built</li>
+            </ul>
+          </div>
+          <div class="card" style="padding: 16px 20px; border-left: 3px solid var(--warn)">
+            <h4 style="font-size: 14px">OAuth / Resend ⚠️ CONFIG ONLY</h4>
+            <ul style="font-size: 12px; margin: 6px 0 0; padding-left: 14px; color: var(--text-2)">
+              <li>GitHub/Google planned next sprint</li>
+              <li>Resend SDK not in package.json</li>
+              <li>Magic-link uses Supabase default provider</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13. Dependency chain -->
+      <section class="slide" data-title="Cadena de Dependencias">
+        <p class="kicker">Dependency cascade</p>
+        <h2 class="h2">Cadena de dependencias</h2>
+        <p class="dim" style="font-size: 13px; margin: -8px 0 12px">
+          Flujo end-to-end completo disponible hoy: setup chain + write cycle + workspace isolation
+        </p>
+        <div class="flow" style="font-size: 12px; line-height: 1.5">
+          Sign-up / Auth │ ▼ Workspace creation ──► Project ──► Module tree │ │ │ ▼ │ User Story +
+          ACs │ │ │ ▼ │ ATC creation ◄── (system boundary HOY) │ │ │ ┌────────────┴────────────┐ │ ▼
+          ▼ │ Phase 2 (planned): Phase 3 (planned): │ Test (ATC chain) ──► Jira bug sync │ Run
+          execution │ Bug filing, Heatmap │ ▼ Reports / dashboard (PostgREST)
+        </div>
+        <div class="grid g3" style="margin-top: 12px">
+          <div class="card" style="padding: 10px 14px; background: var(--good); color: #fff">
+            <strong>CRITICAL chain</strong><br /><span style="font-size: 12px"
+              >Setup: Sign-up → ATC creation</span
+            >
+          </div>
+          <div class="card" style="padding: 10px 14px; background: var(--good); color: #fff">
+            <strong>Write cycle</strong><br /><span style="font-size: 12px"
+              >Create → Edit → Version bump</span
+            >
+          </div>
+          <div class="card" style="padding: 10px 14px; background: var(--bad); color: #fff">
+            <strong>RLS isolation</strong><br /><span style="font-size: 12px"
+              >Workspace A ↔ B: test every entity</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- 14. Edge cases -->
+      <section class="slide" data-title="Casos Borde">
+        <p class="kicker">Edge cases</p>
+        <h2 class="h2">Casos borde que developers suelen olvidar</h2>
+        <div class="grid g2" style="margin-top: 16px">
+          <div class="card" style="padding: 14px 18px">
+            <h4 style="font-size: 13px">Concurrencia</h4>
+            <ul style="font-size: 12px; margin: 4px 0 0; padding-left: 14px; color: var(--text-2)">
+              <li>2 users saving same ATC → version collision</li>
+              <li>2 users creating same project slug (workspace-scoped)</li>
+              <li>Revoke PAT while in-flight request</li>
+            </ul>
+          </div>
+          <div class="card" style="padding: 14px 18px">
+            <h4 style="font-size: 13px">Permisos (FEAT-WS-002)</h4>
+            <ul style="font-size: 12px; margin: 4px 0 0; padding-left: 14px; color: var(--text-2)">
+              <li>Member cannot delete workspace</li>
+              <li>Viewer cannot create/edit/delete</li>
+              <li>
+                PAT inherits role at creation — role changes must NOT affect existing tokens
+                (BK-135)
+              </li>
+            </ul>
+          </div>
+          <div class="card" style="padding: 14px 18px">
+            <h4 style="font-size: 13px">Data limits</h4>
+            <ul style="font-size: 12px; margin: 4px 0 0; padding-left: 14px; color: var(--text-2)">
+              <li>Module depth >6 → rejected</li>
+              <li>Description >50 KB → rejected (BK-099)</li>
+              <li>PAT TTL up to 365 days → expiry enforcement</li>
+            </ul>
+          </div>
+          <div class="card" style="padding: 14px 18px">
+            <h4 style="font-size: 13px">Estados huérfanos</h4>
+            <ul style="font-size: 12px; margin: 4px 0 0; padding-left: 14px; color: var(--text-2)">
+              <li>Delete user → qué pasa con sus ATCs?</li>
+              <li>Archive module → cascade a children</li>
+              <li>Delete project → cascade a modules/US/AC/ATC?</li>
+            </ul>
+          </div>
+          <div class="card" style="padding: 14px 18px">
+            <h4 style="font-size: 13px">ATC save edge cases</h4>
+            <ul style="font-size: 12px; margin: 4px 0 0; padding-left: 14px; color: var(--text-2)">
+              <li>Empty steps → save ok</li>
+              <li>Same AC anchored twice → dedup</li>
+              <li>Steps markdown with code blocks → round-trip parse/serialize</li>
+            </ul>
+          </div>
+          <div class="card" style="padding: 14px 18px">
+            <h4 style="font-size: 13px">Auth edge cases</h4>
+            <ul style="font-size: 12px; margin: 4px 0 0; padding-left: 14px; color: var(--text-2)">
+              <li>Session cookie expired → auto-refresh?</li>
+              <li>PAT malformed hash → 401, not 500</li>
+              <li>Token from otro workspace scope → 403</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 15. Pre-release checklist -->
+      <section class="slide" data-title="Checklist Pre-Release">
+        <p class="kicker">Pre-release checklist</p>
+        <h2 class="h2">12 items testeables hoy</h2>
+        <p class="dim" style="font-size: 13px; margin: -8px 0 10px">
+          Priority-ordered. System boundary = ATC authoring.
+        </p>
+        <div class="grid g2" style="grid-template-columns: 1.2fr 1fr; gap: 16px">
+          <div>
+            <ol style="font-size: 13px; line-height: 1.7; margin: 0; padding-left: 20px">
+              <li>Verificar RLS en toda entidad con workspace_id</li>
+              <li>Setup chain: sign-up → workspace → project → module → US → AC → ATC</li>
+              <li>Crear ATC con 5 steps, 3 assertions, 2 AC anchors</li>
+              <li>Editar ATC title → version incrementado</li>
+              <li>Save concurrente desde 2 tabs → version conflict</li>
+              <li>Module depth 7 → rejected; depth 6 → success</li>
+              <li>Soft-delete module → children archivados</li>
+              <li>Crear PAT, listar, revocar, verify no listado</li>
+              <li>PAT member scope → admin op → 403 (BK-135)</li>
+              <li>Entity workspace A → workspace B no accede (RLS)</li>
+              <li>API error envelope: invalid input → 422 con <code>{ error }</code></li>
+              <li>ATC save sin AC anchor → rejected</li>
+            </ol>
+          </div>
+          <div class="card" style="padding: 16px 20px; background: var(--surface-2)">
+            <h4 style="font-size: 13px">Phase 2+ (not testable yet)</h4>
+            <ol
+              start="13"
+              style="
+                font-size: 12px;
+                line-height: 1.6;
+                margin: 0;
+                padding-left: 16px;
+                color: var(--text-3);
+              "
+            >
+              <li>Edit ATC referenced by 2+ tests → propagate</li>
+              <li>Run state machine: pass/fail/abort</li>
+              <li>Idempotency: POST /runs with key → 201; same key → 200</li>
+              <li>Import 501 Jira issues → 500 created, 501st rejected</li>
+              <li>File bug from run → auto-context + Jira sync</li>
+              <li>Rate-limit burst: 101 writes/min → 429</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- 16. Discovery Gaps -->
+      <section class="slide" data-title="Discovery Gaps">
+        <p class="kicker">Discovery gaps</p>
+        <h2 class="h2">Hallazgos de la exploración</h2>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px">
+          <div class="card" style="padding: 12px 18px; border-left: 3px solid var(--bad)">
+            <h4 style="font-size: 14px">CRUD coverage críticamente baja</h4>
+            <p style="font-size: 13px; color: var(--text-2); margin: 2px 0 0">
+              Solo <code>atcs</code> y <code>access_tokens</code> tienen CRUD completo via API
+              versionada. El resto son read-only via PostgREST. Runs engine, tests, bugs,
+              activity_log no migrados.
+            </p>
+          </div>
+          <div class="card" style="padding: 12px 18px; border-left: 3px solid var(--bad)">
+            <h4 style="font-size: 14px">Bearer middleware = dead code</h4>
+            <p style="font-size: 13px; color: var(--text-2); margin: 2px 0 0">
+              requireBearerToken() existe pero cero rutas lo usan. PAT auth sin enforce end-to-end.
+            </p>
+          </div>
+          <div class="card" style="padding: 12px 18px; border-left: 3px solid var(--warn)">
+            <h4 style="font-size: 14px">OpenAPI spec incompleta (~20%)</h4>
+            <p style="font-size: 13px; color: var(--text-2); margin: 2px 0 0">
+              Solo 5 endpoints documentados (Health, Auth, Tokens). PostgREST endpoints, Server
+              Actions, UI data layer ausentes.
+            </p>
+          </div>
+          <div class="card" style="padding: 12px 18px; border-left: 3px solid var(--warn)">
+            <h4 style="font-size: 14px">No hay UI para creación de entidades</h4>
+            <p style="font-size: 13px; color: var(--text-2); margin: 2px 0 0">
+              Projects, modules, US, ACs no tienen formulario de creación. Se crean via imports
+              externos o DB directo.
+            </p>
+          </div>
+          <div class="card" style="padding: 12px 18px; border-left: 3px solid var(--text-3)">
+            <h4 style="font-size: 14px">Idempotency no funcional</h4>
+            <p style="font-size: 13px; color: var(--text-2); margin: 2px 0 0">
+              Header validation only — no replay store. Duplicate POSTs no detectados.
+            </p>
+          </div>
+          <div class="card" style="padding: 12px 18px; border-left: 3px solid var(--text-3)">
+            <h4 style="font-size: 14px">SLAs de integraciones no documentados</h4>
+            <p style="font-size: 13px; color: var(--text-2); margin: 2px 0 0">
+              Rate limits y timeouts de Supabase Auth, PostgREST, OAuth providers no están
+              documentados.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 17. Close -->
+      <section class="slide center tc" data-title="Próximos Pasos">
+        <div>
+          <p class="kicker">Next steps</p>
+          <h1 class="h1" style="font-size: 48px">Próximos pasos</h1>
+          <div class="divider-accent" style="margin: 16px auto 24px"></div>
+          <div class="grid g3" style="text-align: left; margin-top: 8px">
+            <div class="card" style="padding: 16px 20px">
+              <h4 style="font-size: 14px; color: var(--bad)">Inmediato</h4>
+              <ul
+                style="font-size: 12px; margin: 6px 0 0; padding-left: 14px; color: var(--text-2)"
+              >
+                <li>Ejecutar checklist 12 items</li>
+                <li>Cross-reference 29 bugs BK contra risk scores</li>
+                <li>Completar api:sync + /business-api-map</li>
+              </ul>
+            </div>
+            <div class="card" style="padding: 16px 20px">
+              <h4 style="font-size: 14px; color: var(--warn)">Phase 2</h4>
+              <ul
+                style="font-size: 12px; margin: 6px 0 0; padding-left: 14px; color: var(--text-2)"
+              >
+                <li>Runs engine + tests migration</li>
+                <li>Idempotency store</li>
+                <li>Rate limiting</li>
+                <li>ATC edit propagation</li>
+              </ul>
+            </div>
+            <div class="card" style="padding: 16px 20px">
+              <h4 style="font-size: 14px; color: var(--accent-2)">Phase 3</h4>
+              <ul
+                style="font-size: 12px; margin: 6px 0 0; padding-left: 14px; color: var(--text-2)"
+              >
+                <li>Jira sync + defect management</li>
+                <li>Monte Carlo heatmap</li>
+                <li>Agent execution protocol</li>
+                <li>OAuth providers wiring</li>
+              </ul>
+            </div>
+          </div>
+          <p class="lede" style="font-size: 16px; margin: 24px auto 0; max-width: 480px">
+            El sistema es funcional para ATC authoring. Lo más crítico hoy:
+            <strong>RLS, integridad de ATC, y auth middleware</strong>.
+          </p>
+          <div class="deck-footer" style="margin-top: 24px">
+            <span class="dim2">Bunkai QA · Master Test Plan</span><span></span>
+          </div>
+        </div>
+      </section>
+    </div>
+    <script src="file:///C:/Users/QWolf/.agents/skills/html-ppt/assets/runtime.js"></script>
+  </body>
+</html>
