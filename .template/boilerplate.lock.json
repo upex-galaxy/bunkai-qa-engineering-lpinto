@@ -3,53 +3,61 @@
   "templateRepo": "upex-galaxy/agentic-qa-boilerplate",
   "templateCommit": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
   "perComponentCommit": {
-    "skills": "56ec56992a461e478bb76df13159a6cc9dd5ff80",
-    "commands": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
-    "scripts": "56ec56992a461e478bb76df13159a6cc9dd5ff80",
-    "docs": "56ec56992a461e478bb76df13159a6cc9dd5ff80",
+    "skills": "f5b80d0dbb82038440ae5349488321db30d78952",
+    "commands": "f5b80d0dbb82038440ae5349488321db30d78952",
+    "scripts": "f5b80d0dbb82038440ae5349488321db30d78952",
+    "docs": "f5b80d0dbb82038440ae5349488321db30d78952",
     "cli": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
     "vscode": "56ec56992a461e478bb76df13159a6cc9dd5ff80",
     "husky": "56ec56992a461e478bb76df13159a6cc9dd5ff80",
     "agents-docs": "56ec56992a461e478bb76df13159a6cc9dd5ff80",
     "claude-config": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
     "tooling": "02b93fbc43a3295d4c058e45443b17d8c6a8cfd1",
-    "env-template": "b99a2689f4d2a85f4d6fe0997d7627d0e1f20b16"
+    "env-template": "f5b80d0dbb82038440ae5349488321db30d78952"
   },
   "syncedComponents": [],
   "ignoreFileSync": {
     ".prettierignore": {
-      "lastSyncedSha": "c458761b1ac4605ca54f82dcf30411797bfc6b0a",
+      "lastSyncedSha": "5976ac77f0a92296eca72803773618c7d317227e",
       "appendedLines": [
         "api/openapi*",
         "api/.openapi-config.json",
         ".playwright-mcp/",
         ".backups/",
-        ".claude/worktrees/"
+        ".claude/worktrees/",
+        "packages/decks/",
+        "scripts/contribution-audit/out/",
+        "scripts/contribution-audit/roster.local.json",
+        "scripts/contribution-audit/report_template.html"
       ]
     },
     ".gitignore": {
-      "lastSyncedSha": "f3184f5cef1aeb34e57079198388edbda3df5427",
+      "lastSyncedSha": "f52255194b1b13012d8dbafc6dcaf20d7ce49ccd",
       "appendedLines": [
-        ".template/claude-md.upstream.sha"
+        ".template/claude-md.upstream.sha",
+        "/.allure/",
+        "/.agents/prompts/"
       ]
     }
   },
   "packageJsonSync": {
     "package.json": {
       "scripts": {
-        "lastSyncedSha": "da8e0cd10ebee88a102e5595a478f92580b48ea1",
+        "lastSyncedSha": "a5f848544f56080ceff9a25cade06ccd4b05a35d",
         "appliedKeys": [
           "vars:env:check",
           "env"
         ]
       },
       "devDependencies": {
-        "lastSyncedSha": "da8e0cd10ebee88a102e5595a478f92580b48ea1",
-        "appliedKeys": []
+        "lastSyncedSha": "a5f848544f56080ceff9a25cade06ccd4b05a35d",
+        "appliedKeys": [
+          "allure-js-commons"
+        ]
       }
     }
   },
   "cliVersion": "7.0",
-  "lastSyncedAt": "2026-06-29T10:02:53.504Z",
+  "lastSyncedAt": "2026-07-22T18:55:05.550Z",
   "variableSystemVersion": 1
 }
