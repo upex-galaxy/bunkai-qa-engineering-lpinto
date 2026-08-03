@@ -1,4 +1,3 @@
-/* eslint-disable no-undef, no-unused-vars, no-unused-expressions, unused-imports/no-unused-vars */
 // slack-clip.js — put HTML on the macOS clipboard with the canonical public.html
 // flavor (+ a clean plain-text fallback) so pasting into Slack renders rich content:
 // a real table, plus bold / italic / underline / strikethrough / inline code / links / bullets.
@@ -30,7 +29,7 @@ ObjC.import('AppKit');
 ObjC.import('Foundation');
 
 function readFile(path) {
-  const s = $.NSString.stringWithContentsOfFileEncodingError($(path), $.NSUTF8StringEncoding, $());
+  var s = $.NSString.stringWithContentsOfFileEncodingError($(path), $.NSUTF8StringEncoding, $());
   return s.isNil() ? null : ObjC.unwrap(s);
 }
 
@@ -41,17 +40,14 @@ function htmlToText(html) {
     .replace(/<head[\s\S]*?<\/head>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<\s*br\s*\/?>/gi, '\n')
-    .replace(/\s*<\/\s*tr\s*>\s*/gi, '\n') // one newline per row (consume source whitespace)
-    .replace(/<\/\s*t[hd]\s*>\s*<\s*t[hd][^>]*>/gi, '\t') // a tab between cells
+    .replace(/\s*<\/\s*tr\s*>\s*/gi, '\n')                 // one newline per row (consume source whitespace)
+    .replace(/<\/\s*t[hd]\s*>\s*<\s*t[hd][^>]*>/gi, '\t')  // a tab between cells
     .replace(/<\/\s*(p|h[1-6]|div|li|table)\s*>/gi, '\n')
     .replace(/<[^>]+>/g, '')
     .replace(/&#8594;|&rarr;/g, '->')
     .replace(/&#8212;|&mdash;/g, '--')
     .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
     .replace(/[ \t]+\n/g, '\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
@@ -62,15 +58,15 @@ function run(argv) {
     console.log('usage: osascript -l JavaScript cli/slack-clip.js <html-file>');
     return;
   }
-  let html = readFile(argv[0]);
-  if (html === null) { console.log(`ERROR: cannot read ${argv[0]}`); return; }
+  var html = readFile(argv[0]);
+  if (html === null) { console.log('ERROR: cannot read ' + argv[0]); return; }
   html = html.trim(); // CRITICAL: a trailing newline after </table> makes Slack see mixed content and drop the table
 
-  const text = htmlToText(html);
-  const pb = $.NSPasteboard.generalPasteboard;
+  var text = htmlToText(html);
+  var pb = $.NSPasteboard.generalPasteboard;
   pb.clearContents;
   pb.declareTypesOwner($([$.NSPasteboardTypeHTML, $.NSPasteboardTypeString]), $());
-  const okH = pb.setStringForType($(html), $.NSPasteboardTypeHTML);
-  const okT = pb.setStringForType($(text), $.NSPasteboardTypeString);
-  console.log(`clipboard set -> public.html=${okH} plain-text=${okT} (${html.length} html bytes)`);
+  var okH = pb.setStringForType($(html), $.NSPasteboardTypeHTML);
+  var okT = pb.setStringForType($(text), $.NSPasteboardTypeString);
+  console.log('clipboard set -> public.html=' + okH + ' plain-text=' + okT + ' (' + html.length + ' html bytes)');
 }

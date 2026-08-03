@@ -19,6 +19,9 @@ export default antfu({
     'allure-report',
     'reports',
     'cli/legacy/**',
+    // macOS JXA helper (ObjC/$ globals, `var` scope rules) — not subject to Node/TS lint.
+    // Mirrors upstream agentic-qa-boilerplate eslint.config.js ignore.
+    'cli/slack-clip.js',
     '*.min.js',
     // Documentation files (contain code examples that shouldn't be linted)
     '**/*.md',
