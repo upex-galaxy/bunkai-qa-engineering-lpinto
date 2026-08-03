@@ -10,6 +10,8 @@
  */
 
 import type { AtcResult } from '@utils/decorators';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { config, env } from '@variables';
 
 // ============================================
@@ -175,8 +177,34 @@ async function syncToXray(results: Record<string, AtcResult[]>): Promise<SyncRes
 // Jira Direct Sync
 // ============================================
 
+/**
+ * Resolves the Jira run-status custom field id. A literal value set in the
+ * environment wins; otherwise the `test_status` slug is resolved from
+ * `.agents/jira-fields.json` at runtime. Never hardcode a `customfield_XXXXX`
+ * id here — ids are per-instance data (acli skill, anti-pattern T2).
+ */
+function resolveTestStatusField(): string {
+  if (config.tms.jira.testStatusField) {
+    return config.tms.jira.testStatusField;
+  }
+  const catalogPath = join(import.meta.dir, '..', '..', '.agents', 'jira-fields.json');
+  if (!existsSync(catalogPath)) {
+    console.warn('[WARN] .agents/jira-fields.json missing — cannot resolve test_status field id.');
+    return '';
+  }
+  try {
+    const catalog = JSON.parse(readFileSync(catalogPath, 'utf8')) as Record<string, { id?: string }>;
+    return catalog.test_status?.id ?? '';
+  }
+  catch {
+    console.warn('[WARN] Cannot parse .agents/jira-fields.json — falling back to empty field id.');
+    return '';
+  }
+}
+
 async function syncToJiraDirect(results: Record<string, AtcResult[]>): Promise<SyncResult> {
-  const { url, user, apiToken, testStatusField } = config.tms.jira;
+  const { url, user, apiToken } = config.tms.jira;
+  const testStatusField = resolveTestStatusField();
 
   if (!url || !user || !apiToken) {
     console.error('[ERROR] Missing Atlassian credentials. Check ATLASSIAN_URL, ATLASSIAN_EMAIL, ATLASSIAN_API_TOKEN.');
@@ -199,14 +227,18 @@ async function syncToJiraDirect(results: Record<string, AtcResult[]>): Promise<S
     try {
       console.log(`[UPDATE] Updating ${testId}...`);
 
+      const fields: Record<string, { value: string }> = {};
+      if (testStatusField) {
+        fields[testStatusField] = { value: finalStatus };
+      }
+      else {
+        console.warn(`[WARN] No test-status field id resolved — skipping field write for ${testId}`);
+      }
+
       const updateResponse = await fetch(`${url}/rest/api/3/issue/${testId}`, {
         method: 'PUT',
         headers,
-        body: JSON.stringify({
-          fields: {
-            [testStatusField]: { value: finalStatus },
-          },
-        }),
+        body: JSON.stringify({ fields }),
       });
 
       if (!updateResponse.ok && updateResponse.status !== 204) {
