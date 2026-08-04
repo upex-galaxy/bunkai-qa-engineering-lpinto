@@ -6,7 +6,6 @@
 **Status:** Ready For Release
 **Priority:** Medium
 **Story Points:** -
-**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -18,7 +17,7 @@
 ***I want to*** create a Workspace, with a slug auto-derived from the name and myself enrolled as its owner
 ***So that*** I have a tenant to organize my team's projects and testing work
 
-## QA Refinements (Shift-Left Analysis) — BK-4
+## QA Refinements (Shift-Left Analysis) — [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4)
 
 ### Story Quality: Needs Improvement
 
@@ -59,18 +58,6 @@
 
 ---
 
-## Fields
-
-> Each rich-text field is a separate file in this folder.
-
-- [Acceptance Criteria](./acceptance-criteria.md)
-- [Business Rules](./business-rules.md)
-- [Scope](./scope.md)
-- [Out Of Scope](./out-of-scope.md)
-- [Workflow](./workflow.md)
-
----
-
 ## Traceability
 
 ### Story (1)
@@ -82,7 +69,7 @@
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 8/6/2026
+- **Updated:** 22/7/2026
 - **Reporter:** Ely
 - **Assignee:** Ely
 - **Labels:** mvp, shift-left-2026-05-27, shift-left-reviewed, tenancy, wave-1

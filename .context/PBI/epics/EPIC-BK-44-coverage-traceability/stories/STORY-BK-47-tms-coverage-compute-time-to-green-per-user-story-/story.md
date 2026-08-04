@@ -3,10 +3,9 @@
 **Jira Key:** [BK-47](https://jira.upexgalaxy.com/browse/BK-47)
 **Epic:** [BK-44](https://jira.upexgalaxy.com/browse/BK-44) (Coverage & Traceability)
 **Type:** Story
-**Status:** Shift-Left QA
+**Status:** Ready For QA
 **Priority:** Medium
 **Story Points:** -
-**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -22,10 +21,7 @@ As a QA Lead, I want each user story to show how long it took to go from its fir
 
 > Each rich-text field is a separate file in this folder.
 
-- [Acceptance Criteria](./acceptance-criteria.md)
-- [Business Rules](./business-rules.md)
-- [Scope](./scope.md)
-- [Out Of Scope](./out-of-scope.md)
+- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
 
@@ -41,10 +37,10 @@ As a QA Lead, I want each user story to show how long it took to go from its fir
 ## Metadata
 
 - **Created:** 1/6/2026
-- **Updated:** 5/6/2026
+- **Updated:** 1/8/2026
 - **Reporter:** Ely
-- **Assignee:** Unassigned
-- **Labels:** new-feature
+- **Assignee:** Juan Ignacio Marmo
+- **Labels:** implementation-plan-ready, new-feature, shift-left-2026-07-24, shift-left-reviewed
 
 ---
 

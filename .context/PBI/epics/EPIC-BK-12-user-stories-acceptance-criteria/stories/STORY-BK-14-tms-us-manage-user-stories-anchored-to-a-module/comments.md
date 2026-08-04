@@ -44,26 +44,26 @@
 
 ### Ely - 4/6/2026, 23:37:11
 
-## Ready For QA — BK-14 (Manage user stories anchored to a module)
+## Ready For QA — [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14) (Manage user stories anchored to a module)
 
 Merged to staging and deployed. Ready for testing on staging.
 
 ### Links
 
-- PR: https://github.com/upex-galaxy/upex-bunkai-tms/pull/13 (merged)
-- Staging: https://staging-upexbunkai.vercel.app — deploy READY
+- PR: [https://github.com/upex-galaxy/upex-bunkai-tms/pull/13](https://github.com/upex-galaxy/upex-bunkai-tms/pull/13) (merged)
+- Staging: [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/) — deploy READY
 - Merge commit: 8a19b1f
 
 ### What shipped
 
 - Per-module "New User Story" action in the project tree; per-story edit and remove actions on the story rows.
-- The story form takes a title, a Markdown description (the BK-16 editor, up to 50 KB, sanitized), and an optional Jira key. The Jira key is locked once set.
+- The story form takes a title, a Markdown description (the [https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16) editor, up to 50 KB, sanitized), and an optional Jira key. The Jira key is locked once set.
 - Stories that are removed are archived (hidden from the module's default list, retained).
 
 ### As-built contract (observable)
 
 - Create: POST /api/v1/modules/{moduleId}/user-stories. List: GET same path. Single + edit + remove: GET/PATCH/DELETE /api/v1/user-stories/{id}.
-- Title required, 3–200. Jira key must read as LETTERS-NUMBER (e.g. BK-42), unique per project (case-insensitive), immutable once set (409). Description Markdown ≤ 50 KB. Removing archives (409 on re-remove).
+- Title required, 3–200. Jira key must read as LETTERS-NUMBER (e.g. [https://jira.upexgalaxy.com/browse/BK-42#icft=BK-42](https://jira.upexgalaxy.com/browse/BK-42#icft=BK-42)), unique per project (case-insensitive), immutable once set (409). Description Markdown ≤ 50 KB. Removing archives (409 on re-remove).
 
 ### Suggested QA focus
 
@@ -77,8 +77,125 @@ Merged to staging and deployed. Ready for testing on staging.
 ### Notes / known follow-ups
 
 - The Jira key shows as a visible reference but is not yet a clickable hyperlink (no Jira base URL is configured app-side) — follow-up.
-- "Re-import updates instead of duplicating" is BK-17 (Jira import); BK-14 stores the key + provides the uniqueness index that enables it.
+- "Re-import updates instead of duplicating" is [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) (Jira import); [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14) stores the key + provides the uniqueness index that enables it.
 - The story description is shown via the editor's preview; a dedicated read-only story detail view arrives with later work.
+
+---
+
+### Nahuel Gomez - 30/6/2026, 23:14:37
+
+## QA Automation Session — Complete Report (2026-06-30)
+
+### Tally
+
+| ***Ticket**** | ****Tests**** | ****Status*** |
+| --- | --- | --- |
+| [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) | 8 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4) | 4 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) | 4 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) | 6 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14) | 5 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) (prev) | 17 | ✅ PASS |
+| ***Total**** | ****44 + 1 fixme*** |  |
+
+### Infrastructure changes
+
+- ***loginEndpoint**** fixed: `/auth/login` → `/api/v1/auth/signin`. The old endpoint 404s ([https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177)). The [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) endpoint works. ****Integration project is now unblocked.***
+- ***AuthApi*** updated to use sign-in PAT (not session token) for API auth — matches [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) coexistence pattern.
+- ***meEndpoint*** fixed to `/api/v1/me` (actual path).
+- ***auth.types.ts*** updated to match real API response shapes.
+- ***jira-attach-evidence.ts*** script created for attaching screenshots to Jira tickets via REST API.
+
+### CI/CD
+
+- All tests pass in sandbox project. Allure reports at:
+
+[https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/](https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/)
+
+### Known gaps (unchanged)
+
+- [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) 403 scope test — blocked on restricted-scope PAT
+- Sandbox → `.test.ts` promotion — now feasible since api-setup works
+- Nightly regression doesn't include sandbox tests yet (PR gate + manual only)
+
+### Next-step candidates
+
+| ***Priority**** | ****Ticket**** | ****Summary**** | ****Est. time*** |
+| --- | --- | --- | --- |
+| 1 | [https://jira.upexgalaxy.com/browse/BK-182#icft=BK-182](https://jira.upexgalaxy.com/browse/BK-182#icft=BK-182) | Bearer run can't resolve active workspace | ~15 min |
+| 2 | [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) | ATC "Used in N tests" report | ~15 min |
+| 3 | [https://jira.upexgalaxy.com/browse/BK-57#icft=BK-57](https://jira.upexgalaxy.com/browse/BK-57#icft=BK-57) | PATCH /modules/{id} atomicity | ~20 min |
+| 4 | [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) | Abort a run in progress | ~20 min |
+
+---
+
+### Nahuel Gomez - 6/7/2026, 19:59:02
+
+1. 
+
+****Verdict: PASSED WITH FINDINGS****
+
+1. 
+
+- ****8/9 API tests PASSED**** — CRUD, validation boundaries, Jira key linking, duplicate rejection, soft-delete
+- ****3/3 UI tests PASSED**** — Edit form renders, Markdown editor ([https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16)) present, Jira key field visible
+- ****Prior automation (30 Jun):**** 5/5 PASSED
+
+1. 
+
+1. 
+
+- AC1 (Create): ✅ | AC2 (Short title): ✅ | AC3 (Jira link): ✅
+- AC4 (Malformed key): ✅ | AC5 (Duplicate): ✅ | AC6 (Archive): ✅
+- Boundary: ✅ | Security: ✅ | State transitions: ✅
+
+1. 
+
+1. 
+
+---
+
+### Nahuel Gomez - 6/7/2026, 20:50:38
+
+1. 
+
+Allure report from QA automation session covering 5 API tests for [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14):
+
+[https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/](https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/)
+
+All 5 tests PASSED. Tests validated: create story, title validation, Jira key link, duplicate key rejection, soft-delete.
+
+---
+
+### Nahuel Gomez - 10/7/2026, 21:01:21
+
+## [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14) — QA Close-out
+
+***Verdict:*** QA Approved ✅
+***ATP:*** 23 test outlines. See local PBI folder for full detail.
+***QA Framework:*** Playwright JavaScript (field blocked by QA Approved screen — set when editable)
+
+***Handing off to Ely for release triage.***
+
+---
+
+### Nahuel Gomez - 22/7/2026, 22:09:06
+
+## QA Automation — Sandbox Promoted to KATA Component
+
+***UserStoriesApi*** component created — 5 ATCs refactored from raw `api.apiPOST()` calls to proper KATA component methods.
+
+### Tests (5/5 ✅)
+
+- Create user story → 201
+- Title < 3 chars → 422
+- Empty body → 422
+- Unauthenticated → 401
+- Non-existent module → 404
+
+### ATC Count
+
+32 → 37 (+5 UserStoriesApi methods)
 
 ---
 

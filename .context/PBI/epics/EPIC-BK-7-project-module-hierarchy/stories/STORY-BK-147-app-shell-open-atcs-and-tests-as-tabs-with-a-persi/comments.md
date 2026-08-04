@@ -18,11 +18,11 @@
 
 ### Ely - 19/6/2026, 19:03:58
 
-Merged to staging via PR #43 (https://github.com/upex-galaxy/upex-bunkai-tms/pull/43). Deployed to https://staging-upexbunkai.vercel.app — ready for QA.
+Merged to staging via PR #43 ([https://github.com/upex-galaxy/upex-bunkai-tms/pull/43](https://github.com/upex-galaxy/upex-bunkai-tms/pull/43)). Deployed to [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/) — ready for QA.
 
-***Scope delivered******:*** persistent project explorer + toolbar on every project route; ATCs and Tests open as route-driven workbench tabs (multi-tab, dedup, close→adjacent, close-last→index); deep-link opens an item as a tab; safe in-shell not-found for deleted/invisible items; app-shell search wired to ⌘K palette.
+***Scope delivered:*** persistent project explorer + toolbar on every project route; ATCs and Tests open as route-driven workbench tabs (multi-tab, dedup, close→adjacent, close-last→index); deep-link opens an item as a tab; safe in-shell not-found for deleted/invisible items; app-shell search wired to ⌘K palette.
 
-All 10 acceptance scenarios validated live on the "Rocket" project; quality gates green (types/lint/tests). Bundled fix: BK-28 Test-detail hydration mismatch.
+All 10 acceptance scenarios validated live on the "Rocket" project; quality gates green (types/lint/tests). Bundled fix: [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) Test-detail hydration mismatch.
 
 @Ely ready for QA verification on staging.
 
@@ -30,7 +30,7 @@ All 10 acceptance scenarios validated live on the "Rocket" project; quality gate
 
 ### Nahuel Gomez - 23/6/2026, 23:45:08
 
-## BK-147 — QA Report
+## [https://jira.upexgalaxy.com/browse/BK-147#icft=BK-147](https://jira.upexgalaxy.com/browse/BK-147#icft=BK-147) — QA Report
 
 Tested: 2026-06-23 · Environment: Staging · Result: PASSED (4/11) · BLOCKED (7/11 — data gap)
 
@@ -68,7 +68,7 @@ TC4+TC9: Multi-tab with ATC deep link loaded in workbench
 
 ### Nahuel Gomez - 24/6/2026, 0:09:38
 
-## BK-147 — QA Final Report
+## [https://jira.upexgalaxy.com/browse/BK-147#icft=BK-147](https://jira.upexgalaxy.com/browse/BK-147#icft=BK-147) — QA Final Report
 
 Result: PASSED (10/11) — App shell tab workbench verified.
 

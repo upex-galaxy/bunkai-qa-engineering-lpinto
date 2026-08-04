@@ -6,7 +6,7 @@
 
 ### Nahuel Gomez - 9/6/2026, 18:39:07
 
-## QA Report — BK-98
+## QA Report — [https://jira.upexgalaxy.com/browse/BK-98#icft=BK-98](https://jira.upexgalaxy.com/browse/BK-98#icft=BK-98)
 
 ***Status:*** PASSED
 
@@ -18,7 +18,7 @@
 
 ### Summary
 
-QA completed for BK-98 (Projects view switcher: Tree / Table / Mind map). All 10 test scenarios passed. The view switcher, detail pane, mind map modes, filter chips, accordion rows, context menu, collapsible panel, and Create ATC shortcut all conform to specification.
+QA completed for [https://jira.upexgalaxy.com/browse/BK-98#icft=BK-98](https://jira.upexgalaxy.com/browse/BK-98#icft=BK-98) (Projects view switcher: Tree / Table / Mind map). All 10 test scenarios passed. The view switcher, detail pane, mind map modes, filter chips, accordion rows, context menu, collapsible panel, and Create ATC shortcut all conform to specification.
 
 ### Key Finding
 
@@ -31,7 +31,7 @@ Browser-based interactive testing is limited: the QA test user (`qa-headless@bun
 
 ### Evidence
 
-![Smoke — Staging login page](bk98-login-smoke.png)
+![Smoke — Staging login page|bk98-login-smoke.png]
 
 ### Verdict
 

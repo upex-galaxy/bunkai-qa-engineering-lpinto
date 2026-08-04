@@ -8,7 +8,7 @@
 
 ## Shift-Left Review Update Summary
 
-BK-28 has been re-refined using the shift-left-workflow-pattern with expert-development-team-analysis. The previous v2 analysis (2026-06-04) was restructured into the canonical description format matching BK-34's structure.
+[https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) has been re-refined using the shift-left-workflow-pattern with expert-development-team-analysis. The previous v2 analysis (2026-06-04) was restructured into the canonical description format matching BK-34's structure.
 
 ### What changed
 
@@ -19,24 +19,24 @@ BK-28 has been re-refined using the shift-left-workflow-pattern with expert-deve
 
 ### Findings
 
-| Category | Count |
+| ***Category**** | ****Count*** |
 | --- | --- |
 | Gherkin scenarios | 12 (Happy 2, No-op 2, Negative 4, Boundary 2, Integration 2) |
 | Business rules | 11 |
 | Open clarifications | 6 (with expert recommendations) |
-| Dependencies | 1 (blocked-by BK-27) |
+| Dependencies | 1 (blocked-by [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27)) |
 
 ### Risks
 
-| Risk | Severity | Mitigation |
+| ***Risk**** | ****Severity**** | ****Mitigation*** |
 | --- | --- | --- |
-| BK-27 (Test assembly) not yet landed | HIGH | BK-28 stays in Estimation until BK-27 ships |
-| tests table may lack version column | MEDIUM | BK-28 adds migration if BK-27 omits it |
+| [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) (Test assembly) not yet landed | HIGH | [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) stays in Estimation until [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) ships |
+| tests table may lack version column | MEDIUM | [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) adds migration if [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) omits it |
 | Concurrent reorder race condition | LOW | Optimistic locking + 409 conflict |
 
 ### Recommendations
 
-- Schedule BK-27 before BK-28 if both are in the same sprint.
+- Schedule [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) before [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) if both are in the same sprint.
 - PO to confirm lenient If-Match mode and full-chain activity log storage.
 - Architect to confirm version field migration ownership.
 
@@ -54,7 +54,7 @@ BK-28 has been re-refined using the shift-left-workflow-pattern with expert-deve
 
 ### Scenario Matrix
 
-| # | Scenario | Type | AC Coverage |
+| ***#**** | ****Scenario**** | ****Type**** | ****AC Coverage*** |
 | --- | --- | --- | --- |
 | 1 | Successful reorder of ATC chain | Happy | AC-1 |
 | 2 | Reorder persists across reads | Happy | AC-1 |
@@ -71,7 +71,7 @@ BK-28 has been re-refined using the shift-left-workflow-pattern with expert-deve
 
 ### Coverage Summary
 
-| Category | Count |
+| ***Category**** | ****Count*** |
 | --- | --- |
 | Positive (Happy) | 2 |
 | No-op | 2 |
@@ -83,12 +83,12 @@ BK-28 has been re-refined using the shift-left-workflow-pattern with expert-deve
 ### Risk Score: 12/125 (LOW)
 
 - Complexity: 2 (single PATCH, array reorder, no-op detection)
-- Uncertainty: 2 (pattern exists from BK-18; tests table pending from BK-27)
+- Uncertainty: 2 (pattern exists from BK-18; tests table pending from [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27))
 - Blast Radius: 3 (affects Run execution order, no data loss)
 
 ### Dependency
 
-blocked-by BK-27 (Test assembly) — tests table does not exist yet.
+blocked-by [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) (Test assembly) — tests table does not exist yet.
 
 ---
 
@@ -106,14 +106,14 @@ blocked-by BK-27 (Test assembly) — tests table does not exist yet.
 
 ### Ely - 19/6/2026, 15:13:13
 
-## Ready for QA — BK-28 reorder ATCs
+## Ready for QA — [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) reorder ATCs
 
 Merged to ***staging*** and deploying.
 
-- ***PR******:*** [#42](https://github.com/upex-galaxy/upex-bunkai-tms/pull/42) (merged, `--no-ff`)
-- ***Branch******:*** `feature/BK-28-reorder-atcs`
-- ***Staging******:*** https://staging-upexbunkai.vercel.app/ (deploy in progress)
-- ***DB******:*** migration `0026*tests*reorder.sql` applied (shared Supabase project)
+- ***PR:*** [#42](https://github.com/upex-galaxy/upex-bunkai-tms/pull/42) (merged, `--no-ff`)
+- ***Branch:*** `feature/BK-28-reorder-atcs`
+- ***Staging:*** [https://staging-upexbunkai.vercel.app/](https://staging-upexbunkai.vercel.app/) (deploy in progress)
+- ***DB:*** migration `0026*tests*reorder.sql` applied (shared Supabase project)
 
 ### What to test
 
@@ -131,14 +131,14 @@ Merged to ***staging*** and deploying.
 
 ### jesusgpythondev - 22/6/2026, 20:56:03
 
-# Acceptance Test Results (ATR) - BK-28
+# Acceptance Test Results (ATR) - [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28)
 
-## BK-28 Test Results
+## [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) Test Results
 
-| Field | Value |
+| ***Field**** | ****Value*** |
 | --- | --- |
 | Tested | 2026-06-22 |
-| Environment | Staging - https://staging-upexbunkai.vercel.app |
+| Environment | Staging - [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/) |
 | Tester | jesusgpythondev |
 | Result | PASSED |
 | Executed checks | 12 passed / 12 executed |
@@ -147,13 +147,13 @@ Merged to ***staging*** and deploying.
 
 ## Summary
 
-BK-28 was validated on staging for the ATC chain reorder contract across API and DB behavior. The executed coverage confirms that authorized callers can reorder a Test chain using stable Test Step IDs, order persists across reads, no-op submissions are safe, optimistic locking prevents stale writes, invalid chain payloads are rejected, and activity log traceability is created only for real reorder events.
+[https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) was validated on staging for the ATC chain reorder contract across API and DB behavior. The executed coverage confirms that authorized callers can reorder a Test chain using stable Test Step IDs, order persists across reads, no-op submissions are safe, optimistic locking prevents stale writes, invalid chain payloads are rejected, and activity log traceability is created only for real reorder events.
 
 The story is acceptable for QA sign-off. The only follow-up is documentation alignment: the old AC expected a 403-like forbidden result for cross-workspace access, while implementation returns 404 not_found to avoid leaking resource existence.
 
 ## Executed Checks
 
-| ID | Check | Surface | Result | Evidence |
+| ***ID**** | ****Check**** | ****Surface**** | ****Result**** | ****Evidence*** |
 | --- | --- | --- | --- | --- |
 | BK-28-TC-01 | Successful reorder from [A,B,C,D] to [A,D,B,C] | API + DB | PASSED | HTTP 200; version 1 -> 2; DB positions updated |
 | BK-28-TC-02 | Reorder persists across reads | API + DB | PASSED | GET returns [A,D,B,C] with version 2 |
@@ -170,7 +170,7 @@ The story is acceptable for QA sign-off. The only follow-up is documentation ali
 
 ## Data And State Validation
 
-| Check | API Response | DB State | Match |
+| ***Check**** | ****API Response**** | ****DB State**** | ****Match*** |
 | --- | --- | --- | --- |
 | Version | 2 | 2 | YES |
 | Chain order | [A,D,B,C] | [A,D,B,C] | YES |
@@ -180,21 +180,21 @@ The story is acceptable for QA sign-off. The only follow-up is documentation ali
 
 ## Test Data
 
-| Entity | ID / Value | Notes |
+| ***Entity**** | ****ID / Value**** | ****Notes*** |
 | --- | --- | --- |
-| Primary Test | 7b14c384-c4f9-403f-8cae-0b85a1cfcfe5 | BK-28 Reorder Seed Test; 4 ATCs |
+| Primary Test | 7b14c384-c4f9-403f-8cae-0b85a1cfcfe5 | [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) Reorder Seed Test; 4 ATCs |
 | Initial chain | [ATC-A, ATC-B, ATC-C, ATC-D] | Pre-reorder order |
 | Final chain | [ATC-A, ATC-D, ATC-B, ATC-C] | Verified persisted order |
-| Single-ATC Test | 09d28d3c-ad29-45d9-a014-dbb7ba6ccbb2 | BK-34 Seed; version 11 unchanged |
+| Single-ATC Test | 09d28d3c-ad29-45d9-a014-dbb7ba6ccbb2 | [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) Seed; version 11 unchanged |
 | Seed ATC-B | 613e6ba3 | Created for reorder coverage |
 | Seed ATC-C | 5906ed43 | Created for reorder coverage |
 | Seed ATC-D | df210c22 | Created for reorder coverage |
 
 ## Expert Panel Review
 
-| Role | Finding | Recommendation |
+| ***Role**** | ****Finding**** | ****Recommendation*** |
 | --- | --- | --- |
-| QA Lead | Coverage matches the 12 sprint scenarios and includes positive, no-op, auth, conflict, validation, audit, and retry paths. | Accept sprint-testing result as complete for BK-28. |
+| QA Lead | Coverage matches the 12 sprint scenarios and includes positive, no-op, auth, conflict, validation, audit, and retry paths. | Accept sprint-testing result as complete for [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28). |
 | Technical Architect | The implementation uses Test Step IDs as reorder handles, which is safer than ATC IDs because a chain can repeat the same ATC. | Keep this contract explicit in future tests and documentation. |
 | Security/AppSec | Cross-workspace reorder returns 404 not_found, preventing resource existence disclosure. | Treat as security improvement; update AC wording if needed. |
 | Senior Developer | Conflict and validation responses expose enough current state for safe client recovery without partial writes. | Prioritize TC-07 and TC-08 for regression automation. |
@@ -214,7 +214,7 @@ None confirmed.
 
 ## Deferred Follow-Up Coverage
 
-| Follow-up | Reason | Owner |
+| ***Follow-up**** | ****Reason**** | ****Owner*** |
 | --- | --- | --- |
 | AC wording for cross-workspace behavior | Current AC expectation implied 403; implementation uses non-disclosing 404. | PO / QA |
 | Regression automation for optimistic locking | TC-07 protects against stale writer data loss. | Automation |
@@ -222,24 +222,24 @@ None confirmed.
 
 ## Recommendation
 
-QA approves BK-28 for the sprint scope as PASSED. No blocking defect was found. Move selected high-value scenarios to Stage 4 ROI/regression documentation.
+QA approves [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) for the sprint scope as PASSED. No blocking defect was found. Move selected high-value scenarios to Stage 4 ROI/regression documentation.
 
 ---
 
 ### jesusgpythondev - 23/6/2026, 11:50:30
 
-# QA Testing Complete - BK-28
+# QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28)
 
 Environment: Staging
 Result: PASSED (12/12 executed checks passed)
 
 ## Test Data Used
 
-- Workspace: BK-34 Sprint QA (`a222895a-a22a-4193-9c7f-70c43e78bede`)
-- Test: BK-28 Reorder Seed Test (`7b14c384-c4f9-403f-8cae-0b85a1cfcfe5`)
+- Workspace: [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) Sprint QA (`a222895a-a22a-4193-9c7f-70c43e78bede`)
+- Test: [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) Reorder Seed Test (`7b14c384-c4f9-403f-8cae-0b85a1cfcfe5`)
 - Initial chain: 4 ATCs `[A,B,C,D]`
 - Verified chain: `[A,D,B,C]`
-- Single-ATC Test: BK-34 Seed Manual Run Test (`09d28d3c-ad29-45d9-a014-dbb7ba6ccbb2`, version 11)
+- Single-ATC Test: [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) Seed Manual Run Test (`09d28d3c-ad29-45d9-a014-dbb7ba6ccbb2`, version 11)
 - Seed ATCs created: ATC-B (`613e6ba3`), ATC-C (`5906ed43`), ATC-D (`df210c22`)
 
 ## Verified Behaviors
@@ -267,7 +267,7 @@ Result: PASSED (12/12 executed checks passed)
 
 - ATR evidence: `.context/PBI/epics/EPIC-BK-24-tests-chains-of-atcs/stories/STORY-BK-28-as-a-qa-engineer-i-want-to-reorder-the-atcs-inside/acceptance-test-results.md`
 - Session memory: `.context/PBI/epics/EPIC-BK-24-tests-chains-of-atcs/stories/STORY-BK-28-as-a-qa-engineer-i-want-to-reorder-the-atcs-inside/test-session-memory.md`
-- Jira fallback ATR comment: BK-28 comment `11712`
+- Jira fallback ATR comment: [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) comment `11712`
 
 QA sign-off: approved with non-blocking follow-up risks.
 
@@ -275,7 +275,7 @@ QA sign-off: approved with non-blocking follow-up risks.
 
 ### jesusgpythondev - 23/6/2026, 17:42:41
 
-# Expert Panel Review - Sprint Testing Audit BK-28
+# Expert Panel Review - Sprint Testing Audit [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28)
 
 VALIDATED
 
@@ -283,11 +283,11 @@ Sprint-testing package accepted. No execution rerun needed.
 
 ## Executive Summary
 
-The expert panel reviewed BK-28 after the Jira report formatting correction and BK-34-style QA completion update. The sprint-testing outcome is valid: 12 scenarios passed, 0 failed, 0 deferred, and 0 bugs. The current Jira reporting shape is acceptable because the detailed ATR, compact QA verdict, and expert audit closure are separated and readable.
+The expert panel reviewed [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) after the Jira report formatting correction and BK-34-style QA completion update. The sprint-testing outcome is valid: 12 scenarios passed, 0 failed, 0 deferred, and 0 bugs. The current Jira reporting shape is acceptable because the detailed ATR, compact QA verdict, and expert audit closure are separated and readable.
 
 ## Evidence Used
 
-- Jira: BK-28 story is QA Approved and contains the final BK-28 TEST RESULTS comment plus separate QA Testing Complete - BK-28 verdict comment.
+- Jira: [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) story is QA Approved and contains the final [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) TEST RESULTS comment plus separate QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) verdict comment.
 - Jira: The final report records staging execution, test data, DB state validation, activity-log validation, observations, recommendations, and no defects.
 - Repo/local cache: `acceptance-test-results.md` confirms 12 passed scenarios, DB cross-validation for version/order/positions/reorder events, and 0 bugs.
 - Repo/local cache: `test-session-memory.md` confirms staging workspace, API contract, active owner-role workspace, and reorder test data used during execution.
@@ -299,7 +299,7 @@ The expert panel reviewed BK-28 after the Jira report formatting correction and 
 - Technical Architect: The reorder contract is correctly validated through stable Test Step IDs instead of ATC IDs, which protects chains that can reuse the same ATC and preserves deterministic ordering.
 - Security/AppSec: Cross-workspace access returning 404 `not_found` is acceptable for this read/write boundary because it avoids resource existence disclosure. This should be treated as a security improvement over visible forbidden responses.
 - Senior Developer: Version conflict and validation responses provide useful recovery context without partial writes. The 409 `current_chain` and 422 validation details are strong candidates for regression automation.
-- Workflow/Jira: Report format is now aligned with the BK-34 pattern. The ATR carries detailed execution tables, the QA verdict gives a quick scan, and this expert audit records acceptance and residual follow-up separately.
+- Workflow/Jira: Report format is now aligned with the [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) pattern. The ATR carries detailed execution tables, the QA verdict gives a quick scan, and this expert audit records acceptance and residual follow-up separately.
 - Skeptical Reviewer: The main residual risk is documentation drift, not execution quality. The old AC wording implies a 403-like expectation, while the implementation uses non-disclosing 404 behavior for cross-workspace access.
 
 ## Report Improvements Added
@@ -320,7 +320,7 @@ The expert panel reviewed BK-28 after the Jira report formatting correction and 
 
 VERDICT: ACCEPTED
 
-BK-28 sprint-testing is well developed and report quality is now sufficient for audit/read-back. Remaining action is documentation alignment, not additional execution.
+[https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) sprint-testing is well developed and report quality is now sufficient for audit/read-back. Remaining action is documentation alignment, not additional execution.
 
 ---
 

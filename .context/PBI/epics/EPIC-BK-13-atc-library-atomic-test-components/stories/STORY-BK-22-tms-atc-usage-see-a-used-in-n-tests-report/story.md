@@ -3,10 +3,9 @@
 **Jira Key:** [BK-22](https://jira.upexgalaxy.com/browse/BK-22)
 **Epic:** [BK-13](https://jira.upexgalaxy.com/browse/BK-13) (ATC Library (Acceptance Test Cases))
 **Type:** Story
-**Status:** Ready For QA
+**Status:** QA Approved
 **Priority:** Medium
-**Story Points:** 3
-**Web Link:** https://staging-upexbunkai.vercel.app/
+**Story Points:** -
 
 ---
 
@@ -54,7 +53,7 @@ Refined Acceptance Criteria live in the acceptance_criteria field.
 
 The following rules were extracted from analysis but are NOT stated explicitly in the original Story:
 
-- Workspace scoping: cross-workspace ATC access returns 404 (not 403 or 200) — existence-leak prevention pattern inherited from BK-13/BK-18
+- Workspace scoping: cross-workspace ATC access returns 404 (not 403 or 200) — existence-leak prevention pattern inherited from [https://jira.upexgalaxy.com/browse/BK-13#icft=BK-13](https://jira.upexgalaxy.com/browse/BK-13#icft=BK-13)/[https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18)
 - Empty result shape: a valid ATC with zero usage returns HTTP 200 { "used_in": [] }, NOT 404
 - Minimum caller role: caller must be an active workspace member (role >= viewer) — 401 if unauthenticated
 - List ordering: Tests ordered by slug ascending; within the same Test, positions ordered ascending (per Architect Annotation)
@@ -83,7 +82,7 @@ The following rules were extracted from analysis but are NOT stated explicitly i
 
 1. ***What is the FK cascade behavior on test*steps.test*id when a Test is deleted? If no CASCADE DELETE, orphaned test*steps rows will pollute the usage report with references to deleted Tests.*** — The cascade rule is set by EPIC-BK-5. Confirm whether the usage query's JOIN will naturally exclude orphaned rows (via the INNER JOIN) or whether orphaned test*steps rows need a cleanup guard.
 
-1. ***If test*steps and tests tables do not yet exist (EPIC-BK-5 not merged), what does the endpoint return? 200 with { used*in:**** ****[****] }, 503 Service Unavailable, or a migration gate error?*** — This defines the behavior during the window between BK-22 landing and EPIC-BK-5 landing, which matters for CI integration tests.
+1. ***If test*steps and tests tables do not yet exist (EPIC-BK-5 not merged), what does the endpoint return? 200 with { used*in:**** ****[****] }, 503 Service Unavailable, or a migration gate error?*** — This defines the behavior during the window between [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) landing and EPIC-BK-5 landing, which matters for CI integration tests.
 
 1. ***Which SQL query shape is authoritative — Annotation 1 (with t.workspace*id = $session.workspace*id WHERE clause and ORDER BY t.slug ASC, ts.position ASC) or Annotation 2 (simplified, no workspace WHERE, ORDER BY t.created_at)?*** — QA will write ordering assertions against the authoritative query.
 
@@ -95,11 +94,7 @@ The following rules were extracted from analysis but are NOT stated explicitly i
 
 > Each rich-text field is a separate file in this folder.
 
-- [Acceptance Criteria](./acceptance-criteria.md)
-- [Business Rules](./business-rules.md)
-- [Scope](./scope.md)
-- [Out Of Scope](./out-of-scope.md)
-- [Workflow](./workflow.md)
+- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
 
@@ -107,17 +102,17 @@ The following rules were extracted from analysis but are NOT stated explicitly i
 
 ### Storys (2)
 
-- [BK-18](https://jira.upexgalaxy.com/browse/BK-18): TMS-ATC API | Create and edit ATCs with steps and assertions _(QA Approved)_
-- [BK-27](https://jira.upexgalaxy.com/browse/BK-27): TMS-Test Builder | Assemble a test by chaining ATCs _(QA Approved)_
+- [BK-18](https://jira.upexgalaxy.com/browse/BK-18): TMS-ATC API | Create and edit ATCs with steps and assertions _(Ready For Release)_
+- [BK-27](https://jira.upexgalaxy.com/browse/BK-27): TMS-Test Builder | Assemble a test by chaining ATCs _(Ready For Release)_
 
 ---
 
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 24/6/2026
+- **Updated:** 24/7/2026
 - **Reporter:** Ely
-- **Assignee:** Andrés Daniel Cumare Morales
+- **Assignee:** Ely
 - **Labels:** atc, mvp, reporting, shift-left-2026-06-02, shift-left-reviewed, wave-2
 
 ---

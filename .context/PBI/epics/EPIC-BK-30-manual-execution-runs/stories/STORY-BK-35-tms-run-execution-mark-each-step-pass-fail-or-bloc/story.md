@@ -3,10 +3,9 @@
 **Jira Key:** [BK-35](https://jira.upexgalaxy.com/browse/BK-35)
 **Epic:** [BK-30](https://jira.upexgalaxy.com/browse/BK-30) (Manual Execution & Runs)
 **Type:** Story
-**Status:** Estimation
+**Status:** QA Approved
 **Priority:** Medium
-**Story Points:** 5
-**Web Link:** https://staging-upexbunkai.vercel.app/
+**Story Points:** -
 
 ---
 
@@ -36,31 +35,27 @@
 
 > Each rich-text field is a separate file in this folder.
 
-- [Acceptance Criteria](./acceptance-criteria.md)
-- [Business Rules](./business-rules.md)
-- [Scope](./scope.md)
-- [Out Of Scope](./out-of-scope.md)
-- [Workflow](./workflow.md)
 - [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
 
 ## Traceability
 
-### Storys (2)
+### Storys (3)
 
-- [BK-34](https://jira.upexgalaxy.com/browse/BK-34): TMS-Run Execution | Start a manual run in a chosen environment _(QA Approved)_
-- [BK-40](https://jira.upexgalaxy.com/browse/BK-40): TMS-Defect Filing | File a defect from a failing run step _(Ready For Dev)_
+- [BK-40](https://jira.upexgalaxy.com/browse/BK-40): TMS-Defect Filing | File a defect from a failing run step _(Ready For QA)_
+- [BK-34](https://jira.upexgalaxy.com/browse/BK-34): TMS-Run Execution | Start a manual run in a chosen environment _(Ready For Release)_
+- [BK-223](https://jira.upexgalaxy.com/browse/BK-223): TMS-Automation API | Stream step results during an automated run _(Backlog)_
 
 ---
 
 ## Metadata
 
 - **Created:** 28/5/2026
-- **Updated:** 24/6/2026
+- **Updated:** 3/8/2026
 - **Reporter:** Ely
 - **Assignee:** Benjamin Segovia
-- **Labels:** shift-left-reviewed
+- **Labels:** implementation-plan-ready, shift-left-reviewed
 
 ---
 

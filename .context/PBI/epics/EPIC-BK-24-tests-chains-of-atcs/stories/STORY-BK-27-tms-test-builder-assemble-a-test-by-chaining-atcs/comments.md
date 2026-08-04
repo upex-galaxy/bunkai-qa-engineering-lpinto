@@ -56,7 +56,7 @@ Shift-Left QA refinement complete. The full ATP DRAFT lives in the ***🧪 Accep
 
 ### Q5 (status code & non-disclosure) — Exact status code + verbatim copy for the cross-workspace ATC rejection (AC4) — must be byte-identical to a nonexistent-ATC response or it leaks existence (INV-3).
 
-***Dev answer:**** Status code is ****404 ****`not*found`, and the non-disclosure is enforced by RLS, not by application branching. The canonical pattern in the codebase (e.g. `app/api/v1/user-stories/[id]/route.ts`): the handler reads the referenced row with `.maybeSingle()`; an RLS-invisible row (foreign workspace) returns `null` exactly as a genuinely-nonexistent id does, and both paths throw the same `ApiError('not*found', ...)` → identical 404 status and identical body. So we never write a code branch that distinguishes "exists in another workspace" from "does not exist" — RLS collapses them upstream, which is what makes the responses byte-identical and satisfies INV-3. A ****403 would leak existence***: returning "forbidden" only happens when the server has confirmed the resource exists but the caller lacks rights, so a 403-vs-404 split tells the caller which foreign ATC ids are real. 422 would be wrong for the same reason (it implies the server processed and rejected a known-but-invalid reference). The `tests` create RPC must therefore resolve every chained ATC id through an RLS-scoped read and emit a uniform 404 if any id is unreadable. (User-facing message wording is the PO's; whatever copy is chosen must be the same string for both paths.)
+***Dev answer:**** Status code is ****404**** `not*found`, and the non-disclosure is enforced by RLS, not by application branching. The canonical pattern in the codebase (e.g. `app/api/v1/user-stories/[id]/route.ts`): the handler reads the referenced row with `.maybeSingle()`; an RLS-invisible row (foreign workspace) returns `null` exactly as a genuinely-nonexistent id does, and both paths throw the same `ApiError('not*found', ...)` → identical 404 status and identical body. So we never write a code branch that distinguishes "exists in another workspace" from "does not exist" — RLS collapses them upstream, which is what makes the responses byte-identical and satisfies INV-3. A ****403 would leak existence***: returning "forbidden" only happens when the server has confirmed the resource exists but the caller lacks rights, so a 403-vs-404 split tells the caller which foreign ATC ids are real. 422 would be wrong for the same reason (it implies the server processed and rejected a known-but-invalid reference). The `tests` create RPC must therefore resolve every chained ATC id through an RLS-scoped read and emit a uniform 404 if any id is unreadable. (User-facing message wording is the PO's; whatever copy is chosen must be the same string for both paths.)
 
 ### Q6 — ATC deletion behavior while referenced by a Test (RESTRICT vs cascade) + binding instant under a mid-form workspace switch.
 
@@ -68,37 +68,25 @@ Shift-Left QA refinement complete. The full ATP DRAFT lives in the ***🧪 Accep
 
 ### micaelavirgagarcia - 6/6/2026, 19:34:04
 
-## Shift-Left Handoff — ATP DRAFT Ready for Review
+1. 
 
 Shift-Left QA refinement complete on 2026-06-06.
 
-### Summary
+1. 
+
 - ✅ 4 ACs refined (all valid, no blockers for development)
 - ✅ 25 ATP outline scenarios (5 Positive, 6 Negative, 7 Boundary, 7 Integration)
 - ✅ 8 edge cases mapped with mitigations
-- ✅ 8 open questions (3 PO scope, 5 Dev technical — ***none blocking estimation***)
+- ✅ 8 open questions (3 PO scope, 5 Dev technical — ****none blocking estimation****)
 - ✅ Coverage is comprehensive across permission boundaries, validation, audit trail, and E2E flows
 
-### ATP Location
-Full ATP DRAFT lives in the 🧪 Acceptance Test Plan (ATP) field above. Refined ACs and business rules live in the ✅ Acceptance Criteria (Gherkin) field.
+1. 
 
-### Open Questions (for dev kick-off, not blocking now)
-1. Idempotency window (suggest 24h)
-2. Max chain length (suggest no hard limit in MVP; soft UI 100)
-3. Test description field scope (title only vs. title+description)
-4. Idempotency-Key scope (suggest user_id, endpoint, key)
-5. ATC validation timing (suggest before insert, atomic)
-6. RLS policy for foreign ATC (explicit workspace check)
-7. Error message for foreign ATC (generic, no leakage)
-8. Activity log actor field (suggest user_id FK)
+1. 
 
-### Next Steps
-1. ***PO:*** review questions 1–3, confirm answers
-2. ***Dev:*** review questions 4–8, confirm technical approach
-3. ***When Ready For QA:*** run `/sprint-testing` — story will short-circuit Phases 1–3 thanks to shift-left-reviewed label, proceeding straight to manual QA execution
+1. 
 
 Ready for sprint planning. No ambiguities blocking development.
-
 
 ---
 
@@ -125,7 +113,7 @@ Shift-Left Handoff Complete: 25 ATP scenarios, 8 edge cases mapped, 8 open quest
 
 ## Content Writing (exact strings — glossary casing enforced)
 
-| Context | Copy |
+| ***Context**** | ****Copy*** |
 | --- | --- |
 | Empty chain (server + UI, byte-identical) | `A Test must include at least one ATC.` |
 | Foreign/nonexistent ATC (server, rendered verbatim by UI) | `One or more selected ATCs are not available in this workspace.` |
@@ -141,7 +129,7 @@ Never "test case", "test component", or "published ATC" anywhere (UI, code comme
 
 ## Unit-Test Plan (bun:test, colocated `*.test.ts` — no `test` script; run `bun test`)
 
-| Step | Test file | Cases |
+| ***Step**** | ****Test file**** | ****Cases*** |
 | --- | --- | --- |
 | 4 | `lib/tests/validation.ts` → `lib/tests/validation.test.ts` | Title: trim-then-validate, whitespace-only rejected, 1-char OK, 200 OK, 201 rejected; chain: `[]` rejected, 1 OK, duplicates OK, non-uuid rejected; `workspace_id` optional; schema parse table tests (TC-04/05/09/10 fast layer) |
 | 4 | `lib/tests/errors.ts` → `lib/tests/errors.test.ts` | SQLSTATE map: 42501→403 `forbidden`; 45120→422 `chain*empty` + exact copy; 45121→422; 45122→404 `not*found` + exact copy + NO details/id echo; unknown→500 (TC-06/07 mapping layer) |
@@ -153,11 +141,11 @@ RPC business rules (order preservation, duplicates, activity_log row, idempotent
 
 ## Dependencies
 
-- [ ] BK-18 (ATC create/edit REST API) — dev-done, provides the route/RPC/error patterns being cloned. Present.
+- [ ] [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) (ATC create/edit REST API) — dev-done, provides the route/RPC/error patterns being cloned. Present.
 - [ ] Migrations 0001–0023 applied to the target DB (esp. 0005 helpers, 0009 `idempotency*keys`/`activity*log`, 0021 RPC precedent). Present.
 - [ ] Supabase creds in `.env` for `types:gen` + env-gated tests (read from `.env`, never hardcode).
-- [ ] ***Orchestrator******:****** add the §5 ratification entry for the builder derivation (Decisions 17–18) before Step 7 begins.***
-- [ ] ***Orchestrator******:****** draft ****`ADR-0002-idempotency-key-scoping`**** (Decision 3); also fix the stale ADR README index (ADR-0001 missing) when it lands.***
+- [ ] ***Orchestrator:**** ****add the §5 ratification entry for the builder derivation (Decisions 17–18) before Step 7 begins.***
+- [ ] ***Orchestrator:**** ****draft**** `ADR-0002-idempotency-key-scoping` ****(Decision 3); also fix the stale ADR README index (ADR-0001 missing) when it lands.***
 - [ ] Branch: `feature/BK-27-test-builder` off `staging`; merge `--no-ff` into `staging`.
 
 ## Risks & Mitigations
@@ -172,7 +160,7 @@ RPC business rules (order preservation, duplicates, activity_log row, idempotent
 - Impact: Medium (silent coverage gap if Jira truly holds 25).
 - Mitigation: traceability note above; orchestrator re-syncs BK-27 before Stage 2 and extends the map if new outlines appear.
 
-***Risk 3 — Builder UI has no authored mockup (placeholder ****`TestDetail`****).***
+***Risk 3 — Builder UI has no authored mockup (placeholder**** `TestDetail`****).***
 
 - Impact: Medium (design-fidelity defect if invented silently).
 - Mitigation: derive-by-analogy spec written above; §5 ratification entry is a hard pre-Step-7 dependency.
@@ -182,14 +170,14 @@ RPC business rules (order preservation, duplicates, activity_log row, idempotent
 - Impact: Medium (wrong scoping is hard to reverse once agents depend on it).
 - Mitigation: defaults match the already-built 0009 schema exactly (no new semantics invented); ADR-0002 documents it; replay/409/discard paths covered by Step 6 verify + curls.
 
-***Risk 5 — Review workload is High (******~******1.9k weighted lines).***
+***Risk 5 — Review workload is High (~1.9k weighted lines).***
 
 - Impact: High (review quality collapse past 400 lines/PR).
 - Mitigation: feature-branch-chain proposed below; generated types excluded; OpenAPI sibling and SQL are low-cognitive-density.
 
 ## Estimated Effort
 
-| Step | Time |
+| ***Step**** | ****Time*** |
 | --- | --- |
 | 1. Migration: schema + RLS | 3h |
 | 2. Migration: RPC + activity log | 5h |
@@ -202,7 +190,7 @@ RPC business rules (order preservation, duplicates, activity_log row, idempotent
 | 9. Verification sweep | 2.5h |
 | ***Total**** | ****32h ≈ 4 dev-days*** |
 
-***Story points******:*** 8 (matches the PO re-estimate and the epic story table).
+***Story points:*** 8 (matches the PO re-estimate and the epic story table).
 
 ## Definition of Done Checklist
 
@@ -213,7 +201,7 @@ RPC business rules (order preservation, duplicates, activity_log row, idempotent
 - [ ] Non-disclosure verified: foreign vs nonexistent ATC responses byte-identical
 - [ ] activity_log row asserted for every successful creation (DoD audit line satisfied in-RPC)
 - [ ] Idempotency replay verified (UI double-submit + headless retry)
-- [ ] Sibling scope untouched: no reorder UX (BK-28), no Test detail pane (BK-32), no tags (BK-33), no Used-by wiring (BK-22)
+- [ ] Sibling scope untouched: no reorder UX (BK-28), no Test detail pane ([https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32)), no tags ([https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33)), no Used-by wiring ([https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22))
 - [ ] `bun test` · `bun run types:check` · `bun run lint:check` · `bun run openapi:diff` all green (no local production build)
 - [ ] Code review approved; merged `--no-ff` to `staging`; staging smoke test (desktop layout, builder flow, explorer list)
 
@@ -235,13 +223,13 @@ RPC business rules (order preservation, duplicates, activity_log row, idempotent
 
 ## Ready For QA — staging deploy
 
-> ***SUCCESS:*** BK-27 merged to `staging` and auto-deployed. All 10 AC scenarios + 19 ATP TCs traceable (see the `compliance-matrix.md` artifact and the Spec Implementation Plan field).
+> ***SUCCESS:*** [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) merged to `staging` and auto-deployed. All 10 AC scenarios + 19 ATP TCs traceable (see the `compliance-matrix.md` artifact and the Spec Implementation Plan field).
 
-| Item | Value |
+| ***Item**** | ****Value*** |
 | --- | --- |
-| PR | https://github.com/upex-galaxy/upex-bunkai-tms/pull/40 (merge `54749ba`) |
+| PR | [https://github.com/upex-galaxy/upex-bunkai-tms/pull/40](https://github.com/upex-galaxy/upex-bunkai-tms/pull/40) (merge `54749ba`) |
 | Branch | `feature/BK-27-test-builder` → `staging` |
-| Staging | https://staging-upexbunkai.vercel.app |
+| Staging | [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/) |
 | Builder route | `/projects/{slug}/tests/new` |
 
 ***Verified before handoff***: 265 unit tests green; live-DB SQL suite (order preservation, duplicates, trim, 200/201 boundary, uniform non-disclosure 45122 incl. foreign/archived/NULL ids, viewer 42501, activity_log row); env-gated RLS isolation suite (3 pass / 16 asserts).
@@ -259,8 +247,8 @@ RPC business rules (order preservation, duplicates, activity_log row, idempotent
 
 ## Acceptance Test Results (ATR)
 
-********Status*****:*** Pending — Stage 2 execution not yet started
-********Modality****: Jira-native (no `acceptance*test*results` custom field configured in this Jira instance — using comment fallback per `jira-required.yaml`)
+******Status*****:** **Pending — Stage 2 execution not yet started**
+**********Modality*****: Jira-native (no `acceptance*test*results` custom field configured in this Jira instance — using comment fallback per `jira-required.yaml`)
 
 Stage 1 Planning complete — see ATP in ***🧪 Acceptance Test Plan (ATP)*** field above (19 outlines, condensed per Phase 4-7).
 
@@ -270,49 +258,98 @@ Execution results will be posted here as a follow-up comment once Stage 2 begins
 
 ### Andrés Daniel Cumare Morales - 17/6/2026, 6:32:56
 
-## Acceptance Test Results (ATR) — BK-27
+1. 
 
-***Status:**** PASSED | ****Date:**** 2026-06-17 | ****Environment:**** staging (staging-upexbunkai.vercel.app) | ****Modality:*** Jira-native
+****Status:***** PASSED | *****Date:***** 2026-06-17 | *****Environment:***** staging (staging-upexbunkai.vercel.app) | *****Modality:**** Jira-native
 
-### Execution Summary
+1. 
 
-| Metric | Value |
-|---|---|
-| Total TCs | 19 |
-| Passed | 16 |
-| Deferred | 1 (N6 — viewer 403, no 2nd auth user on staging) |
-| Partial | 1 (I1 — RLS SELECT, no GET endpoint) |
-| Not Reproducible | 1 (I4 — UI WS switch destroys form) |
-| Failed | 0 |
-| Bugs Filed | 0 |
+| Metric  | Value  |
+| --- | --- |
+| --- | --- |
+| Total TCs  | 19  |
+| Passed  | 16  |
+| Deferred  | 1 (N6 — viewer 403, no 2nd auth user on staging)  |
+| Partial  | 1 (I1 — RLS SELECT, no GET endpoint)  |
+| Not Reproducible  | 1 (I4 — UI WS switch destroys form)  |
+| Failed  | 0  |
+| Bugs Filed  | 0  |
 
-### Results by Category
+1. 
 
-***Positive (3/3 PASSED):*** P1 chain order (API+UI+DB), P2 duplicate ATC preserved, P3 single ATC accepted.
+****Positive (3/3 PASSED):**** P1 chain order (API+UI+DB), P2 duplicate ATC preserved, P3 single ATC accepted.
 
-***Negative (5/6):*** N1 UI empty chain blocked, N2 API empty chain 422, N3 foreign ATC 404, N4 nonexistent ATC byte-identical, N5 archived ATC byte-identical. N6 DEFERRED (no viewer user).
+****Negative (5/6):**** N1 UI empty chain blocked, N2 API empty chain 422, N3 foreign ATC 404, N4 nonexistent ATC byte-identical, N5 archived ATC byte-identical. N6 DEFERRED (no viewer user).
 
-***Boundary (4/4 PASSED):*** B1 title 200/201, B2 whitespace rejected, B3 trim works, B4 missing idempotency-key 400.
+****Boundary (4/4 PASSED):**** B1 title 200/201, B2 whitespace rejected, B3 trim works, B4 missing idempotency-key 400.
 
-***Integration (2/4):*** I2 activity*log written atomically, I3 UI/headless parity verified. I1 PARTIAL (workspace*id stamps correct). I4 NOT REPRO (UI safety net).
+****Integration (2/4):**** I2 activity*log written atomically, I3 UI/headless parity verified. I1 PARTIAL (workspace*id stamps correct). I4 NOT REPRO (UI safety net).
 
-***API/Idempotency (3/3 PASSED):*** A1 double-submit 1 row, A2 replay same key, A3 conflict 409 + missing workspace_id 422.
+****API/Idempotency (3/3 PASSED):**** A1 double-submit 1 row, A2 replay same key, A3 conflict 409 + missing workspace_id 422.
 
-### Non-Disclosure Contract (INV-3): VERIFIED
+1. 
 
 N3/N4/N5 return byte-identical 404 responses for foreign, nonexistent, and archived ATCs. No id echo, no existence leak.
 
-### Dev-Flagged Focus Areas: ALL VERIFIED
+1. 
 
 Builder E2E + duplicate ATC, double-submit dedup, headless idempotency retry, verbatim validation copy.
 
-### Observations (Non-Blocking)
+1. 
 
 1. Zod pre-empts RPC for validation (N2, B1, B2) — generic messages instead of spec verbatim copy. Functionally correct.
+
 2. I4 workspace switch navigates away — design-level safety net prevents mid-form binding-instant scenario via UI.
 
-### Verdict: PASSED — QA recommends sign-off.
+1. 
 
+---
+
+### Nahuel Gomez - 22/7/2026, 22:09:05
+
+## QA Automation — KATA Tests Written for [BK-27](https://jira.upexgalaxy.com/browse/BK-27)
+
+### Summary
+
+- TestsApi component created with 6 ATC methods
+- 8 integration tests for the test builder flow (create, validate, idempotency, auth)
+- Registered in ApiFixture — ready for regression CI
+
+### Results (staging)
+
+| ***Scenario**** | ****Expected**** | ****Actual**** | ****Status*** |
+| --- | --- | --- | --- |
+| Empty chain → 422 | 422 | 422 | ✅ |
+| Whitespace title → 422 | 422 | 422 | ✅ |
+| 201-char title → 422 | 422 | 422 | ✅ |
+| Unauthenticated → 401 | 401 | 401 | ✅ |
+| Empty title → 422 | 422 | 422 | ✅ |
+| Happy path 3 ATCs → 201 | 201 | 400¹ | ❌ |
+| Duplicate ATC → 201 | 201 | 400¹ | ❌ |
+| Foreign ATC → 404 | 404 | 500² | ❌ |
+| Idempotent retry → same test | 201 | 500² | ❌ |
+
+### Server Bug Found 🔴
+
+`POST /api/v1/tests` returns ***500**** when `Idempotency-Key` header is provided. The idempotency middleware has a runtime insert failure into the idempotency_keys table — likely a missing migration or DB constraint. Filed as [****BK-248***](https://jira.upexgalaxy.com/browse/BK-248) (unassigned — open for anyone to pick up).
+
+¹ Missing `Idempotency-Key` header → 400
+
+² Server-side idempotency insert bug → 500
+
+### Test Command
+
+`bun run test` (scoped to the tests directory)
+
+### ATC Count
+
+26 → 32
+
+---
+
+### Nahuel Gomez - 22/7/2026, 22:57:53
+
+Bug filed for the idempotency 500 error: [***BK-248***](https://jira.upexgalaxy.com/browse/BK-248) — POST /api/v1/tests returns 500 Idempotency insert failed. Blocks 4/8 automation tests. Assigned to Andrés.
 
 ---
 

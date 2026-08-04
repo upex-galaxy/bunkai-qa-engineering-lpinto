@@ -6,18 +6,18 @@
 
 ### jesusgpythondev - 14/6/2026, 16:06:06
 
-# Shift-Left Review Update Summary - BK-32
+# Shift-Left Review Update Summary - [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32)
 
 ## Executive Summary
 
-BK-32 now has an Ely-style pre-sprint refinement package for the read-only expanded Test view. The Story is useful but should stay in refinement until PO/Dev resolve one contract conflict: BK-32 asks for an empty state when a Test has no ATCs, while BK-27 says a Test must always contain at least one ATC.
+[https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) now has an Ely-style pre-sprint refinement package for the read-only expanded Test view. The Story is useful but should stay in refinement until PO/Dev resolve one contract conflict: [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) asks for an empty state when a Test has no ATCs, while [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) says a Test must always contain at least one ATC.
 
 ## Refinement Delta
 
-| Area | Added / changed |
+| ***Area**** | ****Added / changed*** |
 | --- | --- |
 | Contract decisions | 8 decisions covering expanded endpoint, read-only behavior, live ATC content, permissions, safe errors, and zero-ATC state. |
-| AC reconciliation | 9 rows mapping original BK-32 DoD to refined outcomes and owners. |
+| AC reconciliation | 9 rows mapping original [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) DoD to refined outcomes and owners. |
 | Risk coverage | High risks now cover empty-chain conflict, cross-workspace data leakage, stale ATC content, and expanded-read performance. |
 | ATP draft | 9 draft rows for UI/API/DB/manual coverage. |
 | Readiness gates | PO contract, Dev feasibility, Data/API, UX, and Security/Ops remain Needs; QA testability is Pass. |
@@ -31,14 +31,14 @@ BK-32 now has an Ely-style pre-sprint refinement package for the read-only expan
 - BK-32-ATC-05: Zero-ATC Test shows empty state if PO/Dev confirm the model allows it.
 - BK-32-ATC-06: Cross-workspace Test access is denied without leakage.
 - BK-32-ATC-07: View exposes no edit, reorder, add, or remove controls.
-- BK-32-ATC-08: 7-ATC expanded read meets the BK-24 p95 target.
+- BK-32-ATC-08: 7-ATC expanded read meets the [https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24](https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24) p95 target.
 - BK-32-ATC-09: Long steps/assertions remain readable.
 
 ## High / Medium Risks
 
-| Severity | Risk | Coverage |
+| ***Severity**** | ****Risk**** | ****Coverage*** |
 | --- | --- | --- |
-| High | Empty-state AC conflicts with BK-27 no-empty-Test rule. | AC Boundary / BK-32-ATC-05 |
+| High | Empty-state AC conflicts with [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) no-empty-Test rule. | AC Boundary / BK-32-ATC-05 |
 | High | Cross-workspace user sees another workspace's Test/ATC details. | AC Negative / BK-32-ATC-06 |
 | High | Expanded view shows stale ATC content after an ATC edit. | AC Happy / BK-32-ATC-03 |
 | High | Expanded read becomes slow or N+1 for a 7-ATC Test. | AC Integration / BK-32-ATC-08 |
@@ -47,7 +47,7 @@ BK-32 now has an Ely-style pre-sprint refinement package for the read-only expan
 
 ## Open Confirmations
 
-- PO/Dev: Should zero-ATC Tests exist for BK-32, or should the empty-state AC be removed?
+- PO/Dev: Should zero-ATC Tests exist for [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32), or should the empty-state AC be removed?
 - Dev: Confirm final route: `GET /tests/{id}?expand=atcs.steps,atcs.assertions` vs `/api/v1/tests/{id}?expand=atcs.steps,atcs.assertions`.
 - Dev/PO: Confirm live-reference behavior for ATC edits vs versioned snapshot behavior.
 - Security/Dev: Confirm viewer read permission and hidden cross-workspace behavior.
@@ -55,10 +55,10 @@ BK-32 now has an Ely-style pre-sprint refinement package for the read-only expan
 
 ## Dependency Note
 
-- BK-32 depends on BK-27 for Test assembly and canonical chain order.
-- BK-24 provides BK-017 and the <500ms p95 expanded-read target for a 7-ATC Test.
-- BK-28 provides adjacent chain-order semantics.
-- BK-70 may conflict or clarify whether draft Tests without ATCs can exist.
+- [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) depends on [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) for Test assembly and canonical chain order.
+- [https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24](https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24) provides BK-017 and the <500ms p95 expanded-read target for a 7-ATC Test.
+- [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) provides adjacent chain-order semantics.
+- [https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70) may conflict or clarify whether draft Tests without ATCs can exist.
 
 ## Out Of Scope
 
@@ -75,11 +75,11 @@ BK-32 now has an Ely-style pre-sprint refinement package for the read-only expan
 
 ### jesusgpythondev - 14/6/2026, 16:06:52
 
-# BK-32: TMS-Test View | View a test with all chained ATCs expanded
+# [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32): TMS-Test View | View a test with all chained ATCs expanded
 
 ## Metadata Snapshot
 
-- Jira key: BK-32
+- Jira key: [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32)
 - Status: Backlog
 - Priority / points: Medium / unknown
 - Reporter / assignee: Ely / Unassigned
@@ -93,25 +93,25 @@ As a QA Engineer, I want to open a Test and see all of its chained ATCs expanded
 ## Source & Evidence
 
 - Source spec: BK-017
-- Parent epic/module: BK-24 Tests (chains of ATCs)
-- Evidence used: Jira BK-32 description, Jira dependency link to BK-27, BK-24 epic context, BK-27/BK-28 local story context, BK-70 Test Repository context, Engram memories for Ely-style shift-left structure and BK-39 publication learnings.
+- Parent epic/module: [https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24](https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24) Tests (chains of ATCs)
+- Evidence used: Jira [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) description, Jira dependency link to [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27), [https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24](https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24) epic context, [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27)/[https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) local story context, [https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70) Test Repository context, Engram memories for Ely-style shift-left structure and [https://jira.upexgalaxy.com/browse/BK-39#icft=BK-39](https://jira.upexgalaxy.com/browse/BK-39#icft=BK-39) publication learnings.
 - Evidence labels used: Jira | Repo | Engram | Inference
 
 ## Shift-Left Review Status
 
 - Verdict: Needs PO confirmation and Dev confirmation
-- Summary: The read-only expanded Test view is valuable and testable, but one contract conflict must be resolved before estimation: BK-32 expects a no-ATC empty state, while BK-27 states a Test cannot exist without at least one ATC. Dev also needs to confirm the exact read endpoint path, response shape, auth/RLS behavior, and whether expanded reads use live ATC content or versioned snapshots.
+- Summary: The read-only expanded Test view is valuable and testable, but one contract conflict must be resolved before estimation: [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) expects a no-ATC empty state, while [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) states a Test cannot exist without at least one ATC. Dev also needs to confirm the exact read endpoint path, response shape, auth/RLS behavior, and whether expanded reads use live ATC content or versioned snapshots.
 
 ## Expert Review Summary
 
-| Role | Finding | Recommendation | Confirmation |
+| ***Role**** | ****Finding**** | ****Recommendation**** | ****Confirmation*** |
 | --- | --- | --- | --- |
-| PO | Empty-state AC conflicts with BK-27's no-empty-Test rule. | Confirm whether BK-32 supports draft/legacy/deleted-chain Tests with zero ATCs, or remove empty-state AC from this Story. | Needs confirmation |
+| PO | Empty-state AC conflicts with BK-27's no-empty-Test rule. | Confirm whether [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) supports draft/legacy/deleted-chain Tests with zero ATCs, or remove empty-state AC from this Story. | Needs confirmation |
 | Dev | Source spec names `GET /tests/{id}?expand=atcs.steps,atcs.assertions`, while repo APIs usually live under `/api/v1`. | Confirm final route and response schema before implementation. | Needs confirmation |
 | QA | Existing ACs cover happy path but miss auth, missing Test, data leak, stale ATC content, and performance. | Add negative, boundary, integration, and performance-oriented ATP rows. | Confirmed as QA recommendation |
 | Design | Read-only expanded steps/assertions can become visually dense. | Confirm expanded default, long content handling, and empty-state copy. | Needs confirmation |
 | Security | Expanded response includes reusable ATC details and assertions. | Enforce workspace-scoped read access and avoid revealing foreign Test/ATC existence. | Needs Dev confirmation |
-| Workflow | BK-32 was in Backlog with no comments before refinement. | Publish description, QA mirror comment, labels, and move only to Shift-Left QA. Do not move to Estimation until confirmations are resolved. | Applied |
+| Workflow | [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) was in Backlog with no comments before refinement. | Publish description, QA mirror comment, labels, and move only to Shift-Left QA. Do not move to Estimation until confirmations are resolved. | Applied |
 
 ## Scope
 
@@ -146,45 +146,45 @@ As a QA Engineer, I want to open a Test and see all of its chained ATCs expanded
 
 ## Dependency Map
 
-| Dependency | Type | Impact | Owner | Status |
+| ***Dependency**** | ****Type**** | ****Impact**** | ****Owner**** | ****Status*** |
 | --- | --- | --- | --- | --- |
-| BK-24 | formal | Parent epic defines BK-017 expanded read and <500ms p95 target for a 7-ATC Test. | PO/Dev | Planning context exists |
-| BK-27 | formal / functional | Defines Test assembly, chain order, workspace rules, and no-empty-Test rule. | PO/Dev | Shift-Left QA |
-| BK-28 | functional | Defines reorder behavior and confirms order comes from stored chain positions. | Dev/QA | Shift-Left QA |
-| BK-70 | inferred | Defines broader Test Repository model and may allow draft Tests without ATC links. | Dev/PO | Backlog |
-| ATC Library / BK-13 | functional | Expanded view depends on ATC steps/assertions existing and being readable. | Dev | Prior dependency |
+| [https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24](https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24) | formal | Parent epic defines BK-017 expanded read and <500ms p95 target for a 7-ATC Test. | PO/Dev | Planning context exists |
+| [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) | formal / functional | Defines Test assembly, chain order, workspace rules, and no-empty-Test rule. | PO/Dev | Shift-Left QA |
+| [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) | functional | Defines reorder behavior and confirms order comes from stored chain positions. | Dev/QA | Shift-Left QA |
+| [https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70) | inferred | Defines broader Test Repository model and may allow draft Tests without ATC links. | Dev/PO | Backlog |
+| ATC Library / [https://jira.upexgalaxy.com/browse/BK-13#icft=BK-13](https://jira.upexgalaxy.com/browse/BK-13#icft=BK-13) | functional | Expanded view depends on ATC steps/assertions existing and being readable. | Dev | Prior dependency |
 | Auth/RLS | inferred | Expanded Test/ATC data must be scoped to active workspace membership. | Dev/Security | Needs confirmation |
 
 ## Key Contract Decisions
 
-| Decision | Rationale | Source | Confirmation |
+| ***Decision**** | ****Rationale**** | ****Source**** | ****Confirmation*** |
 | --- | --- | --- | --- |
-| Expanded read endpoint returns Test header plus ordered ATC chain with steps and assertions. | BK-017 explicitly names expanded read and BK-32 needs one read-only review surface. | Repo/Jira | Needs Dev confirmation |
-| Final route should follow project API convention if different from source shorthand. | BK-017 says `GET /tests/{id}`, but existing API convention commonly uses `/api/v1`. | Repo/Inference | Needs Dev confirmation |
-| ATC order is canonical from the saved Test chain, not client-side sorting. | BK-27/BK-28 define order preservation and position semantics. | Repo | Needs Dev confirmation |
-| Expanded content should be read-only with no edit/reorder/add/remove controls. | BK-32 explicitly says strictly read-only. | Jira | Confirmed |
-| Expanded ATC content should reflect latest saved ATC version. | Original BK-32 DoD says edits made elsewhere appear here. | Jira | Needs Dev confirmation |
-| Zero-ATC empty state is conditional. | BK-32 asks for it, but BK-27 says no empty Test exists. | Jira/Repo | Needs PO/Dev confirmation |
+| Expanded read endpoint returns Test header plus ordered ATC chain with steps and assertions. | BK-017 explicitly names expanded read and [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) needs one read-only review surface. | Repo/Jira | Needs Dev confirmation |
+| Final route should follow project API convention if different from source shorthand. | BK-017 says `GET /tests/{id`}, but existing API convention commonly uses `/api/v1`. | Repo/Inference | Needs Dev confirmation |
+| ATC order is canonical from the saved Test chain, not client-side sorting. | [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27)/[https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) define order preservation and position semantics. | Repo | Needs Dev confirmation |
+| Expanded content should be read-only with no edit/reorder/add/remove controls. | [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) explicitly says strictly read-only. | Jira | Confirmed |
+| Expanded ATC content should reflect latest saved ATC version. | Original [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) DoD says edits made elsewhere appear here. | Jira | Needs Dev confirmation |
+| Zero-ATC empty state is conditional. | [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) asks for it, but [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) says no empty Test exists. | Jira/Repo | Needs PO/Dev confirmation |
 | Viewer/read permissions must be explicit. | Read-only view may be allowed to viewer, but cross-workspace data must never leak. | Repo/Inference | Needs Dev/Security confirmation |
-| Missing or unauthorized Test should return safe error behavior. | BK-70 uses `TEST*NOT*FOUND`/`UNAUTHORIZED`; hidden foreign records should not reveal existence. | Repo/Inference | Needs Dev confirmation |
+| Missing or unauthorized Test should return safe error behavior. | [https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70) uses `TEST*NOT*FOUND`/`UNAUTHORIZED`; hidden foreign records should not reveal existence. | Repo/Inference | Needs Dev confirmation |
 
 ## AC Reconciliation
 
-| Original AC / source claim | Evidence | Refined outcome | Reason | Owner |
+| ***Original AC / source claim**** | ****Evidence**** | ****Refined outcome**** | ****Reason**** | ****Owner*** |
 | --- | --- | --- | --- | --- |
-| Opening a Test shows every ATC expanded inline, in saved order. | Jira BK-32, BK-24 BK-017 | kept | Core value of Story. | PO |
-| Each expanded ATC shows ordered steps and assertions. | Jira BK-32, BK-017 | kept | Observable output needed for review before execution. | PO/QA |
-| View is strictly read-only. | Jira BK-32 | kept | Prevents this Story from absorbing edit/reorder scope. | PO/Design |
-| Position number matches execution order. | Jira BK-32, BK-27/BK-28 | kept | Required to trust what will run. | Dev/QA |
-| Test with no ATCs shows empty state. | Jira BK-32 vs BK-27 conflict | changed | Mark conditional until PO/Dev resolve data-model conflict. | PO/Dev |
-| Summary count visible at top. | Jira BK-32 | kept | Low-cost usability and quick validation. | Design/QA |
-| Latest saved ATC version appears here. | Jira BK-32, BK-21 pattern | kept with confirmation | Needs live-reference vs snapshot contract. | Dev |
+| Opening a Test shows every ATC expanded inline, in saved order. | Jira [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32), [https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24](https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24) BK-017 | kept | Core value of Story. | PO |
+| Each expanded ATC shows ordered steps and assertions. | Jira [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32), BK-017 | kept | Observable output needed for review before execution. | PO/QA |
+| View is strictly read-only. | Jira [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) | kept | Prevents this Story from absorbing edit/reorder scope. | PO/Design |
+| Position number matches execution order. | Jira [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32), [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27)/[https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) | kept | Required to trust what will run. | Dev/QA |
+| Test with no ATCs shows empty state. | Jira [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) vs [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) conflict | changed | Mark conditional until PO/Dev resolve data-model conflict. | PO/Dev |
+| Summary count visible at top. | Jira [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) | kept | Low-cost usability and quick validation. | Design/QA |
+| Latest saved ATC version appears here. | Jira [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32), [https://jira.upexgalaxy.com/browse/BK-21#icft=BK-21](https://jira.upexgalaxy.com/browse/BK-21#icft=BK-21) pattern | kept with confirmation | Needs live-reference vs snapshot contract. | Dev |
 | Unauthorized or cross-workspace access missing from original ACs. | Repo RLS patterns | added | Security/testability gap. | Dev/Security |
-| Missing Test behavior missing from original ACs. | BK-70 API pattern | added | Negative path needed for API/UI reliability. | QA |
+| Missing Test behavior missing from original ACs. | [https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70) API pattern | added | Negative path needed for API/UI reliability. | QA |
 
 ## Refined Acceptance Criteria
 
-```gherkin
+```
 Background:
   Given Elena is signed in to workspace "Acme QA"
     And Elena has read access to the project
@@ -252,9 +252,9 @@ Scenario: Expanded read returns full chain in one round trip
 
 ## Edge Cases & Risk Matrix
 
-| Severity | Edge case | Expected behavior | Mitigation | Coverage |
+| ***Severity**** | ****Edge case**** | ****Expected behavior**** | ****Mitigation**** | ****Coverage*** |
 | --- | --- | --- | --- | --- |
-| High | Empty-state AC conflicts with BK-27 no-empty-Test rule. | PO/Dev decide whether to keep, scope, or remove empty-state behavior. | Gate estimation until decision. | AC Boundary / BK-32-ATC-05 |
+| High | Empty-state AC conflicts with [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) no-empty-Test rule. | PO/Dev decide whether to keep, scope, or remove empty-state behavior. | Gate estimation until decision. | AC Boundary / BK-32-ATC-05 |
 | High | Cross-workspace user opens another workspace's Test. | Access denied and no ATC details leaked. | RLS plus API permission check. | AC Negative / BK-32-ATC-06 |
 | High | Expanded view shows stale ATC content after ATC edit. | Latest saved content appears if live-reference contract is confirmed. | Confirm live-reference vs snapshot behavior. | AC Happy / BK-32-ATC-03 |
 | High | Expanded read causes N+1 or slow page for 7 ATCs. | One response and <500ms p95 target. | API-level expanded read, performance check. | AC Integration / BK-32-ATC-08 |
@@ -265,7 +265,7 @@ Scenario: Expanded read returns full chain in one round trip
 
 ## ATP Draft Matrix
 
-| ID | Type | Scenario | Coverage target | Priority | Automation hint |
+| ***ID**** | ****Type**** | ****Scenario**** | ****Coverage target**** | ****Priority**** | ****Automation hint*** |
 | --- | --- | --- | --- | --- | --- |
 | BK-32-ATC-01 | Happy | Open Test with 3 ATCs and see all expanded. | Core read-only value. | High | UI/API |
 | BK-32-ATC-02 | Happy | Position numbers match saved execution order. | Order integrity. | High | UI/DB |
@@ -281,8 +281,8 @@ Scenario: Expanded read returns full chain in one round trip
 
 ### PO - Zero-ATC Test Empty State
 
-- Question: Should BK-32 support a Test with no ATCs even though BK-27 says a Test must contain at least one ATC?
-- Expert recommendation: Keep the empty-state AC only if the product supports draft/legacy/deleted-chain Tests; otherwise remove it from BK-32 and treat blank Test creation as out of scope.
+- Question: Should [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) support a Test with no ATCs even though [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) says a Test must contain at least one ATC?
+- Expert recommendation: Keep the empty-state AC only if the product supports draft/legacy/deleted-chain Tests; otherwise remove it from [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) and treat blank Test creation as out of scope.
 - Pending confirmation: PO and Dev
 
 ### Dev - Expanded Read Endpoint Contract
@@ -294,7 +294,7 @@ Scenario: Expanded read returns full chain in one round trip
 ### Dev - Live ATC Content vs Snapshot
 
 - Question: Should the expanded Test read always show latest saved ATC content, or content as captured when the Test was assembled?
-- Expert recommendation: Use live-reference behavior for MVP because BK-32 explicitly says edits made elsewhere appear here; introduce snapshots only if audit/versioned execution needs it later.
+- Expert recommendation: Use live-reference behavior for MVP because [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) explicitly says edits made elsewhere appear here; introduce snapshots only if audit/versioned execution needs it later.
 - Pending confirmation: Dev and PO
 
 ### Security - Read Permission
@@ -311,9 +311,9 @@ Scenario: Expanded read returns full chain in one round trip
 
 ## Implementation Readiness Gates
 
-| Gate | Status | Evidence | Blocker / Next action |
+| ***Gate**** | ****Status**** | ****Evidence**** | ****Blocker / Next action*** |
 | --- | --- | --- | --- |
-| PO contract | Needs | Empty-state conflict between BK-32 and BK-27. | Confirm or remove zero-ATC behavior. |
+| PO contract | Needs | Empty-state conflict between [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) and [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27). | Confirm or remove zero-ATC behavior. |
 | Dev feasibility | Needs | Endpoint/response shape not present in Jira comments. | Confirm route, response schema, and live-reference behavior. |
 | QA testability | Pass | Scenarios are observable through UI/API/DB. | Needs test data for 0, 3, and 7 ATC chains. |
 | Data/API | Needs | BK-017 exists in epic, but exact contract needs confirmation. | Define expanded payload and error envelope. |
@@ -322,7 +322,7 @@ Scenario: Expanded read returns full chain in one round trip
 
 ## Handoff Notes
 
-- For PO: Decide whether zero-ATC Tests exist for BK-32.
+- For PO: Decide whether zero-ATC Tests exist for [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32).
 - For Dev: Confirm endpoint path, response payload, live-reference behavior, permission model, and not-found/forbidden behavior.
 - For QA: Prioritize order integrity, read-only controls, cross-workspace denial, latest ATC content, and p95 7-ATC expanded read.
 - For Automation: Good candidates are API contract tests for expanded payload and UI assertions for read-only expanded rendering.
@@ -330,12 +330,12 @@ Scenario: Expanded read returns full chain in one round trip
 
 ## QA Handoff Mirror
 
-- Executive summary: BK-32 is a read-only expanded Test view story. It is valuable but not ready for estimation until the zero-ATC conflict and endpoint/payload contract are confirmed.
+- Executive summary: [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) is a read-only expanded Test view story. It is valuable but not ready for estimation until the zero-ATC conflict and endpoint/payload contract are confirmed.
 - Refinement delta: Added 8 contract decisions, 9 AC reconciliation rows, high-risk coverage, ATP draft rows, and explicit PO/Dev/Security/Design confirmations.
 - ATP draft summary: Cover happy expanded view, order numbering, latest ATC propagation, zero-ATC state, cross-workspace denial, read-only UI, performance, and long-content UX.
 - High/Medium risks: Empty-chain conflict, cross-workspace data leak, stale ATC content, slow expanded read, accidental mutation controls, blank child sections.
 - Open confirmations: PO/Dev zero-ATC behavior; Dev endpoint/payload/live-reference; Security read permissions; Design expanded layout.
-- Dependency note: Formal dependency on BK-27 and BK-24; functional alignment with BK-28 order semantics and BK-70 Test Repository assumptions.
+- Dependency note: Formal dependency on [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) and BK-24; functional alignment with [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28) order semantics and [https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70) Test Repository assumptions.
 - Out of scope: Test creation, reorder, execution, edit/add/remove ATCs, Jira/Xray TCs, QA execution evidence.
 - Publication status: Description and QA mirror published by Shift-Left QA; labels and status handled separately in publication checklist.
 
@@ -351,29 +351,29 @@ Scenario: Expanded read returns full chain in one round trip
 
 ## References
 
-- Jira BK-32
-- Jira link: BK-32 depends on BK-27
-- BK-24 epic: Tests (chains of ATCs)
-- BK-27: Assemble a Test by chaining ATCs
-- BK-28: Reorder ATCs inside an existing Test
-- BK-70: BK Test Repository entity definition
+- Jira [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32)
+- Jira link: [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) depends on [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27)
+- [https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24](https://jira.upexgalaxy.com/browse/BK-24#icft=BK-24) epic: Tests (chains of ATCs)
+- [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27): Assemble a Test by chaining ATCs
+- [https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28](https://jira.upexgalaxy.com/browse/BK-28#icft=BK-28): Reorder ATCs inside an existing Test
+- [https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70): BK Test Repository entity definition
 
 ---
 
 ### jesusgpythondev - 14/6/2026, 16:24:34
 
-# Expert Panel Decision Update - BK-32
+# Expert Panel Decision Update - [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32)
 
 ## Verdict
 
-The expert panel recommends keeping BK-32 in refinement, not Estimation, until PO/Dev confirm two contract points: zero-ATC behavior and final route path.
+The expert panel recommends keeping [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) in refinement, not Estimation, until PO/Dev confirm two contract points: zero-ATC behavior and final route path.
 
 ## Decisions Applied To Story Fields
 
-| Question | Recommendation | Pending? |
+| ***Question**** | ****Recommendation**** | ****Pending?*** |
 | --- | --- | --- |
-| Zero-ATC empty state | Do not treat zero-ATC Test as the default BK-32 behavior. Empty state only applies if PO/Dev confirm draft/legacy/deleted-chain recovery. | Yes |
-| Endpoint route | Use `/api/v1/tests/{id}?expand=atcs.steps,atcs.assertions` as refinement default; keep `/tests/{id}` as source-spec shorthand. | Dev confirmation |
+| Zero-ATC empty state | Do not treat zero-ATC Test as the default [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) behavior. Empty state only applies if PO/Dev confirm draft/legacy/deleted-chain recovery. | Yes |
+| Endpoint route | Use `/api/v1/tests/{id}?expand=atcs.steps,atcs.assertions` as refinement default; keep `/tests/{id`} as source-spec shorthand. | Dev confirmation |
 | Live content vs snapshot | Expanded Test view should show latest saved ATC content. Snapshots belong to Run/history/audit. | No |
 | Viewer read permissions | Viewer can read expanded Test details inside the same workspace; cross-workspace access must not leak data. | No |
 | Expanded UX | Show all chained ATCs expanded by default for MVP. Optional accordion can come later only if it does not hide required content by default. | Design confirmation useful, not blocking |
@@ -398,13 +398,13 @@ The expert panel recommends keeping BK-32 in refinement, not Estimation, until P
 
 > BK-32-ATC-05 (zero-ATC empty state) is DROPPED per confirmation §3.1. All other in-scope ATP rows and Gherkin ACs are mapped; none unmapped.
 
-| ATP / AC | Title (abridged) | Steps that make it pass |
+| ***ATP / AC**** | ****Title (abridged)**** | ****Steps that make it pass*** |
 | --- | --- | --- |
 | BK-32-ATC-01 | Open Test with 3 ATCs, all expanded inline | 1 (compose), 4 (route), 5 (TestDetailView/cards) |
 | BK-32-ATC-02 | Position numbers match saved execution order | 1 (`order by test_steps.position`), 5 (render in array order) |
 | BK-32-ATC-03 | Edited ATC content appears (live, not snapshot) | 1 (joins live atcs/steps/assertions at query time), 4, 5 |
 | BK-32-ATC-04 | ATC with 0 steps / 0 assertions → clear section state | 1 (`coalesce '[]'`), 5 (empty-section copy) |
-| ~~BK-32-ATC-05~~ | ~~Zero-ATC empty state~~ | DROPPED (§3.1 — BK-27 requires ≥1 ATC) |
+| ~~BK-32-ATC-05~~ | ~~Zero-ATC empty state~~ | DROPPED (§3.1 — [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) requires ≥1 ATC) |
 | BK-32-ATC-06 | Cross-workspace access denied, no leakage | 1 (read-membership assert, uniform P0002), 3 (P0002→404), 4, 7 (isolation test) |
 | BK-32-ATC-07 | No edit/add/remove/reorder controls anywhere | 5 (pure projection, no mutation affordances) |
 | BK-32-ATC-08 | 7-ATC expanded read meets p95 (one round trip) | 1 (single composed RPC, no N+1), 4, 7 (perf sanity) |
@@ -423,24 +423,24 @@ The expert panel recommends keeping BK-32 in refinement, not Estimation, until P
 
 > Story-local decisions. Only genuinely cross-cutting + hard-to-reverse items are flagged as ADR candidates.
 
-| # | Question | Decision | Status |
+| ***#**** | ****Question**** | ****Decision**** | ****Status*** |
 | --- | --- | --- | --- |
-| 1 | Zero-ATC empty state? | NO. A Test requires ≥1 ATC (BK-27 rule wins). BK-32-ATC-05 + "Test has no ATCs" Gherkin scenario DROPPED. `business-rules.md` line ~10 is ***overridden*** by this plan; recommend PM/glossary reconcile the story field (do NOT edit from the plan). | DECIDED (per §3.1; PM reconciliation recommended, non-blocking) |
-| 2 | Read architecture: DEFINER RPC vs RLS nested select | ***DEFINER RPC ***`bunkai*get*test*expanded` with explicit `p*actor*user*id` + in-band read-membership re-check. RLS nested select is unusable from the admin-client API route (NULL `auth.uid()`); RPC keeps one rulebook across both surfaces and isolates non-disclosure logic in one place. | DECIDED-IN-PLAN |
+| 1 | Zero-ATC empty state? | NO. A Test requires ≥1 ATC ([https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) rule wins). BK-32-ATC-05 + "Test has no ATCs" Gherkin scenario DROPPED. `business-rules.md` line ~10 is ***overridden*** by this plan; recommend PM/glossary reconcile the story field (do NOT edit from the plan). | DECIDED (per §3.1; PM reconciliation recommended, non-blocking) |
+| 2 | Read architecture: DEFINER RPC vs RLS nested select | ***DEFINER RPC*** `bunkai*get*test*expanded` with explicit `p*actor*user*id` + in-band read-membership re-check. RLS nested select is unusable from the admin-client API route (NULL `auth.uid()`); RPC keeps one rulebook across both surfaces and isolates non-disclosure logic in one place. | DECIDED-IN-PLAN |
 | 3 | Read-level membership helper | NEW `bunkai*assert*actor*can*read_workspace` (any active role incl. viewer), raising P0002 (not 42501) for non-disclosure. Existing write-asserts wrongly deny viewers. | DECIDED-IN-PLAN |
 | 4 | `expand` query param handling | Accept and IGNORE — always return fully expanded (minimal viable). Documented in OpenAPI. Conditional composition is dead weight; the only consumer needs full expansion. | DECIDED-IN-PLAN |
-| 5 | Not-found code | Reuse canonical `not*found` (404), non-disclosing copy `Test not found.`. NO new `test*not_found` code (a distinct code is itself a weak existence signal; mirrors `mapAtcRpcError` P0002 + BK-27 D5). No error-envelope/registry edits. | DECIDED-IN-PLAN |
-| 6 | PAT scope for the read | Reuse the existing read auth path (`auth: 'required'`, no `requires` write scope). No new PAT scope (§3.4 / BK-27 D16 parity). | DECIDED-IN-PLAN |
-| 7 | UI surface (tab vs routed page) | ***Routed page*** `/projects/{slug}/tests/{testId}`, by analogy with `atcs/[atcId]/page.tsx`; explorer rows become `Link`s (mirrors `AtcTable`). BK-27 explicitly deferred the in-pane `t:` tab to BK-32; a routed page is the lower-risk, deep-linkable choice and matches the §8 "Projects detail (test view)" row. | DECIDED-IN-PLAN |
-| 8 | Derived Test-detail screen (no authored mockup) | DERIVED by analogy (ATCDetail steps/assertions/used-by anatomy + BK-27 explorer Tests group). ***Orchestrator must record this as a §5 ratified divergence in ****`master-design-plan.md`**** before Stage 2 UI work*** (Critical Rule #15 — silent invention is a defect). Suggested §5 entry text provided below. | DECIDED-IN-PLAN (ratification entry required) |
-| 9 | `step*id` in payload | Include `test*steps.id` per chain item now (stable reorder handle for BK-28; React key for BK-32). Additive, no cost. | DECIDED-IN-PLAN |
+| 5 | Not-found code | Reuse canonical `not*found` (404), non-disclosing copy `Test not found.`. NO new `test*not_found` code (a distinct code is itself a weak existence signal; mirrors `mapAtcRpcError` P0002 + [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) D5). No error-envelope/registry edits. | DECIDED-IN-PLAN |
+| 6 | PAT scope for the read | Reuse the existing read auth path (`auth: 'required'`, no `requires` write scope). No new PAT scope (§3.4 / [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) D16 parity). | DECIDED-IN-PLAN |
+| 7 | UI surface (tab vs routed page) | ***Routed page*** `/projects/{slug}/tests/{testId`}, by analogy with `atcs/[atcId]/page.tsx`; explorer rows become `Link}}s (mirrors {{AtcTable`). [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) explicitly deferred the in-pane `t:` tab to BK-32; a routed page is the lower-risk, deep-linkable choice and matches the §8 "Projects detail (test view)" row. | DECIDED-IN-PLAN |
+| 8 | Derived Test-detail screen (no authored mockup) | DERIVED by analogy (ATCDetail steps/assertions/used-by anatomy + [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) explorer Tests group). ***Orchestrator must record this as a §5 ratified divergence in**** `master-design-plan.md` ****before Stage 2 UI work*** (Critical Rule #15 — silent invention is a defect). Suggested §5 entry text provided below. | DECIDED-IN-PLAN (ratification entry required) |
+| 9 | `step*id` in payload | Include `test*steps.id` per chain item now (stable reorder handle for BK-28; React key for [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32)). Additive, no cost. | DECIDED-IN-PLAN |
 | 10 | Snapshot vs live | Live references only (§3.3). No snapshot column added; reads join live tables at request time. | DECIDED-IN-PLAN |
 
-***No ADR candidate flagged.**** The read-contract / RPC-vs-RLS choice (Decision 2) is a **direct application* of the already-ratified ADR-0001 admin-client + explicit-actor doctrine and the established `bunkai*get*atc` precedent — it introduces no new cross-cutting, hard-to-reverse policy. (Contrast: BK-27 flagged idempotency-key scoping as an ADR candidate because that genuinely set new cross-cutting policy.)
+***No ADR candidate flagged.**** The read-contract / RPC-vs-RLS choice (Decision 2) is a **direct application* of the already-ratified ADR-0001 admin-client + explicit-actor doctrine and the established `bunkai*get*atc` precedent — it introduces no new cross-cutting, hard-to-reverse policy. (Contrast: [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) flagged idempotency-key scoping as an ADR candidate because that genuinely set new cross-cutting policy.)
 
-***Suggested §5 ratification entry (for the orchestrator to add to ****`master-design-plan.md`****)******:***
+***Suggested §5 ratification entry (for the orchestrator to add to**** `master-design-plan.md`****):***
 
-> D10 (or next free) | Test detail view (BK-32): mockup `TestDetail` is a placeholder (`project.jsx:564-570`) — no authored spec | ***UI (derived)**** | ****Ratified DERIVATION (BK-32 Stage 1).*** Read-only expanded Test view implemented as a routed page `/projects/{slug}/tests/{testId}` (analogy with `atcs/[atcId]` detail page); explorer Test rows become navigating `Link`s (mirrors `AtcTable`). Each ATC rendered as an expanded card reusing ATCDetail anatomy: "Used by"-row header (`project.jsx:528-546`), ordered steps `<ol>` (`:476-501`), stacked assertions `<code>` (`:502-518`) — neutral styling, no pass/fail color (no Runs, §7 gate). Frozen §2 tokens only. Strictly read-only (no edit/add/remove/reorder — those are BK-28+). Empty per-section state for ATCs with 0 steps/0 assertions; NO zero-ATC empty Test (BK-27 ≥1-ATC rule wins, overrides BK-32 `business-rules.md` line ~10).
+> D10 (or next free) | Test detail view ([https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32)): mockup `TestDetail` is a placeholder (`project.jsx:564-570`) — no authored spec | ***UI (derived)**** | ****Ratified DERIVATION (BK-32 Stage 1).*** Read-only expanded Test view implemented as a routed page `/projects/{slug}/tests/{testId`} (analogy with `atcs/[atcId]` detail page); explorer Test rows become navigating `Link}}s (mirrors {{AtcTable`). Each ATC rendered as an expanded card reusing ATCDetail anatomy: "Used by"-row header (`project.jsx:528-546`), ordered steps `<ol>` (`:476-501`), stacked assertions `<code>` (`:502-518`) — neutral styling, no pass/fail color (no Runs, §7 gate). Frozen §2 tokens only. Strictly read-only (no edit/add/remove/reorder — those are BK-28+). Empty per-section state for ATCs with 0 steps/0 assertions; NO zero-ATC empty Test ([https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) ≥1-ATC rule wins, overrides [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) `business-rules.md` line ~10).
 
 ---
 
@@ -457,7 +457,7 @@ Decision needed before apply: No
 
 Per-file estimates (new ×1.5, modified ×1.0, ×1.2 tests/docs buffer; `lib/types/supabase.ts` excluded as generated):
 
-| File | Op | Base | Weighted |
+| ***File**** | ****Op**** | ****Base**** | ****Weighted*** |
 | --- | --- | --- | --- |
 | `supabase/migrations/0025*test*read.sql` | new | 110 | 165 |
 | `app/api/v1/tests/[id]/route.ts` | new | 35 | 53 |
@@ -470,9 +470,9 @@ Per-file estimates (new ×1.5, modified ×1.0, ×1.2 tests/docs buffer; `lib/typ
 | `lib/tests/errors.test.ts` | mod | 10 | 12 |
 | `app/(app)/projects/[projectSlug]/project-explorer.tsx` | mod | 8 | 8 |
 | `lib/tests/read-isolation.test.ts` | new | 55 | 83 |
-| ***Sum**** |  | ****~******492**** | ****×1.2 ≈ 553*** |
+| ***Sum**** |  | ****~492**** | ****×1.2 ≈ 553*** |
 
-***Proposed chain (concrete)******:*** integration branch `feature/BK-32-test-detail-view` off `staging`; child PRs merge into it; final merge to `staging` is one `--no-ff` merge commit (main-integration flow).
+***Proposed chain (concrete):*** integration branch `feature/BK-32-test-detail-view` off `staging`; child PRs merge into it; final merge to `staging` is one `--no-ff` merge commit (main-integration flow).
 
 - ***PR-1*** — Steps 1–3: migration 0025 + generated types + rpc wrapper + error map (~190 reviewable; types marked `// generated, do not review`).
 - ***PR-2*** — Step 4: route + OpenAPI sibling (~175).
@@ -497,38 +497,38 @@ Notes: no child PR exceeds 400 reviewable lines; generated Supabase types exclud
 
 ### jesusgpythondev - 23/6/2026, 11:37:13
 
-# Acceptance Test Results (ATR) - BK-32
+# Acceptance Test Results (ATR) - [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32)
 
-## BK-32 Test Results
+## [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) Test Results
 
-| Field | Value |
+| ***Field**** | ****Value*** |
 | --- | --- |
 | Tested | 2026-06-23 |
-| Environment | Staging - https://staging-upexbunkai.vercel.app |
+| Environment | Staging - [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/) |
 | Tester | jesusgpythondev / openapi_testing@xenievzoau.resend.app |
 | Result | PASSED |
 | Executed checks | 9 passed / 9 executed |
 | Failed / deferred | 0 failed / 0 deferred |
 | Blocking defects | None |
-| Scope note | ATC-05 zero-ATC empty state intentionally dropped by Dev decision; BK-27 requires at least one ATC |
+| Scope note | ATC-05 zero-ATC empty state intentionally dropped by Dev decision; [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) requires at least one ATC |
 
 ## QA Completion Summary
 
-| Field | Value |
+| ***Field**** | ****Value*** |
 | --- | --- |
-| Environment | Staging (https://staging-upexbunkai.vercel.app) |
+| Environment | Staging ([https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/)) |
 | Result | PASSED (9/9 TCs; ATC-05 dropped per Dev decision Section 3.1) |
 | Defects | None |
-| ATR reference | See BK-32 TEST RESULTS in this comment for full execution report |
+| ATR reference | See [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) TEST RESULTS in this comment for full execution report |
 
-| Test Data Used | ID / Value |
+| ***Test Data Used**** | ****ID / Value*** |
 | --- | --- |
-| 4-ATC Test | BK-32 4-ATC Test (e72c88da-4cd3-4726-8bc2-1ffb02c3327b) |
-| 7-ATC Test | BK-32 Perf 7-ATC Test (d926d94d-0521-436e-a030-cc8ed371ce15) |
-| Long-content Test | BK-32 Long Content Test (ac7a3b82-6b20-4b81-96cb-f39ad5492e8e) |
+| 4-ATC Test | [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) 4-ATC Test (e72c88da-4cd3-4726-8bc2-1ffb02c3327b) |
+| 7-ATC Test | [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) Perf 7-ATC Test (d926d94d-0521-436e-a030-cc8ed371ce15) |
+| Long-content Test | [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) Long Content Test (ac7a3b82-6b20-4b81-96cb-f39ad5492e8e) |
 | Workspace | d8aec050-72cc-4229-9d3e-56c120b2fafa (owner role) |
 
-| AC | Verified Behavior | Status |
+| ***AC**** | ****Verified Behavior**** | ****Status*** |
 | --- | --- | --- |
 | AC-1 | Expanded view with ATCs inline in execution order | VERIFIED |
 | AC-2 | Positions match saved execution order | VERIFIED |
@@ -540,17 +540,17 @@ Notes: no child PR exceeds 400 reviewable lines; generated Supabase types exclud
 | AC-8 | 7-ATC expanded read meets p95 target (271ms under 500ms) | VERIFIED |
 | AC-9 | Long steps/assertions remain readable (500 chars) | VERIFIED |
 
-NOTE: ATC-05 (zero-ATC empty state) DROPPED per Dev decision Section 3.1 because BK-27 requires at least one ATC.
+NOTE: ATC-05 (zero-ATC empty state) DROPPED per Dev decision Section 3.1 because [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) requires at least one ATC.
 
 ## Summary
 
-BK-32 was validated on staging for the read-only expanded Test view across API, security, performance, and UX-oriented data coverage. The executed coverage confirms that GET /api/v1/tests/{id} returns Test header data plus ordered ATC chain, steps, and assertions in one response; live ATC edits are reflected without snapshots; missing and foreign Tests are handled with non-disclosing 404 responses; mutation methods are blocked; and the expanded read meets the target performance threshold.
+[https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) was validated on staging for the read-only expanded Test view across API, security, performance, and UX-oriented data coverage. The executed coverage confirms that GET /api/v1/tests/{id} returns Test header data plus ordered ATC chain, steps, and assertions in one response; live ATC edits are reflected without snapshots; missing and foreign Tests are handled with non-disclosing 404 responses; mutation methods are blocked; and the expanded read meets the target performance threshold.
 
 The story is acceptable for QA sign-off. The only follow-up is requirements cleanup: remove or reconcile the old zero-ATC scenario because the implemented product contract requires a Test to contain at least one ATC.
 
 ## Executed Checks
 
-| ID | Check | Surface | Result | Evidence |
+| ***ID**** | ****Check**** | ****Surface**** | ****Result**** | ****Evidence*** |
 | --- | --- | --- | --- | --- |
 | BK-32-TC-01 | Expanded view returns 4 ATCs inline | API | PASSED | HTTP 200; 4 ATCs with steps and assertions returned |
 | BK-32-TC-02 | Position labels match saved execution order | API + DB | PASSED | positions=[1,2,3,4] |
@@ -564,7 +564,7 @@ The story is acceptable for QA sign-off. The only follow-up is requirements clea
 
 ## Test Data
 
-| Entity | ID / Value | Notes |
+| ***Entity**** | ****ID / Value**** | ****Notes*** |
 | --- | --- | --- |
 | 4-ATC Test | e72c88da-4cd3-4726-8bc2-1ffb02c3327b | Main expanded-read verification |
 | 7-ATC Test | d926d94d-0521-436e-a030-cc8ed371ce15 | Performance check; 271ms warm |
@@ -574,7 +574,7 @@ The story is acceptable for QA sign-off. The only follow-up is requirements clea
 
 ## Contract Validation
 
-| Contract | Expected | Observed | Status |
+| ***Contract**** | ****Expected**** | ****Observed**** | ****Status*** |
 | --- | --- | --- | --- |
 | Expanded read | Test header + ordered ATC chain + steps + assertions | Returned in one GET response | PASSED |
 | Live content | Latest ATC edit appears on Test GET | ATC-B edit reflected immediately | PASSED |
@@ -584,9 +584,9 @@ The story is acceptable for QA sign-off. The only follow-up is requirements clea
 
 ## Expert Panel Review
 
-| Role | Finding | Recommendation |
+| ***Role**** | ****Finding**** | ****Recommendation*** |
 | --- | --- | --- |
-| QA Lead | Coverage validates all executable BK-32 behaviors after ATC-05 was dropped. | Accept sprint-testing result as complete for current implementation. |
+| QA Lead | Coverage validates all executable [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) behaviors after ATC-05 was dropped. | Accept sprint-testing result as complete for current implementation. |
 | Technical Architect | Single expanded read avoids N+1 behavior and matches the intended read-only contract. | Keep performance and payload shape in regression candidates. |
 | Security/AppSec | Non-disclosing 404 for missing and foreign Tests is the correct read-side security posture. | Preserve this behavior and avoid replacing it with existence-revealing 403. |
 | Senior Developer | Accept-and-ignore expand parameter is acceptable for MVP because only full expansion is consumed. | Document as MVP behavior and revisit only if partial expansion has a user need. |
@@ -606,32 +606,32 @@ None confirmed.
 
 ## Deferred Follow-Up Coverage
 
-| Follow-up | Reason | Owner |
+| ***Follow-up**** | ****Reason**** | ****Owner*** |
 | --- | --- | --- |
-| Remove or reconcile zero-ATC scenario | Dev decision dropped BK-32-ATC-05 because BK-27 requires at least one ATC. | PO / Dev |
+| Remove or reconcile zero-ATC scenario | Dev decision dropped BK-32-ATC-05 because [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) requires at least one ATC. | PO / Dev |
 | Regression automation for expanded payload | Core user value and contract shape. | Automation |
 | Regression automation for cross-workspace 404 | High security value. | Automation |
 | Regression automation for 7-ATC performance | Protects no-N+1 behavior. | Automation |
 
 ## Recommendation
 
-QA approves BK-32 for the sprint scope as PASSED. No blocking defect was found. Move selected expanded-read, live-content, security, and performance checks to Stage 4 ROI/regression documentation.
+QA approves [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) for the sprint scope as PASSED. No blocking defect was found. Move selected expanded-read, live-content, security, and performance checks to Stage 4 ROI/regression documentation.
 
 ---
 
 ### jesusgpythondev - 23/6/2026, 11:50:39
 
-# QA Testing Complete - BK-32
+# QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32)
 
 Environment: Staging
 Result: PASSED WITH SCOPE NOTE (9/9 executed checks passed; ATC-05 dropped per Dev decision Section 3.1)
 
 ## Test Data Used
 
-- Workspace: BK-32 Sprint QA (`d8aec050-72cc-4229-9d3e-56c120b2fafa`, owner role)
-- 4-ATC Test: BK-32 4-ATC Test (`e72c88da-4cd3-4726-8bc2-1ffb02c3327b`)
-- 7-ATC Test: BK-32 Perf 7-ATC Test (`d926d94d-0521-436e-a030-cc8ed371ce15`)
-- Long-content Test: BK-32 Long Content Test (`ac7a3b82-6b20-4b81-96cb-f39ad5492e8e`)
+- Workspace: [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) Sprint QA (`d8aec050-72cc-4229-9d3e-56c120b2fafa`, owner role)
+- 4-ATC Test: [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) 4-ATC Test (`e72c88da-4cd3-4726-8bc2-1ffb02c3327b`)
+- 7-ATC Test: [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) Perf 7-ATC Test (`d926d94d-0521-436e-a030-cc8ed371ce15`)
+- Long-content Test: [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) Long Content Test (`ac7a3b82-6b20-4b81-96cb-f39ad5492e8e`)
 - Cross-workspace Test: old workspace `a222895a`; read returns 404 without existence leak
 - Backup execution user: `openapi_testing@xenievzoau.resend.app`
 
@@ -649,7 +649,7 @@ Result: PASSED WITH SCOPE NOTE (9/9 executed checks passed; ATC-05 dropped per D
 
 ## Open Non-Blocking Risks
 
-- ATC-05 zero-ATC empty state remains intentionally dropped because BK-27 requires at least one ATC; PO/Dev should remove or reconcile the stale zero-ATC requirement text.
+- ATC-05 zero-ATC empty state remains intentionally dropped because [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) requires at least one ATC; PO/Dev should remove or reconcile the stale zero-ATC requirement text.
 - The `expand` parameter is accepted but ignored in MVP because the endpoint always returns the full expanded payload.
 - Expanded-read payload, cross-workspace 404, 7-ATC performance, and long-content readability should be promoted to Stage 4 ROI/regression documentation.
 
@@ -657,7 +657,7 @@ Result: PASSED WITH SCOPE NOTE (9/9 executed checks passed; ATC-05 dropped per D
 
 - ATR evidence: `.context/PBI/epics/EPIC-BK-24-tests-chains-of-atcs/stories/STORY-BK-32-tms-test-view-view-a-test-with-all-chained-atcs-ex/acceptance-test-results.md`
 - Session memory: `.context/PBI/epics/EPIC-BK-24-tests-chains-of-atcs/stories/STORY-BK-32-tms-test-view-view-a-test-with-all-chained-atcs-ex/test-session-memory.md`
-- Jira fallback ATR comment: BK-32 comment `11728`
+- Jira fallback ATR comment: [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) comment `11728`
 
 QA sign-off: approved with non-blocking follow-up risks.
 
@@ -665,17 +665,17 @@ QA sign-off: approved with non-blocking follow-up risks.
 
 ### jesusgpythondev - 23/6/2026, 12:05:51
 
-# Expert Panel Review - Sprint Testing Audit BK-32
+# Expert Panel Review - Sprint Testing Audit [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32)
 
-> ***SUCCESS:***  Sprint-testing package accepted. No execution rerun needed.
+> ***SUCCESS:**** ****[ VALIDATED ]*** Sprint-testing package accepted. No execution rerun needed.
 
 ## Executive Summary
 
-The expert panel reviewed BK-32 after the Jira report formatting correction. The sprint-testing outcome is valid: 9 executable scenarios passed, 0 failed, 0 deferred, and 0 bugs. The current Jira reporting shape is now acceptable because the detailed ATR and compact QA verdict are separate comments and no longer rely on broken Markdown tables.
+The expert panel reviewed [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) after the Jira report formatting correction. The sprint-testing outcome is valid: 9 executable scenarios passed, 0 failed, 0 deferred, and 0 bugs. The current Jira reporting shape is now acceptable because the detailed ATR and compact QA verdict are separate comments and no longer rely on broken Markdown tables.
 
 ## Evidence Used
 
-- Jira: BK-32 story is QA Approved and contains the final `BK-32 TEST RESULTS` comment plus separate `QA Testing Complete - BK-32` verdict comment.
+- Jira: [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) story is QA Approved and contains the final `BK-32 TEST RESULTS` comment plus separate `QA Testing Complete - BK-32` verdict comment.
 - Jira: The final report records staging execution, test data IDs, endpoint behavior, non-disclosure 404 behavior, performance result, and no defects.
 - Engram: Prior learning #310 confirmed Markdown pipe tables rendered poorly in Jira and required plain-text or native ADF tables.
 - Repo/local cache: `acceptance-test-results.md` confirms smoke GO, 9 passed, 0 failed, 0 deferred, 0 bugs.
@@ -683,11 +683,11 @@ The expert panel reviewed BK-32 after the Jira report formatting correction. The
 ## Expert Findings
 
 - QA Lead: Coverage is sufficient for the implemented contract. It includes expanded read, order integrity, live content, boundary empty child arrays, safe not-found, cross-workspace denial, read-only mutation methods, performance, and long content.
-- Technical Architect: Implementation evidence is coherent with a single expanded read contract: `GET /api/v1/tests/{id}` returns Test header, ordered ATC chain, steps, and assertions in one response.
+- Technical Architect: Implementation evidence is coherent with a single expanded read contract: `GET /api/v1/tests/{id`} returns Test header, ordered ATC chain, steps, and assertions in one response.
 - Security/AppSec: Cross-workspace and missing Test behavior uses non-disclosing 404. This is stronger than exposing a forbidden/not-found distinction.
 - Senior Developer: The `expand` query being accepted and ignored is acceptable for MVP because the only consumer needs fully expanded content. Documenting this prevents future confusion.
 - Workflow/Jira: Report format is fixed. ATR and QA verdict are separated and readable. This should remain the sprint-testing reporting pattern for Jira-native mode.
-- Skeptical Reviewer: Main residual risk is not execution quality. It is stale requirements text: historical shift-left content still references zero-ATC behavior, while the Dev plan dropped BK-32-ATC-05 because BK-27 requires at least one ATC.
+- Skeptical Reviewer: Main residual risk is not execution quality. It is stale requirements text: historical shift-left content still references zero-ATC behavior, while the Dev plan dropped BK-32-ATC-05 because [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) requires at least one ATC.
 
 ## Report Improvements Added
 
@@ -709,7 +709,7 @@ The expert panel reviewed BK-32 after the Jira report formatting correction. The
 
 VERDICT: ACCEPTED
 
-BK-32 sprint-testing is well developed and report quality is now sufficient for audit/read-back. Remaining action is requirements cleanup, not additional execution.
+[https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) sprint-testing is well developed and report quality is now sufficient for audit/read-back. Remaining action is requirements cleanup, not additional execution.
 
 ---
 

@@ -10,7 +10,7 @@
 
 ## Summary
 
-BK-34 has been refined for estimation using the shift-left workflow.
+[https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) has been refined for estimation using the shift-left workflow.
 
 The ticket description now contains the business-readable scope, refined Acceptance Criteria, business rules, and open clarifications. This comment is only the handoff changelog, not a duplicate copy of the full Story specification.
 
@@ -28,12 +28,12 @@ The ticket description now contains the business-readable scope, refined Accepta
 | Duplicate Run creation on retry | High | Same start token within 24 hours should return the existing Run. |
 | Invalid environment selected | High | Must block Run creation and show a clear message. |
 | Test has no executable steps | High | Must block Run creation and avoid partial records. |
-| BK-70 dependency ignored for this pass | Medium | Accepted by instruction for this provisional refinement; refresh if Test Repository contract changes. |
+| [https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70) dependency ignored for this pass | Medium | Accepted by instruction for this provisional refinement; refresh if Test Repository contract changes. |
 
 ## Recommendations
 
-- Estimate BK-34 as the run-start entry point only.
-- Keep BK-35 through BK-43 separate; do not pull their behaviors into BK-34.
+- Estimate [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) as the run-start entry point only.
+- Keep [https://jira.upexgalaxy.com/browse/BK-35#icft=BK-35](https://jira.upexgalaxy.com/browse/BK-35#icft=BK-35) through [https://jira.upexgalaxy.com/browse/BK-43#icft=BK-43](https://jira.upexgalaxy.com/browse/BK-43#icft=BK-43) separate; do not pull their behaviors into [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34).
 - Resolve the open PO/Design/Dev clarifications before moving to Ready For Dev.
 
 ## Open Clarifications With Expert Recommendations
@@ -44,7 +44,7 @@ The ticket description now contains the business-readable scope, refined Accepta
 - Architect - Run snapshot: Expert recommendation is to snapshot step order and display text at Run creation time so historical evidence is stable. Pending confirmation: Architect/Dev confirm snapshot fields.
 - Dev - Idempotency implementation: Expert recommendation is to store start_token on the Run and enforce uniqueness per Test within the active 24-hour window via transaction-backed lookup or DB constraint. Pending confirmation: Dev confirms final storage shape.
 - QA Lead - Minimum coverage: Expert recommendation is to test successful start, no executable steps, invalid environment, same-token retry, different-token new run, executor mode, authorization, and run-history visibility. Pending confirmation: QA confirms ATP minimum.
-- Delivery - Readiness: Expert recommendation is to keep BK-34 in Estimation for sizing but not move to Ready For Dev until the Test Repository contract is stable or explicitly accepted as dependency risk. Pending confirmation: Delivery/PO confirms planning path.
+- Delivery - Readiness: Expert recommendation is to keep [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) in Estimation for sizing but not move to Ready For Dev until the Test Repository contract is stable or explicitly accepted as dependency risk. Pending confirmation: Delivery/PO confirms planning path.
 
 ---
 
@@ -91,13 +91,13 @@ This ATP Draft exists as a Jira comment fallback because the current Jira REST/c
 
 ### jesusgpythondev - 22/6/2026, 15:56:45
 
-# BK-34 Acceptance Test Results Placeholder
+# [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) Acceptance Test Results Placeholder
 
 Stage 1 Planning is complete and Stage 2 execution has not started.
 
 ## Current Status
 
-| Item | Value |
+| ***Item**** | ****Value*** |
 | --- | --- |
 | Stage | Stage 1 Planning |
 | Result | Pending execution |
@@ -107,19 +107,19 @@ Stage 1 Planning is complete and Stage 2 execution has not started.
 
 ## Pending Stage 2
 
-- Execute the planned BK-34 TC outlines from the Acceptance Test Plan.
-- Capture API, DB, UI, and security evidence under the BK-34 PBI evidence folder.
+- Execute the planned [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) TC outlines from the Acceptance Test Plan.
+- Capture API, DB, UI, and security evidence under the [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) PBI evidence folder.
 - Replace this placeholder with the Stage 3 Acceptance Test Results report after execution.
 
 ---
 
 ### jesusgpythondev - 22/6/2026, 16:24:52
 
-# Acceptance Test Results (ATR) - BK-34
+# Acceptance Test Results (ATR) - [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34)
 
-## BK-34 Test Results
+## [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) Test Results
 
-| Field | Value |
+| ***Field**** | ****Value*** |
 | --- | --- |
 | Tested | 2026-06-22 |
 | Environment | Staging |
@@ -130,13 +130,13 @@ Stage 1 Planning is complete and Stage 2 execution has not started.
 
 ## Summary
 
-BK-34 was validated on staging for the core Run-start path across API, DB, and UI smoke. The executed coverage confirms that an authorized caller can start a Run from an executable Test, the Run snapshots the pending checklist, same-domain-token retries inside 24 hours return the existing Run, different domain tokens create separate Runs, HTTP idempotency protects duplicate requests, invalid inputs do not create records, and the Run detail page renders the created Run.
+[https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) was validated on staging for the core Run-start path across API, DB, and UI smoke. The executed coverage confirms that an authorized caller can start a Run from an executable Test, the Run snapshots the pending checklist, same-domain-token retries inside 24 hours return the existing Run, different domain tokens create separate Runs, HTTP idempotency protects duplicate requests, invalid inputs do not create records, and the Run detail page renders the created Run.
 
 The story is acceptable for QA sign-off with open non-blocking risks. Remaining depth cases should move to follow-up regression/documentation work instead of blocking this sprint result.
 
 ## Executed Checks
 
-| ID | Check | Surface | Result | Evidence |
+| ***ID**** | ****Check**** | ****Surface**** | ****Result**** | ****Evidence*** |
 | --- | --- | --- | --- | --- |
 | BK-34-EX-01 | Auth token resolves the target workspace and has `run:execute` scope | API | PASSED | `bk34-stage2-api-smoke-20260622T190702Z.json` |
 | BK-34-EX-02 | Existing seed Run can be read with ordered pending checklist | API + DB | PASSED | `bk34-stage2-api-smoke-20260622T190702Z.json` |
@@ -151,7 +151,7 @@ The story is acceptable for QA sign-off with open non-blocking risks. Remaining 
 
 ## Test Data
 
-| Entity | ID / Value |
+| ***Entity**** | ****ID / Value*** |
 | --- | --- |
 | Workspace | `a222895a-a22a-4193-9c7f-70c43e78bede` |
 | Project | `f3260d03-f2ca-4db3-bd97-265cc2bf3830` |
@@ -169,12 +169,12 @@ None confirmed.
 
 - The implementation confirms that the same domain `start_token` inside 24 hours returns the existing Run with HTTP 200 and `replayed: true`.
 - The implementation creates a new Run after the 24-hour `start_token` window; the original shift-left recommendation proposed rejecting expired tokens, so PO/Dev confirmation remains open.
-- `customfield_10284` is not settable for BK-34, so this ATR is published through the approved Jira fallback comment route.
+- `customfield_10284` is not settable for [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34), so this ATR is published through the approved Jira fallback comment route.
 - Playwright `APIRequestContext` failed while processing sign-in cookies; UI smoke was unblocked by using same-origin browser-page `fetch('/api/v1/auth/signin')` and then setting `bk*active*ws`.
 
 ## Deferred Follow-Up Coverage
 
-| Follow-up | Reason |
+| ***Follow-up**** | ****Reason*** |
 | --- | --- |
 | Zero executable steps fixture | Requires controlled disposable Test fixture with no reachable executable steps. |
 | PAT without `run:execute` | Requires a separate insufficient-scope token fixture. |
@@ -183,23 +183,23 @@ None confirmed.
 
 ## Recommendation
 
-QA approves BK-34 for the sprint scope as `PASSED WITH ISSUES`. No blocking defect was found. Move deferred coverage to Stage 4 ROI/regression documentation and keep the Jira ATR-field configuration issue as process debt.
+QA approves [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) for the sprint scope as `PASSED WITH ISSUES`. No blocking defect was found. Move deferred coverage to Stage 4 ROI/regression documentation and keep the Jira ATR-field configuration issue as process debt.
 
 ---
 
 ### jesusgpythondev - 22/6/2026, 16:24:53
 
-# QA Testing Complete - BK-34
+# QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34)
 
 Environment: Staging
 Result: PASSED WITH ISSUES (10/10 executed checks passed)
 
 ## Test Data Used
 
-- Workspace: BK-34 Sprint QA (`a222895a-a22a-4193-9c7f-70c43e78bede`)
-- Project: BK-34 QA Seed 20260622020948 (`f3260d03-f2ca-4db3-bd97-265cc2bf3830`)
+- Workspace: [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) Sprint QA (`a222895a-a22a-4193-9c7f-70c43e78bede`)
+- Project: [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) QA Seed 20260622020948 (`f3260d03-f2ca-4db3-bd97-265cc2bf3830`)
 - Environment: Staging (`a0b5f094-bb53-430e-a018-13fbb3931f63`)
-- Test: BK-34 Seed Manual Run Test (`09d28d3c-ad29-45d9-a014-dbb7ba6ccbb2`)
+- Test: [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) Seed Manual Run Test (`09d28d3c-ad29-45d9-a014-dbb7ba6ccbb2`)
 - Verified Run: `174a8396-1aa1-4cfc-88a4-fbda20d30e2d`
 
 ## Verified Behaviors
@@ -231,17 +231,17 @@ QA sign-off: approved with non-blocking follow-up risks.
 
 ### jesusgpythondev - 23/6/2026, 17:42:42
 
-# Expert Panel Review - Sprint Testing Audit BK-34
+# Expert Panel Review - Sprint Testing Audit [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34)
 
-> ***SUCCESS:***  Sprint-testing package accepted. No execution rerun needed.
+> ***SUCCESS:**** ****[ VALIDATED ]*** Sprint-testing package accepted. No execution rerun needed.
 
 ## Executive Summary
 
-The expert panel reviewed BK-34 after the Jira report formatting correction and BK-34-style QA completion publication. The sprint-testing outcome is valid: 10 executed checks passed, 0 blocking defects were found, and the story is appropriately marked PASSED WITH ISSUES because remaining work is non-blocking follow-up coverage. The current Jira reporting shape is acceptable because the detailed ATR and compact QA verdict are separated and readable.
+The expert panel reviewed [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) after the Jira report formatting correction and BK-34-style QA completion publication. The sprint-testing outcome is valid: 10 executed checks passed, 0 blocking defects were found, and the story is appropriately marked PASSED WITH ISSUES because remaining work is non-blocking follow-up coverage. The current Jira reporting shape is acceptable because the detailed ATR and compact QA verdict are separated and readable.
 
 ## Evidence Used
 
-- Jira: BK-34 story is QA Approved and contains the final BK-34 TEST RESULTS comment plus separate QA Testing Complete - BK-34 verdict comment.
+- Jira: [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) story is QA Approved and contains the final [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) TEST RESULTS comment plus separate QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) verdict comment.
 - Jira: The final report records staging execution, workspace/project/environment/test/run IDs, API/DB validation, UI smoke evidence, deferred follow-up coverage, and no confirmed defects.
 - Repo/local cache: `comments.md` confirms 10 passed executed checks, the `PASSED WITH ISSUES` result, and the approved fallback ATR because `customfield_10284` is not settable for this Story.
 - Repo/local cache: `test-session-memory.md` confirms Stage 1, Stage 2, and Stage 3 completed, including API/DB smoke, UI smoke, final reporting, and transition to QA Approved.
@@ -275,7 +275,7 @@ The expert panel reviewed BK-34 after the Jira report formatting correction and 
 
 VERDICT: ACCEPTED
 
-BK-34 sprint-testing is well developed and report quality is now sufficient for audit/read-back. Remaining action is follow-up regression selection and Jira field configuration cleanup, not additional execution.
+[https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) sprint-testing is well developed and report quality is now sufficient for audit/read-back. Remaining action is follow-up regression selection and Jira field configuration cleanup, not additional execution.
 
 ---
 

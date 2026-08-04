@@ -66,7 +66,7 @@ Testability guide: /qa + Jira Epic [https://jira.upexgalaxy.com/browse/BK-29#icf
 
 ### Luis Eduardo Flores Villarroel - 6/6/2026, 18:32:38
 
-## Acceptance Test Plan (ATP) — BK-6
+## Acceptance Test Plan (ATP) — [https://jira.upexgalaxy.com/browse/BK-6#icft=BK-6](https://jira.upexgalaxy.com/browse/BK-6#icft=BK-6)
 
 ***Stage 1 Planning completed:*** 2026-06-06
 ***Risk Score:*** 13/15 — HIGH
@@ -84,7 +84,7 @@ Score 13/15 — HIGH. Veto override: auth + data integrity → Full ATP mandator
 
 ***Top risks:***
 
-1. ***DEF-001 (to file in Stage 2):*** API response schema mismatch — spec requires `{ id, slug, name, role }` but implementation returns `{ ok: true, active*workspace*id }`. TC1 will fail this assertion.
+1. ***DEF-001 (to file in Stage 2):*** API response schema mismatch — spec requires {{{ id, slug, name, role }}} but implementation returns {{{ ok: true, active*workspace*id }}}. TC1 will fail this assertion.
 2. ***DISC-003 (test and report):*** AC3 suspended error code may not be `MEMBERSHIP_SUSPENDED` — RLS-based rejection may return generic code. TC3 captures actual code.
 3. ***Session data leak risk:*** If tenancy scoping fails, data from the wrong workspace could leak. TC1 verifies scoping post-switch.
 
@@ -96,12 +96,13 @@ Score 13/15 — HIGH. Veto override: auth + data integrity → Full ATP mandator
 
 ### TC Outlines
 
-| TC | AC | Type | Priority | Test Data |
-|----|----|------|----------|-----------|
-| TC1 | AC1 | Positive — API + DB | Critical | FROM: Bünkāï QA → TO: Extra Test |
-| TC2 | AC2 | Negative — API | Critical | Non-member workspace `bd947203` |
-| TC3 | AC3 | Negative — API + DB | Critical | Suspended membership `c828d131` (BK5 Test Workspace) |
-| TC4 | AC4 | Positive — UI + Integration | High | Switcher + reload persistence |
+| TC  | AC  | Type  | Priority  | Test Data  |
+| --- | --- | --- | --- | --- |
+| ---- | ---- | ------ | ---------- | ----------- |
+| TC1  | AC1  | Positive — API + DB  | Critical  | FROM: Bünkāï QA → TO: Extra Test  |
+| TC2  | AC2  | Negative — API  | Critical  | Non-member workspace `bd947203`  |
+| TC3  | AC3  | Negative — API + DB  | Critical  | Suspended membership `c828d131` (BK5 Test Workspace)  |
+| TC4  | AC4  | Positive — UI + Integration  | High  | Switcher + reload persistence  |
 
 ---
 
@@ -136,7 +137,7 @@ TC2 → TC3 → TC1 → TC4 (negatives first to avoid state contamination; reset
 
 ### Luis Eduardo Flores Villarroel - 6/6/2026, 18:43:02
 
-Bug found during exploratory testing (Stage 2 Execution, TC1): BK-83 — WorkspaceSwitch: API: POST /api/v1/me/active-workspace response missing workspace fields (id, slug, name, role). Severity: Moderate | Env: Staging | Error Type: Functional
+Bug found during exploratory testing (Stage 2 Execution, TC1): [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) — WorkspaceSwitch: API: POST /api/v1/me/active-workspace response missing workspace fields (id, slug, name, role). Severity: Moderate | Env: Staging | Error Type: Functional
 
 ---
 
@@ -144,39 +145,39 @@ Bug found during exploratory testing (Stage 2 Execution, TC1): BK-83 — Workspa
 
 ## Acceptance Test Results (ATR)
 
-BK-6 TEST RESULTS
+[https://jira.upexgalaxy.com/browse/BK-6#icft=BK-6](https://jira.upexgalaxy.com/browse/BK-6#icft=BK-6) TEST RESULTS
 Tested: 2026-06-06
-Environment: Staging (https://staging-upexbunkai.vercel.app)
+Environment: Staging ([https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/))
 Tester: Luis Flores
 Result: FAILED (3/4 TCs passed, 1 blocking defect)
 
 SUMMARY
-  Tested workspace switching feature: API endpoint for active workspace mutation, membership validation (non-member, suspended), and UI switcher persistence. Switch mechanism works correctly (cookie rotation, tenancy scope, UI persistence). Blocked on BK-83 until the switch endpoint returns the full workspace payload per AC1 spec.
+Tested workspace switching feature: API endpoint for active workspace mutation, membership validation (non-member, suspended), and UI switcher persistence. Switch mechanism works correctly (cookie rotation, tenancy scope, UI persistence). Blocked on [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) until the switch endpoint returns the full workspace payload per AC1 spec.
 
 TEST CASES
-  TC1: Successful workspace switch updates context ... FAILED
-  TC2: Switch to non-member workspace returns 403 ... PASSED
-  TC3: Switch with suspended membership returns 403 ... PASSED
-  TC4: UI switcher reflects correct workspace after switch + reload ... PASSED
+TC1: Successful workspace switch updates context ... FAILED
+TC2: Switch to non-member workspace returns 403 ... PASSED
+TC3: Switch with suspended membership returns 403 ... PASSED
+TC4: UI switcher reflects correct workspace after switch + reload ... PASSED
 
 TEST DATA
-  User: bunkai-staging-userlf@ambuusteln.resend.app (user_id: 2742da39-e0ff-4f0c-a0a1-88dae804e14f)
-  Workspace From: Bunkai QA (a808499e-f437-43b8-9fdb-8cee7dcceb3e)
-  Workspace To: Extra Test (9a2c3de7-18af-45e5-a36f-e0ef9377af69)
-  Workspace Non-Member: bd947203-5318-4724-9608-7676c7af83c0
-  Workspace Suspended: BK5 Test Workspace (c828d131-f1c7-413c-9ba4-723fa1c45c00)
+User: bunkai-staging-userlf@ambuusteln.resend.app (user_id: 2742da39-e0ff-4f0c-a0a1-88dae804e14f)
+Workspace From: Bunkai QA (a808499e-f437-43b8-9fdb-8cee7dcceb3e)
+Workspace To: Extra Test (9a2c3de7-18af-45e5-a36f-e0ef9377af69)
+Workspace Non-Member: bd947203-5318-4724-9608-7676c7af83c0
+Workspace Suspended: BK5 Test Workspace (c828d131-f1c7-413c-9ba4-723fa1c45c00)
 
 BUGS FOUND
-  BK-83 - MODERATE: POST /api/v1/me/active-workspace response missing workspace fields (id, slug, name, role)
+[https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) - MODERATE: POST /api/v1/me/active-workspace response missing workspace fields (id, slug, name, role)
 
 OBSERVATIONS
-  OBS-001: 403 error codes use generic 'forbidden' instead of NOT*A*MEMBER / MEMBERSHIP_SUSPENDED. API relies on RLS, not explicit status enum. Spec uses custom codes not implemented. Per PO decision: non-blocking.
-  OBS-002: Workspace switcher only visible when workspace has at least 1 project (expected UX, not a bug).
-  DB-CLEANUP: Suspended membership row for BK5 Test Workspace restored to active after TC3.
+OBS-001: 403 error codes use generic 'forbidden' instead of NOT*A*MEMBER / MEMBERSHIP_SUSPENDED. API relies on RLS, not explicit status enum. Spec uses custom codes not implemented. Per PO decision: non-blocking.
+OBS-002: Workspace switcher only visible when workspace has at least 1 project (expected UX, not a bug).
+DB-CLEANUP: Suspended membership row for BK5 Test Workspace restored to active after TC3.
 
 RECOMMENDATIONS
-  Fix BK-83 (return full workspace payload from switch endpoint), then re-run TC1.
-  TC2, TC3, TC4 are automation candidates for regression suite.
+Fix [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) (return full workspace payload from switch endpoint), then re-run TC1.
+TC2, TC3, TC4 are automation candidates for regression suite.
 
 ---
 
@@ -184,37 +185,37 @@ RECOMMENDATIONS
 
 ## QA Result: BLOCKED
 
-QA Testing Complete - BK-6
+QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-6#icft=BK-6](https://jira.upexgalaxy.com/browse/BK-6#icft=BK-6)
 
-Environment: Staging (https://staging-upexbunkai.vercel.app)
+Environment: Staging ([https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/))
 Result: FAILED (3/4 TCs passed, 1 blocking defect)
 
 TEST DATA USED:
-  User: bunkai-staging-userlf@ambuusteln.resend.app
-  Workspace From: Bunkai QA (a808499e-f437-43b8-9fdb-8cee7dcceb3e)
-  Workspace To: Extra Test (9a2c3de7-18af-45e5-a36f-e0ef9377af69)
+User: bunkai-staging-userlf@ambuusteln.resend.app
+Workspace From: Bunkai QA (a808499e-f437-43b8-9fdb-8cee7dcceb3e)
+Workspace To: Extra Test (9a2c3de7-18af-45e5-a36f-e0ef9377af69)
 
 VERIFIED BEHAVIORS:
-  TC2 - Switch to non-member workspace: 403 returned, session unchanged - VERIFIED
-  TC3 - Switch with suspended membership: 403 returned, session unchanged - VERIFIED
-  TC4 - UI switcher persistence after reload: Correct workspace shown before and after reload - VERIFIED
+TC2 - Switch to non-member workspace: 403 returned, session unchanged - VERIFIED
+TC3 - Switch with suspended membership: 403 returned, session unchanged - VERIFIED
+TC4 - UI switcher persistence after reload: Correct workspace shown before and after reload - VERIFIED
 
 FAILED VERIFICATION:
-  TC1 - Successful workspace switch updates context - FAILED
-    Expected: 200 with response body containing id, slug, name, role per AC1 spec
-    Actual: 200 with response body {ok: true, active*workspace*id} only - fields id/slug/name/role missing
-    Impact: Any consumer reading workspace fields from switch response gets undefined values
+TC1 - Successful workspace switch updates context - FAILED
+Expected: 200 with response body containing id, slug, name, role per AC1 spec
+Actual: 200 with response body {ok: true, active*workspace*id} only - fields id/slug/name/role missing
+Impact: Any consumer reading workspace fields from switch response gets undefined values
 
-DEFECT: BK-83 - POST /api/v1/me/active-workspace response missing workspace fields (id, slug, name, role)
+DEFECT: [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) - POST /api/v1/me/active-workspace response missing workspace fields (id, slug, name, role)
 
 NON-BLOCKING OBSERVATIONS:
-  OBS-001: 403 error codes use generic forbidden instead of NOT*A*MEMBER / MEMBERSHIP_SUSPENDED - API relies on RLS. Per PO decision: non-blocking.
-  OBS-002: Workspace switcher requires at least 1 project to render (expected UX, not a bug).
+OBS-001: 403 error codes use generic forbidden instead of NOT*A*MEMBER / MEMBERSHIP_SUSPENDED - API relies on RLS. Per PO decision: non-blocking.
+OBS-002: Workspace switcher requires at least 1 project to render (expected UX, not a bug).
 
 NEXT STEPS:
-  Fix BK-83, then re-run TC1, re-evaluate for QA Approved.
+Fix [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83), then re-run TC1, re-evaluate for QA Approved.
 
-Artifacts: ATP posted on BK-6, ATR posted on BK-6, BK-83 filed and linked as blocker.
+Artifacts: ATP posted on [https://jira.upexgalaxy.com/browse/BK-6#icft=BK-6](https://jira.upexgalaxy.com/browse/BK-6#icft=BK-6), ATR posted on [https://jira.upexgalaxy.com/browse/BK-6#icft=BK-6](https://jira.upexgalaxy.com/browse/BK-6#icft=BK-6), [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) filed and linked as blocker.
 
 ---
 
@@ -224,9 +225,9 @@ Artifacts: ATP posted on BK-6, ATR posted on BK-6, BK-83 filed and linked as blo
 
 The defect blocking this story is fixed, merged to staging, and now in ***Ready For QA***:
 
-| Bug | Status | Fix evidence |
+| ***Bug**** | ****Status**** | ****Fix evidence*** |
 | --- | --- | --- |
-| BK-83 — POST /api/v1/me/active-workspace response missing workspace fields (id, slug, name, role) | Ready For QA | PR #32 merged to staging · verification details in the bug's fix comment |
+| [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) — POST /api/v1/me/active-workspace response missing workspace fields (id, slug, name, role) | Ready For QA | PR #32 merged to staging · verification details in the bug's fix comment |
 
 This story has been moved back to ***In Test*** so testing can resume. Please re-test the defect and continue the story run.
 
@@ -234,9 +235,9 @@ This story has been moved back to ***In Test*** so testing can resume. Please re
 
 ### Luis Eduardo Flores Villarroel - 11/6/2026, 23:22:19
 
-BK-83 has been resolved and closed. Fix verified on staging (2026-06-12). Retest passed (4/4 TCs). Story can proceed with QA — the blocker is cleared.
+[https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) has been resolved and closed. Fix verified on staging (2026-06-12). Retest passed (4/4 TCs). Story can proceed with QA — the blocker is cleared.
 
-Related tech debt: BK-118 (legacy response fields cleanup — non-blocking).
+Related tech debt: [https://jira.upexgalaxy.com/browse/BK-118#icft=BK-118](https://jira.upexgalaxy.com/browse/BK-118#icft=BK-118) (legacy response fields cleanup — non-blocking).
 
 ---
 
@@ -255,15 +256,15 @@ Result: PASSED (4/4 TCs — 100%)
 
 TMS-Workspace | Switch between workspaces — all 4 acceptance criteria verified across API, DB, and UI layers.
 
-TC1 originally FAILED on 2026-06-06 due to BK-83 (API response schema missing `{id, slug, name, role}`). BK-83 has been fixed and closed. TC1 re-verified on 2026-06-12 — fix confirmed, response schema now matches AC1 specification. Story verdict: ***PASSED***.
+TC1 originally FAILED on 2026-06-06 due to [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) (API response schema missing `{id, slug, name, role`}). [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) has been fixed and closed. TC1 re-verified on 2026-06-12 — fix confirmed, response schema now matches AC1 specification. Story verdict: ***PASSED***.
 
 ---
 
 ## Test Cases
 
-| TC | AC | Scenario | Status | Notes |
+| ***TC**** | ****AC**** | ****Scenario**** | ****Status**** | ****Notes*** |
 | --- | --- | --- | --- | --- |
-| TC1 | AC1 | Happy path — switch + response schema | PASSED | Re-verified 2026-06-12 after BK-83 fix |
+| TC1 | AC1 | Happy path — switch + response schema | PASSED | Re-verified 2026-06-12 after [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) fix |
 | TC2 | AC2 | Non-member workspace rejected (403) | PASSED | Original 2026-06-06 |
 | TC3 | AC3 | Suspended membership rejected (403) | PASSED | Original 2026-06-06 |
 | TC4 | AC4 | UI switcher reflects active workspace | PASSED | Original 2026-06-06 |
@@ -281,7 +282,7 @@ TC1 originally FAILED on 2026-06-06 due to BK-83 (API response schema missing `{
 
 ## Bugs Found
 
-- ***BK-83*** (CLOSED): POST /api/v1/me/active-workspace response missing `{id, slug, name, role}`. Fix verified 2026-06-12. Severity: Moderate.
+- ***BK-83*** (CLOSED): POST /api/v1/me/active-workspace response missing `{id, slug, name, role`}. Fix verified 2026-06-12. Severity: Moderate.
 - ***BK-118*** (OPEN — tech debt): Legacy fields `ok` and `active*workspace*id` still present in response alongside new fields. Additive, non-breaking. Accepted by PO.
 
 ---
@@ -290,7 +291,7 @@ TC1 originally FAILED on 2026-06-06 due to BK-83 (API response schema missing `{
 
 - ***OBS-001***: Error codes for negative paths (AC2, AC3) use generic `forbidden` instead of spec-required `NOT*A*MEMBER` / `MEMBERSHIP_SUSPENDED`. API uses RLS for membership filtering — suspended memberships treated identically to non-memberships at the RLS layer. Accepted by PO as non-blocking.
 - ***OBS-002***: Empty workspaces show onboarding modal without the workspace switcher in the header. Expected UX — not a defect.
-- ***TC1 Re-verification (2026-06-12)***: Full response body: `{"ok":true,"active*workspace*id":"9a2c3de7...","id":"9a2c3de7...","slug":"extra-test","name":"Extra Test","role":"member"}`. All 4 required fields (`id`, `slug`, `name`, `role`) confirmed present. HTTP 200.
+- ***TC1 Re-verification (2026-06-12)***: Full response body: `{"ok":true,"active*workspace*id":"9a2c3de7...","id":"9a2c3de7...","slug":"extra-test","name":"Extra Test","role":"member"`}. All 4 required fields (`id`, `slug`, `name`, `role`) confirmed present. HTTP 200.
 
 ---
 
@@ -303,7 +304,7 @@ TC1 originally FAILED on 2026-06-06 due to BK-83 (API response schema missing `{
 
 ### Luis Eduardo Flores Villarroel - 11/6/2026, 23:38:57
 
-QA Testing Complete - BK-6
+QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-6#icft=BK-6](https://jira.upexgalaxy.com/browse/BK-6#icft=BK-6)
 
 Environment: Staging
 Result: PASSED (4/4 TCs — 100%)
@@ -317,17 +318,17 @@ TEST DATA USED:
 
 VERIFIED BEHAVIORS:
 
-- AC1: Workspace switch succeeds, response returns `{id, slug, name, role}` — VERIFIED (re-verified 2026-06-12 after BK-83 fix)
+- AC1: Workspace switch succeeds, response returns `{id, slug, name, role`} — VERIFIED (re-verified 2026-06-12 after [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) fix)
 - AC2: Non-member workspace rejected with 403 — VERIFIED
 - AC3: Suspended membership rejected with 403 — VERIFIED
 - AC4: UI switcher reflects active workspace before and after page reload — VERIFIED
 
 CLARIFICATIONS:
 
-- TC1 originally FAILED (2026-06-06) due to BK-83 (response schema missing `{id, slug, name, role}`). BK-83 has been fixed and closed. TC1 re-verified 2026-06-12 — fix confirmed.
+- TC1 originally FAILED (2026-06-06) due to [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) (response schema missing `{id, slug, name, role`}). [https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83](https://jira.upexgalaxy.com/browse/BK-83#icft=BK-83) has been fixed and closed. TC1 re-verified 2026-06-12 — fix confirmed.
 - OBS-001: Error codes for negative paths use generic `forbidden` instead of `NOT*A*MEMBER` / `MEMBERSHIP_SUSPENDED`. Accepted by PO — not blocking.
 - OBS-002: Empty workspaces show onboarding modal without switcher. Expected UX.
-- BK-118: Legacy fields `ok` + `active*workspace*id` still present in response alongside new fields. Additive, non-breaking. Tech debt, accepted.
+- [https://jira.upexgalaxy.com/browse/BK-118#icft=BK-118](https://jira.upexgalaxy.com/browse/BK-118#icft=BK-118): Legacy fields `ok` + `active*workspace*id` still present in response alongside new fields. Additive, non-breaking. Tech debt, accepted.
 
 Artifacts: ATR posted as comment (ID: 11567) — 2026-06-12
 

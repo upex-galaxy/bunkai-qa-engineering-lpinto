@@ -61,13 +61,14 @@
 
 ### Ely - 8/6/2026, 9:45:32
 
-BK-19 merged to staging and deployed for QA.
+[https://jira.upexgalaxy.com/browse/BK-19#icft=BK-19](https://jira.upexgalaxy.com/browse/BK-19#icft=BK-19) merged to staging and deployed for QA.
 
-- PR: https://github.com/upex-galaxy/upex-bunkai-tms/pull/29 (merge commit, base staging)
-- Test URL: https://staging-upexbunkai.vercel.app/ -> open a project, click 'New ATC'
-- Scope: ATC creation builder (UI-only; consumes the BK-18 POST /api/v1/atcs contract)
+- PR: [https://github.com/upex-galaxy/upex-bunkai-tms/pull/29](https://github.com/upex-galaxy/upex-bunkai-tms/pull/29) (merge commit, base staging)
+- Test URL: [https://staging-upexbunkai.vercel.app/](https://staging-upexbunkai.vercel.app/) -> open a project, click 'New ATC'
+- Scope: ATC creation builder (UI-only; consumes the [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) POST /api/v1/atcs contract)
 
 Suggested smoke (the 5 ACs):
+
 1. Create an ATC with a title, module, layer, >=1 step, 1 assertion, anchored to a User Story + >=1 Acceptance Criterion -> lands on the ATC detail page.
 2. Save without a User Story / AC -> blocked with a provenance message.
 3. Save with no steps -> blocked.
@@ -82,13 +83,13 @@ Suggested smoke (the 5 ACs):
 
 ATP DRAFT refreshed (43 outlines). All 10 open questions resolved via PO analysis. No blockers for sprint-testing.
 
-***Top risks to verify first******:***
+***Top risks to verify first:***
 
-1. ***CRITICAL — Anchoring moat*** (I-01, I-02, I-03): after creating an ATC via the builder, confirm `GET /atcs/{id}` returns a non-empty `ac*ids` array matching the AC selected in the form. `bunkai*save*atc` RPC accepts empty `ac*ids` at the DB layer — UI gate only.
+1. ***CRITICAL — Anchoring moat*** (I-01, I-02, I-03): after creating an ATC via the builder, confirm `GET /atcs/{id`} returns a non-empty `ac*ids` array matching the AC selected in the form. `bunkai*save*atc` RPC accepts empty `ac*ids` at the DB layer — UI gate only.
 2. ***HIGH — Cascading picker stale state*** (S-01, S-02): change the User Story after selecting ACs and confirm the AC picker clears completely.
 3. ***HIGH — 422 error mapping*** (N-11, N-12, N-13): trigger each server error code and verify field-level errors appear with the correct wording.
 
-***Coverage summary******:**** 8 Positive · 13 Negative · 9 BVA · 8 State/Sequence · 5 Security/Integrity = ****43 outlines***
+***Coverage summary:**** 8 Positive · 13 Negative · 9 BVA · 8 State/Sequence · 5 Security/Integrity = ****43 outlines***
 
 Full refinement: `.context/PBI/epics/EPIC-BK-13/stories/STORY-BK-19/shift-left-refinement.md`
 
@@ -96,16 +97,16 @@ Full refinement: `.context/PBI/epics/EPIC-BK-13/stories/STORY-BK-19/shift-left-r
 
 ### maibeth vega - 18/6/2026, 23:30:03
 
-## Sprint Testing Results — BK-19: TMS-ATC Builder
+## Sprint Testing Results — [https://jira.upexgalaxy.com/browse/BK-19#icft=BK-19](https://jira.upexgalaxy.com/browse/BK-19#icft=BK-19): TMS-ATC Builder
 
-***Tester******:*** maibethvega
-***Environment******:*** staging (https://staging-upexbunkai.vercel.app)
-***Date******:*** 2026-06-18
-***Overall Result******:*** PARTIAL PASS
+***Tester:*** maibethvega
+***Environment:*** staging ([https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/))
+***Date:*** 2026-06-18
+***Overall Result:*** PARTIAL PASS
 
 ### Summary
 
-| Status | Count |
+| ***Status**** | ****Count*** |
 | --- | --- |
 | PASSED | 35 |
 | BLOCKED | 8 |

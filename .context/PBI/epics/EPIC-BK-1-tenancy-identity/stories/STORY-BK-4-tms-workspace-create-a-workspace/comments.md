@@ -889,9 +889,9 @@ Testability guide: /qa + Jira Epic [https://jira.upexgalaxy.com/browse/BK-29#icf
 
 ### Nahuel Gomez - 5/6/2026, 18:33:02
 
-## Acceptance Test Results (ATR) — BK-4: Create a Workspace
+## Acceptance Test Results (ATR) — [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4): Create a Workspace
 
-***Date****: 2026-06-05 | ****Tester****: Nahuel Gomez | ****Env***: Staging (https://staging-upexbunkai.vercel.app)
+***Date****: 2026-06-05 | ****Tester****: Nahuel Gomez | ****Env***: Staging ([https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/))
 ***Auth***: Headless PAT (`bk*pat*ZBOc...`) + Supabase cookie session
 
 ### Result Summary
@@ -900,38 +900,39 @@ Testability guide: /qa + Jira Epic [https://jira.upexgalaxy.com/browse/BK-29#icf
 
 ### TC Execution Results
 
-| TC# | Scenario | Expected | Actual | Result |
-|-----|----------|----------|--------|--------|
-| TC01 | Valid name + slug | 201 | 201 | PASS |
-| TC02 | Name "AB" + valid slug (min=1) | 201 | 201 | PASS |
-| TC03 | Slug too short (2 chars) | 400 | 422 | PASS |
-| TC04 | Empty name | 400 | 422 | PASS |
-| TC05 | Duplicate slug | 409 | 409 | PASS |
-| TC06 | Reserved slug "admin" | 400 | 422 | PASS |
-| TC07 | GET /workspaces list | 200 | 200 | PASS |
-| TC08 | GET /workspaces/{id} | 200 | 200 | PASS |
-| TC09 | GET /workspaces/{bad-id} | 404 | 404 | PASS |
-| TC10 | Name trimmed (spaces) | 201 | 201 | PASS |
-| TC11 | Name 1 char boundary | 201 | 201 | PASS |
-| TC12 | Name 80 chars boundary | 201 | 201 | PASS |
-| TC13 | Slug 3 chars boundary | 201 | 201 | PASS |
-| TC14 | Slug 40 chars boundary | 201 | 201 | PASS |
-| TC15 | Name with accents "Bünkāï" | 201 | 201 | PASS |
-| TC16 | Extra fields ignored | 201 | 201 | PASS |
-| TC17 | Missing name field | 400 | 422 | PASS |
-| TC18 | Missing slug field | 400 | 422 | PASS |
-| TC19 | Empty body `{}` | 400 | 422 | PASS |
-| TC20 | Name 81 chars (too long) | 400 | 422 | PASS |
-| TC21 | Slug starts with hyphen | 400 | 422 | PASS |
-| TC22 | Slug ends with hyphen | 400 | 422 | PASS |
-| TC23 | Slug uppercase | 400 | 422 | PASS |
-| TC24 | Slug 41 chars (too long) | 400 | 422 | PASS |
-| TC25 | Malformed JSON body | 400 | 400 | PASS |
-| TC26 | Wrong Content-Type | 400/415 | 400 | PASS |
-| TC27 | Unauthenticated request | 401 | 401 | PASS |
-| TC28 | DB workspace row integrity | EXISTS | EXISTS | PASS |
-| TC29 | DB workspace_members creator | owner/active | owner/active | PASS |
-| TC30 | Concurrent same-slug creation | 201+409 | 201+409 | PASS |
+| TC#  | Scenario  | Expected  | Actual  | Result  |
+| --- | --- | --- | --- | --- |
+| ----- | ---------- | ---------- | -------- | -------- |
+| TC01  | Valid name + slug  | 201  | 201  | PASS  |
+| TC02  | Name "AB" + valid slug (min=1)  | 201  | 201  | PASS  |
+| TC03  | Slug too short (2 chars)  | 400  | 422  | PASS  |
+| TC04  | Empty name  | 400  | 422  | PASS  |
+| TC05  | Duplicate slug  | 409  | 409  | PASS  |
+| TC06  | Reserved slug "admin"  | 400  | 422  | PASS  |
+| TC07  | GET /workspaces list  | 200  | 200  | PASS  |
+| TC08  | GET /workspaces/{id}  | 200  | 200  | PASS  |
+| TC09  | GET /workspaces/{bad-id}  | 404  | 404  | PASS  |
+| TC10  | Name trimmed (spaces)  | 201  | 201  | PASS  |
+| TC11  | Name 1 char boundary  | 201  | 201  | PASS  |
+| TC12  | Name 80 chars boundary  | 201  | 201  | PASS  |
+| TC13  | Slug 3 chars boundary  | 201  | 201  | PASS  |
+| TC14  | Slug 40 chars boundary  | 201  | 201  | PASS  |
+| TC15  | Name with accents "Bünkāï"  | 201  | 201  | PASS  |
+| TC16  | Extra fields ignored  | 201  | 201  | PASS  |
+| TC17  | Missing name field  | 400  | 422  | PASS  |
+| TC18  | Missing slug field  | 400  | 422  | PASS  |
+| TC19  | Empty body {{{}}}  | 400  | 422  | PASS  |
+| TC20  | Name 81 chars (too long)  | 400  | 422  | PASS  |
+| TC21  | Slug starts with hyphen  | 400  | 422  | PASS  |
+| TC22  | Slug ends with hyphen  | 400  | 422  | PASS  |
+| TC23  | Slug uppercase  | 400  | 422  | PASS  |
+| TC24  | Slug 41 chars (too long)  | 400  | 422  | PASS  |
+| TC25  | Malformed JSON body  | 400  | 400  | PASS  |
+| TC26  | Wrong Content-Type  | 400/415  | 400  | PASS  |
+| TC27  | Unauthenticated request  | 401  | 401  | PASS  |
+| TC28  | DB workspace row integrity  | EXISTS  | EXISTS  | PASS  |
+| TC29  | DB workspace_members creator  | owner/active  | owner/active  | PASS  |
+| TC30  | Concurrent same-slug creation  | 201+409  | 201+409  | PASS  |
 
 ### DB Validation
 
@@ -941,15 +942,16 @@ Testability guide: /qa + Jira Epic [https://jira.upexgalaxy.com/browse/BK-29#icf
 
 ### Implementation Findings (Spec vs Reality)
 
-| # | Finding | Impact |
-|---|---------|--------|
-| F1 | Validation errors return ***422*** (not 400). `withApiHandler` maps `ZodError` to 422. RFC-correct. | Docs should update expected status codes |
-| F2 | Slug is ***client-supplied***, not auto-derived from name. Server validates regex + uniqueness. | Story says "slug auto-derived" — needs clarification |
-| F3 | Name min=***1*** (Zod), not 3 as story says. Slug min=3, max=40. Name max=80. | Story specs need update |
-| F4 | Bearer PAT works for GET but POST requires ***cookie auth*** (Supabase session). | Auth model doc needs dual-surface clarification |
-| F5 | Slug uniqueness is ***global*** (not per-owner). Duplicate slug → 409. | Resolves grey zone ZG-1 |
-| F6 | `plan` field returns `"community"`, not `"free"`. | Expected default clarified |
-| F7 | 16 reserved slugs confirmed: `admin`, `api`, `app`, `auth`, `docs`, `invites`, `login`, `logout`, `onboarding`, `projects`, `public`, `qa`, `settings`, `static`, `workspaces`, `_next` | |
+|  | Finding  | Impact  |
+| --- | --- |
+| --- | --------- | -------- |
+| F1  | Validation errors return ***422*** (not 400). `withApiHandler` maps `ZodError` to 422. RFC-correct.  | Docs should update expected status codes  |
+| F2  | Slug is ***client-supplied***, not auto-derived from name. Server validates regex + uniqueness.  | Story says "slug auto-derived" — needs clarification  |
+| F3  | Name min=***1*** (Zod), not 3 as story says. Slug min=3, max=40. Name max=80.  | Story specs need update  |
+| F4  | Bearer PAT works for GET but POST requires ***cookie auth*** (Supabase session).  | Auth model doc needs dual-surface clarification  |
+| F5  | Slug uniqueness is ***global*** (not per-owner). Duplicate slug → 409.  | Resolves grey zone ZG-1  |
+| F6  | `plan` field returns `"community"`, not `"free"`.  | Expected default clarified  |
+| F7  | 16 reserved slugs confirmed: `admin`, `api`, `app`, `auth`, `docs`, `invites`, `login`, `logout`, `onboarding`, `projects`, `public`, `qa`, `settings`, `static`, `workspaces`, `_next`  |  |
 
 ### Gaps Not Tested
 
@@ -962,6 +964,141 @@ Testability guide: /qa + Jira Epic [https://jira.upexgalaxy.com/browse/BK-29#icf
 
 Workspaces created during testing remain on staging:
 `qasmoke-20250605`, `qa-test-ws-20260605`, `acme-qa-spaces`, `x-proj`, `max-name-test-80`, `abc`, `bunkai-qa`, `extra-test`, `ab-workspace`, `concurrent-test-20260605`
+
+---
+
+### Nahuel Gomez - 30/6/2026, 22:27:43
+
+## Automation Complete — Combined Summary
+
+All tests pass in CI. Framework: Playwright + TypeScript + KATA, sandbox project (no auth dependency).
+
+### Reports
+
+| ***Report**** | ****URL*** |
+| --- | --- |
+| Allure (latest) | [https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/](https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/) |
+
+### [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) — Auth email+password sign-in API (8 tests)
+
+CI run: [https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28486452620](https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28486452620)
+
+| ***Scenario**** | ****Status*** |
+| --- | --- |
+| Sign in with valid credentials → 200 (user+session+PAT) | ✅ |
+| Sign in with wrong password → 401 | ✅ |
+| Sign in with non-existent email → 401 | ✅ |
+| Check email (existing) → {exists:true, confirmed:true} | ✅ |
+| Check email (unknown) → {exists:false} | ✅ |
+| GET /me with valid PAT → 200 | ✅ |
+| GET /me without auth → 401 | ✅ |
+| Sign-in PAT authenticates subsequent calls | ✅ |
+
+### [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4) — Workspace CRUD (4 tests)
+
+CI run: [https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28487034357](https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28487034357)
+
+| ***Scenario**** | ****Status*** |
+| --- | --- |
+| Create workspace with name+slug → 201 | ✅ |
+| Name < 3 chars → 422 | ✅ |
+| Reserved slug → 422 | ✅ |
+| Duplicate slug → 409 | ✅ |
+
+### [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) — Project CRUD (4 tests)
+
+| ***Scenario**** | ****Status*** |
+| --- | --- |
+| Create project in workspace → 201 | ✅ |
+| Name < 3 chars → 422 | ✅ |
+| Duplicate slug → 409 | ✅ |
+| Non-member → 403 | ✅ |
+
+### [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) — ATC API (17 tests + 1 fixme)
+
+Verified locally and in CI (sandbox project).
+
+| ***Coverage**** | ****Status*** |
+| --- | --- |
+| 12/12 TC outlines automated | ✅ |
+| 17 tests pass, 1 fixme (403 scope) | ✅ |
+
+### Known gaps
+
+- [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) 403 scope test blocked on STAGING*USER*READONLY_PAT
+- Sandbox tests not promoted to integration project (blocked on [https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177): old /auth/login 404s)
+- Key discovery: /api/v1/auth/signin works — loginEndpoint config can be updated to fix this
+
+---
+
+### Nahuel Gomez - 30/6/2026, 23:14:32
+
+## QA Automation Session — Complete Report (2026-06-30)
+
+### Tally
+
+| ***Ticket**** | ****Tests**** | ****Status*** |
+| --- | --- | --- |
+| [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) | 8 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4) | 4 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) | 4 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) | 6 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14) | 5 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) (prev) | 17 | ✅ PASS |
+| ***Total**** | ****44 + 1 fixme*** |  |
+
+### Infrastructure changes
+
+- ***loginEndpoint**** fixed: `/auth/login` → `/api/v1/auth/signin`. The old endpoint 404s ([https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177)). The [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) endpoint works. ****Integration project is now unblocked.***
+- ***AuthApi*** updated to use sign-in PAT (not session token) for API auth — matches [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) coexistence pattern.
+- ***meEndpoint*** fixed to `/api/v1/me` (actual path).
+- ***auth.types.ts*** updated to match real API response shapes.
+- ***jira-attach-evidence.ts*** script created for attaching screenshots to Jira tickets via REST API.
+
+### CI/CD
+
+- All tests pass in sandbox project. Allure reports at:
+
+[https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/](https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/)
+
+### Known gaps (unchanged)
+
+- [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) 403 scope test — blocked on restricted-scope PAT
+- Sandbox → `.test.ts` promotion — now feasible since api-setup works
+- Nightly regression doesn't include sandbox tests yet (PR gate + manual only)
+
+### Next-step candidates
+
+| ***Priority**** | ****Ticket**** | ****Summary**** | ****Est. time*** |
+| --- | --- | --- | --- |
+| 1 | [https://jira.upexgalaxy.com/browse/BK-182#icft=BK-182](https://jira.upexgalaxy.com/browse/BK-182#icft=BK-182) | Bearer run can't resolve active workspace | ~15 min |
+| 2 | [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) | ATC "Used in N tests" report | ~15 min |
+| 3 | [https://jira.upexgalaxy.com/browse/BK-57#icft=BK-57](https://jira.upexgalaxy.com/browse/BK-57#icft=BK-57) | PATCH /modules/{id} atomicity | ~20 min |
+| 4 | [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) | Abort a run in progress | ~20 min |
+
+---
+
+### Nahuel Gomez - 22/7/2026, 22:09:08
+
+## QA Automation — Sandbox Promoted to KATA Components
+
+***WorkspacesApi**** + ****ProjectsApi*** components created — 9 ATCs refactored from raw `api.apiPOST()` calls to proper KATA component methods.
+
+### Tests (9/9 ✅)
+
+- Workspace create → 201, slug/name/owner/plan=community
+- Name < 3 chars → 422
+- Reserved slug → 422
+- Duplicate slug → 409
+- Unauthenticated → 401
+- Project create in workspace → 201
+- Name < 3 chars → 422
+- Duplicate name → 409
+- Non-member workspace → 403
+
+### ATC Count
+
+37 → 46 (+9 WorkspacesApi + ProjectsApi methods)
 
 ---
 

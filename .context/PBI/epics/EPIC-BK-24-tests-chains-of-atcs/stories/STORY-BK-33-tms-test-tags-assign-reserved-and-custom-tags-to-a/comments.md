@@ -6,11 +6,11 @@
 
 ### jesusgpythondev - 6/6/2026, 19:11:31
 
-# Shift-Left Refinement Updated — BK-33
+# Shift-Left Refinement Updated — [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33)
 
 ## Summary
 
-BK-33 has been refreshed for Estimation grooming. The previous shift-left content was reformatted and tightened so Jira stores structured rich text instead of literal Wiki Markup, and the story now separates business AC from detailed QA planning.
+[https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) has been refreshed for Estimation grooming. The previous shift-left content was reformatted and tightened so Jira stores structured rich text instead of literal Wiki Markup, and the story now separates business AC from detailed QA planning.
 
 ## Findings
 
@@ -36,23 +36,23 @@ BK-33 has been refreshed for Estimation grooming. The previous shift-left conten
 ## Open Questions
 
 - PO: confirm whether reserved tags remain limited to smoke, sanity, and regression for MVP.
-- PO: confirm whether single-tag filtering is enough for BK-33.
+- PO: confirm whether single-tag filtering is enough for [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33).
 - Design: confirm chip-based tag editing with inline validation.
-- Dev: confirm BK-70 provides the Test version needed for optimistic locking, or that BK-33 must add it.
+- Dev: confirm [https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70) provides the Test version needed for optimistic locking, or that [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) must add it.
 
 ---
 
 ### jesusgpythondev - 6/6/2026, 19:12:47
 
-# BK-33 Acceptance Test Plan — Fallback
+# [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) Acceptance Test Plan — Fallback
 
-Temporary fallback: the Acceptance Test Plan custom field could not be updated from this session because the REST token in `.env` cannot access BK-33 on the authenticated Jira site. This comment contains the ATP draft until the field is updated.
+Temporary fallback: the Acceptance Test Plan custom field could not be updated from this session because the REST token in `.env` cannot access [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) on the authenticated Jira site. This comment contains the ATP draft until the field is updated.
 
-# Acceptance Test Plan (ATP) — Shift-Left DRAFT: BK-33 Test Tags
+# Acceptance Test Plan (ATP) — Shift-Left DRAFT: [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) Test Tags
 
 ## Summary
 
-BK-33 refines Test tagging for the Test Repository. The story should let QA users assign, replace, clear, and filter Tests by reserved and custom tags while preserving data integrity under concurrent edits.
+[https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) refines Test tagging for the Test Repository. The story should let QA users assign, replace, clear, and filter Tests by reserved and custom tags while preserving data integrity under concurrent edits.
 
 Coverage produced: 14 Gherkin scenarios.
 
@@ -63,16 +63,16 @@ Coverage produced: 14 Gherkin scenarios.
 
 ## Source Inputs
 
-- Jira Story: BK-33, TMS-Test Tags | Assign reserved and custom tags to a Test.
-- Parent dependency: BK-70, Test Repository entity definition.
-- Prior pattern reference: BK-2 shift-left structure.
+- Jira Story: [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33), TMS-Test Tags | Assign reserved and custom tags to a Test.
+- Parent dependency: [https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70), Test Repository entity definition.
+- Prior pattern reference: [https://jira.upexgalaxy.com/browse/BK-2#icft=BK-2](https://jira.upexgalaxy.com/browse/BK-2#icft=BK-2) shift-left structure.
 - Current formatting rule: Jira content must be published as ADF, not raw Markdown or Wiki Markup stored as a literal paragraph.
 
 ## Expert Team Review
 
 ### Product Owner Review
 
-BK-33 is valuable because it turns Tests into suite-ready assets. The MVP should avoid expanding into tag registry management because that would add naming governance, permissions, analytics, and migration complexity before suite execution has proven usage patterns.
+[https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) is valuable because it turns Tests into suite-ready assets. The MVP should avoid expanding into tag registry management because that would add naming governance, permissions, analytics, and migration complexity before suite execution has proven usage patterns.
 
 Recommended product decisions for Estimation:
 
@@ -97,7 +97,7 @@ Recommended UX details:
 
 ### Engineering Review
 
-BK-70 already proposes Test tags as values on the Test entity. BK-33 should not introduce a new tag table.
+[https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70) already proposes Test tags as values on the Test entity. [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) should not introduce a new tag table.
 
 Recommended engineering contract:
 
@@ -129,35 +129,35 @@ QA focus areas:
 
 1. Reserved tag vocabulary: MVP uses only `smoke`, `sanity`, and `regression`.
 
-   Rationale: These map directly to common release gates and keep suite semantics obvious. Additional reserved tags such as nightly or critical-smoke should wait until execution reporting shows real demand.
+Rationale: These map directly to common release gates and keep suite semantics obvious. Additional reserved tags such as nightly or critical-smoke should wait until execution reporting shows real demand.
 
 1. Tag model: tags remain values on Test, not entities.
 
-   Rationale: A registry adds ownership, permissions, rename behavior, deletion behavior, and migration rules. BK-33 only needs suite grouping and filtering.
+Rationale: A registry adds ownership, permissions, rename behavior, deletion behavior, and migration rules. [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) only needs suite grouping and filtering.
 
 1. Update semantics: tag save replaces the full tag set.
 
-   Rationale: Replacement is easier for users to reason about and avoids ambiguous merge behavior when another user removes a tag at the same time.
+Rationale: Replacement is easier for users to reason about and avoids ambiguous merge behavior when another user removes a tag at the same time.
 
 1. Empty tags: allowed.
 
-   Rationale: Draft or exploratory Tests may not belong to any suite. Empty tags should simply remove the Test from tag-filtered lists.
+Rationale: Draft or exploratory Tests may not belong to any suite. Empty tags should simply remove the Test from tag-filtered lists.
 
 1. Duplicate handling: silently deduplicate after trim and normalization.
 
-   Rationale: Duplicate chips are user input noise, not a business error. The final saved set should be clean and predictable.
+Rationale: Duplicate chips are user input noise, not a business error. The final saved set should be clean and predictable.
 
 1. Custom tag casing: preserve valid custom tag casing after trimming.
 
-   Rationale: Teams may use naming conventions such as Mobile-P1 or Checkout. Reserved tags remain lowercase because they carry system-level meaning.
+Rationale: Teams may use naming conventions such as Mobile-P1 or Checkout. Reserved tags remain lowercase because they carry system-level meaning.
 
 1. Maximum tag count: 20 tags per Test.
 
-   Rationale: More than 20 tags makes filtering noisy and increases UI clutter. The limit is high enough for MVP suite grouping and low enough to avoid abuse.
+Rationale: More than 20 tags makes filtering noisy and increases UI clutter. The limit is high enough for MVP suite grouping and low enough to avoid abuse.
 
 1. Concurrency: stale saves are rejected instead of last-write-wins.
 
-   Rationale: Last-write-wins can silently remove another QA user's suite assignment. Conflict handling protects Test repository integrity.
+Rationale: Last-write-wins can silently remove another QA user's suite assignment. Conflict handling protects Test repository integrity.
 
 ## Edge Cases
 
@@ -243,11 +243,11 @@ See the Acceptance Criteria field for canonical Gherkin. The same scenario set i
 - PO confirmation: reserved tag set stays `smoke`, `sanity`, `regression` for MVP.
 - PO confirmation: multi-tag filtering is deferred.
 - Design confirmation: chip-based editing pattern is acceptable for MVP.
-- Dev confirmation: Test version from BK-70 is available for optimistic locking before BK-33 implementation starts.
+- Dev confirmation: Test version from [https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70) is available for optimistic locking before [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) implementation starts.
 
 ## Definition of Ready
 
-- BK-70 Test schema includes tags and version fields or BK-33 explicitly adds the missing pieces.
+- [https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70](https://jira.upexgalaxy.com/browse/BK-70#icft=BK-70) Test schema includes tags and version fields or [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) explicitly adds the missing pieces.
 - Reserved tag vocabulary is confirmed by PO.
 - Replacement semantics are accepted by Dev and Product.
 - UI/error copy is accepted for invalid tag, max count, forbidden, and conflict states.
@@ -257,11 +257,11 @@ See the Acceptance Criteria field for canonical Gherkin. The same scenario set i
 
 ### jesusgpythondev - 6/6/2026, 19:12:47
 
-# BK-33 Canonical Acceptance Criteria — Fallback
+# [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) Canonical Acceptance Criteria — Fallback
 
-Temporary fallback: the Acceptance Criteria custom field could not be updated from this session because the REST token in `.env` cannot access BK-33 on the authenticated Jira site. This comment contains the canonical refined Gherkin until the field is updated.
+Temporary fallback: the Acceptance Criteria custom field could not be updated from this session because the REST token in `.env` cannot access [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) on the authenticated Jira site. This comment contains the canonical refined Gherkin until the field is updated.
 
-```gherkin
+```
 Background:
   Given an authenticated workspace member with permission to edit Tests
     And a Test exists in the workspace Test Repository
@@ -389,14 +389,14 @@ Scenario: Tag updates refresh search and suite grouping
 
 ### jesusgpythondev - 22/6/2026, 20:05:59
 
-# Acceptance Test Results (ATR) - BK-33
+# Acceptance Test Results (ATR) - [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33)
 
-## BK-33 Test Results
+## [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) Test Results
 
-| Field | Value |
+| ***Field**** | ****Value*** |
 | --- | --- |
 | Tested | 2026-06-22 |
-| Environment | Staging - https://staging-upexbunkai.vercel.app |
+| Environment | Staging - [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/) |
 | Tester | jesusgpythondev |
 | Result | PASSED |
 | Executed checks | 14 passed / 14 executed |
@@ -405,20 +405,20 @@ Scenario: Tag updates refresh search and suite grouping
 
 ## QA Completion Summary
 
-| Field | Value |
+| ***Field**** | ****Value*** |
 | --- | --- |
-| Environment | Staging (https://staging-upexbunkai.vercel.app) |
+| Environment | Staging ([https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/)) |
 | Result | PASSED (14/14 TCs) |
 | Defects | None |
 | Test data restored | Yes, restored to original state after execution |
-| ATR reference | See BK-33 TEST RESULTS in this comment for full execution report |
+| ATR reference | See [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) TEST RESULTS in this comment for full execution report |
 
-| Test Data Used | ID / Value |
+| ***Test Data Used**** | ****ID / Value*** |
 | --- | --- |
-| Test | BK-34 Seed Manual Run Test (09d28d3c-ad29-45d9-a014-dbb7ba6ccbb2) |
+| Test | [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) Seed Manual Run Test (09d28d3c-ad29-45d9-a014-dbb7ba6ccbb2) |
 | Workspace | a222895a-a22a-4193-9c7f-70c43e78bede (owner role) |
 
-| AC | Verified Behavior | Status |
+| ***AC**** | ****Verified Behavior**** | ****Status*** |
 | --- | --- | --- |
 | AC-1 | Assign reserved tags (smoke, regression) | VERIFIED |
 | AC-2 | Assign custom tags alongside reserved tags | VERIFIED |
@@ -437,13 +437,13 @@ Scenario: Tag updates refresh search and suite grouping
 
 ## Summary
 
-BK-33 was validated on staging for Test tag assignment, replacement, clearing, validation, normalization, optimistic locking, and workspace-scoped filtering. The executed coverage confirms that reserved and custom tags save correctly, invalid inputs do not partially mutate data, stale updates return a conflict with recoverable state, filtering is case-insensitive and workspace-scoped, and test data was restored after execution.
+[https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) was validated on staging for Test tag assignment, replacement, clearing, validation, normalization, optimistic locking, and workspace-scoped filtering. The executed coverage confirms that reserved and custom tags save correctly, invalid inputs do not partially mutate data, stale updates return a conflict with recoverable state, filtering is case-insensitive and workspace-scoped, and test data was restored after execution.
 
 The story is acceptable for QA sign-off. Remaining work is documentation cleanup only: earlier AC/ATP fallback comments should be moved into canonical Jira fields when custom-field update access is available.
 
 ## Executed Checks
 
-| ID | Check | Surface | Result | Evidence |
+| ***ID**** | ****Check**** | ****Surface**** | ****Result**** | ****Evidence*** |
 | --- | --- | --- | --- | --- |
 | BK-33-TC-01 | Assign reserved tags to a Test | API + DB | PASSED | PUT [smoke, regression] -> 200; version 1 -> 2; filter returns Test |
 | BK-33-TC-02 | Assign custom tags alongside reserved tags | API + DB | PASSED | PUT [smoke, checkout, mobile] -> 200; all tags saved |
@@ -462,7 +462,7 @@ The story is acceptable for QA sign-off. Remaining work is documentation cleanup
 
 ## Data And State Validation
 
-| Check | API Response | DB State | Match |
+| ***Check**** | ****API Response**** | ****DB State**** | ****Match*** |
 | --- | --- | --- | --- |
 | Tags after final update | [regression] | [regression] | YES |
 | Version after final update | 10 | 10 | YES |
@@ -471,9 +471,9 @@ The story is acceptable for QA sign-off. Remaining work is documentation cleanup
 
 ## Test Data
 
-| Entity | ID / Value | Notes |
+| ***Entity**** | ****ID / Value**** | ****Notes*** |
 | --- | --- | --- |
-| Test | 09d28d3c-ad29-45d9-a014-dbb7ba6ccbb2 | BK-34 Seed Manual Run Test used for tag execution |
+| Test | 09d28d3c-ad29-45d9-a014-dbb7ba6ccbb2 | [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) Seed Manual Run Test used for tag execution |
 | Workspace | a222895a-a22a-4193-9c7f-70c43e78bede | Owner role |
 | Final restored state | tags=[]; version=11 | Test data restored after execution |
 | Reserved tags verified | smoke, sanity, regression | MVP vocabulary |
@@ -481,11 +481,11 @@ The story is acceptable for QA sign-off. Remaining work is documentation cleanup
 
 ## Expert Panel Review
 
-| Role | Finding | Recommendation |
+| ***Role**** | ****Finding**** | ****Recommendation*** |
 | --- | --- | --- |
-| QA Lead | Coverage is broad and risk-based: save, replace, clear, validation, conflict, normalization, filtering, and workspace isolation are all represented. | Accept sprint-testing result as complete for BK-33. |
+| QA Lead | Coverage is broad and risk-based: save, replace, clear, validation, conflict, normalization, filtering, and workspace isolation are all represented. | Accept sprint-testing result as complete for [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33). |
 | Technical Architect | Tag updates behave as full replacement with optimistic locking and DB consistency. | Keep replacement semantics explicit in future regression tests. |
-| Security/AppSec | Workspace-scoped filtering was verified; write-side cross-workspace denial correctly returns 403 forbidden/not-a-member. | Do not force BK-32 read-side 404 pattern onto BK-33 write-side mutation behavior. |
+| Security/AppSec | Workspace-scoped filtering was verified; write-side cross-workspace denial correctly returns 403 forbidden/not-a-member. | Do not force [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) read-side 404 pattern onto [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) write-side mutation behavior. |
 | Senior Developer | 409 conflict includes current version and current tags, which supports safe client refresh UX. | Prioritize TC-08 for regression automation. |
 | Skeptical Reviewer | Execution evidence is solid; remaining issue is Jira field cleanup from fallback comments. | Do not rerun; move fallback AC/ATP into canonical fields when available. |
 
@@ -503,7 +503,7 @@ None confirmed.
 
 ## Deferred Follow-Up Coverage
 
-| Follow-up | Reason | Owner |
+| ***Follow-up**** | ****Reason**** | ****Owner*** |
 | --- | --- | --- |
 | Move canonical Gherkin from fallback comment to AC field | Earlier custom-field update access was blocked. | QA / Jira Admin |
 | Move ATP draft from fallback comment to ATP field | Earlier custom-field update access was blocked. | QA / Jira Admin |
@@ -513,21 +513,21 @@ None confirmed.
 
 ## Recommendation
 
-QA approves BK-33 for the sprint scope as PASSED. No blocking defect was found. Move high-value tag assignment, replacement, optimistic-locking, normalization, and workspace-isolation checks to Stage 4 ROI/regression documentation.
+QA approves [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) for the sprint scope as PASSED. No blocking defect was found. Move high-value tag assignment, replacement, optimistic-locking, normalization, and workspace-isolation checks to Stage 4 ROI/regression documentation.
 
 ---
 
 ### jesusgpythondev - 22/6/2026, 20:06:07
 
-# QA Testing Complete - BK-33
+# QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33)
 
 Environment: Staging
 Result: PASSED (14/14 executed checks passed)
 
 ## Test Data Used
 
-- Workspace: BK-34 Sprint QA (`a222895a-a22a-4193-9c7f-70c43e78bede`, owner role)
-- Test: BK-34 Seed Manual Run Test (`09d28d3c-ad29-45d9-a014-dbb7ba6ccbb2`)
+- Workspace: [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) Sprint QA (`a222895a-a22a-4193-9c7f-70c43e78bede`, owner role)
+- Test: [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) Seed Manual Run Test (`09d28d3c-ad29-45d9-a014-dbb7ba6ccbb2`)
 - Reserved tags verified: `smoke`, `sanity`, `regression`
 - Custom tags verified: `checkout`, `mobile`, `billing`, `Mobile-P1`
 - Final restored state: `tags=[]`; test data restored to original state after execution
@@ -559,7 +559,7 @@ Result: PASSED (14/14 executed checks passed)
 
 - ATR evidence: `.context/PBI/epics/EPIC-BK-24-tests-chains-of-atcs/stories/STORY-BK-33-tms-test-tags-assign-reserved-and-custom-tags-to-a/acceptance-test-results.md`
 - Session memory: `.context/PBI/epics/EPIC-BK-24-tests-chains-of-atcs/stories/STORY-BK-33-tms-test-tags-assign-reserved-and-custom-tags-to-a/test-session-memory.md`
-- Jira fallback ATR comment: BK-33 comment `11710`
+- Jira fallback ATR comment: [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) comment `11710`
 
 QA sign-off: approved with non-blocking follow-up risks.
 
@@ -567,17 +567,17 @@ QA sign-off: approved with non-blocking follow-up risks.
 
 ### jesusgpythondev - 23/6/2026, 12:05:51
 
-# Expert Panel Review - Sprint Testing Audit BK-33
+# Expert Panel Review - Sprint Testing Audit [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33)
 
-> ***SUCCESS:***  Sprint-testing package accepted. No execution rerun needed.
+> ***SUCCESS:**** ****[ VALIDATED ]*** Sprint-testing package accepted. No execution rerun needed.
 
 ## Executive Summary
 
-The expert panel reviewed BK-33 after the Jira report formatting correction. The sprint-testing outcome is valid: 14 scenarios passed, 0 failed, 0 deferred, and 0 bugs. The current Jira reporting shape is acceptable because the detailed ATR and compact QA verdict are separate comments and no longer depend on broken Markdown tables.
+The expert panel reviewed [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) after the Jira report formatting correction. The sprint-testing outcome is valid: 14 scenarios passed, 0 failed, 0 deferred, and 0 bugs. The current Jira reporting shape is acceptable because the detailed ATR and compact QA verdict are separate comments and no longer depend on broken Markdown tables.
 
 ## Evidence Used
 
-- Jira: BK-33 story is QA Approved and contains the final `BK-33 TEST RESULTS` comment plus separate `QA Testing Complete - BK-33` verdict comment.
+- Jira: [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) story is QA Approved and contains the final `BK-33 TEST RESULTS` comment plus separate `QA Testing Complete - BK-33` verdict comment.
 - Jira: The final report records staging execution, test data, workspace, test-data restoration, observations, recommendations, and no defects.
 - Engram: Prior learning #310 confirmed Markdown pipe tables rendered poorly in Jira and required plain-text or native ADF tables.
 - Repo/local cache: `acceptance-test-results.md` confirms 14 passed scenarios and DB cross-validation for tags, version, and workspace isolation.
@@ -597,14 +597,14 @@ The expert panel reviewed BK-33 after the Jira report formatting correction. The
 - Added this expert audit note as the review closure layer, without duplicating the full ATR.
 - Explicitly records that corrected report format is accepted.
 - Explicitly records that no rerun is needed.
-- Separates read-side non-disclosure expectations from write-side 403 behavior so BK-32 and BK-33 are not judged by the same error-code contract.
+- Separates read-side non-disclosure expectations from write-side 403 behavior so [https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32](https://jira.upexgalaxy.com/browse/BK-32#icft=BK-32) and [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) are not judged by the same error-code contract.
 - Preserves the recommendation that Stage 4/test-documentation should select regression-worthy cases instead of creating every sprint outline as a persistent test.
 
 ## Residual Follow-Up
 
 > ***INFO:*** Documentation cleanup recommended, not a QA blocker for this sprint-testing result.
 
-- When custom-field update access is available, move canonical BK-33 Gherkin from fallback comment into the Acceptance Criteria field.
+- When custom-field update access is available, move canonical [https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) Gherkin from fallback comment into the Acceptance Criteria field.
 - When ATP field update access is available, move the shift-left ATP draft out of fallback comment storage.
 - Stage 4/test-documentation should prioritize regression candidates for reserved/custom tag assignment, replacement semantics, optimistic locking, reserved-tag normalization, and workspace-scoped filtering.
 
@@ -612,7 +612,7 @@ The expert panel reviewed BK-33 after the Jira report formatting correction. The
 
 VERDICT: ACCEPTED
 
-BK-33 sprint-testing is well developed and report quality is now sufficient for audit/read-back. Remaining action is Jira field cleanup, not additional execution.
+[https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33](https://jira.upexgalaxy.com/browse/BK-33#icft=BK-33) sprint-testing is well developed and report quality is now sufficient for audit/read-back. Remaining action is Jira field cleanup, not additional execution.
 
 ---
 

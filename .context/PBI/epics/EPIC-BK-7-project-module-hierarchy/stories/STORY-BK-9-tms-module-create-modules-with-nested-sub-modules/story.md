@@ -3,10 +3,9 @@
 **Jira Key:** [BK-9](https://jira.upexgalaxy.com/browse/BK-9)
 **Epic:** [BK-7](https://jira.upexgalaxy.com/browse/BK-7) (Project & Module Hierarchy)
 **Type:** Story
-**Status:** QA Approved
+**Status:** Ready For Release
 **Priority:** Medium
-**Story Points:** 13
-**Web Link:** https://staging-upexbunkai.vercel.app/
+**Story Points:** -
 
 ---
 
@@ -72,12 +71,6 @@
 
 > Each rich-text field is a separate file in this folder.
 
-- [Acceptance Criteria](./acceptance-criteria.md)
-- [Business Rules](./business-rules.md)
-- [Scope](./scope.md)
-- [Out Of Scope](./out-of-scope.md)
-- [Workflow](./workflow.md)
-- [Implementation Plan (Dev)](./implementation-plan.md)
 - [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
@@ -86,15 +79,15 @@
 
 ### Bugs (2)
 
-- [BK-67](https://jira.upexgalaxy.com/browse/BK-67): [BK-9] Module creation at depth ≥5: success toast suppressed — only deep-nesting warning shown _(Closed)_
 - [BK-68](https://jira.upexgalaxy.com/browse/BK-68): [BK-9] Create Module form allows submitting 1-char names — no client-side min-length validation _(Closed)_
+- [BK-67](https://jira.upexgalaxy.com/browse/BK-67): [BK-9] Module creation at depth ≥5: success toast suppressed — only deep-nesting warning shown _(Closed)_
 
 ### Storys (4)
 
 - [BK-8](https://jira.upexgalaxy.com/browse/BK-8): TMS-Project | Create a project inside a workspace _(Ready For Release)_
-- [BK-10](https://jira.upexgalaxy.com/browse/BK-10): TMS-Module | Rename and soft-delete a module _(QA Approved)_
+- [BK-10](https://jira.upexgalaxy.com/browse/BK-10): TMS-Module | Rename and soft-delete a module _(Ready For Release)_
 - [BK-11](https://jira.upexgalaxy.com/browse/BK-11): TMS-Module | Move a module to a different parent _(Ready For Release)_
-- [BK-14](https://jira.upexgalaxy.com/browse/BK-14): TMS-US | Manage user stories anchored to a module _(Ready For QA)_
+- [BK-14](https://jira.upexgalaxy.com/browse/BK-14): TMS-US | Manage user stories anchored to a module _(QA Approved)_
 
 ### Improvement (1)
 
@@ -105,7 +98,7 @@
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 14/6/2026
+- **Updated:** 24/7/2026
 - **Reporter:** Ely
 - **Assignee:** Andrés Daniel Cumare Morales
 - **Labels:** hierarchy, mvp, shift-left-2026-06-02, shift-left-reviewed, wave-1

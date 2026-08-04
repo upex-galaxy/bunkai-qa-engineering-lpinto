@@ -194,19 +194,19 @@ High count driven by RBAC role matrix (4 roles × invite create + accept) + HMAC
 
 ### Nahuel Gomez - 5/6/2026, 19:06:17
 
-# BK-5 Acceptance Test Results (ATR)
+# [https://jira.upexgalaxy.com/browse/BK-5#icft=BK-5](https://jira.upexgalaxy.com/browse/BK-5#icft=BK-5) Acceptance Test Results (ATR)
 
 ***Tester***: Nahuel Gomez
 
 ***Date***: 2026-06-05
 
-***Env***: Staging (https://staging-upexbunkai.vercel.app)
+***Env***: Staging ([https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/))
 
 ***Workspace***: aed86386-2ed8-424e-934b-ca7a0ef6af37 (QA Test Workspace)
 
 ## Results Summary
 
-| Category | Passed | Failed | Total |
+| ***Category**** | ****Passed**** | ****Failed**** | ****Total*** |
 | --- | --- | --- | --- |
 | Positive | 7 | 0 | 7 |
 | Negative | 11 | 0 | 11 |
@@ -249,13 +249,13 @@ Two pending invites for same email allowed. No DB constraint or application chec
 - 6 invites created, 1 revoked, 1 rotated, 1 accepted
 - DB cross-validation matched API responses
 - Error codes stable: 400/403/404/409 with descriptive messages
-- Response envelope consistent: `{invite: {...}, token, accept_url, warning}`
+- Response envelope consistent: `{invite: {...}, token, accept_url, warning`}
 
 ---
 
 ### Carlos Alberto Chiavassa - 8/6/2026, 10:06:46
 
-Como ejercicio del Dojo Edition 3, realicé Shift-Left Testing sobre esta US (consciente de que ya está en Ready For QA). Análisis disponible en mi repo: https://github.com/chiavassacar-ops/qa-harness-lab/blob/main/docs/upex-dojo/07-shift-left-BK-5-invite-teammate.md. Si alguno de los gaps/riesgos identificados resulta útil para retest o regression, queda como referencia.
+Como ejercicio del Dojo Edition 3, realicé Shift-Left Testing sobre esta US (consciente de que ya está en Ready For QA). Análisis disponible en mi repo: [https://github.com/chiavassacar-ops/qa-harness-lab/blob/main/docs/upex-dojo/07-shift-left-BK-5-invite-teammate.md](https://github.com/chiavassacar-ops/qa-harness-lab/blob/main/docs/upex-dojo/07-shift-left-BK-5-invite-teammate.md). Si alguno de los gaps/riesgos identificados resulta útil para retest o regression, queda como referencia.
 
 ---
 

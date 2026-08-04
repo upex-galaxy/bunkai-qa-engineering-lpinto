@@ -6,17 +6,17 @@
 
 ### Carlos Alberto Chiavassa - 10/6/2026, 19:30:17
 
-## Acceptance Test Plan (ATP) — Shift-Left DRAFT ready for review
+1. 
 
 ATP DRAFT lives in the field (29 test outlines, 4 critical PO questions for sprint planning).
 
-***Critical questions blocking sprint planning:***
+****Critical questions blocking sprint planning:****
 1. Should revoked tokens appear in the list? If yes, what is the visual treatment?
 2. What is the exact copy for the revocation confirmation dialog?
 3. Are expiry date and workspace binding shown in the list row and issuance form?
 4. What is the expected fallback when the Clipboard API is unavailable?
 
-***Security review required (Technical Question #6):*** confirm token secret does not appear in server logs, client console, or error payloads; confirm mintPat() uses cryptographically secure randomness.
+****Security review required (Technical Question #6):**** confirm token secret does not appear in server logs, client console, or error payloads; confirm mintPat() uses cryptographically secure randomness.
 
 Refined on: 2026-06-10 | Outlines: 29 (Positive 9, Negative 11, Boundary 3, Integration 3, API 3) | Story quality: Needs Improvement
 
@@ -24,19 +24,19 @@ Refined on: 2026-06-10 | Outlines: 29 (Positive 9, Negative 11, Boundary 3, Inte
 
 ### Carlos Alberto Chiavassa - 12/6/2026, 17:46:21
 
-## QA Session Report — BK-88 (API-only, partial)
+## QA Session Report — [https://jira.upexgalaxy.com/browse/BK-88#icft=BK-88](https://jira.upexgalaxy.com/browse/BK-88#icft=BK-88) (API-only, partial)
 
-***Date******:**** 2026-06-12 | ****Tester******:**** Carlos Chiavassa | ****Environment******:*** staging
+***Date:**** 2026-06-12 | ****Tester:**** Carlos Chiavassa | ****Environment:*** staging
 
 ---
 
 ### Scope of this session
 
-API surface only. UI testing deferred — BK-87 Settings Hub has not shipped (status: Ready For Dev). Story remains in ***Ready For Dev*** after this session.
+API surface only. UI testing deferred — [https://jira.upexgalaxy.com/browse/BK-87#icft=BK-87](https://jira.upexgalaxy.com/browse/BK-87#icft=BK-87) Settings Hub has not shipped (status: Ready For Dev). Story remains in ***Ready For Dev*** after this session.
 
 ---
 
-### Critical finding: Privilege Escalation — BK-135
+### Critical finding: Privilege Escalation — [https://jira.upexgalaxy.com/browse/BK-135#icft=BK-135](https://jira.upexgalaxy.com/browse/BK-135#icft=BK-135)
 
 ***TC08 FAIL*** — POST /api/v1/tokens allows member-role users to issue workspace:admin scoped tokens without 403 enforcement.
 
@@ -45,18 +45,18 @@ API surface only. UI testing deferred — BK-87 Settings Hub has not shipped (st
 - No role-gate exists on the token issuance path
 - Bug: ***BK-135*** (severity crítica, type: security)
 
-> ***Note******:*** BK-135 replaces BK-117, which was filed against BK-109 (cloned story — consolidated back to BK-88 per Ely's instruction). BK-117 will be deleted by Ely along with BK-109.
+> ***Note:*** [https://jira.upexgalaxy.com/browse/BK-135#icft=BK-135](https://jira.upexgalaxy.com/browse/BK-135#icft=BK-135) replaces BK-117, which was filed against BK-109 (cloned story — consolidated back to [https://jira.upexgalaxy.com/browse/BK-88#icft=BK-88](https://jira.upexgalaxy.com/browse/BK-88#icft=BK-88) per Ely's instruction). BK-117 will be deleted by Ely along with BK-109.
 
 ---
 
-### TCs created (14 total — BK-120 to BK-133)
+### TCs created (14 total — [https://jira.upexgalaxy.com/browse/BK-120#icft=BK-120](https://jira.upexgalaxy.com/browse/BK-120#icft=BK-120) to [https://jira.upexgalaxy.com/browse/BK-133#icft=BK-133](https://jira.upexgalaxy.com/browse/BK-133#icft=BK-133))
 
-| Group | TCs | Status |
+| ***Group**** | ****TCs**** | ****Status*** |
 | --- | --- | --- |
-| GET /api/v1/tokens (Bearer) | BK-121, BK-124, BK-130 | Not executed — deferred to full session |
-| POST /api/v1/tokens (cookie session) | BK-120, BK-123, BK-126, ***BK-127***, BK-128, BK-129 | BK-127 executed (FAIL). Others deferred — cookie session required |
-| DELETE /api/v1/tokens (cookie session) | BK-122, BK-125, BK-131, BK-132 | Deferred — cookie session required |
-| Integration | BK-133 | Deferred |
+| GET /api/v1/tokens (Bearer) | [https://jira.upexgalaxy.com/browse/BK-121#icft=BK-121](https://jira.upexgalaxy.com/browse/BK-121#icft=BK-121), [https://jira.upexgalaxy.com/browse/BK-124#icft=BK-124](https://jira.upexgalaxy.com/browse/BK-124#icft=BK-124), [https://jira.upexgalaxy.com/browse/BK-130#icft=BK-130](https://jira.upexgalaxy.com/browse/BK-130#icft=BK-130) | Not executed — deferred to full session |
+| POST /api/v1/tokens (cookie session) | [https://jira.upexgalaxy.com/browse/BK-120#icft=BK-120](https://jira.upexgalaxy.com/browse/BK-120#icft=BK-120), [https://jira.upexgalaxy.com/browse/BK-123#icft=BK-123](https://jira.upexgalaxy.com/browse/BK-123#icft=BK-123), [https://jira.upexgalaxy.com/browse/BK-126#icft=BK-126](https://jira.upexgalaxy.com/browse/BK-126#icft=BK-126), ***BK-127***, [https://jira.upexgalaxy.com/browse/BK-128#icft=BK-128](https://jira.upexgalaxy.com/browse/BK-128#icft=BK-128), [https://jira.upexgalaxy.com/browse/BK-129#icft=BK-129](https://jira.upexgalaxy.com/browse/BK-129#icft=BK-129) | [https://jira.upexgalaxy.com/browse/BK-127#icft=BK-127](https://jira.upexgalaxy.com/browse/BK-127#icft=BK-127) executed (FAIL). Others deferred — cookie session required |
+| DELETE /api/v1/tokens (cookie session) | [https://jira.upexgalaxy.com/browse/BK-122#icft=BK-122](https://jira.upexgalaxy.com/browse/BK-122#icft=BK-122), [https://jira.upexgalaxy.com/browse/BK-125#icft=BK-125](https://jira.upexgalaxy.com/browse/BK-125#icft=BK-125), [https://jira.upexgalaxy.com/browse/BK-131#icft=BK-131](https://jira.upexgalaxy.com/browse/BK-131#icft=BK-131), [https://jira.upexgalaxy.com/browse/BK-132#icft=BK-132](https://jira.upexgalaxy.com/browse/BK-132#icft=BK-132) | Deferred — cookie session required |
+| Integration | [https://jira.upexgalaxy.com/browse/BK-133#icft=BK-133](https://jira.upexgalaxy.com/browse/BK-133#icft=BK-133) | Deferred |
 
 ---
 
@@ -64,9 +64,44 @@ API surface only. UI testing deferred — BK-87 Settings Hub has not shipped (st
 
 1. ***BK-135 must be fixed*** (privilege escalation — crítica security)
 2. Full API execution requires cookie session (POST/DELETE) — Playwright magic-link setup needed
-3. UI surface requires BK-87 to ship
+3. UI surface requires [https://jira.upexgalaxy.com/browse/BK-87#icft=BK-87](https://jira.upexgalaxy.com/browse/BK-87#icft=BK-87) to ship
 
 ATP field updated to ACTIVE phase (API-only subset, 14 TCs). ATR field updated with this session's partial results.
+
+---
+
+### Ely - 30/7/2026, 13:28:52
+
+Mockup — Settings — Personal Access Tokens. Source: .context/designs/bunkai-test-management-tool/bk-85-account-settings/settings-tokens.html · spec: master-design-plan §4.10
+
+
+
+---
+
+### Automation for Jira - 31/7/2026, 3:44:46
+
+🔎 Pull Request created. Task is pending to ANALYZE and REVIEW by the team. Waiting for PR Approval.
+
+---
+
+### Automation for Jira - 31/7/2026, 5:24:36
+
+✅ Pull Request is successfully MERGED. Task is Done.
+
+---
+
+### Ely - 31/7/2026, 5:58:18
+
+## Ready For QA — dev complete
+
+Both PRs merged to `staging`:
+
+- PR1 (list + revoke): [https://github.com/upex-galaxy/upex-bunkai-tms/pull/68](https://github.com/upex-galaxy/upex-bunkai-tms/pull/68)
+- PR2 (issue-token flow): [https://github.com/upex-galaxy/upex-bunkai-tms/pull/70](https://github.com/upex-galaxy/upex-bunkai-tms/pull/70)
+
+All 8 AC scenarios implemented and covered (Spec Compliance Matrix + full review trail in the repo at `.context/PBI/epics/EPIC-BK-85-account-settings/stories/STORY-BK-88-settings-manage-personal-access-tokens/review.md`). Backend (issue/list/revoke endpoints, role-gate) was already shipped and tested prior to this story ([https://jira.upexgalaxy.com/browse/BK-135#icft=BK-135](https://jira.upexgalaxy.com/browse/BK-135#icft=BK-135)/[https://jira.upexgalaxy.com/browse/BK-167#icft=BK-167](https://jira.upexgalaxy.com/browse/BK-167#icft=BK-167)) — this story added the Settings > Tokens UI only.
+
+Reassigned to you as the shift-left QA owner for this story. The 17 previously UI-deferred ATP outlines (blocked on [https://jira.upexgalaxy.com/browse/BK-87#icft=BK-87](https://jira.upexgalaxy.com/browse/BK-87#icft=BK-87), which is now Ready For QA) should be unblocked — ready for the full walkthrough on staging.
 
 ---
 

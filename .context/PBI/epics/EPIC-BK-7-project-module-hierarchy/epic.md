@@ -3,7 +3,7 @@
 **Jira Key:** [BK-7](https://jira.upexgalaxy.com/browse/BK-7)
 **Priority:** Medium
 **Status:** Planning
-**Total Story Points:** 33
+**Total Story Points:** 0
 
 ---
 
@@ -105,20 +105,20 @@ See per-story `story.md` for Gherkin acceptance criteria.
 
 | Key | Story | Points | Priority | Status |
 | --- | ----- | ------ | -------- | ------ |
-| [BK-8](https://jira.upexgalaxy.com/browse/BK-8) | TMS-Project | Create a project inside a workspace | 8 | Medium | Ready For Release |
-| [BK-9](https://jira.upexgalaxy.com/browse/BK-9) | TMS-Module | Create modules with nested sub-modules | 13 | Medium | QA Approved |
-| [BK-10](https://jira.upexgalaxy.com/browse/BK-10) | TMS-Module | Rename and soft-delete a module | 2 | Medium | QA Approved |
-| [BK-11](https://jira.upexgalaxy.com/browse/BK-11) | TMS-Module | Move a module to a different parent | 3 | Medium | Ready For Release |
-| [BK-98](https://jira.upexgalaxy.com/browse/BK-98) | TMS-Projects | Switch between Tree, Table & Mind map views in a hardened explorer | 1 | Medium | QA Approved |
-| [BK-147](https://jira.upexgalaxy.com/browse/BK-147) | App Shell | Open ATCs and Tests as tabs with a persistent explorer | 5 | Highest | Ready For Release |
-| [BK-148](https://jira.upexgalaxy.com/browse/BK-148) | TMS-Project Environments | List, add, rename and remove environments | 1 | Medium | Ready For QA |
+| [BK-8](https://jira.upexgalaxy.com/browse/BK-8) | TMS-Project | Create a project inside a workspace | - | Medium | Ready For Release |
+| [BK-9](https://jira.upexgalaxy.com/browse/BK-9) | TMS-Module | Create modules with nested sub-modules | - | Medium | Ready For Release |
+| [BK-10](https://jira.upexgalaxy.com/browse/BK-10) | TMS-Module | Rename and soft-delete a module | - | Medium | Ready For Release |
+| [BK-11](https://jira.upexgalaxy.com/browse/BK-11) | TMS-Module | Move a module to a different parent | - | Medium | Ready For Release |
+| [BK-98](https://jira.upexgalaxy.com/browse/BK-98) | TMS-Projects | Switch between Tree, Table & Mind map views in a hardened explorer | - | Medium | Ready For Release |
+| [BK-147](https://jira.upexgalaxy.com/browse/BK-147) | App Shell | Open ATCs and Tests as tabs with a persistent explorer | - | Highest | Ready For Release |
+| [BK-148](https://jira.upexgalaxy.com/browse/BK-148) | TMS-Project Environments | List, add, rename and remove environments | - | Medium | Ready For Release |
 
 ---
 
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 21/5/2026
+- **Updated:** 11/7/2026
 - **Reporter:** Ely
 - **Assignee:** Ely
 - **Labels:** mvp, wave-1

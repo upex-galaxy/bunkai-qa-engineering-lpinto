@@ -156,16 +156,16 @@ Full ATP DRAFT (25 test outlines) is stored in the ***Acceptance Test Plan*** cu
 
 ### Ely - 4/6/2026, 3:19:21
 
-## Ready for QA — BK-9 deployed to staging
+## Ready for QA — [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9) deployed to staging
 
-***Staging:*** https://staging-upexbunkai.vercel.app
-***PR:*** #8 (merged) https://github.com/upex-galaxy/upex-bunkai-tms/pull/8
+***Staging:*** [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/)
+***PR:*** #8 (merged) [https://github.com/upex-galaxy/upex-bunkai-tms/pull/8](https://github.com/upex-galaxy/upex-bunkai-tms/pull/8)
 
 ### What shipped
 
 - POST /api/v1/projects/{id}/modules (project id = UUID, cookie-session auth). Create modules + nest sub-modules.
 - Project view: "New Module" (root) + per-node "Add sub-module", create form (name + live slug preview + optional description), module breadcrumb (display names, e.g. Payment / Refunds) on selection.
-- New nullable column modules.description (Markdown stored raw, plain render for now; rich editor arrives with BK-16).
+- New nullable column modules.description (Markdown stored raw, plain render for now; rich editor arrives with [https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16)).
 
 ### As-built contract (test against THIS — house error code + granular details.reason)
 
@@ -192,19 +192,19 @@ create-module-form, create-module-name, create-module-slug-preview, create-modul
 
 ### Out of scope
 
-Rename / move / delete (BK-10, BK-11), bulk import, drag-drop reorder, per-module permissions, rich Markdown editor (BK-16).
+Rename / move / delete ([https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10](https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10), [https://jira.upexgalaxy.com/browse/BK-11#icft=BK-11](https://jira.upexgalaxy.com/browse/BK-11#icft=BK-11)), bulk import, drag-drop reorder, per-module permissions, rich Markdown editor ([https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16)).
 
 ---
 
 ### Andrés Daniel Cumare Morales - 6/6/2026, 7:06:14
 
-ATP posted — see sprint testing session BK-9 2026-06-06
+ATP posted — see sprint testing session [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9) 2026-06-06
 
 ---
 
 ### Andrés Daniel Cumare Morales - 6/6/2026, 7:07:37
 
-## 🧪 Acceptance Test Plan (ATP) — BK-9
+## 🧪 Acceptance Test Plan (ATP) — [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9)
 
 Story: TMS-Module | Create modules with nested sub-modules
 Environment: staging | Date: 2026-06-06 | Modality: jira-native | shift-left-reviewed ✓
@@ -256,7 +256,7 @@ Environment: staging | Date: 2026-06-06 | Modality: jira-native | shift-left-rev
 
 ### Andrés Daniel Cumare Morales - 6/6/2026, 7:28:46
 
-## 🧪 Acceptance Test Results (ATR) — BK-9
+## 🧪 Acceptance Test Results (ATR) — [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9)
 
 Story: TMS-Module | Create modules with nested sub-modules
 
@@ -322,7 +322,7 @@ UI-01 ✓ module-new-root button visible for authenticated member
 
 UI-02 ✓ Slug preview updates live in create form
 
-UI-03 ✗ BUG: Submit button enabled for 1-char name → filed as BK-68
+UI-03 ✗ BUG: Submit button enabled for 1-char name → filed as [https://jira.upexgalaxy.com/browse/BK-68#icft=BK-68](https://jira.upexgalaxy.com/browse/BK-68#icft=BK-68)
 
 UI-04 ✓ Success toast 'Module created' fires for depth 1-4 modules
 
@@ -332,11 +332,11 @@ UI-06 ✓ XSS: <script> module name rendered as literal text (no execution)
 
 ### Bugs Filed
 
-BK-67 [MEDIUM] Warning toast suppresses success confirmation at depth≥5
+[https://jira.upexgalaxy.com/browse/BK-67#icft=BK-67](https://jira.upexgalaxy.com/browse/BK-67#icft=BK-67) [MEDIUM] Warning toast suppresses success confirmation at depth≥5
 
-BK-68 [LOW] Create form allows 1-char submit — no client-side min-length gate
+[https://jira.upexgalaxy.com/browse/BK-68#icft=BK-68](https://jira.upexgalaxy.com/browse/BK-68#icft=BK-68) [LOW] Create form allows 1-char submit — no client-side min-length gate
 
-BK-69 [IMPROVEMENT] Module name stores raw HTML; description IS sanitized — inconsistency with AC edge case
+[https://jira.upexgalaxy.com/browse/BK-69#icft=BK-69](https://jira.upexgalaxy.com/browse/BK-69#icft=BK-69) [IMPROVEMENT] Module name stores raw HTML; description IS sanitized — inconsistency with AC edge case
 
 ### Notable (non-bug) Findings
 
@@ -350,10 +350,10 @@ BK-69 [IMPROVEMENT] Module name stores raw HTML; description IS sanitized — in
 
 ### Andrés Daniel Cumare Morales - 14/6/2026, 16:52:50
 
-## QA Testing Complete - BK-9 (Retest Close-Out)
+## QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9) (Retest Close-Out)
 
-***Environment******:*** Staging
-***Result******:*** PASSED (25/25 TCs) — all linked bugs verified & closed
+***Environment:*** Staging
+***Result:*** PASSED (25/25 TCs) — all linked bugs verified & closed
 
 ### Linked Bugs Resolved
 
@@ -363,7 +363,7 @@ BK-69 [IMPROVEMENT] Module name stores raw HTML; description IS sanitized — in
 
 All retest regression checks passed. Story ready for QA Approved.
 
-***Artifacts******:*** ATP/ATR posted 2026-06-06; retest verifications on BK-67/BK-68/BK-69.
+***Artifacts:*** ATP/ATR posted 2026-06-06; retest verifications on [https://jira.upexgalaxy.com/browse/BK-67#icft=BK-67](https://jira.upexgalaxy.com/browse/BK-67#icft=BK-67)/[https://jira.upexgalaxy.com/browse/BK-68#icft=BK-68](https://jira.upexgalaxy.com/browse/BK-68#icft=BK-68)/[https://jira.upexgalaxy.com/browse/BK-69#icft=BK-69](https://jira.upexgalaxy.com/browse/BK-69#icft=BK-69).
 
 ---
 

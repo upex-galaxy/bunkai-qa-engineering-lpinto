@@ -13,6 +13,14 @@ _No description provided_
 
 ---
 
+## User Stories
+
+| Key | Story | Points | Priority | Status |
+| --- | ----- | ------ | -------- | ------ |
+| [BK-262](https://jira.upexgalaxy.com/browse/BK-262) | PAT | Enforce capability scopes on every non-ATC route | - | Medium | Shift-Left QA |
+
+---
+
 ## Metadata
 
 - **Created:** 25/6/2026

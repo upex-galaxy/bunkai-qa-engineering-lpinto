@@ -113,14 +113,14 @@ Good luck — the ATP has everything you need. Ping QA if any of the open questi
 
 ### Ely - 4/6/2026, 22:52:08
 
-## Ready For QA — BK-16 (Markdown editor, write & preview safely)
+## Ready For QA — [https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16) (Markdown editor, write & preview safely)
 
 Merged to staging and deployed. Ready for testing on staging.
 
 ### Links
 
-- PR: https://github.com/upex-galaxy/upex-bunkai-tms/pull/12 (merged)
-- Staging: https://staging-upexbunkai.vercel.app — deploy READY
+- PR: [https://github.com/upex-galaxy/upex-bunkai-tms/pull/12](https://github.com/upex-galaxy/upex-bunkai-tms/pull/12) (merged)
+- Staging: [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/) — deploy READY
 - Merge commit: 97ba126
 
 ### What shipped
@@ -139,12 +139,12 @@ Open a project, create or rename a module, and use the description editor. The 5
 - Write a Markdown table → Preview shows a table.
 - Paste a description containing a script snippet → save → the stored/rendered content has no executable script, surrounding text intact.
 - Paste a mailto link and a javascript link → save → the mailto works, the javascript link is gone.
-- Toolbar: select text, click Bold → wraps in **; Link → inline URL input inserts [text](url).
+- Toolbar: select text, click Bold → wraps in **; Link → inline URL input inserts [text|url].
 
 ### Notes / carry-forward
 
-- This story delivers the reusable editor + sanitizer + renderer; the real consumers are BK-14 (User Story CRUD) and BK-15 (Acceptance Criterion CRUD), which reuse the same components with the 50 KB cap.
-- The 50 KB "exceeds maximum size" message is implemented but dormant on the module mount (the 500-char rule supersedes it); it activates when BK-14/15 mount the editor in byte-cap mode, where a submit-disable + server 50 KB guard will also be added.
+- This story delivers the reusable editor + sanitizer + renderer; the real consumers are [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14) (User Story CRUD) and [https://jira.upexgalaxy.com/browse/BK-15#icft=BK-15](https://jira.upexgalaxy.com/browse/BK-15#icft=BK-15) (Acceptance Criterion CRUD), which reuse the same components with the 50 KB cap.
+- The 50 KB "exceeds maximum size" message is implemented but dormant on the module mount (the 500-char rule supersedes it); it activates when [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14)/15 mount the editor in byte-cap mode, where a submit-disable + server 50 KB guard will also be added.
 - Security review: no render-exploitable XSS found (every vector rendered through the real pipeline).
 
 ---
@@ -157,9 +157,9 @@ Open a project, create or rename a module, and use the description editor. The 5
 
 ### Scope Adjustments
 
-| TC | Adjustment | Reason |
+| ***TC**** | ****Adjustment**** | ****Reason*** |
 | --- | --- | --- |
-| TC-06 (50 KB rejection) | DEFERRED | Module mount uses `maxLength={500}` char cap; byte-cap `overCap` condition only fires when no char cap is set. Dormant until BK-14/BK-15. |
+| TC-06 (50 KB rejection) | DEFERRED | Module mount uses `maxLength={500`} char cap; byte-cap `overCap` condition only fires when no char cap is set. Dormant until [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14)/[https://jira.upexgalaxy.com/browse/BK-15#icft=BK-15](https://jira.upexgalaxy.com/browse/BK-15#icft=BK-15). |
 | TC-07 (90% warning) | DEFERRED | Same — byte-level size counter inactive on module form. |
 
 ### Test Mode: Hybrid
@@ -187,9 +187,9 @@ Architect annotation specified `sanitize-html` npm package. Implementation uses 
 
 ### TC-04 — Strip script tags from description on save
 
-***Verdict******:****** PASS-BY-INSPECTION*** :white*check*mark:
+***Verdict:**** ****PASS-BY-INSPECTION*** :white*check*mark:
 
-Save path: `sanitizeMarkdown(description)` called before DB insert (POST `/api/v1/projects/{id}/modules`) and before RPC call (PATCH `/api/v1/modules/{id}`). Both save paths confirmed.
+Save path: `sanitizeMarkdown(description)` called before DB insert (POST `/api/v1/projects/{id}/modules`) and before RPC call (PATCH `/api/v1/modules/{id`}). Both save paths confirmed.
 
 Sanitizer: `DANGEROUS_BLOCK = /<(script|style|iframe|...)\b[^>]**>[\s\S]**?<\/\1\s*>/gi` — strips the entire `<script>...</script>` block including its content. Global flag (`/gi`) ensures multiple script blocks in one paste are all removed (AC3 multi-vector requirement met).
 
@@ -201,7 +201,7 @@ Second layer: `react-markdown` without `rehype-raw` — raw `<script>` in Markdo
 
 ### TC-05 — Remove javascript: links while preserving mailto: links
 
-***Verdict******:****** PASS-BY-INSPECTION*** :white*check*mark:
+***Verdict:**** ****PASS-BY-INSPECTION*** :white*check*mark:
 
 Sanitizer applies `stripUnsafeMarkdownLinks` as final step. Markdown-syntax links `[text](unsafe-scheme:...)` are reduced to their visible text. `SAFE*SCHEME = /^(?:https?:|mailto:)/i` — only http/https/mailto pass; all else stripped. Raw `<a href="javascript:...">` tags also covered by `UNSAFE*ATTR_URL` regex on the HTML-attribute path.
 
@@ -214,27 +214,27 @@ Unit tests:
 - `"drops only the unsafe link in a mixed paragraph"` — mailto kept, javascript link stripped in same body
 - `"whitespace-smuggled scheme"` — `[x](<java script:alert(1)>)` → `x`
 
-Renderer second layer: `protocols: { href: ['http', 'https', 'mailto'] }` in `rehype-sanitize` schema.
+Renderer second layer: {{protocols: { href: ['http', 'https', 'mailto'] }}} in `rehype-sanitize` schema.
 
 ---
 
 ### TC-08 — Preserve inline code and code blocks after sanitization
 
-***Verdict******:****** PASS-BY-INSPECTION*** :white*check*mark:
+***Verdict:**** ****PASS-BY-INSPECTION*** :white*check*mark:
 
-`DANGEROUS*BLOCK` and `DANGEROUS*TAG` do not target `<code>` or `<pre>`. Sanitizer is safe-by-default for Markdown syntax; only removes explicitly dangerous patterns. Inline code with angle brackets (`\`a < b\) is never touched.
+`DANGEROUS*BLOCK` and `DANGEROUS*TAG` do not target `<code>` or `<pre>`. Sanitizer is safe-by-default for Markdown syntax; only removes explicitly dangerous patterns. Inline code with angle brackets ({{}}a < b) is never touched.
 
 Unit tests:
 
-- `"inline code with angle brackets survives byte-for-byte"` — `compare \`a < b\ unchanged
-- `"fenced code block survives"` — full \`\`\`ts block with `<` and `?` preserved
+- `"inline code with angle brackets survives byte-for-byte"` — {{compare }}a < b\ unchanged
+- `"fenced code block survives"` — full {{}}{{ts block with }}<{{ and }}?` preserved
 - `"safe content is idempotent under repeated sanitizing"` — no double-sanitization corruption
 
 ---
 
 ### TC-09 — Strip inline event handlers (onclick, onmouseover)
 
-***Verdict******:****** PASS-BY-INSPECTION*** :white*check*mark:
+***Verdict:**** ****PASS-BY-INSPECTION*** :white*check*mark:
 
 `EVENT_HANDLER = /\son\w+\s**=\s**(?:"[^"]**"|'[^']**'|[^\s>]+)/gi` — matches all `on<event>=` attribute forms across double-quote, single-quote, and bare-value syntax. Global flag removes multiple handlers per element.
 
@@ -244,17 +244,17 @@ Unit test: `"strips inline event handlers"` — `<a href="..." onclick="steal()"
 
 ### TC-06 & TC-07 — 50 KB rejection / 90% warning
 
-***Verdict******:****** DEFERRED*** :blue_circle: (expected — not a defect)
+***Verdict:**** ****DEFERRED*** :blue_circle: (expected — not a defect)
 
-Module description mount passes `maxLength={500}`. Editor `overCap` condition: `byteSize > DEFAULT*MAX*BYTES && !maxLength` — evaluates `false` when a char cap is set. Byte error UI (`data-testid="markdown-size-error"`) and 90% byte warning are fully dormant on module forms.
+Module description mount passes `maxLength={500`}. Editor `overCap` condition: `byteSize > DEFAULT*MAX*BYTES && !maxLength` — evaluates `false` when a char cap is set. Byte error UI (`data-testid="markdown-size-error"`) and 90% byte warning are fully dormant on module forms.
 
-Activates when BK-14/BK-15 mount the editor in byte-cap mode (`maxLength` prop absent). Confirmed by Ely's Ready For QA note: "The 50 KB exceeds maximum size message is implemented but dormant on the module mount."
+Activates when [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14)/[https://jira.upexgalaxy.com/browse/BK-15#icft=BK-15](https://jira.upexgalaxy.com/browse/BK-15#icft=BK-15) mount the editor in byte-cap mode (`maxLength` prop absent). Confirmed by Ely's Ready For QA note: "The 50 KB exceeds maximum size message is implemented but dormant on the module mount."
 
 ---
 
 ### TC-01, TC-02, TC-03 — Live preview, persistence, table render
 
-***Verdict******:****** PENDING*** :warning: — awaiting live credentials
+***Verdict:**** ****PENDING*** :warning: — awaiting live credentials
 
 Component evidence: `MarkdownRenderer` confirmed at `components/markdown/markdown-renderer.tsx` with `remark-gfm` for GFM table support and correct heading/list CSS classes. Preview toggle (Eye icon) confirmed wired in `components/markdown/markdown-editor.tsx`. Code evidence is strong; live browser verification required for the UI interaction and persistence paths.
 
@@ -264,7 +264,7 @@ Component evidence: `MarkdownRenderer` confirmed at `components/markdown/markdow
 
 ### Carlos Alberto Chiavassa - 9/6/2026, 11:07:17
 
-## Acceptance Test Results — BK-16: Markdown Editor | Write and Preview Markdown Safely
+## Acceptance Test Results — [https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16): Markdown Editor | Write and Preview Markdown Safely
 
 ***Date****: 2026-06-09 | ****Environment****: Staging (97ba126 / PR #12) | ****Mode***: Hybrid — code inspection + live pending
 ***Tester***: Andrés Daniel Cumare Morales
@@ -273,7 +273,7 @@ Component evidence: `MarkdownRenderer` confirmed at `components/markdown/markdow
 
 ### Result Summary
 
-| TC | Description | Type | Priority | Verdict |
+| ***TC**** | ****Description**** | ****Type**** | ****Priority**** | ****Verdict*** |
 | --- | --- | --- | --- | --- |
 | TC-01 | Render heading + bullet list in live preview | Positive | Critical | :warning: PENDING (live) |
 | TC-02 | Persist Markdown formatting after save + reopen | Positive | Critical | :warning: PENDING (live) |
@@ -309,13 +309,13 @@ Component evidence: `MarkdownRenderer` confirmed at `components/markdown/markdow
 ***Save paths*** — defense-in-depth confirmed:
 
 - `POST /api/v1/projects/{id}/modules` → `description: sanitizeMarkdown(description)` before insert
-- `PATCH /api/v1/modules/{id}` → `rpcArgs.p_description = sanitizeMarkdown(description)` before RPC
+- `PATCH /api/v1/modules/{id`} → `rpcArgs.p_description = sanitizeMarkdown(description)` before RPC
 
 ---
 
 ### Deferred TCs
 
-TC-06 and TC-07 require the editor mounted in byte-cap mode (`maxLength` prop absent). Module description passes `maxLength={500}` (char cap), which suppresses byte-cap behavior. These TCs are in scope for BK-14/BK-15 QA sessions.
+TC-06 and TC-07 require the editor mounted in byte-cap mode (`maxLength` prop absent). Module description passes `maxLength={500`} (char cap), which suppresses byte-cap behavior. These TCs are in scope for [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14)/[https://jira.upexgalaxy.com/browse/BK-15#icft=BK-15](https://jira.upexgalaxy.com/browse/BK-15#icft=BK-15) QA sessions.
 
 ---
 
@@ -329,7 +329,7 @@ TC-01, TC-02, TC-03 require staging browser session. To unblock: provide `STAGIN
 
 ## Acceptance Test Results (ATR)
 
-BK-16 TEST RESULTS
+[https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16) TEST RESULTS
 Tested: 2026-06-09
 Environment: Staging
 Tester: facundobarea10@gmail.com
@@ -379,7 +379,7 @@ Note: Counter displays KiB (44.4 KB for 45,500 bytes) instead of true KB (45.5 K
 
 ### Facu Barea - 9/6/2026, 13:07:03
 
-QA Testing Complete - BK-16
+QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16)
 
 Environment: Staging
 Result: FAILED (7/9 TCs)
@@ -416,10 +416,10 @@ Impact: No early warning to users approaching the size limit.
 
 ## DEFECTS
 
-- BK-99 (High): 50 KB size limit not enforced on submission
-- BK-100 (Medium): 90% capacity warning threshold not implemented
+- [https://jira.upexgalaxy.com/browse/BK-99#icft=BK-99](https://jira.upexgalaxy.com/browse/BK-99#icft=BK-99) (High): 50 KB size limit not enforced on submission
+- [https://jira.upexgalaxy.com/browse/BK-100#icft=BK-100](https://jira.upexgalaxy.com/browse/BK-100#icft=BK-100) (Medium): 90% capacity warning threshold not implemented
 
-Artifacts: ATR posted as comment on BK-16 (comment id: 11466), ATP on BK-16 (customfield_10120)
+Artifacts: ATR posted as comment on [https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16) (comment id: 11466), ATP on [https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16) (customfield_10120)
 
 ---
 
@@ -429,10 +429,10 @@ Artifacts: ATR posted as comment on BK-16 (comment id: 11466), ATP on BK-16 (cus
 
 The defects blocking this story are fixed, merged to staging, and now in ***Ready For QA***:
 
-| Bug | Status | Fix evidence |
+| ***Bug**** | ****Status**** | ****Fix evidence*** |
 | --- | --- | --- |
-| BK-99 — MarkdownEditor: 50 KB size limit not enforced on submission | Ready For QA | PR #33 merged to staging · verification details in the bug's fix comment |
-| BK-100 — MarkdownEditor: 90% capacity warning threshold not implemented | Ready For QA | PR #33 merged to staging · verification details in the bug's fix comment |
+| [https://jira.upexgalaxy.com/browse/BK-99#icft=BK-99](https://jira.upexgalaxy.com/browse/BK-99#icft=BK-99) — MarkdownEditor: 50 KB size limit not enforced on submission | Ready For QA | PR #33 merged to staging · verification details in the bug's fix comment |
+| [https://jira.upexgalaxy.com/browse/BK-100#icft=BK-100](https://jira.upexgalaxy.com/browse/BK-100#icft=BK-100) — MarkdownEditor: 90% capacity warning threshold not implemented | Ready For QA | PR #33 merged to staging · verification details in the bug's fix comment |
 
 This story has been moved back to ***In Test*** so testing can resume. Please re-test both defects and continue the story run.
 
@@ -440,17 +440,17 @@ This story has been moved back to ***In Test*** so testing can resume. Please re
 
 ### Facu Barea - 10/6/2026, 20:28:46
 
-## :test_tube: Acceptance Test Results (ATR) — BK-16 Re-Execution
+## :test_tube: Acceptance Test Results (ATR) — [https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16) Re-Execution
 
-***Type******:**** Full Re-Execution | ****Verdict******:****  | ****Environment******:**** Staging | ****Date******:*** 2026-06-10
+***Type:**** Full Re-Execution | ****Verdict:**** ****[ PASS — ALL 9 TCS ]**** | ****Environment:**** Staging | ****Date:*** 2026-06-10
 
-> Re-execution following fix of BK-99 (50KB limit) and BK-100 (90% warning). Prior ATR: 7 PASS / 2 FAIL. Current result: 9/9 PASS.
+> Re-execution following fix of [https://jira.upexgalaxy.com/browse/BK-99#icft=BK-99](https://jira.upexgalaxy.com/browse/BK-99#icft=BK-99) (50KB limit) and [https://jira.upexgalaxy.com/browse/BK-100#icft=BK-100](https://jira.upexgalaxy.com/browse/BK-100#icft=BK-100) (90% warning). Prior ATR: 7 PASS / 2 FAIL. Current result: 9/9 PASS.
 
 ---
 
 ### Test Execution Summary
 
-| TC | Description | AC | Priority | Result | Notes |
+| ***TC**** | ****Description**** | ****AC**** | ****Priority**** | ****Result**** | ****Notes*** |
 | --- | --- | --- | --- | --- | --- |
 | TC-01 | Heading + bullet list render in live preview | AC1 | Critical | :white*check*mark: PASS | H2 "Steps" + LIs rendered in preview |
 | TC-02 | Markdown persists after save and reopen | AC1 | Critical | :white*check*mark: PASS | DB: `## Steps\n- Step one\n- Step two` preserved |
@@ -459,7 +459,7 @@ This story has been moved back to ***In Test*** so testing can resume. Please re
 | TC-05 | `javascript:` links removed · `mailto:` preserved | AC4 | Critical | :white*check*mark: PASS | `javascript:` href stripped · `mailto:test@example.com` intact |
 | TC-06 | >50 KB rejected with error | AC5 | High | :white*check*mark: PASS | Button disabled at 51KB · HTTP 422 server-side · DB: no oversized row |
 | TC-07 | 90% warning threshold visible | Edge case | Medium | :white*check*mark: PASS | Counter `text-signal-blocked` at 45.5KB · submit enabled |
-| TC-08 | Inline code and code blocks preserved | Allowlist | High | :white*check*mark: PASS |  `npm install`  + ` `bash ` ` block persisted intact |
+| TC-08 | Inline code and code blocks preserved | Allowlist | High | :white*check*mark: PASS | `npm install`  + {{ }}bash {{ }} block persisted intact |
 | TC-09 | Event handlers (onclick, onmouseover) stripped | Security | Critical | :white*check*mark: PASS | Attributes stripped · `<p>` and `<a>` tags preserved · text intact |
 
 ---
@@ -483,28 +483,28 @@ This story has been moved back to ***In Test*** so testing can resume. Please re
 
 ### Bugs Resolved
 
-| Bug | Description | Status |
+| ***Bug**** | ****Description**** | ****Status*** |
 | --- | --- | --- |
-| BK-99 | 50 KB limit not enforced | :white*check*mark: Closed 2026-06-10 |
-| BK-100 | 90% warning threshold missing | :white*check*mark: Closed 2026-06-10 |
+| [https://jira.upexgalaxy.com/browse/BK-99#icft=BK-99](https://jira.upexgalaxy.com/browse/BK-99#icft=BK-99) | 50 KB limit not enforced | :white*check*mark: Closed 2026-06-10 |
+| [https://jira.upexgalaxy.com/browse/BK-100#icft=BK-100](https://jira.upexgalaxy.com/browse/BK-100#icft=BK-100) | 90% warning threshold missing | :white*check*mark: Closed 2026-06-10 |
 
 ---
 
 ### Verdict
 
- — Feature fully verified across all 9 test cases. Security, sanitization, size enforcement, and preview rendering all working as specified.
+***[ QA APPROVED ]*** — Feature fully verified across all 9 test cases. Security, sanitization, size enforcement, and preview rendering all working as specified.
 
 ---
 
 ### Facu Barea - 10/6/2026, 20:29:03
 
-## :white*check*mark: QA Sign-Off — BK-16 APPROVED
+## :white*check*mark: QA Sign-Off — [https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16) APPROVED
 
-***Tester******:**** Facu Barea | ****Date******:**** 2026-06-10 | ****Environment******:*** Staging
+***Tester:**** Facu Barea | ****Date:**** 2026-06-10 | ****Environment:*** Staging
 
-Full re-execution completed after BK-99 and BK-100 fixes. All 9 test cases pass.
+Full re-execution completed after [https://jira.upexgalaxy.com/browse/BK-99#icft=BK-99](https://jira.upexgalaxy.com/browse/BK-99#icft=BK-99) and [https://jira.upexgalaxy.com/browse/BK-100#icft=BK-100](https://jira.upexgalaxy.com/browse/BK-100#icft=BK-100) fixes. All 9 test cases pass.
 
-***Feature verified******:***
+***Feature verified:***
 
 - :white*check*mark: Markdown write and live preview (headings, lists, tables, code)
 - :white*check*mark: Content persists after save and reopen

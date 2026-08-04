@@ -121,9 +121,9 @@ High count reflects CRITICAL 18 score + heavy integration surface (Jira REST pag
 
 ### Ely - 5/6/2026, 5:35:55
 
-## Ready For QA — BK-17 Async one-way Jira import by JQL
+## Ready For QA — [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) Async one-way Jira import by JQL
 
-***Staging:**** https://staging-upexbunkai.vercel.app  ·  ****PR:**** #15 (merged)  ·  ****Deploy:*** READY
+***Staging:**** [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/)  ·  ****PR:**** #15 (merged)  ·  ****Deploy:*** READY
 
 ### What shipped (as-built)
 
@@ -131,8 +131,8 @@ Import Jira issues into a Bunkai project by JQL. In the project explorer, click 
 
 ### Endpoints
 
-- `POST /api/v1/imports` `{ project*id, jql }` → 202 `{ import*job*id, status: queued }` (member-only; one active import per project, else 409 `import*in_progress`).
-- `GET /api/v1/imports/{id}` → poll status (queued | running | completed | failed) + counts + `errors[]`.
+- `POST /api/v1/imports` {{{ project*id, jql }}} → 202 {{{ import*job*id, status: queued }}} (member-only; one active import per project, else 409 `import*in_progress`).
+- `GET /api/v1/imports/{id`} → poll status (queued | running | completed | failed) + counts + `errors[]`.
 
 ### AC verification guide (staging)
 
@@ -150,45 +150,47 @@ Live import needs `ATLASSIAN*URL`, `ATLASSIAN*EMAIL`, `ATLASSIAN*API*TOKEN` set 
 ### Notes for QA
 
 - One import at a time per project (concurrent attempts get 409). A re-run is always safe (idempotent), which is also the crash-recovery path.
-- Imported descriptions are converted ADF→Markdown and pass through the BK-16 sanitizer (no raw HTML execution). Acceptance Criteria are extracted from the description body only (issues that keep ACs in a Jira custom field import 0 ACs — expected).
+- Imported descriptions are converted ADF→Markdown and pass through the [https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16) sanitizer (no raw HTML execution). Acceptance Criteria are extracted from the description body only (issues that keep ACs in a Jira custom field import 0 ACs — expected).
 - Out of scope (Phase 2): two-way sync, webhooks, OAuth, Epics/Sub-tasks, attachments, custom-field mapping, per-workspace credential config.
 
 ---
 
 ### Andrés Daniel Cumare Morales - 7/6/2026, 10:41:16
 
-## Acceptance Test Plan (ATP) — BK-17 — Part 4/4: Edge Cases, Test Data & Risks
+## Acceptance Test Plan (ATP) — [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) — Part 4/4: Edge Cases, Test Data & Risks
 
 ### Phase 5 — Edge Cases + Test Data
 
 #### Edge case table
 
-| Edge case | In original story? | Added to refined AC? | Outline | Priority |
-|---|---|---|---|---|
-| Concurrent import 409 (race) | No (shift-left Gap #5) | Yes — Cross-cutting scenario A | TC-NEG-02 | Critical |
-| Crash mid-job → stuck `running` forever (no sweeper) | No (shift-left Gap #1, partially) | Yes — Cross-cutting scenario B (documented gap, not live-tested) | n/a — ATR documentation only | High (residual risk) |
-| Idempotent re-run leaves module/status untouched | Implied by "idempotent" but not spelled out | Yes — folded into AC2 refinement | TC-POS-02 (step 4) | High |
-| Non-member access (RLS forbidden) | Implied by "member-only" | Yes | TC-NEG-01 | High |
-| RLS hide-on-SELECT (404 vs 403 non-disclosure) | No | Yes | TC-NEG-04 | Medium |
-| Unsupported ADF nodes degrade silently (tables, panels, emoji) | No (shift-left Gap #3) | Yes — spot-check | TC-POS-06 | Medium |
-| Custom-field ACs import as 0 (expected) | Confirmed by Ely, not in original AC | Yes | TC-INT-02 | Medium |
-| 429 exhaustion surfaces as generic `job_failed`, not a distinguishable code | No (minor observability gap) | Yes — documented, code-inspection only | TC-INT-04 | Low |
-| JQL length boundary (1 / 2000 chars) | Implied by business rule, not in AC | Yes | TC-BND-01 / TC-API-03 | Medium |
+| Edge case  | In original story?  | Added to refined AC?  | Outline  | Priority  |
+| --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- |
+| Concurrent import 409 (race)  | No (shift-left Gap #5)  | Yes — Cross-cutting scenario A  | TC-NEG-02  | Critical  |
+| Crash mid-job → stuck `running` forever (no sweeper)  | No (shift-left Gap #1, partially)  | Yes — Cross-cutting scenario B (documented gap, not live-tested)  | n/a — ATR documentation only  | High (residual risk)  |
+| Idempotent re-run leaves module/status untouched  | Implied by "idempotent" but not spelled out  | Yes — folded into AC2 refinement  | TC-POS-02 (step 4)  | High  |
+| Non-member access (RLS forbidden)  | Implied by "member-only"  | Yes  | TC-NEG-01  | High  |
+| RLS hide-on-SELECT (404 vs 403 non-disclosure)  | No  | Yes  | TC-NEG-04  | Medium  |
+| Unsupported ADF nodes degrade silently (tables, panels, emoji)  | No (shift-left Gap #3)  | Yes — spot-check  | TC-POS-06  | Medium  |
+| Custom-field ACs import as 0 (expected)  | Confirmed by Ely, not in original AC  | Yes  | TC-INT-02  | Medium  |
+| 429 exhaustion surfaces as generic `job_failed`, not a distinguishable code  | No (minor observability gap)  | Yes — documented, code-inspection only  | TC-INT-04  | Low  |
+| JQL length boundary (1 / 2000 chars)  | Implied by business rule, not in AC  | Yes  | TC-BND-01 / TC-API-03  | Medium  |
 
 #### Test-data categories
 
-| Data type | Count | Purpose | Examples |
-|---|---|---|---|
-| Valid | 3 | Drive AC1/AC2/AC3/AC4 happy paths | `key in (BK-8, BK-9)`, a component-bearing JQL (TBD Stage 2), an uncomponentized-issue JQL (TBD Stage 2) |
-| Invalid | 4 | Drive validation/negative paths | `""`, 2001-char JQL, `not-a-uuid` project_id, non-UUID job id |
-| Boundary | 3 | Drive length/volume edges | 1-char JQL, 2000-char JQL, >100-issue JQL (feasibility-gated) |
-| Edge | 2 | Drive race + RLS-disclosure paths | concurrent 409 trigger, inaccessible-but-existing job id `b4b8e74c-...` |
+| Data type  | Count  | Purpose  | Examples  |
+| --- | --- | --- | --- |
+| --- | --- | --- | --- |
+| Valid  | 3  | Drive AC1/AC2/AC3/AC4 happy paths  | `key in (BK-8, BK-9)`, a component-bearing JQL (TBD Stage 2), an uncomponentized-issue JQL (TBD Stage 2)  |
+| Invalid  | 4  | Drive validation/negative paths  | `""`, 2001-char JQL, `not-a-uuid` project_id, non-UUID job id  |
+| Boundary  | 3  | Drive length/volume edges  | 1-char JQL, 2000-char JQL, >100-issue JQL (feasibility-gated)  |
+| Edge  | 2  | Drive race + RLS-disclosure paths  | concurrent 409 trigger, inaccessible-but-existing job id `b4b8e74c-...`  |
 
 #### Data generation strategy
 
 - ***Static***: `project_id = "ae10a3bd-574f-4caf-8076-f19a8e80f5a6"`, `jql = "key in (BK-8, BK-9)"` — hardcoded because they are the verified clean-slate anchor for AC1/AC2 chaining; reusing a known-good pair removes guesswork from the critical-path tests
 - ***Dynamic (generated at Stage 2)***: the 2000-char and 2001-char JQL strings should be built programmatically (`"x".repeat(2000)` / `.repeat(2001)`) rather than hand-typed — avoids off-by-one authoring errors; the AC3/AC4/AC5 candidate JQLs depend on a live corpus probe and cannot be pre-determined
-- ***Cleanup***: AC1/AC2 are explicitly chained (do not clean up between them — the second run depends on the first's output). TC-BND-01's boundary sweep may enqueue extra jobs — let them complete or note their `import*job*id`s before running TC-NEG-02 to avoid muddying the 409 race assertion. TC-BND-02 (if executed) creates N new `user_stories` rows — confirm volume tolerance with the user before running on a shared project; prefer an isolated throwaway project if N is large
+- ***Cleanup***: AC1/AC2 are explicitly chained (do not clean up between them — the second run depends on the first's output). TC-BND-01's boundary sweep may enqueue extra jobs — let them complete or note their `import*job*id}}s before running TC-NEG-02 to avoid muddying the 409 race assertion. TC-BND-02 (if executed) creates N new {{user_stories` rows — confirm volume tolerance with the user before running on a shared project; prefer an isolated throwaway project if N is large
 
 ---
 
@@ -203,7 +205,7 @@ Live import needs `ATLASSIAN*URL`, `ATLASSIAN*EMAIL`, `ATLASSIAN*API*TOKEN` set 
 
 ### Andrés Daniel Cumare Morales - 7/6/2026, 10:41:21
 
-## Acceptance Test Plan (ATP) — BK-17 — Part 1/4: Triage, Refined ACs, Critical Analysis & Data Feasibility
+## Acceptance Test Plan (ATP) — [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) — Part 1/4: Triage, Refined ACs, Critical Analysis & Data Feasibility
 
 ***Modality****: jira-native · ****Environment****: staging (`https://staging-upexbunkai.vercel.app`) · ****Risk****: HIGH (score 11) · ****Triage***: REQUIRE TESTING (veto — external integration + data integrity)
 
@@ -222,13 +224,13 @@ Live import needs `ATLASSIAN*URL`, `ATLASSIAN*EMAIL`, `ATLASSIAN*API*TOKEN` set 
 #### AC1 — Start + poll (fresh import)
 
 - ***Given*** a member of workspace "BK-9 QA Testing" is on project "BK-9 Module Test Project" (`ae10a3bd-574f-4caf-8076-f19a8e80f5a6`), which has an empty `import_jobs` history
-- ***When*** they `POST /api/v1/imports` with `{ project_id: "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", jql: "key in (BK-8, BK-9)" }`
-- ***Then**** the API returns ****202*** `{ import*job*id: <uuid>, status: "queued" }`; polling `GET /api/v1/imports/{id}` shows the status transition `queued → running → completed`; the final row has `imported*count = 2`, `created*count = 2`, `updated*count = 0`, `skipped*count = 0`, `errors = []`, `completed_at` populated
+- ***When*** they `POST /api/v1/imports` with {{{ project_id: "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", jql: "key in ([https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8), [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9))" }}}
+- ***Then**** the API returns ****202*** {{{ import*job*id: <uuid>, status: "queued" }}}; polling `GET /api/v1/imports/{id`} shows the status transition `queued → running → completed`; the final row has `imported*count = 2`, `created*count = 2`, `updated*count = 0`, `skipped*count = 0`, `errors = []`, `completed_at` populated
 
 #### AC2 — Idempotent re-run (additive-only, finding #6)
 
 - ***Given*** the AC1 job has completed for `jql: "key in (BK-8, BK-9)"` on the same project (2 stories now exist with `external_id` `BK-8` / `BK-9`)
-- ***When*** the same payload `{ project_id: "ae10a3bd-...", jql: "key in (BK-8, BK-9)" }` is submitted again
+- ***When*** the same payload {{{ project_id: "ae10a3bd-...", jql: "key in ([https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8), [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9))" }}} is submitted again
 - ***Then**** the new job completes with `created*count = 0`, `updated*count = 2`, `skipped*count = 0`, `imported*count = 2`; a DB query on `user*stories WHERE project*id = 'ae10a3bd-...' AND external*id IN ('BK-8','BK-9')` returns ****exactly 2 rows*** (zero duplicates); `title`/`description` are refreshed but `module*id`/`status` are left untouched if manually changed between runs (per `import-runner.ts:228-235`)
 
 #### AC3 — Component routing
@@ -259,7 +261,7 @@ Live import needs `ATLASSIAN*URL`, `ATLASSIAN*EMAIL`, `ATLASSIAN*API*TOKEN` set 
 
 - ***Given*** project "BK-9 Module Test Project" has an import job in `queued` or `running` status
 - ***When**** a second `POST /api/v1/imports` is submitted for the ****same*** `project_id` (regardless of `jql` value)
-- ***Then**** the API returns ****409**** `{ reason: "import*in*progress" }` — enforced at the DB layer by the partial UNIQUE index `import*jobs*one*active*per*project` (migration `0020*import*jobs*one_active.sql`); the route's fast-path `SELECT` (`route.ts:49-63`) AND its `23505`-catch fallback (`route.ts:77-82`) both map to this envelope — confirm the ****shape***, not just the status code
+- ***Then**** the API returns ****409**** {{{ reason: "import*in*progress" }}} — enforced at the DB layer by the partial UNIQUE index `import*jobs*one*active*per*project` (migration `0020*import*jobs*one_active.sql`); the route's fast-path `SELECT` (`route.ts:49-63`) AND its `23505`-catch fallback (`route.ts:77-82`) both map to this envelope — confirm the ****shape***, not just the status code
 
 #### Cross-cutting scenario B — Crash recovery / stuck-`running` (documented gap, NOT a live test, finding #3)
 
@@ -270,11 +272,11 @@ Live import needs `ATLASSIAN*URL`, `ATLASSIAN*EMAIL`, `ATLASSIAN*API*TOKEN` set 
 
 ### Phase 1 — Critical Analysis (business + technical context)
 
-***Business context***: Primary persona = Project lead seeding a new Bunkai Project from an existing Jira backlog (avoiding manual copy-paste); KPI influenced = onboarding speed / time-to-first-Module-populated. This sits at the "Project setup" step of the user journey, immediately after BK-7/BK-8/BK-9 (workspace → project → module hierarchy) and feeding BK-14/BK-15 (User Story / AC CRUD as write targets).
+***Business context***: Primary persona = Project lead seeding a new Bunkai Project from an existing Jira backlog (avoiding manual copy-paste); KPI influenced = onboarding speed / time-to-first-Module-populated. This sits at the "Project setup" step of the user journey, immediately after [https://jira.upexgalaxy.com/browse/BK-7#icft=BK-7](https://jira.upexgalaxy.com/browse/BK-7#icft=BK-7)/[https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8)/[https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9) (workspace → project → module hierarchy) and feeding [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14)/[https://jira.upexgalaxy.com/browse/BK-15#icft=BK-15](https://jira.upexgalaxy.com/browse/BK-15#icft=BK-15) (User Story / AC CRUD as write targets).
 
 ***Technical context***:
 
-- API surface: `POST /api/v1/imports` (`app/api/v1/imports/route.ts`), `GET /api/v1/imports/{id}` (`app/api/v1/imports/[id]/route.ts`)
+- API surface: `POST /api/v1/imports` (`app/api/v1/imports/route.ts`), `GET /api/v1/imports/{id`} (`app/api/v1/imports/[id]/route.ts`)
 - Worker: `lib/jira/import-runner.ts` (CAS claim, paging, upsert, AC reconciliation, Inbox creation)
 - External: `lib/jira/client.ts` (Jira REST `/search`, 429 backoff, auth)
 - Conversion: `lib/jira/adf-to-markdown.ts` (ADF → Markdown), `lib/jira/extract-acceptance-criteria.ts` (AC heuristic)
@@ -291,16 +293,17 @@ Live import needs `ATLASSIAN*URL`, `ATLASSIAN*EMAIL`, `ATLASSIAN*API*TOKEN` set 
 
 No new ambiguities or gaps surfaced beyond the 6 pre-resolved findings already documented in `context.md` (all traced to file:line). Summary of resolutions inherited from code review:
 
-| Shift-left concern | Resolution | Evidence |
-|---|---|---|
-| Gap #1 — crash recovery | Option A (re-run is safe/idempotent); BUT no timeout sweeper — residual structural risk | `import-runner.ts:43-58,71`, Ely's note |
-| Gap #2 — credential failure | `jira_unauthorized` + `status=failed`, exactly matches AC6 | `client.ts:120-122,143-145`, `import-runner.ts:122-124` |
-| Gap #3 — ADF node support | Documented: doc/paragraph/heading/lists/codeBlock/blockquote/rule + inline marks; unknowns degrade gracefully (no throw, no error entry) | `adf-to-markdown.ts:29-51,105-110,127-132` |
-| Gap #4 — custom fields discarded | Confirmed expected/out-of-scope (Phase 2): only `summary, description, components, issuetype` read | `client.ts:76`, Ely's "Notes for QA" |
-| Gap #5 — concurrent imports | Race-proof via DB partial UNIQUE index, 409 on both fast-path and `23505` fallback | migration `0020`, `route.ts:49-63,77-82` |
-| Ambiguity — AC heuristic | Heading regex + bullet/numbered collection + stop conditions documented | `extract-acceptance-criteria.ts:9-18,30-68` |
-| Ambiguity — Inbox placement | Root-level, positioned after siblings; DB-confirmed (Smoke Checkout project) | `import-runner.ts:168-200` |
-| CQ#3 — oversized descriptions | Truncate at 50KB with visible blockquote marker | `import-runner.ts:25-26,285-295` |
+| Shift-left concern  | Resolution  | Evidence  |
+| --- | --- | --- |
+| --- | --- | --- |
+| Gap #1 — crash recovery  | Option A (re-run is safe/idempotent); BUT no timeout sweeper — residual structural risk  | `import-runner.ts:43-58,71`, Ely's note  |
+| Gap #2 — credential failure  | `jira_unauthorized` + `status=failed`, exactly matches AC6  | `client.ts:120-122,143-145`, `import-runner.ts:122-124`  |
+| Gap #3 — ADF node support  | Documented: doc/paragraph/heading/lists/codeBlock/blockquote/rule + inline marks; unknowns degrade gracefully (no throw, no error entry)  | `adf-to-markdown.ts:29-51,105-110,127-132`  |
+| Gap #4 — custom fields discarded  | Confirmed expected/out-of-scope (Phase 2): only `summary, description, components, issuetype` read  | `client.ts:76`, Ely's "Notes for QA"  |
+| Gap #5 — concurrent imports  | Race-proof via DB partial UNIQUE index, 409 on both fast-path and `23505` fallback  | migration `0020`, `route.ts:49-63,77-82`  |
+| Ambiguity — AC heuristic  | Heading regex + bullet/numbered collection + stop conditions documented  | `extract-acceptance-criteria.ts:9-18,30-68`  |
+| Ambiguity — Inbox placement  | Root-level, positioned after siblings; DB-confirmed (Smoke Checkout project)  | `import-runner.ts:168-200`  |
+| CQ#3 — oversized descriptions  | Truncate at 50KB with visible blockquote marker  | `import-runner.ts:25-26,285-295`  |
 
 ***Testability***: Yes — all 6 ACs map to concrete, observable API/DB/UI states. AC5 and AC6 carry data-feasibility risk (see below), not a testability gap in the spec itself.
 
@@ -308,14 +311,15 @@ No new ambiguities or gaps surfaced beyond the 6 pre-resolved findings already d
 
 ### Data Feasibility Check (per AC)
 
-| AC | Precondition | Data found? | Pattern | Notes |
-|----|---|---|---|---|
-| AC1 | Clean project, fresh JQL | Yes | Discover | "BK-9 Module Test Project" (`ae10a3bd-...`) has an empty `import_jobs` history — clean slate. JQL `key in (BK-8, BK-9)` known to import cleanly (proven by existing completed job on a different project) |
-| AC2 | Same JQL re-run on AC1's project | Yes | Discover (chained from AC1) | Free second AC from one JQL choice — run AC1's JQL twice |
-| AC3 | Issue with component matching an existing Module name | Partial | Modify / Generate | Modules in "BK-9 Module Test Project" not yet enumerated as of session-start; may need to pre-create a Module whose name matches a real component on a candidate issue, OR pick a JQL surfacing a componentized issue — ***resolve in Stage 2 before running AC3*** |
-| AC4 | Issue with no matching component | Yes | Discover | Any issue lacking a component, or with an unmatched one, triggers Inbox — low risk, near-guaranteed with a broad JQL |
-| AC5 | JQL returning >100 issues | ***Unknown**** | Generate (if reachable) / DEFERRED | Depends entirely on whether the real `upexgalaxy` Jira corpus has a >100-issue JQL reachable by the QA user's project scope — ****PROBE IN STAGE 2 FIRST*** before committing to a live TC; if infeasible, mark DEFERRED with reason |
-| AC6 | No/invalid Jira credentials | ***No (creds are live & proven working)**** | Blocked — code-inspection only | Existing `completed` job (`imported_count: 2`, real keys BK-8/BK-9) proves creds are configured server-side; forcing the negative path requires breaking shared staging config — ****out of bounds***. Verdict path: `VERIFIED-BY-CODE-INSPECTION` |
+| AC  | Precondition  | Data found?  | Pattern  | Notes  |
+| --- | --- | --- | --- | --- |
+| ---- | --- | --- | --- | --- |
+| AC1  | Clean project, fresh JQL  | Yes  | Discover  | "BK-9 Module Test Project" (`ae10a3bd-...`) has an empty `import_jobs` history — clean slate. JQL `key in (BK-8, BK-9)` known to import cleanly (proven by existing completed job on a different project)  |
+| AC2  | Same JQL re-run on AC1's project  | Yes  | Discover (chained from AC1)  | Free second AC from one JQL choice — run AC1's JQL twice  |
+| AC3  | Issue with component matching an existing Module name  | Partial  | Modify / Generate  | Modules in "BK-9 Module Test Project" not yet enumerated as of session-start; may need to pre-create a Module whose name matches a real component on a candidate issue, OR pick a JQL surfacing a componentized issue — ***resolve in Stage 2 before running AC3***  |
+| AC4  | Issue with no matching component  | Yes  | Discover  | Any issue lacking a component, or with an unmatched one, triggers Inbox — low risk, near-guaranteed with a broad JQL  |
+| AC5  | JQL returning >100 issues  | ***Unknown****  | Generate (if reachable) / DEFERRED  | Depends entirely on whether the real `upexgalaxy` Jira corpus has a >100-issue JQL reachable by the QA user's project scope — ****PROBE IN STAGE 2 FIRST*** before committing to a live TC; if infeasible, mark DEFERRED with reason  |
+| AC6  | No/invalid Jira credentials  | ***No (creds are live & proven working)****  | Blocked — code-inspection only  | Existing `completed` job (`imported_count: 2`, real keys [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8)/[https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9)) proves creds are configured server-side; forcing the negative path requires breaking shared staging config — ****out of bounds***. Verdict path: `VERIFIED-BY-CODE-INSPECTION`  |
 
 ***Risk flag***: AC5 and AC6 are DATA-FEASIBILITY RISKS, not spec gaps — both are explicitly called out in the ATR as "feasibility-constrained" rather than failed/blocked.
 
@@ -327,20 +331,21 @@ No new ambiguities or gaps surfaced beyond the 6 pre-resolved findings already d
 
 ### Andrés Daniel Cumare Morales - 7/6/2026, 10:41:26
 
-## Acceptance Test Plan (ATP) — BK-17 — Part 2/4: Test Outlines (TC-POS-01 to TC-NEG-04)
+## Acceptance Test Plan (ATP) — [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) — Part 2/4: Test Outlines (TC-POS-01 to TC-NEG-04)
 
 ### Phase 4 — Test Design (Outlines)
 
 #### Coverage estimate
 
-| Type | Count | Notes |
-|---|---|---|
-| Positive | 6 | Fresh import, idempotent re-run, component routing, Inbox fallback, polling status transitions, 202 envelope shape |
-| Negative | 5 | Invalid JQL length, non-member access, malformed `project_id`, 404 on inaccessible job, AC6 (code-inspection-verified) |
-| Boundary | 3 | JQL at 1 char / 2000 chars, chunking at >100 issues (AC5) |
-| Integration | 4 | API↔External (Jira REST contract), API↔DB (RLS + upsert), async worker lifecycle (queued→running→completed), ADF→Markdown + AC-heuristic spot-check |
-| API | 4 | `POST /imports` 202 + 409 + validation 400, `GET /imports/{id}` 200 + 400 + 404 |
-| ***Total**** | ****22*** | Right-sized down from the shift-left's raw 46-estimate — 6 of 8 ambiguities and 5 of 5 gaps were pre-resolved by code review, eliminating ~half the originally-anticipated exploratory surface (no need to separately probe ADF node coverage, AC heuristic edge cases, or 429 backoff schedule as discrete TCs — covered by code-inspection findings #5/#6/#8 already) |
+| Type  | Count  | Notes  |
+| --- | --- | --- |
+| --- | --- | --- |
+| Positive  | 6  | Fresh import, idempotent re-run, component routing, Inbox fallback, polling status transitions, 202 envelope shape  |
+| Negative  | 5  | Invalid JQL length, non-member access, malformed `project_id`, 404 on inaccessible job, AC6 (code-inspection-verified)  |
+| Boundary  | 3  | JQL at 1 char / 2000 chars, chunking at >100 issues (AC5)  |
+| Integration  | 4  | API↔External (Jira REST contract), API↔DB (RLS + upsert), async worker lifecycle (queued→running→completed), ADF→Markdown + AC-heuristic spot-check  |
+| API  | 4  | `POST /imports` 202 + 409 + validation 400, `GET /imports/{id`} 200 + 400 + 404  |
+| ***Total****  | ****22***  | Right-sized down from the shift-left's raw 46-estimate — 6 of 8 ambiguities and 5 of 5 gaps were pre-resolved by code review, eliminating ~half the originally-anticipated exploratory surface (no need to separately probe ADF node coverage, AC heuristic edge cases, or 429 backoff schedule as discrete TCs — covered by code-inspection findings #5/#6/#8 already)  |
 
 ***Rationale***: HIGH risk score (11) + multi-integration surface justifies extended edge-case coverage (cross-cutting scenarios A/B), but the pre-session code review collapsed most of the raw ambiguity-driven estimate into confirmed-resolved findings — so the live-test surface concentrates on the 6 ACs + the 409 race + the polling lifecycle, not on re-deriving already-answered architecture questions.
 
@@ -348,23 +353,25 @@ No new ambiguities or gaps surfaced beyond the 6 pre-resolved findings already d
 
 ***Group 1 — JQL boundary lengths*** (same `POST /imports` validation path, varying `jql` length):
 
-| jql | Length | Expected |
-|---|---|---|
-| `"k"` | 1 char | 202 (valid, though likely 0 results) |
-| `"key in (BK-8, BK-9)"` | 19 chars | 202 |
-| `"project = BK" + " ".repeat(1988)` (padding to exactly 2000) | 2000 chars | 202 |
-| `""` (empty string) | 0 chars | 400 validation error |
-| `"x".repeat(2001)` | 2001 chars | 400 validation error |
+| jql  | Length  | Expected  |
+| --- | --- | --- |
+| --- | --- | --- |
+| `"k"`  | 1 char  | 202 (valid, though likely 0 results)  |
+| `"key in (BK-8, BK-9)"`  | 19 chars  | 202  |
+| `"project = BK" + " ".repeat(1988)` (padding to exactly 2000)  | 2000 chars  | 202  |
+| `""` (empty string)  | 0 chars  | 400 validation error  |
+| `"x".repeat(2001)`  | 2001 chars  | 400 validation error  |
 
 3 tests collapse into 1 parametrized outline + edge boundary pair (5 total data points → outline TC-API-03 below).
 
-***Group 2 — Job polling status snapshots*** (same `GET /imports/{id}` shape assertion, varying lifecycle stage):
+***Group 2 — Job polling status snapshots*** (same `GET /imports/{id`} shape assertion, varying lifecycle stage):
 
-| Stage | `status` | `imported_count` | `errors` |
-|---|---|---|---|
-| Immediately after enqueue | `queued` | `0` | `[]` |
-| Mid-run (if catchable) | `running` | partial (≥0) | `[]` |
-| Terminal | `completed` | `N` (final) | `[]` |
+| Stage  | `status`  | `imported_count`  | `errors`  |
+| --- | --- | --- | --- |
+| --- | --- | --- | --- |
+| Immediately after enqueue  | `queued`  | `0`  | `[]`  |
+| Mid-run (if catchable)  | `running`  | partial (≥0)  | `[]`  |
+| Terminal  | `completed`  | `N` (final)  | `[]`  |
 
 Benefit: one polling-loop test asserts the envelope shape across all three observed states rather than three separate tests — broader coverage with less duplication (outline TC-INT-03 below).
 
@@ -380,12 +387,12 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: authenticated as `bunkai-staging-user@veluarzooo.resend.app`, member of "BK-9 QA Testing", project "BK-9 Module Test Project" (`ae10a3bd-574f-4caf-8076-f19a8e80f5a6`) has an empty `import_jobs` table for this project
 - Test steps:
 
-  1. `POST /api/v1/imports` Data: `{ project*id: "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", jql: "key in (BK-8, BK-9)" }`. Verify: HTTP 202, body `{ import*job_id: <uuid>, status: "queued" }`
-  2. Poll `GET /api/v1/imports/{import*job*id}` every ~2s. Verify: `status` transitions `queued → running → completed`, no skipped intermediate states observed as terminal
-  3. On `completed`. Verify: `imported*count = 2`, `created*count = 2`, `updated*count = 0`, `skipped*count = 0`, `errors = []`, `started*at` and `completed*at` populated, `completed*at > started*at`
+1. `POST /api/v1/imports` Data: {{{ project*id: "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", jql: "key in ([https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8), [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9))" }}}. Verify: HTTP 202, body {{{ import*job_id: <uuid>, status: "queued" }}}
+2. Poll `GET /api/v1/imports/{import*job*id`} every ~2s. Verify: `status` transitions `queued → running → completed`, no skipped intermediate states observed as terminal
+3. On `completed`. Verify: `imported*count = 2`, `created*count = 2`, `updated*count = 0`, `skipped*count = 0`, `errors = []`, `started*at` and `completed*at` populated, `completed*at > started*at`
 
 - Expected result: 202 envelope on enqueue; terminal row matches counts above; DB `user*stories` has 2 new rows with `external*id IN ('BK-8','BK-9')`, `project_id = 'ae10a3bd-...'`
-- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "key in (BK-8, BK-9)"}`
+- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "key in (BK-8, BK-9)"`}
 - Post-conditions: 2 `user_stories` rows persist for AC2 chaining; do not archive/delete (needed for re-run test)
 
 ---
@@ -398,13 +405,13 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: TC-POS-01 has completed; 2 `user*stories` rows exist for `external*id` `BK-8`/`BK-9` on the same project
 - Test steps:
 
-  1. `POST /api/v1/imports` Data: `{ project_id: "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", jql: "key in (BK-8, BK-9)" }` (identical payload). Verify: HTTP 202 (NOT 409 — prior job is `completed`, not active)
-  2. Poll to `completed`. Verify: `created*count = 0`, `updated*count = 2`, `skipped*count = 0`, `imported*count = 2`
-  3. DB query: `SELECT count(*) FROM user*stories WHERE project*id = 'ae10a3bd-...' AND external*id IN ('BK-8','BK-9') AND archived*at IS NULL`. Verify: returns exactly `2`
-  4. DB query: compare `module_id`/`status` on the 2 rows before and after re-run. Verify: unchanged (additive-only update — only `title`/`description` refresh, per finding #6)
+1. `POST /api/v1/imports` Data: {{{ project_id: "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", jql: "key in ([https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8), [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9))" }}} (identical payload). Verify: HTTP 202 (NOT 409 — prior job is `completed`, not active)
+2. Poll to `completed`. Verify: `created*count = 0`, `updated*count = 2`, `skipped*count = 0`, `imported*count = 2`
+3. DB query: `SELECT count(*) FROM user*stories WHERE project*id = 'ae10a3bd-...' AND external*id IN ('BK-8','BK-9') AND archived*at IS NULL`. Verify: returns exactly `2`
+4. DB query: compare `module_id`/`status` on the 2 rows before and after re-run. Verify: unchanged (additive-only update — only `title`/`description` refresh, per finding #6)
 
 - Expected result: zero duplicate `user_stories` rows; counts confirm update-not-create; module placement/status survive re-import untouched
-- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "key in (BK-8, BK-9)"}`
+- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "key in (BK-8, BK-9)"`}
 - Post-conditions: none — data state is stable for subsequent runs
 
 ---
@@ -417,13 +424,13 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: a Module exists in "BK-9 Module Test Project" whose `name` (case-insensitive) matches the Jira `component` of at least one issue in the candidate JQL — ***TO BE RESOLVED in Stage 2***: enumerate modules + candidate issues' components first; pre-create a matching Module if none exists naturally
 - Test steps:
 
-  1. Identify (or create) Module `M` with `name` matching component `C` of issue `I`
-  2. `POST /api/v1/imports` Data: `{ project_id: "ae10a3bd-...", jql: "<JQL surfacing issue I>" }`
-  3. Poll to `completed`
-  4. DB query: `SELECT module*id FROM user*stories WHERE external*id = '<I.key>' AND project*id = 'ae10a3bd-...'`. Verify: `module_id = M.id`
+1. Identify (or create) Module `M` with `name` matching component `C` of issue `I`
+2. `POST /api/v1/imports` Data: {{{ project_id: "ae10a3bd-...", jql: "<JQL surfacing issue I>" }}}
+3. Poll to `completed`
+4. DB query: `SELECT module*id FROM user*stories WHERE external*id = '<I.key>' AND project*id = 'ae10a3bd-...'`. Verify: `module_id = M.id`
 
 - Expected result: story for issue `I` lands under Module `M`, not Inbox
-- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "<TBD — resolved in Stage 2 from candidate components>"}`
+- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "<TBD — resolved in Stage 2 from candidate components>"`}
 - Post-conditions: leave Module `M` and the imported story for traceability evidence
 
 ---
@@ -436,14 +443,14 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: project has at least one importable issue with no component, or a component name with no matching Module
 - Test steps:
 
-  1. `POST /api/v1/imports` Data: `{ project_id: "ae10a3bd-...", jql: "<JQL surfacing an uncomponentized/unmatched issue>" }`
-  2. Poll to `completed`
-  3. DB query: `SELECT id, parent*module*id, position FROM modules WHERE project*id = 'ae10a3bd-...' AND lower(name) = 'inbox'`. Verify: row exists, `parent*module_id IS NULL` (root-level), `position` follows existing root siblings
-  4. DB query: `SELECT module*id FROM user*stories WHERE external*id = '<unmatched issue key>'`. Verify: `module*id = <Inbox module id>`
-  5. Re-check the job row's `errors[]`. Verify: no entry for the unmatched issue
+1. `POST /api/v1/imports` Data: {{{ project_id: "ae10a3bd-...", jql: "<JQL surfacing an uncomponentized/unmatched issue>" }}}
+2. Poll to `completed`
+3. DB query: `SELECT id, parent*module*id, position FROM modules WHERE project*id = 'ae10a3bd-...' AND lower(name) = 'inbox'`. Verify: row exists, `parent*module_id IS NULL` (root-level), `position` follows existing root siblings
+4. DB query: `SELECT module*id FROM user*stories WHERE external*id = '<unmatched issue key>'`. Verify: `module*id = <Inbox module id>`
+5. Re-check the job row's `errors[]`. Verify: no entry for the unmatched issue
 
 - Expected result: Inbox module auto-created at root, unmatched story routed there, zero `errors[]` impact
-- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "<TBD — resolved in Stage 2>"}`
+- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "<TBD — resolved in Stage 2>"`}
 - Post-conditions: Inbox module persists for evidence
 
 ---
@@ -456,30 +463,31 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: authenticated session on staging, on project explorer for "BK-9 Module Test Project"
 - Test steps:
 
-  1. Click "Import" (top bar). Verify: dialog opens with a JQL input
-  2. Data: enter `key in (BK-8, BK-9)`, click "Start". Verify: dialog shows `queued` then `running` with live counts (imported/created/updated/skipped)
-  3. Wait for terminal state. Verify: dialog shows `completed`, final counts match the API response, per-issue `errors[]` rendered if any (expect none here)
+1. Click "Import" (top bar). Verify: dialog opens with a JQL input
+
+2. Data: enter `key in (BK-8, BK-9)`, click "Start". Verify: dialog shows `queued` then `running` with live counts (imported/created/updated/skipped)
+3. Wait for terminal state. Verify: dialog shows `completed`, final counts match the API response, per-issue `errors[]` rendered if any (expect none here)
 
 - Expected result: UI dialog mirrors the API job lifecycle accurately, no flicker/stuck states
-- Test data: `{"jql": "key in (BK-8, BK-9)"}`
+- Test data: `{"jql": "key in (BK-8, BK-9)"`}
 - Post-conditions: close dialog; underlying job/data persists
 
 ---
 
 ***TC-POS-06 — Should confirm imported descriptions render as sanitized Markdown converted from ADF***
 
-- Related scenario: Cross-cutting (ADF→Markdown, BK-16 sanitizer integration per Ely's note)
+- Related scenario: Cross-cutting (ADF→Markdown, [https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16) sanitizer integration per Ely's note)
 - Type: Positive · Priority: Medium · Test level: Integration (spot-check)
 - Parametrized: No
-- Preconditions: at least one imported issue (BK-8 or BK-9) has a non-trivial ADF description body (headings, lists, code, links)
+- Preconditions: at least one imported issue ([https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) or [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9)) has a non-trivial ADF description body (headings, lists, code, links)
 - Test steps:
 
-  1. Open the imported User Story for `BK-8` (or `BK-9`) in the Bunkai UI
-  2. Verify: description renders as Markdown-converted content — headings, bullet/numbered lists, code blocks, links preserved; no raw HTML executes (BK-16 sanitizer pass-through)
-  3. If the source ADF contains an unsupported node (table, panel, emoji) — Verify: it degrades gracefully to flattened text, does NOT throw, and produces NO `errors[]` entry (per finding #5)
+1. Open the imported User Story for `BK-8` (or `BK-9`) in the Bunkai UI
+2. Verify: description renders as Markdown-converted content — headings, bullet/numbered lists, code blocks, links preserved; no raw HTML executes ([https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16](https://jira.upexgalaxy.com/browse/BK-16#icft=BK-16) sanitizer pass-through)
+3. If the source ADF contains an unsupported node (table, panel, emoji) — Verify: it degrades gracefully to flattened text, does NOT throw, and produces NO `errors[]` entry (per finding #5)
 
 - Expected result: converted Markdown renders safely; unsupported nodes degrade without error
-- Test data: n/a (uses already-imported BK-8/BK-9 content)
+- Test data: n/a (uses already-imported [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8)/[https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9) content)
 - Post-conditions: none
 
 ---
@@ -492,12 +500,12 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: a second staging user account that is NOT a member of "BK-9 QA Testing" (or use the "Bunkai Smoke QA" workspace's owner account against a "BK-9 QA Testing" project, if reachable)
 - Test steps:
 
-  1. `POST /api/v1/imports` Data: `{ project_id: "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", jql: "key in (BK-8)" }` authenticated as the non-member
-  2. Verify: HTTP 403 (or RLS-equivalent) with body `{ error: "forbidden" }` or `{ error: "not*a*member" }` (exact shape per RLS INSERT policy)
-  3. DB query: confirm no new `import_jobs` row was inserted for this attempt
+1. `POST /api/v1/imports` Data: {{{ project_id: "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", jql: "key in ([https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8))" }}} authenticated as the non-member
+2. Verify: HTTP 403 (or RLS-equivalent) with body {{{ error: "forbidden" }}} or {{{ error: "not*a*member" }}} (exact shape per RLS INSERT policy)
+3. DB query: confirm no new `import_jobs` row was inserted for this attempt
 
 - Expected result: request rejected before any job is enqueued; no DB side effect
-- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "key in (BK-8)"}`
+- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "key in (BK-8)"`}
 - Post-conditions: no cleanup needed (no row created)
 
 ---
@@ -508,9 +516,9 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 
 ### Andrés Daniel Cumare Morales - 7/6/2026, 10:41:29
 
-## Acceptance Test Plan (ATP) — BK-17 — Part 3/4: Test Outlines (TC-NEG-05 to TC-API-04)
+## Acceptance Test Plan (ATP) — [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) — Part 3/4: Test Outlines (TC-NEG-05 to TC-API-04)
 
-***TC-NEG-02 — Should return 409 import*************in*************progress when a second import is enqueued for the same project while one is active***
+***TC-NEG-02 — Should return 409 import*in*progress when a second import is enqueued for the same project while one is active***
 
 - Related scenario: Cross-cutting scenario A (race-proof 409)
 - Type: Negative · Priority: Critical · Test level: API + Integration
@@ -518,47 +526,47 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: an import job is currently `queued` or `running` on "BK-9 Module Test Project" (trigger via TC-POS-01/02 timing, or a deliberately slow/broad JQL to widen the `running` window)
 - Test steps:
 
-  1. While the first job is `queued`/`running`, `POST /api/v1/imports` Data: `{ project_id: "ae10a3bd-...", jql: "<any different JQL>" }`
-  2. Verify: HTTP 409, body `{ reason: "import*in*progress" }` — exact field name and value
-  3. Repeat the second POST as fast as possible (tight loop, 5-10 rapid attempts) to also exercise the `23505`-catch fallback path (`route.ts:77-82`), not just the fast-path SELECT
-  4. DB query: confirm exactly ONE `import*jobs` row is in `queued`/`running` state for this `project*id` at any instant (the partial UNIQUE index guarantees this)
+1. While the first job is `queued`/`running`, `POST /api/v1/imports` Data: {{{ project_id: "ae10a3bd-...", jql: "<any different JQL>" }}}
+2. Verify: HTTP 409, body {{{ reason: "import*in*progress" }}} — exact field name and value
+3. Repeat the second POST as fast as possible (tight loop, 5-10 rapid attempts) to also exercise the `23505`-catch fallback path (`route.ts:77-82`), not just the fast-path SELECT
+4. DB query: confirm exactly ONE `import*jobs` row is in `queued`/`running` state for this `project*id` at any instant (the partial UNIQUE index guarantees this)
 
 - Expected result: every concurrent attempt returns the same 409 envelope; DB never holds 2 active rows for one project (index-enforced)
-- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "project = BK"}`
+- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "project = BK"`}
 - Post-conditions: let the original job complete naturally before further tests
 
 ---
 
-***TC-NEG-03 — Should return 400 on a malformed import*************job*************id when polling***
+***TC-NEG-03 — Should return 400 on a malformed import*job*id when polling***
 
-- Related scenario: Cross-cutting (`GET /imports/{id}` validation)
+- Related scenario: Cross-cutting (`GET /imports/{id`} validation)
 - Type: Negative · Priority: Medium · Test level: API
 - Parametrized: No
 - Preconditions: authenticated session, any valid project membership
 - Test steps:
 
-  1. `GET /api/v1/imports/not-a-uuid`. Verify: HTTP 400, body indicates invalid id format (non-UUID)
-  2. `GET /api/v1/imports/12345`. Verify: HTTP 400 (same validation path)
+1. `GET /api/v1/imports/not-a-uuid`. Verify: HTTP 400, body indicates invalid id format (non-UUID)
+2. `GET /api/v1/imports/12345`. Verify: HTTP 400 (same validation path)
 
 - Expected result: non-UUID path segments rejected with 400 before any DB lookup
-- Test data: `{"id": "not-a-uuid"}`, `{"id": "12345"}`
+- Test data: `{"id": "not-a-uuid"`}, `{"id": "12345"`}
 - Post-conditions: none
 
 ---
 
 ***TC-NEG-04 — Should return 404 when polling a job that does not exist or belongs to an inaccessible project***
 
-- Related scenario: Cross-cutting (`GET /imports/{id}` RLS hide-on-SELECT)
+- Related scenario: Cross-cutting (`GET /imports/{id`} RLS hide-on-SELECT)
 - Type: Negative · Priority: Medium · Test level: API + Integration
 - Parametrized: No
 - Preconditions: a valid-format UUID that does not correspond to any `import_jobs` row reachable by the current user — e.g. job `b4b8e74c-...` belongs to "Smoke Checkout" / "Bunkai Smoke QA", NOT reachable by the current QA user `c4cb73a7-...`
 - Test steps:
 
-  1. `GET /api/v1/imports/b4b8e74c-...` (the known-but-inaccessible job id) authenticated as the current QA user. Verify: HTTP 404 (row hidden by SELECT RLS — the row exists but is invisible, not merely "not found")
-  2. `GET /api/v1/imports/00000000-0000-0000-0000-000000000000` (well-formed UUID, no row at all). Verify: HTTP 404, same envelope shape — confirms the API does not leak existence information between "row exists but hidden" and "row truly absent"
+1. `GET /api/v1/imports/b4b8e74c-...` (the known-but-inaccessible job id) authenticated as the current QA user. Verify: HTTP 404 (row hidden by SELECT RLS — the row exists but is invisible, not merely "not found")
+2. `GET /api/v1/imports/00000000-0000-0000-0000-000000000000` (well-formed UUID, no row at all). Verify: HTTP 404, same envelope shape — confirms the API does not leak existence information between "row exists but hidden" and "row truly absent"
 
 - Expected result: both cases return an identical 404 envelope — RLS-correct non-disclosure
-- Test data: `{"id": "b4b8e74c-..."}`, `{"id": "00000000-0000-0000-0000-000000000000"}`
+- Test data: `{"id": "b4b8e74c-..."`}, `{"id": "00000000-0000-0000-0000-000000000000"`}
 - Post-conditions: none
 
 ---
@@ -571,10 +579,10 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: n/a — this is a code-inspection verification, not a live execution (creds confirmed live & working server-side per the existing `completed` job)
 - Test steps:
 
-  1. Review `client.ts:120-122` — confirm `JiraAuthError` thrown when any of `ATLASSIAN*URL`/`ATLASSIAN*EMAIL`/`ATLASSIAN*API*TOKEN` is absent
-  2. Review `client.ts:143-145` — confirm the same error type is thrown on Jira HTTP 401/403 responses
-  3. Review `import-runner.ts:122-124` — confirm `JiraAuthError` is mapped to `errors: [{ code: "jira_unauthorized", ... }]`, `status: "failed"`
-  4. Cross-check the error code value against AC6's literal expectation `errors[].code = jira*unauthorized` — confirm exact string match (not a near-miss like `JIRA*AUTH_FAILED`, which the shift-left's suggested-improvement #2 proposed but was NOT what shipped)
+1. Review `client.ts:120-122` — confirm `JiraAuthError` thrown when any of `ATLASSIAN*URL`/`ATLASSIAN*EMAIL`/`ATLASSIAN*API*TOKEN` is absent
+2. Review `client.ts:143-145` — confirm the same error type is thrown on Jira HTTP 401/403 responses
+3. Review `import-runner.ts:122-124` — confirm `JiraAuthError` is mapped to `errors: [{ code: "jira_unauthorized", ... }]`, `status: "failed"`
+4. Cross-check the error code value against AC6's literal expectation `errors[].code = jira*unauthorized` — confirm exact string match (not a near-miss like `JIRA*AUTH_FAILED`, which the shift-left's suggested-improvement #2 proposed but was NOT what shipped)
 
 - Expected result: code path provably produces the AC6-specified envelope; verdict recorded as `VERIFIED-BY-CODE-INSPECTION` with file:line citations
 - Test data: n/a
@@ -590,8 +598,8 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: authenticated, valid project membership
 - Test steps:
 
-  1. For each `jql` value in the parametrization table: `POST /api/v1/imports` Data: `{ project_id: "ae10a3bd-...", jql: <value> }`
-  2. Verify per row: `0` chars → 400; `1`/`19`/`2000` chars → 202 (queued, even if the JQL itself yields zero Jira results — that's a worker-level concern, not a route-validation concern); `2001` chars → 400
+1. For each `jql` value in the parametrization table: `POST /api/v1/imports` Data: {{{ project_id: "ae10a3bd-...", jql: <value> }}}
+2. Verify per row: `0` chars → 400; `1`/`19`/`2000` chars → 202 (queued, even if the JQL itself yields zero Jira results — that's a worker-level concern, not a route-validation concern); `2001` chars → 400
 
 - Expected result: route-level length validation enforces the documented `1-2000` char range; boundary values (1, 2000) accepted, out-of-range values (0, 2001) rejected with 400
 - Test data:
@@ -610,7 +618,7 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 
 ---
 
-***TC-BND-02 — Should chunk an import over 100 issues and report an accurate final imported******_******count***
+***TC-BND-02 — Should chunk an import over 100 issues and report an accurate final imported_count***
 
 - Related scenario: AC5
 - Type: Boundary · Priority: High (if feasible) / DEFERRED (if not) · Test level: Integration + API + DB
@@ -618,18 +626,18 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: ***MUST FIRST**** probe whether any reachable JQL against `upexgalaxy` Jira returns >100 issues — ****resolve in Stage 2 before attempting this TC***; if no such JQL exists/is reachable, mark DEFERRED with the corpus-size finding as the reason
 - Test steps (if feasible):
 
-  1. Identify a broad JQL (e.g., `project = BK ORDER BY created DESC`) returning N > 100 issues
-  2. `POST /api/v1/imports` Data: `{ project_id: "<project with capacity for N stories>", jql: "<broad JQL>" }`
-  3. Poll repeatedly. Verify: `imported_count` increments in ≤100-row increments across multiple polls (visible partial progress, `import-runner.ts:97-107`), never jumps directly from 0 to N
-  4. On `completed`. Verify: `imported*count = N` (matches the JQL's total result count exactly), `next*page_token` is `null`/cleared
+1. Identify a broad JQL (e.g., `project = BK ORDER BY created DESC`) returning N > 100 issues
+2. `POST /api/v1/imports` Data: {{{ project_id: "<project with capacity for N stories>", jql: "<broad JQL>" }}}
+3. Poll repeatedly. Verify: `imported_count` increments in ≤100-row increments across multiple polls (visible partial progress, `import-runner.ts:97-107`), never jumps directly from 0 to N
+4. On `completed`. Verify: `imported*count = N` (matches the JQL's total result count exactly), `next*page_token` is `null`/cleared
 
 - Expected result: pagination loop correctly pages at the 100-row Jira Cloud ceiling and the final count reconciles with the source total
-- Test data: `{"jql": "<TBD — resolved in Stage 2 based on corpus probe>"}`
+- Test data: `{"jql": "<TBD — resolved in Stage 2 based on corpus probe>"`}
 - Post-conditions: if executed, this creates N new `user_stories` rows — confirm with the user/PO whether this volume is acceptable on the shared staging project before running; consider an isolated throwaway project
 
 ---
 
-***TC-INT-01 — Should persist accurate per-page progress to import******_******jobs during a multi-page run***
+***TC-INT-01 — Should persist accurate per-page progress to import_jobs during a multi-page run***
 
 - Related scenario: AC5 (supporting integration check, runs alongside TC-BND-02 if feasible)
 - Type: Integration · Priority: Medium · Test level: API + DB
@@ -637,8 +645,8 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: same as TC-BND-02 (depends on a multi-page-eligible JQL existing)
 - Test steps:
 
-  1. While TC-BND-02's job is `running`, repeatedly `GET /api/v1/imports/{id}` and snapshot `imported*count` + `next*page_token`
-  2. Verify: counts increase monotonically across polls, `next*page*token` changes between snapshots (proves per-page persistence, `import-runner.ts:97-107`), never decreases or resets mid-run
+1. While TC-BND-02's job is `running`, repeatedly `GET /api/v1/imports/{id`} and snapshot `imported*count` + `next*page_token`
+2. Verify: counts increase monotonically across polls, `next*page*token` changes between snapshots (proves per-page persistence, `import-runner.ts:97-107`), never decreases or resets mid-run
 
 - Expected result: progress is durable and observable mid-flight, not just on terminal completion
 - Test data: n/a (observation-only, piggybacks on TC-BND-02)
@@ -651,14 +659,14 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Related scenario: Cross-cutting (AC heuristic, finding #6/#5 spot-check)
 - Type: Integration · Priority: Medium · Test level: API + DB
 - Parametrized: No
-- Preconditions: identify (or use BK-8/BK-9) at least one issue whose description contains a recognizable "Acceptance Criteria" heading + bullet list, and ideally one issue that keeps ACs in a Jira custom field instead
+- Preconditions: identify (or use [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8)/[https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9)) at least one issue whose description contains a recognizable "Acceptance Criteria" heading + bullet list, and ideally one issue that keeps ACs in a Jira custom field instead
 - Test steps:
 
-  1. After import, DB query: `SELECT title, position FROM acceptance*criteria WHERE user*story*id = (SELECT id FROM user*stories WHERE external_id = '<issue with description-body ACs>')`. Verify: rows match the bullet items under the description's "Acceptance Criteria" heading, in order
-  2. For an issue keeping ACs in a custom field (if one exists in the candidate set): DB query the same. Verify: ***zero*** `acceptance_criteria` rows imported (expected — confirmed by Ely, "issues that keep ACs in a Jira custom field import 0 ACs")
+1. After import, DB query: `SELECT title, position FROM acceptance*criteria WHERE user*story*id = (SELECT id FROM user*stories WHERE external_id = '<issue with description-body ACs>')`. Verify: rows match the bullet items under the description's "Acceptance Criteria" heading, in order
+2. For an issue keeping ACs in a custom field (if one exists in the candidate set): DB query the same. Verify: ***zero*** `acceptance_criteria` rows imported (expected — confirmed by Ely, "issues that keep ACs in a Jira custom field import 0 ACs")
 
 - Expected result: heuristic correctly anchors on the description-body heading and ignores custom-field AC sources, matching Ely's documented expectation
-- Test data: n/a (uses imported BK-8/BK-9 or a chosen alternative)
+- Test data: n/a (uses imported [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8)/[https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9) or a chosen alternative)
 - Post-conditions: none
 
 ---
@@ -671,10 +679,10 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: a fresh import enqueued (chain off TC-POS-01's first POST, sample polls during its run)
 - Test steps:
 
-  1. Snapshot `GET /api/v1/imports/{id}` immediately after the 202 (expect `queued`)
-  2. Snapshot again ~1-2s later (expect `running`, if the window is catchable — note if the job completes too fast to observe `running`)
-  3. Snapshot at terminal `completed`
-  4. For each snapshot. Verify: the envelope always exposes `{ id, workspace*id, project*id, jql, status, imported*count, created*count, updated*count, skipped*count, errors[], started*at, completed*at, created_at }` — no field appears/disappears across stages, only values change
+1. Snapshot `GET /api/v1/imports/{id`} immediately after the 202 (expect `queued`)
+2. Snapshot again ~1-2s later (expect `running`, if the window is catchable — note if the job completes too fast to observe `running`)
+3. Snapshot at terminal `completed`
+4. For each snapshot. Verify: the envelope always exposes {{{ id, workspace*id, project*id, jql, status, imported*count, created*count, updated*count, skipped*count, errors[], started*at, completed*at, created_at }}} — no field appears/disappears across stages, only values change
 
 - Expected result: stable response shape across the full lifecycle — critical for UI polling code that destructures the envelope
 - Test data: see Group 2 table (queued / running / completed snapshots)
@@ -690,8 +698,8 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: n/a — code-inspection verification (forcing a live 429 against shared staging Jira is out of bounds, same constraint as AC6)
 - Test steps:
 
-  1. Review `client.ts:79,87-96,147-153` — confirm backoff schedule `[1000, 2000, 4000, 8000, 16000]` ms, `Retry-After` header honored over the schedule, max 5 retries
-  2. Confirm the failure mode after exhaustion: plain `JiraError(429)` → surfaces as generic `errors[].code = "job_failed"`, NOT a distinguishable rate-limit code — note this as a minor observability gap (not an AC violation, since no AC specifies the 429-exhaustion error code)
+1. Review `client.ts:79,87-96,147-153` — confirm backoff schedule `[1000, 2000, 4000, 8000, 16000]` ms, `Retry-After` header honored over the schedule, max 5 retries
+2. Confirm the failure mode after exhaustion: plain `JiraError(429)` → surfaces as generic `errors[].code = "job_failed"`, NOT a distinguishable rate-limit code — note this as a minor observability gap (not an AC violation, since no AC specifies the 429-exhaustion error code)
 
 - Expected result: backoff schedule matches the architect's spec (max 5 retries); the generic-`job_failed` surfacing is confirmed-as-is, documented as a minor observability note in the ATR
 - Test data: n/a
@@ -707,11 +715,11 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: valid member session, valid `project_id`
 - Test steps:
 
-  1. `POST /api/v1/imports` Data: `{ project_id: "ae10a3bd-...", jql: "key in (BK-9)" }`
-  2. Verify: HTTP 202, `Content-Type: application/json`, body schema exactly `{ import*job*id: string (uuid), status: "queued" }` — no extra/missing keys, matches `api/schemas/` OpenAPI-derived types
+1. `POST /api/v1/imports` Data: {{{ project_id: "ae10a3bd-...", jql: "key in ([https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9))" }}}
+2. Verify: HTTP 202, `Content-Type: application/json`, body schema exactly {{{ import*job*id: string (uuid), status: "queued" }}} — no extra/missing keys, matches `api/schemas/` OpenAPI-derived types
 
 - Expected result: contract-exact 202 response
-- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "key in (BK-9)"}`
+- Test data: `{"project_id": "ae10a3bd-574f-4caf-8076-f19a8e80f5a6", "jql": "key in (BK-9)"`}
 - Post-conditions: this enqueues a real job — coordinate timing with TC-NEG-02 to avoid 409 collisions
 
 ---
@@ -724,11 +732,11 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: a known `import*job*id` reachable by the current user
 - Test steps:
 
-  1. `GET /api/v1/imports/{id}`
-  2. Verify: HTTP 200, body schema exactly `{ import*job: { id, workspace*id, project*id, jql, status, imported*count, created*count, updated*count, skipped*count, errors: [{jira*key, code, message}] | [], started*at, completed*at, created*at } }` — types match OpenAPI (`api/schemas/`), `errors[]` items match `{ jira*key, code, message }` shape per finding
+1. `GET /api/v1/imports/{id`}
+2. Verify: HTTP 200, body schema exactly {{{ import*job: { id, workspace*id, project*id, jql, status, imported*count, created*count, updated*count, skipped*count, errors: [{jira*key, code, message}] | [], started*at, completed*at, created*at } }}} — types match OpenAPI (`api/schemas/`), `errors[]` items match {{{ jira*key, code, message }}} shape per finding
 
 - Expected result: contract-exact 200 response, nested `import_job` object present
-- Test data: `{"id": "<TC-POS-01's import*job*id>"}`
+- Test data: `{"id": "<TC-POS-01's import*job*id>"`}
 - Post-conditions: none
 
 ---
@@ -741,16 +749,16 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: same as TC-BND-01
 - Test steps:
 
-  1. For the two invalid rows (`""` and 2001-char string): `POST /api/v1/imports`
-  2. Verify: HTTP 400, body matches the documented validation-error envelope (e.g., `{ error: "validation_error", details: [...] }` or equivalent — confirm exact shape against `api/schemas/`)
+1. For the two invalid rows (`""` and 2001-char string): `POST /api/v1/imports`
+2. Verify: HTTP 400, body matches the documented validation-error envelope (e.g., {{{ error: "validation_error", details: [...] }}} or equivalent — confirm exact shape against `api/schemas/`)
 
 - Expected result: validation failures return a structured, contract-conformant error body — not a bare string or stack trace
-- Test data: `{"jql": ""}`, `{"jql": "<2001 chars>"}`
+- Test data: `{"jql": ""`}, `{"jql": "<2001 chars>"`}
 - Post-conditions: none
 
 ---
 
-***TC-API-04 — Should reject a non-UUID project******_******id with a structured 400/422 error***
+***TC-API-04 — Should reject a non-UUID project_id with a structured 400/422 error***
 
 - Related scenario: Cross-cutting (input validation contract)
 - Type: API · Priority: Medium · Test level: API
@@ -758,11 +766,11 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 - Preconditions: authenticated session
 - Test steps:
 
-  1. `POST /api/v1/imports` Data: `{ project_id: "not-a-uuid", jql: "key in (BK-9)" }`
-  2. Verify: HTTP 400 (or 422), structured error body identifying `project_id` as the invalid field — no raw DB/driver error leaks
+1. `POST /api/v1/imports` Data: {{{ project_id: "not-a-uuid", jql: "key in ([https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9))" }}}
+2. Verify: HTTP 400 (or 422), structured error body identifying `project_id` as the invalid field — no raw DB/driver error leaks
 
 - Expected result: input validated before any DB/Jira call; clean structured error
-- Test data: `{"project_id": "not-a-uuid", "jql": "key in (BK-9)"}`
+- Test data: `{"project_id": "not-a-uuid", "jql": "key in (BK-9)"`}
 - Post-conditions: none
 
 ---
@@ -775,7 +783,7 @@ Benefit: one polling-loop test asserts the envelope shape across all three obser
 
 ## Acceptance Test Results (ATR)
 
-Test Results: BK-17 — pending execution
+Test Results: [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) — pending execution
 
 ---
 
@@ -787,7 +795,7 @@ Sprint-testing for this story is paused at Stage 2 (Execution). The smoke-test g
 
 0 of the 22 planned ATP test outlines could be executed — every one requires at least one authenticated call to the Imports API. AC1-AC6 are recorded as DEFERRED pending environment fix.
 
-Filed as a separate BLOCKING ticket: BK-84 — "[Staging] PAT bearer auth rejected on member/owned-resource routes (Imports, Projects, Modules, Tokens) — requireAuth middleware regression". This story will resume QA once BK-84 is resolved (or a confirmed workaround is identified).
+Filed as a separate BLOCKING ticket: [https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84](https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84) — "[Staging] PAT bearer auth rejected on member/owned-resource routes (Imports, Projects, Modules, Tokens) — requireAuth middleware regression". This story will resume QA once [https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84](https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84) is resolved (or a confirmed workaround is identified).
 
 Stage 1 (Planning / ATP) is complete and committed — see the Acceptance Test Plan posted in this story's comments / acceptance*test*plan field.
 
@@ -795,24 +803,24 @@ Stage 1 (Planning / ATP) is complete and committed — see the Acceptance Test P
 
 ### Carlos Alberto Chiavassa - 9/6/2026, 17:15:30
 
-## BK-17 Acceptance Test Results
+## [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) Acceptance Test Results
 
-***Tested******:*** 2026-06-09
-***Environment******:*** Staging (staging-upexbunkai.vercel.app)
-***Tester******:*** qa.bot.chiavassa@gmail.com
-***Result******:*** PASSED WITH ISSUES — 10 executed / 21 total
+***Tested:*** 2026-06-09
+***Environment:*** Staging (staging-upexbunkai.vercel.app)
+***Tester:*** qa.bot.chiavassa@gmail.com
+***Result:*** PASSED WITH ISSUES — 10 executed / 21 total
 
-> ***WARNING:**** ****8 TCs ENV*************BLOCKED*** — Vercel staging is missing `ATLASSIAN*URL`, `ATLASSIAN*EMAIL`, `ATLASSIAN*API*TOKEN` server-side. All positive/integration TCs requiring a real Jira fetch cannot run. Story must stay in testing until these vars are configured and ENV*BLOCKED TCs are re-executed.
+> ***WARNING:**** ****8 TCs ENV*BLOCKED*** — Vercel staging is missing `ATLASSIAN*URL`, `ATLASSIAN*EMAIL`, `ATLASSIAN*API*TOKEN` server-side. All positive/integration TCs requiring a real Jira fetch cannot run. Story must stay in testing until these vars are configured and ENV*BLOCKED TCs are re-executed.
 
 ---
 
 ### Summary
 
-Tested `POST /api/v1/imports` and `GET /api/v1/imports/{id}` (Jira Import — Pull by JQL). All API contract, boundary, auth, and error-handling TCs passed. No code defects found. The 8 ENV_BLOCKED TCs cover ACs 1–5 and require a live Jira connection.
+Tested `POST /api/v1/imports` and `GET /api/v1/imports/{id`} (Jira Import — Pull by JQL). All API contract, boundary, auth, and error-handling TCs passed. No code defects found. The 8 ENV_BLOCKED TCs cover ACs 1–5 and require a live Jira connection.
 
 ### Test Results
 
-| TC | Title | Type | Result |
+| ***TC**** | ****Title**** | ****Type**** | ****Result*** |
 | --- | --- | --- | --- |
 | TC-API-01 | 202 envelope — POST /imports | API | {status:green | PASSED} |
 | TC-API-02 | 200 poll envelope — GET /imports/{id} | API | {status:green | PASSED} |
@@ -838,11 +846,11 @@ Tested `POST /api/v1/imports` and `GET /api/v1/imports/{id}` (Jira Import — Pu
 
 ### Test Data
 
-| Entity | Name | ID |
+| ***Entity**** | ****Name**** | ****ID*** |
 | --- | --- | --- |
-| Workspace (QA bot) | BK-17 QA Test Workspace | 047a3ba6-6c30-4abd-a52f-b84da723652b |
-| Project (QA bot) | BK-17 Import Test Project | f31fbabd-ce89-43e9-8220-b287179a4670 |
-| JQL used | key in (BK-8, BK-9) | — |
+| Workspace (QA bot) | [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) QA Test Workspace | 047a3ba6-6c30-4abd-a52f-b84da723652b |
+| Project (QA bot) | [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) Import Test Project | f31fbabd-ce89-43e9-8220-b287179a4670 |
+| JQL used | key in ([https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8), [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9)) | — |
 
 ### Bugs Found
 
@@ -850,34 +858,34 @@ None.
 
 ### Observations
 
-> ***INFO:**** ****TC-NEG-01 — WAD******:*** Non-member returns `404 not*found`, not `403 forbidden`. RLS makes the project invisible via the projects SELECT, so the route hits `not*found` before the INSERT. The `403` path fires only for viewer-role members. More secure by design. ATP expectation needs correction.
+> ***INFO:**** ****TC-NEG-01 — WAD:*** Non-member returns `404 not*found`, not `403 forbidden`. RLS makes the project invisible via the projects SELECT, so the route hits `not*found` before the INSERT. The `403` path fires only for viewer-role members. More secure by design. ATP expectation needs correction.
 
-> ***INFO:**** ****TC-API-03 / TC-API-04 — spec gap******:*** Zod validation errors return `422 validation_failed`; OpenAPI spec documents only `400`. Behavior is correct; spec needs a `422` response entry.
+> ***INFO:**** ****TC-API-03 / TC-API-04 — spec gap:*** Zod validation errors return `422 validation_failed`; OpenAPI spec documents only `400`. Behavior is correct; spec needs a `422` response entry.
 
-> ***INFO:**** ****TC-NEG-02 — timing note******:*** Concurrent 409 could not be demonstrated live. Background worker completes in ~42ms (env-blocked fast-fail), shorter than network RTT. Partial unique index `import*jobs*one*active*per_project` (migration 0020) confirmed correct in DB schema.
+> ***INFO:**** ****TC-NEG-02 — timing note:*** Concurrent 409 could not be demonstrated live. Background worker completes in ~42ms (env-blocked fast-fail), shorter than network RTT. Partial unique index `import*jobs*one*active*per_project` (migration 0020) confirmed correct in DB schema.
 
-> ***WARNING:**** ****ENV*************BLOCKED root******:*** `lib/jira/client.ts:98-101` reads `env.ATLASSIAN*URL`, `env.ATLASSIAN*EMAIL`, `env.ATLASSIAN*API*TOKEN`. Not set in Vercel staging. All 9 import jobs in this session failed within 54ms with `jira*unauthorized: "Jira credentials are not configured."`.
+> ***WARNING:**** ****ENV*BLOCKED root:*** `lib/jira/client.ts:98-101` reads `env.ATLASSIAN*URL`, `env.ATLASSIAN*EMAIL`, `env.ATLASSIAN*API*TOKEN`. Not set in Vercel staging. All 9 import jobs in this session failed within 54ms with `jira*unauthorized: "Jira credentials are not configured."`.
 
 ### Recommendations
 
-1. ***URGENT******:*** Set `ATLASSIAN*URL`, `ATLASSIAN*EMAIL`, `ATLASSIAN*API*TOKEN` in Vercel staging project settings. Re-run TC-POS-01..04, TC-POS-06, TC-BND-02, TC-INT-01..02 after.
-2. ***OpenAPI spec******:*** Add `422` response to `POST /api/v1/imports` for Zod validation path.
-3. ***ATP correction******:*** Update TC-NEG-01 expectation from `403` to `404`; add viewer-role TC.
-4. ***BK-84******:*** Close in Jira — bearer auth fix (commit `7c56670`) on staging since 2026-05-27; PAT auth confirmed working.
+1. ***URGENT:*** Set `ATLASSIAN*URL`, `ATLASSIAN*EMAIL`, `ATLASSIAN*API*TOKEN` in Vercel staging project settings. Re-run TC-POS-01..04, TC-POS-06, TC-BND-02, TC-INT-01..02 after.
+2. ***OpenAPI spec:*** Add `422` response to `POST /api/v1/imports` for Zod validation path.
+3. ***ATP correction:*** Update TC-NEG-01 expectation from `403` to `404`; add viewer-role TC.
+4. ***BK-84:*** Close in Jira — bearer auth fix (commit `7c56670`) on staging since 2026-05-27; PAT auth confirmed working.
 
 ---
 
 ### Carlos Alberto Chiavassa - 9/6/2026, 17:15:34
 
-## QA Testing Complete — BK-17
+## QA Testing Complete — [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17)
 
-***Environment******:*** Staging (staging-upexbunkai.vercel.app)
-***Result******:*** PASSED WITH ISSUES (10/21 TCs executed; 8 ENV_BLOCKED)
+***Environment:*** Staging (staging-upexbunkai.vercel.app)
+***Result:*** PASSED WITH ISSUES (10/21 TCs executed; 8 ENV_BLOCKED)
 
 ### Test Data Used
 
-- Workspace: BK-17 QA Test Workspace (`047a3ba6`)
-- Project: BK-17 Import Test Project (`f31fbabd`)
+- Workspace: [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) QA Test Workspace (`047a3ba6`)
+- Project: [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) Import Test Project (`f31fbabd`)
 - JQL: `key in (BK-8, BK-9)`
 
 ### Verified Behaviors
@@ -893,7 +901,7 @@ None.
 
 ### Finding (non-defect)
 
-- ***TC-NEG-01******:*** Non-member project returns `404` (RLS non-disclosure), not `403` as the ATP expected. Working as designed — more secure.
+- ***TC-NEG-01:*** Non-member project returns `404` (RLS non-disclosure), not `403` as the ATP expected. Working as designed — more secure.
 
 Story remains ***In Test*** until ENV_BLOCKED TCs are executed after env vars are configured.
 
@@ -905,9 +913,9 @@ Full test evidence in the ATR comment above.
 
 ## QA Status — Blocker Resolved, Stage 2 Resuming
 
-The staging-wide auth-middleware regression (BK-84) that paused Stage 2 (Execution) on 2026-06-07 has been fixed (commit `226fc9d`, ADR-0001) and ***verified GO**** via smoke retest today: all previously-401 routes (`/imports`, `/projects/**/modules`, `/me/active-workspace`, `/workspaces/*/projects`, `/tokens`) now pass the auth gate with a PAT bearer.
+The staging-wide auth-middleware regression ([https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84](https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84)) that paused Stage 2 (Execution) on 2026-06-07 has been fixed (commit `226fc9d`, ADR-0001) and ***verified GO**** via smoke retest today: all previously-401 routes (`/imports`, `/projects/**/modules`, `/me/active-workspace`, `/workspaces/*/projects`, `/tokens`) now pass the auth gate with a PAT bearer.
 
-BK-84 closed (ReTest Passed). Resuming Stage 2 — execution of the 22 ATP outlines (0/22 done so far) in a follow-up session.
+[https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84](https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84) closed (ReTest Passed). Resuming Stage 2 — execution of the 22 ATP outlines (0/22 done so far) in a follow-up session.
 
 ---
 
@@ -915,7 +923,7 @@ BK-84 closed (ReTest Passed). Resuming Stage 2 — execution of the 22 ATP outli
 
 ## Stage 2 — STOPPED (Blocked)
 
-Manual execution of the BK-17 ATP is blocked on staging by an environment/configuration issue, filed as ***BK-142**** (Critical, linked as **Blocks*).
+Manual execution of the [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) ATP is blocked on staging by an environment/configuration issue, filed as ***BK-142**** (Critical, linked as **Blocks*).
 
 ### Summary
 
@@ -935,8 +943,8 @@ Last successful import job `b4b8e74c-...` completed 2026-06-05T10:55:04Z. Every 
 
 ### Next steps
 
-- Transitioning this story to ***Blocked***, blocked by BK-142.
-- Will resume Stage 2 execution once BK-142 is resolved (staging `ATLASSIAN_*` env vars restored and redeployed).
+- Transitioning this story to ***Blocked***, blocked by [https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142](https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142).
+- Will resume Stage 2 execution once [https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142](https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142) is resolved (staging `ATLASSIAN_*` env vars restored and redeployed).
 
 ---
 
@@ -948,11 +956,11 @@ Last successful import job `b4b8e74c-...` completed 2026-06-05T10:55:04Z. Every 
 
 ### Andrés Daniel Cumare Morales - 21/6/2026, 19:24:05
 
-## BK-142 Blocker Resolved — Stage 2 Resuming
+## [https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142](https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142) Blocker Resolved — Stage 2 Resuming
 
-***Date******:*** 2026-06-21
+***Date:*** 2026-06-21
 
-BK-142 retest ***PASSED**** — staging `ATLASSIAN***` credentials are now configured and working. Import jobs complete successfully (`status: "completed"`, `imported*count: 2`, `errors: []`).
+[https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142](https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142) retest ***PASSED**** — staging `ATLASSIAN***` credentials are now configured and working. Import jobs complete successfully (`status: "completed"`, `imported*count: 2`, `errors: []`).
 
 ***Stage 2 execution resumes now.*** 21 of 22 ATP outlines remain to be executed. TC-POS-01 (smoke) will be re-executed as the first step since it previously failed on the credential issue.
 
@@ -960,18 +968,18 @@ BK-142 retest ***PASSED**** — staging `ATLASSIAN***` credentials are now confi
 
 ### Andrés Daniel Cumare Morales - 21/6/2026, 19:34:36
 
-## Acceptance Test Results (ATR) — BK-17
+## Acceptance Test Results (ATR) — [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17)
 
-***Tested******:*** 2026-06-21
-***Environment******:*** Staging (`staging-upexbunkai.vercel.app`)
-***Tester******:*** QA (andresdanielzz25@gmail.com)
-***Result******:**** :white*check*mark: ****PASSED*** — 20/22 TCs executed, 0 bugs found
+***Tested:*** 2026-06-21
+***Environment:*** Staging (`staging-upexbunkai.vercel.app`)
+***Tester:*** QA (andresdanielzz25@gmail.com)
+***Result:**** :white*check*mark: ****PASSED*** — 20/22 TCs executed, 0 bugs found
 
 ---
 
 ### Test Results
 
-| TC | Title | Type | Result |
+| ***TC**** | ****Title**** | ****Type**** | ****Result*** |
 | --- | --- | --- | --- |
 | TC-POS-01 | Fresh import with accurate counts | Positive | {status:green | PASSED} |
 | TC-POS-02 | Idempotent re-run zero duplicates | Positive | {status:green | PASSED} |
@@ -997,27 +1005,27 @@ BK-142 retest ***PASSED**** — staging `ATLASSIAN***` credentials are now confi
 
 ### AC Verification Summary
 
-| AC | Scenario | Verdict | Evidence |
+| ***AC**** | ****Scenario**** | ****Verdict**** | ****Evidence*** |
 | --- | --- | --- | --- |
 | AC1 | Start + poll (fresh import) | {status:green | PASSED} | Job `88cb5749-...`: 202→completed, imported=2, created=2, errors=[] |
 | AC2 | Idempotent re-run | {status:green | PASSED} | Job `aeba5a65-...`: created=0, updated=2, DB count=2 (zero dups) |
 | AC3 | Component routing | {status:neutral | DEFERRED} | Project BK has zero Jira components defined — no testable data |
-| AC4 | Inbox fallback | {status:green | PASSED} | Both BK-8/BK-9 → Inbox module (root, null parent, position 11) |
+| AC4 | Inbox fallback | {status:green | PASSED} | Both [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8)/[https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9) → Inbox module (root, null parent, position 11) |
 | AC5 | Chunking >100 | {status:green | PASSED} | Job `b045d03f-...`: 150 issues, imported=150, created=148, updated=2 |
 | AC6 | Bad credentials | {status:blue | CODE-REVIEW} | Code path verified: `client.ts:120-122` → `jira_unauthorized`. Live test infeasible (shared creds) |
 
 ### Deferred TCs — Rationale
 
-- ***TC-POS-03 (Component routing)******:*** Project BK has zero Jira components defined (`GET /project/BK/components → []`). No issue carries a component that could trigger the `lower(module.name) = lower(component.name)` routing path. Code review confirms logic at `import-runner.ts:168-200`. Not a spec gap — data constraint.
-- ***TC-POS-05 (UI poll dialog)******:*** Core import lifecycle verified end-to-end via API+DB. UI dialog is a presentation layer; all underlying data flows confirmed working. Lower priority given full API coverage.
+- ***TC-POS-03 (Component routing):*** Project BK has zero Jira components defined (`GET /project/BK/components → []`). No issue carries a component that could trigger the `lower(module.name) = lower(component.name)` routing path. Code review confirms logic at `import-runner.ts:168-200`. Not a spec gap — data constraint.
+- ***TC-POS-05 (UI poll dialog):*** Core import lifecycle verified end-to-end via API+DB. UI dialog is a presentation layer; all underlying data flows confirmed working. Lower priority given full API coverage.
 
 ### Key Observations
 
-1. ***Worker speed******:*** Import jobs complete in ~0.5s (2 issues) to ~6s (150 issues). The `running` state is observable only with large JQLs — UI polling code must handle sub-second completion gracefully.
-2. ***TC-NEG-01 (WAD)******:*** Non-member returns `404 not_found`, not `403 forbidden`. RLS makes the project invisible before INSERT fires. More secure by design.
-3. ***TC-API-03/TC-API-04******:*** Zod validation returns `422 validation_failed`, not `400`. Behavior is correct; OpenAPI spec could add a `422` response entry.
-4. ***BK-142 regression closed******:**** 10+ day window (2026-06-09 to 2026-06-21) of missing `ATLASSIAN_**` staging env vars now resolved. Retest PASSED.
-5. ***Residual risk (documented gap)******:*** No timeout sweeper for stuck `running` jobs. A crashed worker leaves the job permanently `running`, blocking future imports on that project. Recommend fast-follow: timeout sweeper (stuck→failed after 5min).
+1. ***Worker speed:*** Import jobs complete in ~0.5s (2 issues) to ~6s (150 issues). The `running` state is observable only with large JQLs — UI polling code must handle sub-second completion gracefully.
+2. ***TC-NEG-01 (WAD):*** Non-member returns `404 not_found`, not `403 forbidden`. RLS makes the project invisible before INSERT fires. More secure by design.
+3. ***TC-API-03/TC-API-04:*** Zod validation returns `422 validation_failed`, not `400`. Behavior is correct; OpenAPI spec could add a `422` response entry.
+4. ***BK-142 regression closed:**** 10+ day window (2026-06-09 to 2026-06-21) of missing `ATLASSIAN_**` staging env vars now resolved. Retest PASSED.
+5. ***Residual risk (documented gap):*** No timeout sweeper for stuck `running` jobs. A crashed worker leaves the job permanently `running`, blocking future imports on that project. Recommend fast-follow: timeout sweeper (stuck→failed after 5min).
 
 ### Bugs Found
 
@@ -1025,10 +1033,10 @@ None.
 
 ### Test Data
 
-| Entity | Name | ID |
+| ***Entity**** | ****Name**** | ****ID*** |
 | --- | --- | --- |
-| Workspace | BK-9 QA Testing | `baa9bff7-9db2-4ed4-b6b6-b9a86051bfac` |
-| Project | BK-9 Module Test Project | `ae10a3bd-574f-4caf-8076-f19a8e80f5a6` |
+| Workspace | [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9) QA Testing | `baa9bff7-9db2-4ed4-b6b6-b9a86051bfac` |
+| Project | [https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9](https://jira.upexgalaxy.com/browse/BK-9#icft=BK-9) Module Test Project | `ae10a3bd-574f-4caf-8076-f19a8e80f5a6` |
 | Import Job (AC1) | Fresh import | `88cb5749-3fe6-434c-b848-f06e4118ecc3` |
 | Import Job (AC2) | Idempotent re-run | `aeba5a65-e332-49fb-bfbf-b745be2ec969` |
 | Import Job (AC5) | Chunking 150 issues | `b045d03f-f8bc-46d0-a219-a33ccca75242` |
@@ -1038,9 +1046,9 @@ None.
 
 ### Andrés Daniel Cumare Morales - 21/6/2026, 19:34:38
 
-## QA Sign-Off — BK-17 :white*check*mark: PASSED
+## QA Sign-Off — [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) :white*check*mark: PASSED
 
-***Environment******:**** Staging | ****Date******:**** 2026-06-21 | ****Tester******:*** andresdanielzz25@gmail.com
+***Environment:**** Staging | ****Date:**** 2026-06-21 | ****Tester:*** andresdanielzz25@gmail.com
 
 ### Verdict
 
@@ -1048,21 +1056,21 @@ None.
 
 ### Session History
 
-- ***2026-06-07******:*** Stage 1 (ATP) completed. Stage 2 blocked by BK-84 (auth middleware regression).
-- ***2026-06-09******:**** Carlos executed 10 TCs (API contract, negatives, boundary). All PASSED. 8 TCs ENV*BLOCKED by missing `ATLASSIAN***` staging vars.
-- ***2026-06-15******:*** BK-84 retested GO. BK-142 filed (staging Jira creds missing). Stage 2 stopped.
-- ***2026-06-21******:**** BK-142 retested GO (creds restored). Executed remaining 8 ENV_BLOCKED TCs + TC-NEG-02. All PASSED. ****Chunking verified with 150 real Jira issues.***
+- ***2026-06-07:*** Stage 1 (ATP) completed. Stage 2 blocked by [https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84](https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84) (auth middleware regression).
+- ***2026-06-09:**** Carlos executed 10 TCs (API contract, negatives, boundary). All PASSED. 8 TCs ENV*BLOCKED by missing `ATLASSIAN***` staging vars.
+- ***2026-06-15:*** [https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84](https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84) retested GO. [https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142](https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142) filed (staging Jira creds missing). Stage 2 stopped.
+- ***2026-06-21:**** [https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142](https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142) retested GO (creds restored). Executed remaining 8 ENV_BLOCKED TCs + TC-NEG-02. All PASSED. ****Chunking verified with 150 real Jira issues.***
 
 ### Highlights
 
-- ***AC5 (Chunking)******:*** 150 issues imported successfully across multiple pages — `imported_count` matches total exactly.
-- ***AC2 (Idempotency)******:*** Re-run produces `created=0, updated=2`, zero duplicate DB rows, module placement preserved.
-- ***Concurrent 409******:*** Race-proof DB unique index confirmed live — HTTP 409 `import*in*progress` on every concurrent attempt.
+- ***AC5 (Chunking):*** 150 issues imported successfully across multiple pages — `imported_count` matches total exactly.
+- ***AC2 (Idempotency):*** Re-run produces `created=0, updated=2`, zero duplicate DB rows, module placement preserved.
+- ***Concurrent 409:*** Race-proof DB unique index confirmed live — HTTP 409 `import*in*progress` on every concurrent attempt.
 
 ### Deferred (non-blocking)
 
-- ***TC-POS-03 (Component routing)******:*** Project BK has no Jira components. Logic verified by code review.
-- ***TC-POS-05 (UI dialog)******:*** API+DB coverage complete. UI presentation layer deferred.
+- ***TC-POS-03 (Component routing):*** Project BK has no Jira components. Logic verified by code review.
+- ***TC-POS-05 (UI dialog):*** API+DB coverage complete. UI presentation layer deferred.
 
 ### Recommendations
 
@@ -1071,6 +1079,53 @@ None.
 3. Consider adding Jira components to the BK project for future regression testing of AC3.
 
 Full ATR posted in the comment above. Transitioning to ***QA Approved***.
+
+---
+
+### Nahuel Gomez - 30/6/2026, 23:14:35
+
+## QA Automation Session — Complete Report (2026-06-30)
+
+### Tally
+
+| ***Ticket**** | ****Tests**** | ****Status*** |
+| --- | --- | --- |
+| [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) | 8 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4) | 4 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) | 4 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) | 6 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14) | 5 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) (prev) | 17 | ✅ PASS |
+| ***Total**** | ****44 + 1 fixme*** |  |
+
+### Infrastructure changes
+
+- ***loginEndpoint**** fixed: `/auth/login` → `/api/v1/auth/signin`. The old endpoint 404s ([https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177)). The [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) endpoint works. ****Integration project is now unblocked.***
+- ***AuthApi*** updated to use sign-in PAT (not session token) for API auth — matches [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) coexistence pattern.
+- ***meEndpoint*** fixed to `/api/v1/me` (actual path).
+- ***auth.types.ts*** updated to match real API response shapes.
+- ***jira-attach-evidence.ts*** script created for attaching screenshots to Jira tickets via REST API.
+
+### CI/CD
+
+- All tests pass in sandbox project. Allure reports at:
+
+[https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/](https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/)
+
+### Known gaps (unchanged)
+
+- [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) 403 scope test — blocked on restricted-scope PAT
+- Sandbox → `.test.ts` promotion — now feasible since api-setup works
+- Nightly regression doesn't include sandbox tests yet (PR gate + manual only)
+
+### Next-step candidates
+
+| ***Priority**** | ****Ticket**** | ****Summary**** | ****Est. time*** |
+| --- | --- | --- | --- |
+| 1 | [https://jira.upexgalaxy.com/browse/BK-182#icft=BK-182](https://jira.upexgalaxy.com/browse/BK-182#icft=BK-182) | Bearer run can't resolve active workspace | ~15 min |
+| 2 | [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) | ATC "Used in N tests" report | ~15 min |
+| 3 | [https://jira.upexgalaxy.com/browse/BK-57#icft=BK-57](https://jira.upexgalaxy.com/browse/BK-57#icft=BK-57) | PATCH /modules/{id} atomicity | ~20 min |
+| 4 | [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) | Abort a run in progress | ~20 min |
 
 ---
 

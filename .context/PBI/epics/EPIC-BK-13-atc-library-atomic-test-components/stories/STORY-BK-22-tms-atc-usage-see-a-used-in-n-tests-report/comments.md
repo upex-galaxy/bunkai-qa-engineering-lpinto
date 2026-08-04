@@ -629,7 +629,7 @@ Color is never the sole signal. The muted zero state uses both color (`--fg-3`) 
 
 ## QA Sprint-Testing — Session Start Report
 
-***Ticket***: BK-22 — TMS-ATC Usage | See a "Used in N tests" report
+***Ticket***: [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) — TMS-ATC Usage | See a "Used in N tests" report
 ***Date***: 2026-06-23
 ***Environment***: staging (`staging-upexbunkai.vercel.app`)
 ***QA Engineer***: Andrés Daniel Cumare Morales
@@ -638,28 +638,28 @@ Color is never the sole signal. The muted zero state uses both color (`--fg-3`) 
 
 ## Finding: Feature NOT Deployed to Staging
 
-> ***ERROR:**** Sprint-testing session started on BK-22 but the feature has ****not been implemented*** in the codebase. QA cannot proceed with Stage 1 Planning, Stage 2 Execution, or Stage 3 Reporting.
+> ***ERROR:**** Sprint-testing session started on [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) but the feature has ****not been implemented*** in the codebase. QA cannot proceed with Stage 1 Planning, Stage 2 Execution, or Stage 3 Reporting.
 
 ### Evidence
 
-| Expected artifact | Status | Detail |
+| ***Expected artifact**** | ****Status**** | ****Detail*** |
 | --- | --- | --- |
 | `GET /atcs/{id}/usage` API endpoint | ***Missing*** | No route exists under `app/api/v1/atcs/` for the usage endpoint |
 | "Used in N tests" UI widget | ***Missing**** | `atc-detail-pane.tsx` displays placeholder text: **"Run history, 'Used by tests' and the Run action arrive with the test runner."* |
 | ATC Editor page (`/atcs/[atcId]`) | ***No usage section*** | Page renders steps, assertions, linked story — no usage widget |
-| Git history for BK-22 | ***No implementation commits*** | Only `docs(pbi): seed Wave 2 backlog` references BK-22 |
+| Git history for [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) | ***No implementation commits*** | Only `docs(pbi): seed Wave 2 backlog` references [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) |
 
 ### Upstream Dependency Status
 
-| Dependency | Status | Notes |
+| ***Dependency**** | ****Status**** | ****Notes*** |
 | --- | --- | --- |
-| `tests` + `test*steps` tables (EPIC-BK-5 / BK-27) | ***Deployed*** | Migration `0024*tests.sql` exists and includes `test*steps*atc*id*idx` index |
-| BK-18 (atcs table) | ***QA Approved*** | Not a blocker |
-| BK-27 (Test Builder) | ***QA Approved*** | PR #40 merged 2026-06-20 |
+| `tests` + `test*steps` tables (EPIC-BK-5 / [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27)) | ***Deployed*** | Migration `0024*tests.sql` exists and includes `test*steps*atc*id*idx` index |
+| [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) (atcs table) | ***QA Approved*** | Not a blocker |
+| [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) (Test Builder) | ***QA Approved*** | PR #40 merged 2026-06-20 |
 
 ### Root Cause Hypothesis
 
-The Jira automation comments ("PR merged" on 2026-06-20) were triggered by ***BK-27*** (Test Builder), not BK-22. BK-22 is linked to BK-27 in the traceability section, which likely caused the automation to update BK-22's status. The actual BK-22 feature (usage endpoint + UI widget) was never developed.
+The Jira automation comments ("PR merged" on 2026-06-20) were triggered by ***BK-27*** (Test Builder), not [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22). [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) is linked to [https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27](https://jira.upexgalaxy.com/browse/BK-27#icft=BK-27) in the traceability section, which likely caused the automation to update BK-22's status. The actual [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) feature (usage endpoint + UI widget) was never developed.
 
 ### Impact on QA
 
@@ -679,7 +679,51 @@ The ticket status should be reviewed by the dev team. The feature needs implemen
 
 ### Ely - 24/6/2026, 15:49:02
 
-Dev clarification: the ATC Usage feature IS merged to staging — PR #46, merge commit efcb282 (routes app/api/v1/atcs/[id]/usage, RPC, migration 0029, tests). The "PR merged" automation that fired earlier was correct for this ticket. If staging shows no feature, this is a staging DEPLOYMENT/refresh gap (cf. BK-142 Vercel staging env), not missing code — please re-verify against the latest staging deploy before sending back to Dev.
+Dev clarification: the ATC Usage feature IS merged to staging — PR #46, merge commit efcb282 (routes app/api/v1/atcs/[id]/usage, RPC, migration 0029, tests). The "PR merged" automation that fired earlier was correct for this ticket. If staging shows no feature, this is a staging DEPLOYMENT/refresh gap (cf. [https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142](https://jira.upexgalaxy.com/browse/BK-142#icft=BK-142) Vercel staging env), not missing code — please re-verify against the latest staging deploy before sending back to Dev.
+
+---
+
+### Nahuel Gomez - 6/7/2026, 20:21:43
+
+1. 
+
+****Verdict: PASSED****
+
+1. 
+
+- ****GET /api/v1/atcs/{id}/usage**** — fully functional
+- ATC used in 1 test → returns `{count:1, used*in:[{title, test*id, positions}]}`
+- ATC with zero usage → returns `{count:0, used_in:[]}`
+- Non-existent ATC → returns 404
+
+1. 
+
+1. 
+
+---
+
+### Nahuel Gomez - 6/7/2026, 20:50:39
+
+1. 
+
+Usage API evidence attached (JSON). Endpoint verified working:
+
+- ATC with usage → 200 + count + used_in
+- ATC with zero usage → 200 {count:0}
+- Non-existent ATC → 404
+
+---
+
+### Nahuel Gomez - 10/7/2026, 21:01:31
+
+## [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) — QA Close-out
+
+***Verdict:*** QA Approved ✅
+***ATP:*** Full test outlines. See local PBI folder for detail.
+***QA Framework:*** Playwright JavaScript (field blocked by QA Approved screen — set when editable)
+***In Regression Plan:*** YES
+
+***Handing off to Ely for release triage.***
 
 ---
 

@@ -521,14 +521,14 @@ Remaining open items: `status*dot` field definition, `limit=0` behavior, `layer`
 
 ## Acceptance Test Plan (ATP)
 
-# BK-20 — Acceptance Test Plan (QA)
+# [https://jira.upexgalaxy.com/browse/BK-20#icft=BK-20](https://jira.upexgalaxy.com/browse/BK-20#icft=BK-20) — Acceptance Test Plan (QA)
 
 > Endpoint: `GET /api/v1/atcs/search` · Modality: Jira-native · Surface: API + DB (no browser UI — the picker lives in EPIC-BK-5).
 Reconciled against the REAL implemented contract (OpenAPI). Supersedes the Shift-Left ATP DRAFT on all expected status codes.
 
 ## Triage Result
 
-***Risk Score******:****** 8/10 — HIGH.*** Three independent risk axes converge: ranking algorithm (relevance × 7-day recency decay), recursive module subtree, and a hard security perimeter (workspace + project isolation). A single isolation defect leaks cross-tenant test data, which the BK-13 epic classifies as CRITICAL — that alone floors the score at HIGH. No veto applies. Full ATP required.
+***Risk Score:**** ****8/10 — HIGH.*** Three independent risk axes converge: ranking algorithm (relevance × 7-day recency decay), recursive module subtree, and a hard security perimeter (workspace + project isolation). A single isolation defect leaks cross-tenant test data, which the [https://jira.upexgalaxy.com/browse/BK-13#icft=BK-13](https://jira.upexgalaxy.com/browse/BK-13#icft=BK-13) epic classifies as CRITICAL — that alone floors the score at HIGH. No veto applies. Full ATP required.
 
 ---
 
@@ -536,22 +536,22 @@ Reconciled against the REAL implemented contract (OpenAPI). Supersedes the Shift
 
 ***What***: Project-scoped, workspace-scoped full-text search over ATC `title` + `tags`, ranked by FTS relevance with a 7-day recency tie-break, optionally narrowed by a module subtree and/or layer. Powers the autocomplete picker that EPIC-BK-5 consumes.
 
-***Why it matters***: The discovery surface of the ATC Library — sits between ATC creation (BK-18/19) and Test composition (EPIC-BK-5). It is the primary lever for ATC reuse, so correctness of ranking, subtree scoping, and — above all — tenant/project isolation directly drives reuse rate and prevents cross-tenant test-data leakage.
+***Why it matters***: The discovery surface of the ATC Library — sits between ATC creation ([https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18)/19) and Test composition (EPIC-BK-5). It is the primary lever for ATC reuse, so correctness of ranking, subtree scoping, and — above all — tenant/project isolation directly drives reuse rate and prevents cross-tenant test-data leakage.
 
-***Risk posture***: HIGH. Security axis is non-negotiable per the BK-13 epic test strategy and is verified at API AND DB level.
+***Risk posture***: HIGH. Security axis is non-negotiable per the [https://jira.upexgalaxy.com/browse/BK-13#icft=BK-13](https://jira.upexgalaxy.com/browse/BK-13#icft=BK-13) epic test strategy and is verified at API AND DB level.
 
 ---
 
 ## 2. Contract reconciliation (vs Shift-Left ATP)
 
-| # | Delta (real contract vs Shift-Left ATP) | Applied |
+| ***#**** | ****Delta (real contract vs Shift-Left ATP)**** | ****Applied*** |
 | --- | --- | --- |
 | 1 | Empty/absent/whitespace query: ATP said ***400**** → real ****422*** | TC09–TC11 expect `422 validation_failed`. Ambiguity removed. |
 | 2 | `project*id` is ***REQUIRED*** (ATP omitted it) | `project*id` in every positive call. TC18: missing → 422. TC17: project outside memberships → 200 empty. Isolation now project- AND workspace-scoped. |
 | 3 | ***403*** (token without `atc:read` scope) — new dimension | TC22 → 403 `ErrorEnvelope`. |
-| 4 | Prefix matching CONFIRMED (was "NEEDS CONFIRMATION") | TC01 single-token prefix (`expir`→`expired`); TC03 multi-word AND. |
+| 4 | Prefix matching CONFIRMED (was "NEEDS CONFIRMATION") | TC01 single-token prefix (`expir}}→{{expired`); TC03 multi-word AND. |
 | 5 | `limit` bounds 1..50 (limit=0 / 51 were open items) | TC12 default 20; TC13 cap 50; TC14 limit=0→422; TC15 limit=51→422. |
-| 6 | Zero matches → ***200 ***`{items:[]}` (never 404) | TC04 asserts 200 + empty. No 404 anywhere. |
+| 6 | Zero matches → ***200*** `{items:[]`} (never 404) | TC04 asserts 200 + empty. No 404 anywhere. |
 
 Schema confirmation (OpenAPI MCP, authoritative): `query` (req, minLength 1), `project*id` (req, uuid), `module*id` (opt, uuid), `layer` (opt enum `UI|API|Unit`), `limit` (opt int 1..50 default 20). Responses 200 / 401 / 403 / 422 — all errors `ErrorEnvelope`. Item shape: `atc*id, slug, title, module*path, layer, status*dot` (status*dot ∈ `draft/ready/automated/deprecated`).
 
@@ -559,7 +559,7 @@ Schema confirmation (OpenAPI MCP, authoritative): `query` (req, minLength 1), `p
 
 ## 3. Scope
 
-***In scope***: FTS by title word (prefix-aware single token) and by tag; multi-word AND; module subtree (recursive) filter; layer filter; recency tie-break ranking; required `project*id` scoping; workspace isolation (API + DB); `limit` bounds (default 20, cap 50, reject 0/51); validation 422s (empty/absent/whitespace query, missing/invalid `project*id`, bad `limit`, bad `layer`); auth gates (401 unauth, 403 missing scope); response shape; zero-match 200 `{items:[]}`; integration (tsv trigger after PATCH, recursive CTE, workspace+project SQL clause).
+***In scope***: FTS by title word (prefix-aware single token) and by tag; multi-word AND; module subtree (recursive) filter; layer filter; recency tie-break ranking; required `project*id` scoping; workspace isolation (API + DB); `limit` bounds (default 20, cap 50, reject 0/51); validation 422s (empty/absent/whitespace query, missing/invalid `project*id`, bad `limit`, bad `layer`); auth gates (401 unauth, 403 missing scope); response shape; zero-match 200 `{items:[]`}; integration (tsv trigger after PATCH, recursive CTE, workspace+project SQL clause).
 
 ***Out of scope***: search-box/picker UI rendering (EPIC-BK-5); `used*in`/`test*steps` expansion (table not present yet); load/performance p95 budget (follow-up); deep SQL-injection hardening beyond one parameterization smoke check.
 
@@ -569,12 +569,12 @@ Schema confirmation (OpenAPI MCP, authoritative): `query` (req, minLength 1), `p
 
 Nomenclature: `BK-20: TC#: Validate <core> <conditional>`. Distribution — Positive 6, Negative 6, Boundary 4, Security 5, Integration 3. All positive calls include required `query` + `project_id`.
 
-| TC | Title | Type | Pri | AC | Steps (concise) | Expected | Layer |
+| ***TC**** | ****Title**** | ****Type**** | ****Pri**** | ****AC**** | ****Steps (concise)**** | ****Expected**** | ****Layer*** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | TC01 | Validate prefix single-token match returns the ATC with full item shape | Positive | High | AC1 | `GET ?query=expir&project*id=<P1>` auth | 200; ATC present; item exposes `atc*id, slug, title, module*path, layer, status*dot` | API |
 | TC02 | Validate multiple title matches ranked by relevance + recency | Positive | Med | AC1 | `?query=expired&project_id=<P1>` | 200; both ATCs; relevance→recency order | API |
 | TC03 | Validate multi-word query applies AND semantics | Positive | Med | AC1/AC2 | `?query=login%20token&project_id=<P1>` | 200; only ATC with BOTH tokens | API |
-| TC04 | Validate zero-match query returns 200 with empty items | Negative | High | AC1 | `?query=xyznotfound&project_id=<P1>` | 200 `{items:[]}` (never 404) | API |
+| TC04 | Validate zero-match query returns 200 with empty items | Negative | High | AC1 | `?query=xyznotfound&project_id=<P1>` | 200 `{items:[]`} (never 404) | API |
 | TC05 | Validate tag-only match returns the ATC | Positive | High | AC2 | ATC titled "Navigate to homepage" tagged `["smoke"]`; `?query=smoke&project_id=<P1>` | 200; ATC appears via tag | API |
 | TC06 | Validate module filter includes selected module and descendant subtree | Positive | High | AC3 | `?query=flow&project*id=<P1>&module*id=<Payment>` | 200; ATCs from all 3 levels | API+DB |
 | TC07 | Validate sibling modules excluded when subtree filter active | Negative | High | AC3 | same call; Login module has matching ATC | 200; Login ATC absent | API+DB |
@@ -587,7 +587,7 @@ Nomenclature: `BK-20: TC#: Validate <core> <conditional>`. Distribution — Posi
 | TC14 | Validate limit=0 returns 422 | Boundary | Med | limit rule | `&limit=0` | 422 `validation_failed` | API |
 | TC15 | Validate limit=51 returns 422 | Boundary | Med | limit rule | `&limit=51` | 422 `validation_failed` | API |
 | TC16 | Validate workspace isolation hides another tenant's identically-titled ATC | Security | Critical | AC6 | W1 & W2 each have identical-title ATC; call as W1 | 200; only W1 ATC; W2 atc_id absent | API+DB |
-| TC17 | Validate project outside caller memberships returns empty items | Security | Critical | AC6/Δ2 | `?query=login&project*id=<P*OUT>` | 200 `{items:[]}` (no leak, no error) | API+DB |
+| TC17 | Validate project outside caller memberships returns empty items | Security | Critical | AC6/Δ2 | `?query=login&project*id=<P*OUT>` | 200 `{items:[]`} (no leak, no error) | API+DB |
 | TC18 | Validate missing project*id returns 422 | Negative | High | Δ2 | `?query=login` (no project*id) | 422 `validation_failed` | API |
 | TC19 | Validate layer filter returns only matching-layer ATCs | Positive | Med | layer | UI/API/Unit ATCs match "validate"; `&layer=UI` | 200; only `layer=UI` items | API |
 | TC20 | Validate invalid layer enum returns 422 | Negative | Med | layer | `&layer=Mobile` | 422 `validation_failed` | API |
@@ -604,10 +604,10 @@ Nomenclature: `BK-20: TC#: Validate <core> <conditional>`. Distribution — Posi
 - ***3-level module subtree*** under P1 (Payment → Checkout/Refunds) + a sibling module (Login) with matching ATCs.
 - ***Two identical-title ATCs*** with controlled `updated_at` (today vs ~30 days) for the recency tie-break.
 - ***Second workspace W2*** with an ATC duplicating a W1 ATC title (isolation TC16).
-- ***P******_******OUT*** — a project outside W1 memberships, with matching ATCs (TC17).
+- ***P_OUT*** — a project outside W1 memberships, with matching ATCs (TC17).
 - Credentials from `.env`: `STAGING*USER*EMAIL`/`STAGING*USER*PASSWORD`, a Bearer PAT WITH `atc:read`, and a credential WITHOUT `atc:read` (TC22).
 
-***Execution-time dependencies (flagged for Stage 2, not planning blockers)******:***
+***Execution-time dependencies (flagged for Stage 2, not planning blockers):***
 
 1. Second reachable tenant (W2) + P_OUT must be confirmed on staging; absent → TC16 drops to DB-only, TC17 may be unexecutable.
 2. `atc:read`-less credential must be obtainable; absent → TC22 unexecutable.
@@ -627,7 +627,33 @@ Nomenclature: `BK-20: TC#: Validate <core> <conditional>`. Distribution — Posi
 
 ---
 
-**ATP authored Stage 1 (sprint-testing). Formal Jira **`Test`** issues + ROI are produced at Stage 4 (test-documentation) per project jira-native convention.**
+**ATP authored Stage 1 (sprint-testing). Formal Jira** `Test` **issues + ROI are produced at Stage 4 (test-documentation) per project jira-native convention.**
+
+---
+
+### Facu Barea - 30/6/2026, 17:11:00
+
+## QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-20#icft=BK-20](https://jira.upexgalaxy.com/browse/BK-20#icft=BK-20)
+
+***Environment:**** Staging - ****Result:**** ****FAILED*** (23 / 24 TCs)
+
+Functional search behavior and the security perimeter are solid: prefix + multi-word AND matching, tag matching, module-subtree recursion, layer filter, `limit` bounds, and all validation `422` / auth `401`+`403` gates pass. Tenant isolation (workspace + project) is VERIFIED at both API and SQL level - no cross-tenant leak (the CRITICAL [https://jira.upexgalaxy.com/browse/BK-13#icft=BK-13](https://jira.upexgalaxy.com/browse/BK-13#icft=BK-13) risk axis is clean). The Story is blocked on a single response-shape divergence from the PO decision.
+
+### Failed verification
+
+- ***TC01 - response item shape:*** items expose `status = "unrun"` (run-status enum) and identifier `id`, instead of the PO-decided `status*dot` in {draft, ready, automated, deprecated} (ATC lifecycle) and `atc*id`.
+
+***Defect:*** [https://jira.upexgalaxy.com/browse/BK-187#icft=BK-187](https://jira.upexgalaxy.com/browse/BK-187#icft=BK-187) - ATC search returns run-status, not the PO-decided lifecycle status_dot (Severity Mayor / Priority High). This Defect blocks [https://jira.upexgalaxy.com/browse/BK-20#icft=BK-20](https://jira.upexgalaxy.com/browse/BK-20#icft=BK-20).
+
+Full per-TC results, tenant-isolation evidence, and the F2/F3 notes are in the ATR field on this Story.
+
+---
+
+### Ely - 30/7/2026, 13:28:00
+
+Mockup — Global ATC Library (cross-project index). Source: .context/designs/bunkai-test-management-tool/bk-13-atc-library-global/atc-library-global.html · spec: master-design-plan §4.9
+
+
 
 ---
 

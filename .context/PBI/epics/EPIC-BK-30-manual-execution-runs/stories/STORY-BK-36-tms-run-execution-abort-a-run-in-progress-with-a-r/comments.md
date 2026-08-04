@@ -14,9 +14,9 @@ Refinement completo: `shift-left-refinement.md` (disponible en el repo QA).
 
 ---
 
-***Highlights del análisis Shift-Left******:***
+***Highlights del análisis Shift-Left:***
 
-- :warning: ***DATA-FEASIBILITY-RISK CRÍTICO*** — entidades `runs` y `run_steps` no existen en el schema de DB. Story bloqueada hasta que exista la migración y BK-34 esté shippeada.
+- :warning: ***DATA-FEASIBILITY-RISK CRÍTICO*** — entidades `runs` y `run_steps` no existen en el schema de DB. Story bloqueada hasta que exista la migración y [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) esté shippeada.
 - :x: ***AC3 incompleta*** — solo cubre el estado `passed`; los estados `failed` y `aborted` también deben rechazar un abort.
 - :x: ***AC2 sin BVA completo*** — solo testea 1 char; faltan casos de 2 chars y string vacío.
 - :warning: ***Riesgo arquitectural (CON-1)*** — si Dev usa `atcs.status` en lugar de `run_steps.result`, abortar un run corrompe el ATC para todos los runs futuros.
@@ -30,7 +30,7 @@ Labels agregados: `shift-left-reviewed`, `shift-left-2026-06-23`
 
 ### Juan Leites - 23/6/2026, 9:30:12
 
-# Shift-Left Refinement: BK-36 — TMS-Run Execution | Abort a run in progress with a reason
+# Shift-Left Refinement: [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) — TMS-Run Execution | Abort a run in progress with a reason
 
 ***Status***: Refined — Awaiting PO Estimation
 ***Mode***: Shift-Left (pre-sprint, batch grooming)
@@ -53,36 +53,33 @@ Abort-with-reason solves this by:
 3. Preserving already-recorded step results so partial work is not lost.
 4. Attaching a mandatory short reason so historical records explain the closure.
 
-This story delivers the abort path of the run lifecycle. It depends on — and can only be tested against — a running run, which is created by BK-34 (Start a run). It is blocked until BK-34 ships and the `runs` + `run_steps` DB migration exists.
+This story delivers the abort path of the run lifecycle. It depends on — and can only be tested against — a running run, which is created by [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) (Start a run). It is blocked until [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) ships and the `runs` + `run_steps` DB migration exists.
 
 ### Technical context
 
-> ***DATA-FEASIBILITY-RISK******:****** CRITICAL***
-
-The `runs` entity and `run_steps` entity are ***absent from the current DB schema*** (`supabase/migrations/0001–0012`). Neither table exists. This story cannot be implemented or meaningfully tested until:
-
-1. A DB migration creates `runs` (with `id, atc*id, environment, started*by*user*id, started*at, finished*at, status, abort*reason`) and `run*steps` (with `id, run*id, atc*step*id, result, executed*at`).
-2. BK-34 (Start a run) ships and can create a run record in `in_progress` state.
-3. BK-36 can then exercise the `in_progress → aborted` transition.
-
-***Dependency chain (hard blockers)******:*** `runs` migration → BK-34 ships → BK-36 can be implemented and tested.
+> ***DATA-FEASIBILITY-RISK:**** ****CRITICAL***
+> The `runs` entity and `run_steps` entity are ***absent from the current DB schema*** (`supabase/migrations/0001–0012`). Neither table exists. This story cannot be implemented or meaningfully tested until:
+> 1. A DB migration creates `runs` (with `id, atc*id, environment, started*by*user*id, started*at, finished*at, status, abort*reason`) and `run*steps` (with `id, run*id, atc*step*id, result, executed*at`).
+2. [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) (Start a run) ships and can create a run record in `in_progress` state.
+3. [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) can then exercise the `in_progress → aborted` transition.
+> ***Dependency chain (hard blockers):*** `runs` migration → [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) ships → [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) can be implemented and tested.
 
 Known technical elements relevant to this story:
 
-- `AtcStatus`*** enum*** (`lib/types.ts`): `unrun | running | pass | fail | blocked | skipped`. Exists in code but no server action transitions it. The `runs` entity is what drives lifecycle transitions.
+- `AtcStatus` ***enum*** (`lib/types.ts`): `unrun | running | pass | fail | blocked | skipped`. Exists in code but no server action transitions it. The `runs` entity is what drives lifecycle transitions.
 - `AtcStep` (`id, atc*id, position, content, input*data, expected`): Steps are defined here; `run_steps` will hold per-execution results.
 - ***Auth model***: Supabase Auth (magic link OTP); middleware protects `/projects` + `/onboarding`; RLS on all tables; PAT available for API routes. Any abort action must validate the caller owns or is authorized on the run.
-- ***Staging***: `https://staging-upexbunkai.vercel.app/` — not usable for BK-36 until the `runs` migration is deployed to staging.
+- ***Staging***: `https://staging-upexbunkai.vercel.app/` — not usable for [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) until the `runs` migration is deployed to staging.
 - ***Server actions or API route*** for abort must be implemented; currently no such endpoint exists.
 - The abort reason will be stored on the `runs` row (`abort_reason` column or equivalent); its minimum length constraint (3 chars) can be enforced at both client and server/DB level.
 
 ### Story complexity
 
-***Low-Medium.*** The business logic is well-bounded: one state transition, one validation rule, one bulk update (pending steps → skipped). Complexity is front-loaded into infrastructure that does not yet exist (`runs` migration + BK-34). Once those are in place, the abort action itself is straightforward. UI is minimal (modal or inline form with a reason textarea + confirm button).
+***Low-Medium.*** The business logic is well-bounded: one state transition, one validation rule, one bulk update (pending steps → skipped). Complexity is front-loaded into infrastructure that does not yet exist (`runs` migration + [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34)). Once those are in place, the abort action itself is straightforward. UI is minimal (modal or inline form with a reason textarea + confirm button).
 
 ### Epic-level inheritance
 
-Epic BK-30 covers the full Manual Execution & Runs lifecycle. This story sits between:
+Epic [https://jira.upexgalaxy.com/browse/BK-30#icft=BK-30](https://jira.upexgalaxy.com/browse/BK-30#icft=BK-30) covers the full Manual Execution & Runs lifecycle. This story sits between:
 
 - ***BK-34*** (Start a run) — creates the `runs` record in `in_progress` state. Hard dependency.
 - ***BK-020 / BK-35*** (Record step results) — populates `run_steps` mid-run. Already-recorded results must survive abort.
@@ -125,15 +122,15 @@ No mockup or wireframe is referenced. It is unclear whether abort is: (a) a butt
 ***AMB-4 — "Shown on the run" — exact location not defined.***
 AC1 says the reason is "shown on the run" and AC4 says it is "visible" in history. It is unclear whether this means: a dedicated reason field on the run detail page, a tooltip, a badge, a collapsible section, or inline text in the history list row.
 
-***AMB-5 — Step result ****`blocked`**** not mentioned.***
+***AMB-5 — Step result**** `blocked` ****not mentioned.***
 The domain model includes `AtcStatus.blocked` as a valid step result. AC1 only tests `passed` steps being preserved. If a step is marked `blocked` at the time of abort, should it be preserved as `blocked` or overwritten to `skipped`? The story says "already-executed step results are preserved" — but whether `blocked` counts as "already-executed" is not stated.
 
-***AMB-6 — ****`failed`**** steps at time of abort.***
+***AMB-6 —**** `failed` ****steps at time of abort.***
 Same as AMB-5 but for `failed` steps. AC1 only shows `passed + pending` at abort time. A run where some steps are `failed` and some are `pending` when abort is triggered is not covered.
 
 ### Gaps (missing info)
 
-***GAP-1 — ****`failed`**** and ****`aborted`**** closed-run states not tested in AC3.***
+***GAP-1 —**** `failed` ****and**** `aborted` ****closed-run states not tested in AC3.***
 AC3 only validates that a `passed` run rejects an abort attempt. The business rules say "only a run that is still in progress can be aborted" — which implies `failed` and `aborted` runs must also reject. These two cases are entirely absent from the ACs.
 
 ***GAP-2 — Empty reason (0 chars) not covered by AC2.***
@@ -151,7 +148,7 @@ See AMB-2. If authorization rules are not specified before dev starts, they will
 ***GAP-6 — History pagination / ordering not defined.***
 AC4 confirms the aborted run "appears in the list" but gives no detail on list ordering, pagination behavior (what if there are 100 runs?), or filtering (can the user filter by `aborted` status?). Out of scope for this story or implicitly assumed to be covered elsewhere?
 
-***GAP-7 — ****`abort_reason`**** column name and DB schema not confirmed.***
+***GAP-7 —**** `abort_reason` ****column name and DB schema not confirmed.***
 The DB schema for `runs` does not exist yet. The column name, type, length constraint, and nullability for the abort reason field are design decisions that need to be captured in a migration PR before implementation starts.
 
 ### Edge cases not in Story
@@ -179,16 +176,16 @@ Without a defined maximum, the system must gracefully handle very long inputs. D
 
 ### Contradictions
 
-***CON-1 — "Steps not yet executed are marked skipped" vs. ****`AtcStatus`**** vs. ****`run_steps.result`****.***
+***CON-1 — "Steps not yet executed are marked skipped" vs.**** `AtcStatus` ****vs.**** `run_steps.result`****.***
 The story says pending steps are "marked skipped." In the current domain model, `AtcStatus` is on the `atc` entity (a template-level status), not the run-level step result. If the intent is that `run_steps.result = 'skipped'` for pending steps, this is correct run-level tracking. But if an implementation uses `AtcStatus` on the `atc` row itself, aborting one run would corrupt the `atc` status for all future runs. This architectural distinction must be confirmed with Dev before implementation.
 
 No other direct contradictions found between ACs and business rules.
 
 ### Testability validation
 
-| AC | Testable as written? | Notes |
+| ***AC**** | ****Testable as written?**** | ****Notes*** |
 | --- | --- | --- |
-| AC1 | Yes — once `runs` migration + BK-34 exist | Requires a seeded run with 4 passed + 6 pending steps |
+| AC1 | Yes — once `runs` migration + [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) exist | Requires a seeded run with 4 passed + 6 pending steps |
 | AC2 | Partially — 1-char case only | Missing: 0-char, 2-char, whitespace-only cases |
 | AC3 | Partially — `passed` state only | Missing: `failed` state, `aborted` state |
 | AC4 | Yes — once history view exists | Ordering/pagination not specified |
@@ -205,11 +202,11 @@ Overall: ACs are testable in principle but incomplete in boundary and state cove
 
 ### AC1 — Abort a run mid-flight and skip the rest
 
-***Original scenario covered******:***
+***Original scenario covered:***
 
 - Run with 4 passed + 6 pending steps; abort with valid reason → run = `aborted`, pending steps = `skipped`, passed steps preserved, reason visible.
 
-***Additional scenarios derived (1******:******N expansion)******:***
+***Additional scenarios derived (1:N expansion):***
 
 ***AC1-B — All-pending run aborted (no steps executed yet)***
 
@@ -266,11 +263,11 @@ NEEDS PO/DEV CONFIRMATION — boundary valid minimum not exercised by original A
 
 ### AC2 — Reason that is too short is rejected
 
-***Original scenario covered******:***
+***Original scenario covered:***
 
 - 1-character reason → rejected with `"Please give a reason of at least 3 characters"`.
 
-***Additional scenarios derived (1******:******N expansion)******:***
+***Additional scenarios derived (1:N expansion):***
 
 ***AC2-B — Empty reason (0 characters) is rejected***
 
@@ -308,11 +305,11 @@ NEEDS PO/DEV CONFIRMATION — trimming behavior and error message for whitespace
 
 ### AC3 — Cannot abort a run that already finished
 
-***Original scenario covered******:***
+***Original scenario covered:***
 
 - Run finished as `passed` → abort rejected with `"This run is already closed and cannot be aborted"`.
 
-***Additional scenarios derived (1******:******N expansion)******:***
+***Additional scenarios derived (1:N expansion):***
 
 ***AC3-B — Cannot abort a run that finished as failed***
 
@@ -350,11 +347,11 @@ NEEDS PO/DEV CONFIRMATION — the ACs describe what happens when a user "tries" 
 
 ### AC4 — Aborted run stays in the Test's history
 
-***Original scenario covered******:***
+***Original scenario covered:***
 
 - Aborted run appears in history list with outcome `aborted` and reason visible.
 
-***Additional scenarios derived (1******:******N expansion)******:***
+***Additional scenarios derived (1:N expansion):***
 
 ***AC4-B — History distinguishes multiple run outcomes***
 
@@ -390,7 +387,7 @@ NEEDS PO/DEV CONFIRMATION — AC4 references history list; AC1 says reason is "s
 
 ### Coverage estimate
 
-| Type | Count |
+| ***Type**** | ****Count*** |
 | --- | --- |
 | Positive (happy path + valid variations) | 6 |
 | Negative (validation rejection) | 6 |
@@ -478,15 +475,15 @@ If the UI exposes an abort action on the history list (for runs that are `in_pro
 
 ## Story Quality Assessment
 
-| Dimension | Score | Notes |
+| ***Dimension**** | ****Score**** | ****Notes*** |
 | --- | --- | --- |
 | Clarity | 3 / 5 | ACs are clear on the happy path and basic validation; silent on who can abort, UI surface, and reason max length |
 | Completeness | 2 / 5 | Missing 2-char BVA, empty-reason case, `failed`/`aborted` closed-state rejection, and concurrent-abort handling |
-| Testability | 3 / 5 | Testable once the DB migration + BK-34 ship; ACs as written are executable but under-specified on boundaries |
+| Testability | 3 / 5 | Testable once the DB migration + [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) ship; ACs as written are executable but under-specified on boundaries |
 | Feasibility | 1 / 5 | ***BLOCKED*** — `runs` + `run_steps` DB entities do not exist; story cannot ship without them |
 | Risk | HIGH | Infrastructure dependency is pre-sprint blocker; ambiguities in authorization and whitespace handling are sprint risks |
 
-***Overall******:****** Story is NOT ready for sprint entry until the ****`runs`**** migration is committed and BK-34 is in a testable state.***
+***Overall:**** ****Story is NOT ready for sprint entry until the**** `runs` ****migration is committed and BK-34 is in a testable state.***
 
 ---
 
@@ -511,7 +508,7 @@ No role/permission check is mentioned. If Bunkai has QA roles vs. viewer roles, 
 
 ## Technical Questions for Dev
 
-***DQ-1 — ****`runs`**** and ****`run_steps`**** DB migration******:****** what is the migration plan and which PR delivers it?***
+***DQ-1 —**** `runs` ****and**** `run_steps` ****DB migration:**** ****what is the migration plan and which PR delivers it?***
 This is the hard blocker. The `runs` table needs at minimum: `id, atc*id, started*by*user*id, status (in*progress | aborted | passed | failed), abort*reason, started*at, finished*at`. The `run*steps` table needs: `id, run*id, atc*step*id, result (pending | passed | failed | blocked | skipped), executed*at`. Confirm column names and constraints (especially nullability of `abort*reason` and max length).
 
 ***DQ-2 — Abort must be wrapped in a DB transaction — correct?***
@@ -520,13 +517,13 @@ The abort action updates `runs.status`, `runs.abort*reason`, and N rows in `run*
 ***DQ-3 — How is "pending" defined for step selection during abort?***
 The abort must mark "not yet executed" steps as `skipped`. Is the criterion `run*steps.result = 'pending'`? Or steps where no `run*steps` row exists yet? The distinction matters for implementation.
 
-***DQ-4 — Does ****`atcs.status`**** change when a run is aborted?***
+***DQ-4 — Does**** `atcs.status` ****change when a run is aborted?***
 The domain model has `AtcStatus` on the `atc` row (template-level). Changing it on abort would corrupt other runs' histories. Confirm that `run_steps.result` is the per-execution record and `atcs.status` is either not touched on abort or updated independently via a separate rule.
 
-***DQ-5 — Whitespace trimming******:****** client, server, or DB?***
+***DQ-5 — Whitespace trimming:**** ****client, server, or DB?***
 Should the reason be trimmed before the 3-character minimum check? If yes, who is responsible — client form validation, server action, or a DB constraint? The answer determines where the "whitespace-only" edge case is caught.
 
-***DQ-6 — Idempotency on double-submit******:****** optimistic lock or last-write-wins?***
+***DQ-6 — Idempotency on double-submit:**** ****optimistic lock or last-write-wins?***
 What is the intended behavior if the same abort request arrives twice concurrently? Options: (a) first wins, second returns 409/error; (b) idempotent — second is a no-op returning the already-aborted run. Which pattern is Bunkai using for run mutations?
 
 ---
@@ -537,9 +534,9 @@ What is the intended behavior if the same abort request arrives twice concurrent
 
 ## Suggested Story Improvements
 
-1. ***Add AC for the ****`failed`**** closed-run rejection*** (symmetric with AC3): explicitly test that a `failed` run cannot be aborted. This is implied by business rules but absent from ACs — and it is a non-trivial test case because it exercises a different terminal path.
+1. ***Add AC for the**** `failed` ****closed-run rejection*** (symmetric with AC3): explicitly test that a `failed` run cannot be aborted. This is implied by business rules but absent from ACs — and it is a non-trivial test case because it exercises a different terminal path.
 
-1. ***Add AC for ****`aborted`**** closed-run rejection***: an already-aborted run should also reject a second abort attempt. Confirms the "terminal is terminal" contract.
+1. ***Add AC for**** `aborted` ****closed-run rejection***: an already-aborted run should also reject a second abort attempt. Confirms the "terminal is terminal" contract.
 
 1. ***Add BVA row for 2-character reason***: AC2 tests 1-char. A 2-char case belongs in the same scenario group to confirm the boundary is at 3, not 2.
 
@@ -555,51 +552,51 @@ What is the intended behavior if the same abort request arrives twice concurrent
 
 ## Data feasibility flags
 
-> ***RISK LEVEL******:****** HIGH — INFRASTRUCTURE MISSING***
+> ***RISK LEVEL:**** ****HIGH — INFRASTRUCTURE MISSING***
 
-| Flag | Severity | Detail |
+| ***Flag**** | ****Severity**** | ****Detail*** |
 | --- | --- | --- |
 | `runs` table absent from DB schema | CRITICAL | No run can be started, aborted, or finished until this migration ships |
 | `run_steps` table absent from DB schema | CRITICAL | Per-execution step results cannot be stored without this table |
-| BK-34 (Start a run) is a hard pre-requisite | HIGH | BK-36 requires an `in_progress` run to abort; that run is created by BK-34 |
+| [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) (Start a run) is a hard pre-requisite | HIGH | [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) requires an `in_progress` run to abort; that run is created by [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) |
 | `abort_reason` column spec undefined | MEDIUM | Type, length, nullability not yet decided; blocks migration authoring |
 | `atcs.status` vs `run_steps.result` ambiguity (CON-1) | MEDIUM | Risk of corrupting template-level ATC status if wrong field is updated |
 | No server action or API route for abort | MEDIUM | Must be implemented from scratch; not an extension of existing code |
 | RLS policy for `runs` table not designed | MEDIUM | Authorization rules (who can abort) must be defined before RLS can be written |
 
-***Testing pre-conditions that must be true before QA can execute any test for BK-36******:***
+***Testing pre-conditions that must be true before QA can execute any test for BK-36:***
 
 1. `runs` + `run_steps` DB migration deployed to staging.
-2. BK-34 shipped (or a seed script exists that creates an `in_progress` run with steps).
+2. [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) shipped (or a seed script exists that creates an `in_progress` run with steps).
 3. A test user with a project and at least one ATC with ≥2 steps available on staging.
 
 ---
 
 ## Recommended testing strategy
 
-***Primary technique******:****** State-Transition testing*** — the run status machine is the core of this story. Derive one test per valid transition and one per invalid transition from each terminal/closed state.
+***Primary technique:**** ****State-Transition testing*** — the run status machine is the core of this story. Derive one test per valid transition and one per invalid transition from each terminal/closed state.
 
-***Secondary******:****** BVA on reason length*** — the 3-character minimum is a hard boundary. Test 2 (invalid), 3 (valid min), and max (once defined).
+***Secondary:**** ****BVA on reason length*** — the 3-character minimum is a hard boundary. Test 2 (invalid), 3 (valid min), and max (once defined).
 
-***Secondary******:****** Equivalence Partitioning on closed-run states*** — closed states form one EP class (`passed`, `failed`, `aborted`) all of which must reject abort. Test all three members explicitly.
+***Secondary:**** ****Equivalence Partitioning on closed-run states*** — closed states form one EP class (`passed`, `failed`, `aborted`) all of which must reject abort. Test all three members explicitly.
 
-***Exploratory focus areas******:***
+***Exploratory focus areas:***
 
 - Concurrent abort (two users, same run)
 - Abort with all steps already executed
 - Whitespace-only reason handling
 - Session expiry mid-abort
 
-***Test environment note******:*** All E2E tests for BK-36 require `runs` migration on staging + BK-34 as a setup action. API-level tests can be written against the migration directly (bypassing UI) for faster feedback on the state-machine and validation logic. UI tests are the integration layer on top.
+***Test environment note:*** All E2E tests for [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) require `runs` migration on staging + [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) as a setup action. API-level tests can be written against the migration directly (bypassing UI) for faster feedback on the state-machine and validation logic. UI tests are the integration layer on top.
 
 ---
 
 ## Risks & mitigation
 
-| Risk | Likelihood | Impact | Mitigation |
+| ***Risk**** | ****Likelihood**** | ****Impact**** | ****Mitigation*** |
 | --- | --- | --- | --- |
-| `runs` migration not ready before sprint | HIGH | BLOCKS entire story | Confirm migration PR exists and is merged before BK-36 enters sprint |
-| BK-34 not shipped when BK-36 is picked up | HIGH | No way to create in_progress run for testing | Sequence BK-34 before BK-36 in sprint planning; provide seed script fallback |
+| `runs` migration not ready before sprint | HIGH | BLOCKS entire story | Confirm migration PR exists and is merged before [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) enters sprint |
+| [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) not shipped when [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) is picked up | HIGH | No way to create in_progress run for testing | Sequence [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) before [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) in sprint planning; provide seed script fallback |
 | `atcs.status` overwritten on abort (CON-1) | MEDIUM | Corrupts ATC template-level data | Dev must confirm which field abort touches; add regression test for `atcs.status` unchanged |
 | Concurrent abort race condition | MEDIUM | Run left in invalid state | DB transaction required; confirm with Dev (DQ-6) |
 | Authorization unspecified | MEDIUM | Incorrect RLS ships to production | Resolve PQ-1 before sprint entry |
@@ -610,13 +607,13 @@ What is the intended behavior if the same abort request arrives twice concurrent
 ## Next steps
 
 - [ ] PO to answer PQ-1 through PQ-5 before sprint entry
-- [ ] Dev to confirm `runs` + `run_steps` migration PR exists (DQ-1) and is targeted to land before BK-36
+- [ ] Dev to confirm `runs` + `run_steps` migration PR exists (DQ-1) and is targeted to land before [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36)
 - [ ] Dev to confirm DB transaction wrapping abort side effects (DQ-2)
 - [ ] Dev to confirm `atcs.status` is NOT modified on abort (DQ-4)
 - [ ] Dev to confirm whitespace trimming approach (DQ-5)
 - [ ] Dev to confirm idempotency strategy for double-submit (DQ-6)
 - [ ] PO to add maximum reason length to business rules (GAP-1 from AMB-1)
-- [ ] Confirm BK-34 is sequenced before BK-36 in sprint planning
+- [ ] Confirm [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) is sequenced before [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) in sprint planning
 - [ ] Add seed script for `in_progress` run with steps (test environment pre-condition)
 - [ ] Story re-estimation recommended if `runs` migration scope is larger than 1 SP implies
 
@@ -624,7 +621,7 @@ What is the intended behavior if the same abort request arrives twice concurrent
 
 ### Juan Leites - 23/6/2026, 10:02:24
 
-## PO Response — Shift-Left Questions (BK-36)
+## PO Response — Shift-Left Questions ([https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36))
 
 **Answers provided by the Product Owner on the Shift-Left analysis questions raised by QA.**
 
@@ -681,13 +678,13 @@ This aligns with Bunkai's general principle that viewers cannot mutate data. The
 
 ### Juan Leites - 23/6/2026, 10:02:36
 
-## Dev Response — Shift-Left Technical Questions (BK-36)
+## Dev Response — Shift-Left Technical Questions ([https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36))
 
 **Implementation decisions from the Dev side on the technical questions raised by QA Shift-Left analysis.**
 
 ---
 
-***DQ-1 — ****`runs`**** and ****`run_steps`**** migration******:****** which PR, when?***
+***DQ-1 —**** `runs` ****and**** `run_steps` ****migration:**** ****which PR, when?***
 
 The migration will be delivered as part of ***BK-34*** (Start a manual run). Both tables are co-designed since `run_steps` has no meaning without a parent `runs` row.
 
@@ -721,7 +718,7 @@ CREATE TABLE run_steps (
 
 RLS: project-scoped — only members of the run's project can read/write. Viewers excluded from INSERT/UPDATE.
 
-BK-36 is hard-blocked until this migration merges and BK-34 ships.
+[https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) is hard-blocked until this migration merges and [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) ships.
 
 ---
 
@@ -741,13 +738,13 @@ If the step-update fails for any reason, the entire transaction rolls back. The 
 
 ***DQ-3 — How is "pending" defined for step selection during abort?***
 
-`result = 'pending'` in the `run*steps` table. All steps are inserted as `run*steps` rows with `result = 'pending'` when a run starts (BK-34). There are no "missing rows" — every `atc*step` of the ATC gets a corresponding `run*steps` row on run creation.
+`result = 'pending'` in the `run*steps` table. All steps are inserted as `run*steps` rows with `result = 'pending'` when a run starts ([https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34)). There are no "missing rows" — every `atc*step` of the ATC gets a corresponding `run*steps` row on run creation.
 
 This means the abort's UPDATE targets: `WHERE run_id = $1 AND result = 'pending'`. No subquery needed.
 
 ---
 
-***DQ-4 — Does ****`atcs.status`**** change when a run is aborted?***
+***DQ-4 — Does**** `atcs.status` ****change when a run is aborted?***
 
 ***No.**** `atcs.status` is a template-level field representing the outcome of the **last completed run* (passed or failed). It is updated only when a run finishes normally.
 
@@ -761,7 +758,7 @@ If `atcs.status` were updated on abort, every abort would corrupt the ATC's hist
 
 ---
 
-***DQ-5 — Whitespace trimming******:****** client, server, or DB?***
+***DQ-5 — Whitespace trimming:**** ****client, server, or DB?***
 
 ***Both client and server.*** The reason text is trimmed with `.trim()` at two points:
 
@@ -772,7 +769,7 @@ The DB column does NOT enforce a `CHECK (LENGTH(TRIM(abort_reason)) >= 3)` const
 
 ---
 
-***DQ-6 — Double-submit idempotency******:****** 409 or no-op?***
+***DQ-6 — Double-submit idempotency:**** ****409 or no-op?***
 
 ***First-wins, 409 on the second attempt.*** The Postgres function checks `runs.status = 'in_progress'` as its first step. If the run is already `aborted` (because the first request landed), the function raises an exception and the server action returns a structured error.
 
@@ -787,7 +784,7 @@ We do not implement idempotent no-op for abort because an abort is a terminal ac
 
 ### Juan Leites - 23/6/2026, 10:02:47
 
-## Design / UX Response — Shift-Left UI Ambiguities (BK-36)
+## Design / UX Response — Shift-Left UI Ambiguities ([https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36))
 
 **UI/UX decisions on the interface questions raised by QA Shift-Left analysis.**
 
@@ -811,7 +808,7 @@ The textarea has `minlength=3`, `maxlength=500`. Client-side validation fires on
 
 Two locations, different fidelity:
 
-***Run detail page (primary)******:***
+***Run detail page (primary):***
 
 After abort, the status badge changes to a red "Aborted" lozenge. Directly below the badge, a new section appears:
 
@@ -823,7 +820,7 @@ Abort Reason
 
 This section is conditional — it only renders when `runs.abort_reason` is non-null. For passed or failed runs, this section is absent entirely (no empty field, no "N/A").
 
-***Run history list (secondary)******:***
+***Run history list (secondary):***
 
 In the list of runs for a test (e.g., the run history panel within a test's detail view), aborted runs show:
 
@@ -849,7 +846,7 @@ Implementation guidance: evaluate `run.status` before rendering the action toolb
 
 At the moment abort is confirmed, the step list updates as follows:
 
-| Step state at abort time | Post-abort display |
+| ***Step state at abort time**** | ****Post-abort display*** |
 | --- | --- |
 | `pending` (not yet executed) | Result badge changes to "Skipped" (grey, neutral) |
 | `passed` (already executed) | Unchanged — "Passed" (green) preserved |
@@ -875,13 +872,151 @@ The color and icon for "Skipped" (resulting from abort) should be visually disti
 
 > ***INFO:**** Code for this story has been merged to ****staging*** and is ready for QA verification.
 
-***Deployment details******:***
+***Deployment details:***
 
-- ***PR******:*** [#59](https://github.com/upex-galaxy/upex-bunkai-tms/pull/59) (merged to `staging`)
-- ***Branch******:*** `feature/BK-36-abort-run`
-- ***Staging environment******:*** https://staging-upexbunkai.vercel.app
+- ***PR:*** [#59](https://github.com/upex-galaxy/upex-bunkai-tms/pull/59) (merged to `staging`)
+- ***Branch:*** `feature/BK-36-abort-run`
+- ***Staging environment:*** [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/)
 
 The abort-run feature is now live on staging. QA can proceed with verification of aborting a run in progress.
+
+---
+
+### Nahuel Gomez - 30/6/2026, 1:09:36
+
+## QA Session — 2026-06-30
+
+***Status:*** Deferred — environment constraints
+
+### Assessment
+
+[https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) was reviewed for QA entry. The feature is acknowledged as deployed to staging (PR #59, 2026-06-25). However, QA cannot proceed at this time due to:
+
+1. ***Staging environment reliability*** — The staging deployment (`staging-upexbunkai.vercel.app`) has shown intermittent availability in previous sessions. Proceeding with QA against an unstable environment risks false positives/negatives and wasted ATP authoring effort.
+
+1. ***DB validation tooling*** — Proper validation of the abort-run flow requires database-level cross-validation (run_steps result updates, atomic transaction behavior, RLS enforcement). The DB tooling needed for this validation is not fully configured in the current session context.
+
+### Recommendation
+
+QA to resume once:
+
+- Staging environment availability is confirmed stable
+- DB access tooling is verified operational for cross-validation
+
+### Artifacts
+
+- A full ATP/ATR cycle is pending environment readiness.
+- No blockers identified against the code itself — this is an infrastructure/readiness gate.
+
+---
+
+**This comment documents the deferred session per the QA workflow. No test evidence was generated.**
+
+---
+
+### Juan Leites - 30/6/2026, 18:38:24
+
+Tarea asignada a @@Juan Leites , dado que fue el QA que realizo el Shift-Left testing.
+
+---
+
+### Nahuel Gomez - 6/7/2026, 20:21:41
+
+1. 
+
+****Verdict: PASSED WITH SETUP GAPS****
+
+1. 
+
+- All API endpoints confirmed deployed and responding correctly (runs CRUD, abort routes)
+- Test creation works (201 via POST /api/v1/tests)
+- Runs endpoint receives proper Zod validation (confirms [https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34](https://jira.upexgalaxy.com/browse/BK-34#icft=BK-34) migration is deployed)
+
+1. 
+
+1. 
+
+- Shift-left ATP: 26 outlines (Juan Leites, 23 Jun)
+- PO/Dev/Design answers: All provided
+- Nahuel deferred 30 Jun (env) — env now stable, setup chain is remaining gap
+
+1. 
+
+---
+
+### Nahuel Gomez - 6/7/2026, 20:50:40
+
+1. 
+
+API endpoint verification attached (JSON). Runs CRUD endpoints confirmed deployed. Full E2E blocked by environment_id setup chain.
+
+---
+
+### Nahuel Gomez - 8/7/2026, 19:34:41
+
+***In Test*** — Resuming QA per sprint-testing session.
+
+Previous Jul 6 session found: API endpoints deployed (runs CRUD, abort routes confirmed present). Full E2E blocked by environment_id setup chain in test-project. 26 shift-left outlines remain valid.
+
+Re-assessing staging health now.
+
+---
+
+### Nahuel Gomez - 10/7/2026, 20:53:08
+
+1. 
+
+****Verdict:**** QA Approved ✅ (6/6 ACs PASSED)
+
+1. 
+
+1. 
+
+- ****To Be Automated:**** Yes (set)
+- ****QA Framework:**** Could not set (blocked by QA Approved screen — needs Playwright JavaScript ID 10259)
+- ****In Regression Plan:**** YES (set)
+
+1. 
+
+1. 
+
+- Resolve remaining 3 test gaps in next sprint or before release
+- Set QA Framework when ticket reaches editable status
+- Transition to Ready For Release when ready
+
+****Handing off to Ely for release triage.****
+
+---
+
+### Nahuel Gomez - 10/7/2026, 20:56:40
+
+## [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) — QA Close-out & Hand-off
+
+***Verdict:*** QA Approved ✅ (6/6 ACs PASSED)
+
+### Test gaps documented in ATR (not executed this session)
+
+1. ***Multi-ATC test*** — only 1-ATC test exercised. Full P-01 outline coverage needs multi-step test.
+2. ***Abort-reason boundaries*** — 2-char rejection and whitespace-only not tested in this session.
+3. ***DB validation*** — `run_steps.result = 'skipped'` not verified via DB.
+
+### Automation
+
+- ***To Be Automated:*** Yes (set)
+- ***QA Framework:*** Could not set (blocked by QA Approved screen — needs Playwright JavaScript ID 10259)
+- ***In Regression Plan:*** YES (set)
+
+### ATP
+
+26 outlines exist in shift-left refinement. ATP field blocked by current screen config.
+
+### Next steps
+
+- Resolve remaining 3 test gaps in next sprint or before release
+- Set QA Framework when ticket reaches editable status
+- Transition to Ready For Release when ready
+
+***Handing off to Ely for release triage.***
 
 ---
 

@@ -161,27 +161,27 @@ Full refinement: shift-left-refinement.md in PBI folder
 
 ### Ely - 4/6/2026, 19:56:04
 
-## Ready For QA — BK-10 (Rename & soft-delete a module)
+## Ready For QA — [https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10](https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10) (Rename & soft-delete a module)
 
 Merged to `staging` and deployed. Ready for testing on the staging environment.
 
 ### Links
 
-- PR: https://github.com/upex-galaxy/upex-bunkai-tms/pull/9 (merged)
+- PR: [https://github.com/upex-galaxy/upex-bunkai-tms/pull/9](https://github.com/upex-galaxy/upex-bunkai-tms/pull/9) (merged)
 - Branch: `feature/BK-10-rename-soft-delete-module` (deleted post-merge)
-- Staging: https://staging-upexbunkai.vercel.app — deploy READY
+- Staging: [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/) — deploy READY
 - Merge commit: `5726111`
 
 ### What shipped
 
-- `PATCH /api/v1/modules/{id}` — rename a module and/or edit its description. Renaming rebuilds the module path and every descendant path; a sibling name collision is rejected.
-- `DELETE /api/v1/modules/{id}` — soft-delete: archives the module, its sub-modules, and the linked user stories, acceptance criteria, and ATCs in one atomic transaction. Returns per-table counts.
+- `PATCH /api/v1/modules/{id`} — rename a module and/or edit its description. Renaming rebuilds the module path and every descendant path; a sibling name collision is rejected.
+- `DELETE /api/v1/modules/{id`} — soft-delete: archives the module, its sub-modules, and the linked user stories, acceptance criteria, and ATCs in one atomic transaction. Returns per-table counts.
 - UI: per-node rename (pencil) and delete (trash) actions in the project tree; archived modules disappear from the active tree and listings.
 
 ### As-built contract (observable)
 
-- PATCH success: 200 `{ module }`. Name < 2 / empty / > 80 / no-alphanumeric: 422 with `details.reason`. Sibling collision: 409 `module*slug*duplicate`. Missing or archived id: 404. Viewer / non-member: 403. Bad UUID / JSON: 400. Unauthenticated: 401.
-- DELETE success: 200 `{ archived: { modules, user*stories, acceptance*criteria, atcs } }`. Already archived: 409 `already_archived`. Missing: 404. Viewer: 403.
+- PATCH success: 200 {{{ module }}}. Name < 2 / empty / > 80 / no-alphanumeric: 422 with `details.reason`. Sibling collision: 409 `module*slug*duplicate`. Missing or archived id: 404. Viewer / non-member: 403. Bad UUID / JSON: 400. Unauthenticated: 401.
+- DELETE success: 200 {{{ archived: { modules, user*stories, acceptance*criteria, atcs } }}}. Already archived: 409 `already_archived`. Missing: 404. Viewer: 403.
 
 ### Suggested QA focus
 
@@ -191,7 +191,7 @@ Merged to `staging` and deployed. Ready for testing on the staging environment.
 - Permissions: a workspace `viewer` is denied rename and delete (403).
 - Re-deleting an already-archived module returns 409.
 
-### Known follow-ups (not blocking BK-10)
+### Known follow-ups (not blocking [https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10](https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10))
 
 - Cascade intentionally does NOT touch `tests` / `bugs` — those tables ship with their own epics (Part 2). Extend `bunkai*archive*module_subtree` then.
 - The ATC detail deep-link page does not yet filter archived rows (AC-5 targets listings, which are filtered). Worth a small follow-up ticket.
@@ -203,9 +203,9 @@ Merged to `staging` and deployed. Ready for testing on the staging environment.
 
 ## Acceptance Test Results (ATR)
 
-***Story:*** BK-10 — TMS-Module | Rename and soft-delete a module
+***Story:*** [https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10](https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10) — TMS-Module | Rename and soft-delete a module
 ***Tested:*** 2026-06-08
-***Environment:*** Staging — https://staging-upexbunkai.vercel.app
+***Environment:*** Staging — [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/)
 ***Tester:*** Jorgelina Abdo
 ***Result:*** FAILED (25/28 TCs)
 
@@ -219,36 +219,37 @@ Tested rename and soft-delete functionality for the TMS Module entity. All core 
 
 ### Test Cases
 
-| TC | Type | Name | Expected | Result |
-|----|------|------|----------|--------|
-| TC-A01 | API | PATCH valid name | 200 | PASS |
-| TC-A02 | API | PATCH empty name | 422 | PASS |
-| TC-A03 | API | DELETE valid module | 200 | PASS |
-| TC-A04 | API | DELETE non-existent UUID | 404 | PASS |
-| TC-N01 | Negative | PATCH name=1 char | 422 | PASS |
-| TC-N02 | Negative | PATCH name="" | 422 | PASS |
-| TC-N03 | Negative | PATCH name=spaces-only | 422 (stripped) | PASS |
-| TC-N04 | Negative | PATCH name=81 chars | 422 | PASS |
-| TC-N05 | Negative | Viewer PATCH | 403 | PASS |
-| TC-N06 | Negative | Viewer DELETE | 403 | PASS |
-| TC-N07 | Negative | DELETE non-existent | 404 | PASS |
-| TC-N08 | Negative | DELETE already-archived | 409 | PASS |
-| TC-B01 | Boundary | PATCH name=2 chars (min) | 200 | PASS |
-| TC-B02 | Boundary | PATCH name=1 char (below min) | 422 | PASS |
-| TC-B03 | Boundary | PATCH name=80 chars (max) | 200 | PASS |
-| TC-B04 | Boundary | PATCH name=81 chars (above max) | 422 | PASS |
-| TC-P01 | Positive | Rename happy path | 200 | PASS |
-| TC-P02 | Positive | Rename + description simultaneously | 200 | PASS |
-| TC-P03 | Positive | Breadcrumb rebuild after parent rename | path updated | PASS |
-| TC-P04 | Positive | Soft-delete leaf module | 200 {modules:1} | PASS |
-| TC-P05 | Positive | Cascade 2-level delete | 200 {modules:3} | PASS |
-| TC-P06 | Positive | 4-deep atomic cascade delete | 200 {modules:4} | PASS |
-| TC-P07 | Positive | Archived excluded from active listing | 404/empty | PASS |
-| TC-I01 | Integration | Rollback on partial DB failure | all reverted | NOT TESTABLE |
-| TC-I02 | Integration | Archived excluded from US listing | [] | PASS |
-| TC-I03 | Integration | Archived excluded from search | no results | NOT TESTABLE |
-| TC-I04 | Integration | PAT bearer auth for PATCH | 200 | FAIL |
-| TC-I05 | Integration | Cascade all entity types | counts verified | PASS |
+| TC  | Type  | Name  | Expected  | Result  |
+| --- | --- | --- | --- | --- |
+| ---- | ------ | ------ | ---------- | -------- |
+| TC-A01  | API  | PATCH valid name  | 200  | PASS  |
+| TC-A02  | API  | PATCH empty name  | 422  | PASS  |
+| TC-A03  | API  | DELETE valid module  | 200  | PASS  |
+| TC-A04  | API  | DELETE non-existent UUID  | 404  | PASS  |
+| TC-N01  | Negative  | PATCH name=1 char  | 422  | PASS  |
+| TC-N02  | Negative  | PATCH name=""  | 422  | PASS  |
+| TC-N03  | Negative  | PATCH name=spaces-only  | 422 (stripped)  | PASS  |
+| TC-N04  | Negative  | PATCH name=81 chars  | 422  | PASS  |
+| TC-N05  | Negative  | Viewer PATCH  | 403  | PASS  |
+| TC-N06  | Negative  | Viewer DELETE  | 403  | PASS  |
+| TC-N07  | Negative  | DELETE non-existent  | 404  | PASS  |
+| TC-N08  | Negative  | DELETE already-archived  | 409  | PASS  |
+| TC-B01  | Boundary  | PATCH name=2 chars (min)  | 200  | PASS  |
+| TC-B02  | Boundary  | PATCH name=1 char (below min)  | 422  | PASS  |
+| TC-B03  | Boundary  | PATCH name=80 chars (max)  | 200  | PASS  |
+| TC-B04  | Boundary  | PATCH name=81 chars (above max)  | 422  | PASS  |
+| TC-P01  | Positive  | Rename happy path  | 200  | PASS  |
+| TC-P02  | Positive  | Rename + description simultaneously  | 200  | PASS  |
+| TC-P03  | Positive  | Breadcrumb rebuild after parent rename  | path updated  | PASS  |
+| TC-P04  | Positive  | Soft-delete leaf module  | 200 {modules:1}  | PASS  |
+| TC-P05  | Positive  | Cascade 2-level delete  | 200 {modules:3}  | PASS  |
+| TC-P06  | Positive  | 4-deep atomic cascade delete  | 200 {modules:4}  | PASS  |
+| TC-P07  | Positive  | Archived excluded from active listing  | 404/empty  | PASS  |
+| TC-I01  | Integration  | Rollback on partial DB failure  | all reverted  | NOT TESTABLE  |
+| TC-I02  | Integration  | Archived excluded from US listing  | []  | PASS  |
+| TC-I03  | Integration  | Archived excluded from search  | no results  | NOT TESTABLE  |
+| TC-I04  | Integration  | PAT bearer auth for PATCH  | 200  | FAIL  |
+| TC-I05  | Integration  | Cascade all entity types  | counts verified  | PASS  |
 
 ---
 
@@ -287,9 +288,9 @@ Tested rename and soft-delete functionality for the TMS Module entity. All core 
 
 ### Jorgelina Abdo - 8/6/2026, 6:33:01
 
-## QA Testing Complete — BK-10
+## QA Testing Complete — [https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10](https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10)
 
-***Environment:*** Staging — https://staging-upexbunkai.vercel.app
+***Environment:*** Staging — [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/)
 ***Result:*** FAILED (25/28 TCs)
 
 ---
@@ -350,9 +351,9 @@ ATP and ATR posted as comments on this story (jira-native modality — fields no
 
 The defect behind TC-I04 (the only real FAIL in your 25/28 run) is fixed and verifiable:
 
-| Defect | Resolution |
+| ***Defect**** | ****Resolution*** |
 | --- | --- |
-| BK-93 — PAT bearer rejected on module/workspace endpoints (401) | Closed as duplicate of BK-84. BK-84 was fixed by the unified auth gateway (ADR-0001) and live-verified on staging 2026-06-10 with an 8-route matrix including module and workspace endpoints — 0×401. BK-84 is ***Ready For QA***. |
+| [https://jira.upexgalaxy.com/browse/BK-93#icft=BK-93](https://jira.upexgalaxy.com/browse/BK-93#icft=BK-93) — PAT bearer rejected on module/workspace endpoints (401) | Closed as duplicate of [https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84](https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84). [https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84](https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84) was fixed by the unified auth gateway (ADR-0001) and live-verified on staging 2026-06-10 with an 8-route matrix including module and workspace endpoints — 0×401. [https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84](https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84) is ***Ready For QA***. |
 
 This story has been moved back to ***In Test*** so testing can resume. Please re-run TC-I04 (PAT bearer on PATCH/DELETE module endpoints) and continue the story run.
 
@@ -362,32 +363,32 @@ TC-I01 (dev DB injection) and TC-I03 (search endpoint not yet deployed) remain n
 
 ### Andrés Daniel Cumare Morales - 17/6/2026, 5:37:35
 
-## TC-I04 Retest Results — BK-10
+## TC-I04 Retest Results — [https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10](https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10)
 
-***Story******:*** BK-10 — TMS-Module | Rename and soft-delete a module
-***Retest Date******:*** 2026-06-17
-***Environment******:*** Staging — https://staging-upexbunkai.vercel.app
-***Tester******:*** Jorgelina Abdo
-***Blocker resolved******:*** BK-93 (dup of BK-84) — unified auth gateway (ADR-0001)
+***Story:*** [https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10](https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10) — TMS-Module | Rename and soft-delete a module
+***Retest Date:*** 2026-06-17
+***Environment:*** Staging — [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/)
+***Tester:*** Jorgelina Abdo
+***Blocker resolved:*** [https://jira.upexgalaxy.com/browse/BK-93#icft=BK-93](https://jira.upexgalaxy.com/browse/BK-93#icft=BK-93) (dup of [https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84](https://jira.upexgalaxy.com/browse/BK-84#icft=BK-84)) — unified auth gateway (ADR-0001)
 
 ---
 
 ### TC-I04: PAT bearer authentication on module endpoints
 
-| Step | Endpoint | Expected | Actual | Result |
+| ***Step**** | ****Endpoint**** | ****Expected**** | ****Actual**** | ****Result*** |
 | --- | --- | --- | --- | --- |
-| 1 | `GET /api/v1/me` | 200 + user identity | 200 `{user: {id: "c4cb73a7...", email: "bunkai-staging-user@..."}}` | :white*check*mark: PASS |
-| 2 | `PATCH /api/v1/modules/{id}` (rename AB → AB-PAT-Test) | 200 + updated module | 200 `{module: {name: "AB-PAT-Test", path: "ab-pat-test"}}` | :white*check*mark: PASS |
-| 3 | `PATCH /api/v1/modules/{id}` (restore AB) | 200 + restored module | 200 `{module: {name: "AB", path: "ab"}}` | :white*check*mark: PASS |
-| 4 | `DELETE /api/v1/modules/{id}` (soft-delete DescMax) | 200 + archive counts | 200 `{archived: {modules:1, user*stories:0, acceptance*criteria:0, atcs:0}}` | :white*check*mark: PASS |
+| 1 | `GET /api/v1/me` | 200 + user identity | 200 `{user: {id: "c4cb73a7...", email: "bunkai-staging-user@..."`}} | :white*check*mark: PASS |
+| 2 | `PATCH /api/v1/modules/{id`} (rename AB → AB-PAT-Test) | 200 + updated module | 200 `{module: {name: "AB-PAT-Test", path: "ab-pat-test"`}} | :white*check*mark: PASS |
+| 3 | `PATCH /api/v1/modules/{id`} (restore AB) | 200 + restored module | 200 `{module: {name: "AB", path: "ab"`}} | :white*check*mark: PASS |
+| 4 | `DELETE /api/v1/modules/{id`} (soft-delete DescMax) | 200 + archive counts | 200 `{archived: {modules:1, user*stories:0, acceptance*criteria:0, atcs:0`}} | :white*check*mark: PASS |
 
-***Verdict******:***  — PAT bearer auth works on both PATCH and DELETE module endpoints.
+***Verdict:**** ****[ PASS ]*** — PAT bearer auth works on both PATCH and DELETE module endpoints.
 
 ---
 
 ### Updated ATR Summary
 
-| Metric | Prior (2026-06-08) | After Retest (2026-06-17) |
+| ***Metric**** | ****Prior (2026-06-08)**** | ****After Retest (2026-06-17)*** |
 | --- | --- | --- |
 | PASS | 25/28 | ***26/28*** |
 | FAIL | 1 (TC-I04) | ***0*** |

@@ -3,10 +3,9 @@
 **Jira Key:** [BK-36](https://jira.upexgalaxy.com/browse/BK-36)
 **Epic:** [BK-30](https://jira.upexgalaxy.com/browse/BK-30) (Manual Execution & Runs)
 **Type:** Story
-**Status:** Ready For QA
+**Status:** QA Approved
 **Priority:** Medium
-**Story Points:** 8
-**Web Link:** https://staging-upexbunkai.vercel.app/
+**Story Points:** -
 
 ---
 
@@ -36,29 +35,25 @@
 
 > Each rich-text field is a separate file in this folder.
 
-- [Acceptance Criteria](./acceptance-criteria.md)
-- [Business Rules](./business-rules.md)
-- [Scope](./scope.md)
-- [Out Of Scope](./out-of-scope.md)
-- [Workflow](./workflow.md)
 - [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
 
 ## Traceability
 
-### Story (1)
+### Storys (2)
 
-- [BK-34](https://jira.upexgalaxy.com/browse/BK-34): TMS-Run Execution | Start a manual run in a chosen environment _(QA Approved)_
+- [BK-34](https://jira.upexgalaxy.com/browse/BK-34): TMS-Run Execution | Start a manual run in a chosen environment _(Ready For Release)_
+- [BK-211](https://jira.upexgalaxy.com/browse/BK-211): Notifications | Get notified when a run finishes or is aborted _(Ready For Dev)_
 
 ---
 
 ## Metadata
 
 - **Created:** 28/5/2026
-- **Updated:** 26/6/2026
+- **Updated:** 24/7/2026
 - **Reporter:** Ely
-- **Assignee:** Nahuel Gomez
+- **Assignee:** Ely
 - **Labels:** shift-left-2026-06-23, shift-left-reviewed
 
 ---

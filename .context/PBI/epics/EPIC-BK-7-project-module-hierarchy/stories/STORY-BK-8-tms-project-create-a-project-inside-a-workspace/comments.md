@@ -429,10 +429,10 @@ These follow the `{entity}-{field}-{type`} naming convention established by the 
 
 ### Ely - 3/6/2026, 19:56:46
 
-## Ready for QA — BK-8 deployed to staging
+## Ready for QA — [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) deployed to staging
 
-***Staging:*** https://staging-upexbunkai.vercel.app
-***PR:*** #7 (merged) https://github.com/upex-galaxy/upex-bunkai-tms/pull/7
+***Staging:*** [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/)
+***PR:*** #7 (merged) [https://github.com/upex-galaxy/upex-bunkai-tms/pull/7](https://github.com/upex-galaxy/upex-bunkai-tms/pull/7)
 ***Branch:*** feature/BK-8-create-project
 
 ### What shipped
@@ -462,20 +462,20 @@ Hybrid model: house error.code + granular error.details.reason.
 
 ### Ely - 3/6/2026, 22:36:08
 
-## 🚨 QA — BK-8 FAILED (NO-GO), awaiting fixes
+## 🚨 QA — [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) FAILED (NO-GO), awaiting fixes
 
 QA on staging is complete. The feature is mostly solid, but ***two Major defects + one Minor**** prevent sign-off. Story left ****In Test*** (not transitioned) — defects originate from this story itself, so we are signalling for dev fixes rather than blocking on a pre-existing defect.
 
 ***Defects raised:***
 
-- BK-54 — Reserved project slugs are not rejected (AC-11) — created with HTTP 201
-- BK-55 — Project detail route /projects/{slug} is not workspace-scoped
-- BK-56 — Non-Latin (CJK/Cyrillic) project names rejected as name*no*alphanumeric
+- [https://jira.upexgalaxy.com/browse/BK-54#icft=BK-54](https://jira.upexgalaxy.com/browse/BK-54#icft=BK-54) — Reserved project slugs are not rejected (AC-11) — created with HTTP 201
+- [https://jira.upexgalaxy.com/browse/BK-55#icft=BK-55](https://jira.upexgalaxy.com/browse/BK-55#icft=BK-55) — Project detail route /projects/{slug} is not workspace-scoped
+- [https://jira.upexgalaxy.com/browse/BK-56#icft=BK-56](https://jira.upexgalaxy.com/browse/BK-56#icft=BK-56) — Non-Latin (CJK/Cyrillic) project names rejected as name*no*alphanumeric
 
 ***Headlines:***
 
 - ***Reserved slugs not enforced*** — `api`, `new`, `settings`, `admin`, `null`, `docs` all create with 201. AC-11 + Dev shift-left commitment fail. (Major)
-- `/projects/{slug}`*** not workspace-scoped*** — detail navigation crosses workspace boundaries; duplicate-slug projects shadow each other. Contradicts Workflow AC step 9. (Major)
+- `/projects/{slug`} ***not workspace-scoped*** — detail navigation crosses workspace boundaries; duplicate-slug projects shadow each other. Contradicts Workflow AC step 9. (Major)
 - ***Non-Latin names rejected*** — CJK/Cyrillic project names hit `name*no*alphanumeric` (ASCII-only check). (Minor / i18n improvement)
 
 Full ATR in the Acceptance Test Results field. Everything else (validation codes, auth, membership, duplicates, description size, slug derivation, DB integrity, create UI) passed against the as-built contract.
@@ -486,7 +486,7 @@ Full ATR in the Acceptance Test Results field. Everything else (validation codes
 
 ## Acceptance Test Results (ATR)
 
-BK-8 TEST RESULTS
+[https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) TEST RESULTS
 
 Tested: 2026-06-15
 
@@ -498,17 +498,17 @@ Result: PASSED (All tests passing)
 
 SUMMARY
 
-BK-8 Create Project — retest after fixes for 3 defects
+[https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) Create Project — retest after fixes for 3 defects
 
 All 3 bugs verified as FIXED. Full regression PASSED.
 
 RETEST RESULTS
 
-| Bug | Description | Verdict |
+| ***Bug**** | ****Description**** | ****Verdict*** |
 | --- | --- | --- |
-| BK-51 | Reserved project slugs not rejected | VERIFIED — 422 slug_reserved |
-| BK-52 | Project detail not workspace-scoped | VERIFIED — workspace-scoped |
-| BK-53 | Non-Latin names rejected | VERIFIED — 201 with fallback slug |
+| [https://jira.upexgalaxy.com/browse/BK-51#icft=BK-51](https://jira.upexgalaxy.com/browse/BK-51#icft=BK-51) | Reserved project slugs not rejected | VERIFIED — 422 slug_reserved |
+| [https://jira.upexgalaxy.com/browse/BK-52#icft=BK-52](https://jira.upexgalaxy.com/browse/BK-52#icft=BK-52) | Project detail not workspace-scoped | VERIFIED — workspace-scoped |
+| [https://jira.upexgalaxy.com/browse/BK-53#icft=BK-53](https://jira.upexgalaxy.com/browse/BK-53#icft=BK-53) | Non-Latin names rejected | VERIFIED — 201 with fallback slug |
 
 REGRESSION
 
@@ -516,11 +516,11 @@ Full ATP suite: PASSED (AC-1 through AC-11)
 
 BUGS VERIFIED
 
-BK-51 — Major — VERIFIED
+[https://jira.upexgalaxy.com/browse/BK-51#icft=BK-51](https://jira.upexgalaxy.com/browse/BK-51#icft=BK-51) — Major — VERIFIED
 
-BK-52 — Major — VERIFIED
+[https://jira.upexgalaxy.com/browse/BK-52#icft=BK-52](https://jira.upexgalaxy.com/browse/BK-52#icft=BK-52) — Major — VERIFIED
 
-BK-53 — Minor — VERIFIED
+[https://jira.upexgalaxy.com/browse/BK-53#icft=BK-53](https://jira.upexgalaxy.com/browse/BK-53#icft=BK-53) — Minor — VERIFIED
 
 OBSERVATIONS
 
@@ -530,13 +530,13 @@ PR #36 (merged) addressed all 3 defects.
 
 RECOMMENDATIONS
 
-Close bugs. Move BK-8 to QA Approved.
+Close bugs. Move [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) to QA Approved.
 
 ---
 
 ### Nahuel Gomez - 15/6/2026, 18:08:48
 
-QA Testing Complete — BK-8
+QA Testing Complete — [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8)
 
 Environment: Staging
 
@@ -544,13 +544,141 @@ Result: PASSED (All TCs passing)
 
 RETEST VERIFICATION:
 
-- BK-51: Reserved slugs rejected (422 slug_reserved) — VERIFIED
-- BK-52: Workspace-scoped project detail — VERIFIED
-- BK-53: Non-Latin names accepted (201 with fallback slug) — VERIFIED
+- [https://jira.upexgalaxy.com/browse/BK-51#icft=BK-51](https://jira.upexgalaxy.com/browse/BK-51#icft=BK-51): Reserved slugs rejected (422 slug_reserved) — VERIFIED
+- [https://jira.upexgalaxy.com/browse/BK-52#icft=BK-52](https://jira.upexgalaxy.com/browse/BK-52#icft=BK-52): Workspace-scoped project detail — VERIFIED
+- [https://jira.upexgalaxy.com/browse/BK-53#icft=BK-53](https://jira.upexgalaxy.com/browse/BK-53#icft=BK-53): Non-Latin names accepted (201 with fallback slug) — VERIFIED
 
 REGRESSION: Full suite PASSED (AC-1 through AC-11)
 
 All 3 bugs verified as FIXED. Ready for QA Approved.
+
+---
+
+### Nahuel Gomez - 30/6/2026, 22:27:44
+
+## Automation Complete — Combined Summary
+
+All tests pass in CI. Framework: Playwright + TypeScript + KATA, sandbox project (no auth dependency).
+
+### Reports
+
+| ***Report**** | ****URL*** |
+| --- | --- |
+| Allure (latest) | [https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/](https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/) |
+
+### [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) — Auth email+password sign-in API (8 tests)
+
+CI run: [https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28486452620](https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28486452620)
+
+| ***Scenario**** | ****Status*** |
+| --- | --- |
+| Sign in with valid credentials → 200 (user+session+PAT) | ✅ |
+| Sign in with wrong password → 401 | ✅ |
+| Sign in with non-existent email → 401 | ✅ |
+| Check email (existing) → {exists:true, confirmed:true} | ✅ |
+| Check email (unknown) → {exists:false} | ✅ |
+| GET /me with valid PAT → 200 | ✅ |
+| GET /me without auth → 401 | ✅ |
+| Sign-in PAT authenticates subsequent calls | ✅ |
+
+### [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4) — Workspace CRUD (4 tests)
+
+CI run: [https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28487034357](https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28487034357)
+
+| ***Scenario**** | ****Status*** |
+| --- | --- |
+| Create workspace with name+slug → 201 | ✅ |
+| Name < 3 chars → 422 | ✅ |
+| Reserved slug → 422 | ✅ |
+| Duplicate slug → 409 | ✅ |
+
+### [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) — Project CRUD (4 tests)
+
+| ***Scenario**** | ****Status*** |
+| --- | --- |
+| Create project in workspace → 201 | ✅ |
+| Name < 3 chars → 422 | ✅ |
+| Duplicate slug → 409 | ✅ |
+| Non-member → 403 | ✅ |
+
+### [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) — ATC API (17 tests + 1 fixme)
+
+Verified locally and in CI (sandbox project).
+
+| ***Coverage**** | ****Status*** |
+| --- | --- |
+| 12/12 TC outlines automated | ✅ |
+| 17 tests pass, 1 fixme (403 scope) | ✅ |
+
+### Known gaps
+
+- [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) 403 scope test blocked on STAGING*USER*READONLY_PAT
+- Sandbox tests not promoted to integration project (blocked on [https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177): old /auth/login 404s)
+- Key discovery: /api/v1/auth/signin works — loginEndpoint config can be updated to fix this
+
+---
+
+### Nahuel Gomez - 30/6/2026, 23:14:34
+
+## QA Automation Session — Complete Report (2026-06-30)
+
+### Tally
+
+| ***Ticket**** | ****Tests**** | ****Status*** |
+| --- | --- | --- |
+| [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) | 8 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4) | 4 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) | 4 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) | 6 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14) | 5 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) (prev) | 17 | ✅ PASS |
+| ***Total**** | ****44 + 1 fixme*** |  |
+
+### Infrastructure changes
+
+- ***loginEndpoint**** fixed: `/auth/login` → `/api/v1/auth/signin`. The old endpoint 404s ([https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177)). The [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) endpoint works. ****Integration project is now unblocked.***
+- ***AuthApi*** updated to use sign-in PAT (not session token) for API auth — matches [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) coexistence pattern.
+- ***meEndpoint*** fixed to `/api/v1/me` (actual path).
+- ***auth.types.ts*** updated to match real API response shapes.
+- ***jira-attach-evidence.ts*** script created for attaching screenshots to Jira tickets via REST API.
+
+### CI/CD
+
+- All tests pass in sandbox project. Allure reports at:
+
+[https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/](https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/)
+
+### Known gaps (unchanged)
+
+- [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) 403 scope test — blocked on restricted-scope PAT
+- Sandbox → `.test.ts` promotion — now feasible since api-setup works
+- Nightly regression doesn't include sandbox tests yet (PR gate + manual only)
+
+### Next-step candidates
+
+| ***Priority**** | ****Ticket**** | ****Summary**** | ****Est. time*** |
+| --- | --- | --- | --- |
+| 1 | [https://jira.upexgalaxy.com/browse/BK-182#icft=BK-182](https://jira.upexgalaxy.com/browse/BK-182#icft=BK-182) | Bearer run can't resolve active workspace | ~15 min |
+| 2 | [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) | ATC "Used in N tests" report | ~15 min |
+| 3 | [https://jira.upexgalaxy.com/browse/BK-57#icft=BK-57](https://jira.upexgalaxy.com/browse/BK-57#icft=BK-57) | PATCH /modules/{id} atomicity | ~20 min |
+| 4 | [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) | Abort a run in progress | ~20 min |
+
+---
+
+### Nahuel Gomez - 22/7/2026, 22:09:30
+
+## QA Automation — Sandbox Promoted to KATA Components
+
+Sandbox tests promoted to KATA components via ***WorkspacesApi**** + ****ProjectsApi*** (shared with [BK-4](https://jira.upexgalaxy.com/browse/BK-4)).
+
+### Tests ([BK-8](https://jira.upexgalaxy.com/browse/BK-8) subset: 4/4 ✅)
+
+- Project create in workspace → 201
+- Name < 3 chars → 422
+- Duplicate name → 409
+- Non-member workspace → 403
+
+Part of the 9-test combined [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4)/[https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) suite. All passing.
 
 ---
 

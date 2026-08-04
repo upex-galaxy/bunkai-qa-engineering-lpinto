@@ -3,7 +3,7 @@
 **Jira Key:** [BK-31](https://jira.upexgalaxy.com/browse/BK-31)
 **Priority:** Medium
 **Status:** Planning
-**Total Story Points:** 11
+**Total Story Points:** 0
 
 ---
 
@@ -25,17 +25,18 @@ Because engineering already lives in their own tracker, every defect filed in Bu
 
 | Key | Story | Points | Priority | Status |
 | --- | ----- | ------ | -------- | ------ |
-| [BK-40](https://jira.upexgalaxy.com/browse/BK-40) | TMS-Defect Filing | File a defect from a failing run step | 5 | Medium | Ready For Dev |
-| [BK-41](https://jira.upexgalaxy.com/browse/BK-41) | TMS-Defect List | List and filter defects by module, status, severity | 2 | Medium | Ready For Dev |
-| [BK-42](https://jira.upexgalaxy.com/browse/BK-42) | TMS-Defect Heatmap | View count and week-over-week trend per module | 3 | Medium | Ready For Dev |
-| [BK-43](https://jira.upexgalaxy.com/browse/BK-43) | TMS-Defect Sync | Sync defects one-way to the external tracker | 1 | Medium | Backlog |
+| [BK-40](https://jira.upexgalaxy.com/browse/BK-40) | TMS-Defect Filing | File a defect from a failing run step | - | Medium | Ready For QA |
+| [BK-41](https://jira.upexgalaxy.com/browse/BK-41) | TMS-Defect List | List and filter defects by module, status, severity | - | Medium | Ready For QA |
+| [BK-42](https://jira.upexgalaxy.com/browse/BK-42) | TMS-Defect Heatmap | View count and week-over-week trend per module | - | Medium | Ready For QA |
+| [BK-43](https://jira.upexgalaxy.com/browse/BK-43) | TMS-Defect Sync | Sync defects one-way to the external tracker | - | Medium | Ready For Dev |
+| [BK-264](https://jira.upexgalaxy.com/browse/BK-264) | TMS-Defect Triage | Assign a defect to a workspace member and update its status | - | Medium | Ready For QA |
 
 ---
 
 ## Metadata
 
 - **Created:** 28/5/2026
-- **Updated:** 1/6/2026
+- **Updated:** 11/7/2026
 - **Reporter:** Ely
 - **Assignee:** Unassigned
 

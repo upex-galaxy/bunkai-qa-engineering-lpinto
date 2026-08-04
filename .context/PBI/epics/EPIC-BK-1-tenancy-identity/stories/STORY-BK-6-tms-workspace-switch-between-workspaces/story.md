@@ -3,10 +3,9 @@
 **Jira Key:** [BK-6](https://jira.upexgalaxy.com/browse/BK-6)
 **Epic:** [BK-1](https://jira.upexgalaxy.com/browse/BK-1) (Tenancy & Identity)
 **Type:** Story
-**Status:** QA Approved
+**Status:** Ready For Release
 **Priority:** Medium
-**Story Points:** 5
-**Web Link:** https://staging-upexbunkai.vercel.app/
+**Story Points:** -
 
 ---
 
@@ -56,15 +55,18 @@ Implements ***FR-004***.
 
 > Each rich-text field is a separate file in this folder.
 
-- [Acceptance Criteria](./acceptance-criteria.md)
-- [Business Rules](./business-rules.md)
-- [Scope](./scope.md)
-- [Out Of Scope](./out-of-scope.md)
-- [Workflow](./workflow.md)
+- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
 
 ## Traceability
+
+### Tests (4)
+
+- [BK-251](https://jira.upexgalaxy.com/browse/BK-251): BK-6: TC2: should reject the switch with 403 given the user has no membership in the target workspace _(Candidate)_
+- [BK-253](https://jira.upexgalaxy.com/browse/BK-253): BK-6: TC4: should display the newly active workspace in the header switcher after switch and page reload _(Candidate)_
+- [BK-252](https://jira.upexgalaxy.com/browse/BK-252): BK-6: TC3: should reject the switch with 403 given the user's membership in the target workspace is suspended _(Candidate)_
+- [BK-250](https://jira.upexgalaxy.com/browse/BK-250): BK-6: TC1: should update active workspace context when switching to a workspace given the user is an active member _(Candidate)_
 
 ### Bug (1)
 
@@ -75,7 +77,7 @@ Implements ***FR-004***.
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 11/6/2026
+- **Updated:** 31/7/2026
 - **Reporter:** Ely
 - **Assignee:** Luis Eduardo Flores Villarroel
 - **Labels:** mvp, tenancy, wave-1

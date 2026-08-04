@@ -20,18 +20,18 @@
 
 ***Ready for QA on staging*** — PR [#54](https://github.com/upex-galaxy/upex-bunkai-tms/pull/54) merged to `staging`.
 
-***What to test*** (https://staging-upexbunkai.vercel.app/login):
+***What to test*** ([https://staging-upexbunkai.vercel.app/login):](https://staging-upexbunkai.vercel.app/login):)
 
 - Email-first routing: existing email → password step; new email → create step.
 - Password sign-in (happy + wrong-password generic error, no enumeration leak).
 - Sign-up → 6–8 digit email OTP → confirm → signed in.
 - Unconfirmed account sign-in → routed to the verify step.
 - Magic-link fallback still visible; OAuth still disabled.
-- API rail: `POST /api/v1/auth/{signup,confirm,signin}` + `/check-email`; PAT + cookie coexist (no clobber).
+- API rail: `POST /api/v1/auth/{signup,confirm,signin`} + `/check-email`; PAT + cookie coexist (no clobber).
 
 ***Notes for QA:***
 
-- PATs minted on sign-in/confirm now use least-privilege default scopes (`atc:read`, `atc:write`, `run:execute`) — no global `workspace:admin` (per ADR-0005 / BK-135). ADR-0007 documents this feature.
+- PATs minted on sign-in/confirm now use least-privilege default scopes (`atc:read`, `atc:write`, `run:execute`) — no global `workspace:admin` (per ADR-0005 / [https://jira.upexgalaxy.com/browse/BK-135#icft=BK-135](https://jira.upexgalaxy.com/browse/BK-135#icft=BK-135)). ADR-0007 documents this feature.
 - ⚠️ ***Email delivery caveat:*** the shared Supabase project is on the free-tier email cap, so a real human sign-up may not receive the OTP email until custom SMTP (Resend) is configured (in progress). For test accounts, use admin-confirmed users or `admin.generateLink` to obtain the OTP without inbox delivery.
 - Migration `0034*auth*email*status*rpc` (service-role-only `auth*email*status` RPC) is applied to the shared DB.
 - Smoke (Playwright, isolated logged-out profile) passed all code-path ACs on localhost.
@@ -40,16 +40,16 @@
 
 ### Benjamin Segovia - 23/6/2026, 19:18:54
 
-Bug found during exploratory testing: BK-177 - Staging deployment missing email-first password sign-in UI and 2 of 4 BK-166 API routes
+Bug found during exploratory testing: [https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177) - Staging deployment missing email-first password sign-in UI and 2 of 4 [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) API routes
 
 ---
 
 ### Benjamin Segovia - 23/6/2026, 19:21:01
 
-## QA Testing Complete - BK-166
+## QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166)
 
-***Environment******:*** Staging
-***Result******:*** FAILED (0/42 TCs)
+***Environment:*** Staging
+***Result:*** FAILED (0/42 TCs)
 
 ### Test Data Used
 
@@ -61,18 +61,18 @@ None — smoke test failed before any AC could be exercised.
 
 ### Failed Verification
 
-- ***Smoke test******:*** staging serves the legacy magic-link-only login UI; `POST /api/v1/auth/check-email` and `POST /api/v1/auth/confirm` return HTTP 404 (route not deployed); `POST /api/v1/auth/signup` and `POST /api/v1/auth/signin` exist but return HTTP 422 instead of the documented 400.
+- ***Smoke test:*** staging serves the legacy magic-link-only login UI; `POST /api/v1/auth/check-email` and `POST /api/v1/auth/confirm` return HTTP 404 (route not deployed); `POST /api/v1/auth/signup` and `POST /api/v1/auth/signin` exist but return HTTP 422 instead of the documented 400.
 
 ### Defect
 
-***BK-177*** (Critical) — Staging deployment missing email-first password sign-in UI and 2 of 4 BK-166 API routes. Root cause appears to be a deploy/build gap (source on `staging` branch has the feature; live site does not) — not an application logic defect.
+***BK-177*** (Critical) — Staging deployment missing email-first password sign-in UI and 2 of 4 [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) API routes. Root cause appears to be a deploy/build gap (source on `staging` branch has the feature; live site does not) — not an application logic defect.
 
 ### Notes
 
 - AC4/AC11 (signup→OTP→confirm) were already out of scope for this environment regardless of the deploy gap — free-tier Supabase email cap, no service-role key available to QA tooling.
 - DB cross-validation leg deferred this session (DBHub MCP pending `.env` credentials) — moot for this pass since the feature could not be reached.
 
-***Artifacts******:*** ATP-customfield*10067, ATR-customfield*10147, Bug-BK-177
+***Artifacts:*** ATP-customfield*10067, ATR-customfield*10147, Bug-BK-177
 
 ---
 
@@ -82,7 +82,7 @@ None — smoke test failed before any AC could be exercised.
 
 Staging (`https://staging-upexbunkai.vercel.app/login`) is still serving the old magic-link-only screen. At the API level, `POST /api/v1/auth/check-email` and `POST /api/v1/auth/confirm` return a plain 404 (route not found), and `signup`/`signin` exist but answer `422` instead of the `400` the code expects on a validation failure.
 
-The `staging` branch itself looks right — `upex-bunkai-tms` is at commit `16863ca` (2026-06-22), which includes PR #54 — so the merge is there, the live deployment just doesn't reflect it. Filed as ***BK-177*** with the repro steps and evidence, linked back to this story, and transitioned BK-166 to Blocked until it's redeployed.
+The `staging` branch itself looks right — `upex-bunkai-tms` is at commit `16863ca` (2026-06-22), which includes PR #54 — so the merge is there, the live deployment just doesn't reflect it. Filed as ***BK-177*** with the repro steps and evidence, linked back to this story, and transitioned [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) to Blocked until it's redeployed.
 
 Could you check which Vercel deployment that staging alias is actually pointing to? Once it's serving the right build, QA picks the full pass back up immediately — the ATP (42 outlines) is already written and ready to go.
 
@@ -95,7 +95,7 @@ Could you check which Vercel deployment that staging alias is actually pointing 
 - Custom SMTP (Resend, `no-reply@mail.upexgalaxy.com`) configured on Supabase Auth → real verification emails now deliver (free-tier 429 cap resolved). `RESEND*API*KEY` synced to Vercel staging + production scopes.
 - Full UI e2e on staging passed (6/6): email-first routing, password sign-up → OTP → confirm → authed, password sign-in, wrong-password generic error (no enumeration), magic-link fallback visible. Cookie/PAT coexistence covered by unit test.
 - Note: the staging auto-deploy did not fire for the merge commit; redeployed manually via `vercel deploy --target staging`. Worth checking the Vercel git integration so future staging merges deploy automatically.
-- `/qa` testability guide updated (PR #55, merged) to document the new auth surface — three login methods, email-OTP flow, API rails, PAT least-privilege scopes, cookie/PAT coexistence, and how QA retrieves OTP codes without a real inbox (Resend test inbox `@delgri.resend.app`). Live at https://staging-upexbunkai.vercel.app/qa
+- `/qa` testability guide updated (PR #55, merged) to document the new auth surface — three login methods, email-OTP flow, API rails, PAT least-privilege scopes, cookie/PAT coexistence, and how QA retrieves OTP codes without a real inbox (Resend test inbox `@delgri.resend.app`). Live at [https://staging-upexbunkai.vercel.app/qa](https://staging-upexbunkai.vercel.app/qa)
 
 Production NOT deployed (app not launched to prod yet — gated until further notice).
 
@@ -107,7 +107,7 @@ Production NOT deployed (app not launched to prod yet — gated until further no
 
 > Field write to `customfield*10147` (Acceptance Test Results (ATR)) failed at runtime — `Field 'customfield*10147' cannot be set. It is not on the appropriate screen, or unknown.` (HTTP 400). Posting via the documented comment fallback instead.
 
-## BK-166 Test Results
+## [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) Test Results
 
 ***Tested***: 2026-06-24 (re-run; original pass 2026-06-23 — see history below)
 ***Environment***: Staging (`https://staging-upexbunkai.vercel.app`)
@@ -120,14 +120,14 @@ Staging was re-tested today after Ely confirmed (Jira comment #11752) that the d
 
 Of the 42 planned outlines: ***30 PASSED****, ****0 FAILED**** (zero application defects found this pass), ****2 remain NOT VERIFIABLE**** (AC4/AC11 — same pre-existing OTP-delivery scope decision from Stage 1, unchanged by this pass), and ****10 are BLOCKED*** — not by the application, but by two test-infrastructure gaps hit during execution:
 
-1. The shared `STAGING*USER*EMAIL` test account is not in a "confirmed" state on this build (`check-email` → `{"exists":true,"confirmed":false}`), which blocks every outline that needs a real confirmed account to demonstrate a successful signin.
+1. The shared `STAGING*USER*EMAIL` test account is not in a "confirmed" state on this build (`check-email` → `{"exists":true,"confirmed":false`}), which blocks every outline that needs a real confirmed account to demonstrate a successful signin.
 2. Supabase's free-tier email-send cap was hit mid-pass (after roughly 6-8 signup calls), throttling several more signup-heavy outlines with `429 rate_limited`.
 
 Because zero app defects were found and the blocked outlines are entirely attributable to environment/test-data constraints outside the application's control, this pass is reported as ***PASSED WITH ISSUES***, not a clean pass and not blocked.
 
 ### Test Cases
 
-| # | Title | Result | Note |
+| ***#**** | ****Title**** | ****Result**** | ****Note*** |
 | --- | --- | --- | --- |
 | TC-01 | Route to password step for existing confirmed email | BLOCKED (test-data) | Routing logic verified; `STAGING*USER*EMAIL` is `confirmed:false`, not `confirmed:true` |
 | TC-02 | Route to create step for unregistered email | PASSED |  |
@@ -172,7 +172,7 @@ Because zero app defects were found and the blocked outlines are entirely attrib
 
 ### Test Data
 
-- Staging shared account: `{{STAGING*USER*EMAIL}}` — confirmed this pass to be in `confirmed:false` state on this build (see Findings)
+- Staging shared account: `{{STAGING*USER*EMAIL`}} — confirmed this pass to be in `confirmed:false` state on this build (see Findings)
 - Fresh signup emails: `faker.internet.email()` per signup-path outline
 
 ### Bugs Found
@@ -183,7 +183,7 @@ None this pass. ***BK-177 verified RESOLVED*** — both prior blocking findings 
 
 - ***BK-177 verification***: confirmed fixed. `/login` now renders the full email-first password-signin UI (email → Continue → password/create step → verify step), and all 4 API routes (`check-email`, `signup`, `signin`, `confirm`) return structured JSON responses, not 404s.
 - ***422-vs-400 status code question — resolved, not a bug****: the prior session flagged a discrepancy where `signup`/`signin`/`confirm` returned `422` where the ATP expected `400`. This pass fully characterizes the behavior: malformed/unparseable JSON bodies consistently return `400 bad*request` (TC-17, all 4 routes); valid-JSON-but-failed-Zod-schema failures (missing field, oversized, bad enum, regex mismatch) consistently return `422 validation*failed` (TC-18, TC-20, TC-23, TC-27 R4, TC-30, TC-14, TC-15, TC-21, TC-24). This is a ****deliberate two-tier error model***, not build drift or a defect — the ATP's "400" expectation conflated the two tiers under one status code where the app intentionally splits them. No action needed; ATP language to be aligned at the next Stage 1/4 touchpoint.
-- ***Test-infrastructure gap 1 — unconfirmed shared test account***: `{{STAGING*USER*EMAIL}}` returns `{"exists":true,"confirmed":false}` on this build, not the "confirmed account" the Stage-1 ATP assumed as precondition. This blocks TC-01, TC-04, TC-05, TC-09 (UI leg), TC-16 (compounded with rate-limit), TC-24 (accept leg), TC-27 (R1/R2/R3/R5), TC-28 (R1/R2), and TC-29 — 9 of the 10 BLOCKED outlines trace to this gap. No second staging credential exists in `.env` to substitute, and self-resolving via fresh signup would re-hit the same real-OTP-confirmation requirement that AC4/AC11 are already scoped out of.
+- ***Test-infrastructure gap 1 — unconfirmed shared test account***: `{{STAGING*USER*EMAIL`}} returns `{"exists":true,"confirmed":false`} on this build, not the "confirmed account" the Stage-1 ATP assumed as precondition. This blocks TC-01, TC-04, TC-05, TC-09 (UI leg), TC-16 (compounded with rate-limit), TC-24 (accept leg), TC-27 (R1/R2/R3/R5), TC-28 (R1/R2), and TC-29 — 9 of the 10 BLOCKED outlines trace to this gap. No second staging credential exists in `.env` to substitute, and self-resolving via fresh signup would re-hit the same real-OTP-confirmation requirement that AC4/AC11 are already scoped out of.
 - ***Test-infrastructure gap 2 — Supabase free-tier email-send cap***: hit repeatedly after ~6-8 signup calls in quick succession during this pass (`429 rate_limited "email rate limit exceeded"`), independent of whether the email is ever read. This is the same upstream-Supabase-owned throttle already noted under AC8 — it blocked TC-08, TC-15 (rows 2/3), TC-32, and a clean isolated re-check of TC-16.
 - ***DB cross-validation still deferred***: DBHub MCP remains unavailable this session (pending `.env` fix + restart). TC-29's DB leg (2 independent `access_tokens` rows) was not queried — independent of, and in addition to, the test-data gap above.
 - ***AC4/AC11 scope decision unchanged***: per explicit instruction this pass, the OTP-dependent happy path was not re-attempted even though Ely's 2026-06-24 comment states real OTP delivery is now working — the no-service-role-key constraint in QA tooling is independent of delivery capability and was not waived for this session.
@@ -199,19 +199,19 @@ None this pass. ***BK-177 verified RESOLVED*** — both prior blocking findings 
 
 ### Benjamin Segovia - 24/6/2026, 9:40:35
 
-## QA Testing Complete - BK-166
+## QA Testing Complete - [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166)
 
 ***Environment***: Staging (`https://staging-upexbunkai.vercel.app`)
 ***Result***: PASSED WITH ISSUES (30/42 TCs)
 
 ### Test data used
 
-- Staging shared account: `{{STAGING*USER*EMAIL}}` (found unconfirmed on this build — see below)
+- Staging shared account: `{{STAGING*USER*EMAIL`}} (found unconfirmed on this build — see below)
 - Fresh signup emails: `faker.internet.email()` per signup-path outline
 
 ### Verified behaviors
 
-- BK-177 (Critical, deploy/build gap) — ***VERIFIED RESOLVED***. Full email-first password sign-in UI is live; all 4 API routes (`check-email`, `signup`, `signin`, `confirm`) return structured JSON, no more 404s.
+- [https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177) (Critical, deploy/build gap) — ***VERIFIED RESOLVED***. Full email-first password sign-in UI is live; all 4 API routes (`check-email`, `signup`, `signin`, `confirm`) return structured JSON, no more 404s.
 - AC2, AC6, AC7, AC9 — VERIFIED (routing, unconfirmed reroute, invalid-code rejection, magic-link disclosure).
 - 30 of 42 outlines PASSED across positive, negative, boundary, state-transition, decision-table, and error-guessing charters. Zero application defects found this pass.
 - 422-vs-400 status-code question — RESOLVED, not a bug. Confirmed as a deliberate two-tier error model: malformed JSON → `400`, valid-JSON-but-failed-schema → `422`, consistent across all 4 routes. No action needed.
@@ -224,7 +224,7 @@ None this pass. ***BK-177 verified RESOLVED*** — both prior blocking findings 
 
 10 of 42 outlines could not be exercised this pass, for two reasons:
 
-1. ***Unconfirmed shared test account*** — `{{STAGING*USER*EMAIL}}` is `confirmed:false` on this build, blocking every outline that needs a real confirmed account to demonstrate a successful signin (TC-01, TC-04, TC-05, TC-09 UI leg, TC-24 accept leg, TC-27 R1/R2/R3/R5, TC-28 R1/R2, TC-29).
+1. ***Unconfirmed shared test account*** — `{{STAGING*USER*EMAIL`}} is `confirmed:false` on this build, blocking every outline that needs a real confirmed account to demonstrate a successful signin (TC-01, TC-04, TC-05, TC-09 UI leg, TC-24 accept leg, TC-27 R1/R2/R3/R5, TC-28 R1/R2, TC-29).
 2. ***Supabase free-tier email-send cap hit mid-pass*** — after ~6-8 signup calls, throttling further signup-heavy outlines with `429` (TC-08, TC-15 rows 2/3, TC-16, TC-32).
 
 ***Ask***: we need either a second pre-confirmed staging test account, or a cooldown window past the Supabase send-cap, to clear the remaining 10 outlines.
@@ -236,7 +236,7 @@ Artifacts: ATP-customfield*10067, ATR posted as comment fallback (customfield*10
 ---
 
 > ***WARNING:**** ****Technical note — independent of this QA result***
-BK-166 currently shows ***zero available Jira transitions from ***`Blocked`. `GET /rest/api/3/issue/BK-166/transitions` returns an empty array, and `acli jira workitem transition --key BK-166 --status "In Test"` fails with `No allowed transitions found for given status` — despite a `back*from*blocked` transition existing in the workflow scheme definition. This might be a workflow/permission-scheme gap worth a look. It blocked our attempt to move this ticket forward today and will likely block it again until fixed.
+[https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) currently shows ***zero available Jira transitions from*** `Blocked`. `GET /rest/api/3/issue/BK-166/transitions` returns an empty array, and `acli jira workitem transition --key BK-166 --status "In Test"` fails with `No allowed transitions found for given status` — despite a `back*from*blocked` transition existing in the workflow scheme definition. This might be a workflow/permission-scheme gap worth a look. It blocked our attempt to move this ticket forward today and will likely block it again until fixed.
 Separately (lower priority, same root-cause family): the `Acceptance Test Results (ATR)` custom field (`customfield*10147`) also rejected a direct write today — `Field 'customfield*10147' cannot be set. It is not on the appropriate screen, or unknown.` The ATR content above was posted as a comment instead (documented fallback). Worth checking the screen scheme for this issue/project while looking at the transitions gap.
 
 ---
@@ -245,8 +245,8 @@ Separately (lower priority, same root-cause family): the `Acceptance Test Result
 
 @@Ely flagging this directly so it doesn't get buried in the QA verdict comment above (#11754) — two workflow items on this ticket need a look when you get a chance:
 
-1. ***Zero transitions available from ****`Blocked`****.*** `GET /rest/api/3/issue/BK-166/transitions` returns an empty array, and `acli jira workitem transition --key BK-166 --status "In Test"` fails with `No allowed transitions found for given status` — even though the workflow scheme defines a `back*from*blocked` transition. We can't move BK-166 out of `Blocked` via the API right now.
-2. ***The ATR custom field (****`customfield*10147`****) rejects writes while the ticket is ***`Blocked` — `Field 'customfield*10147' cannot be set. It is not on the appropriate screen, or unknown.` It accepted writes fine in the prior session when the ticket was `In Test`, so the `Blocked` status's screen scheme likely excludes this field.
+1. ***Zero transitions available from**** `Blocked`****.*** `GET /rest/api/3/issue/BK-166/transitions` returns an empty array, and `acli jira workitem transition --key BK-166 --status "In Test"` fails with `No allowed transitions found for given status` — even though the workflow scheme defines a `back*from*blocked` transition. We can't move [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) out of `Blocked` via the API right now.
+2. ***The ATR custom field (****`customfield*10147`****) rejects writes while the ticket is*** `Blocked` — `Field 'customfield*10147' cannot be set. It is not on the appropriate screen, or unknown.` It accepted writes fine in the prior session when the ticket was `In Test`, so the `Blocked` status's screen scheme likely excludes this field.
 
 Today's QA verdict (PASSED WITH ISSUES, 30/42) is recorded in the comment above since both of these blocked it from landing in the proper field/transition. Whenever the workflow/screen scheme gets fixed, we can re-apply it properly — no need to re-test.
 
@@ -266,11 +266,159 @@ Today's QA verdict (PASSED WITH ISSUES, 30/42) is recorded in the comment above 
 
 ### Benjamin Segovia - 25/6/2026, 9:42:12
 
-Bug found during exploratory testing: BK-181 - Authentication: Signup: "Request a new code" calls signup instead of resend, leaks raw validation error
+Bug found during exploratory testing: [https://jira.upexgalaxy.com/browse/BK-181#icft=BK-181](https://jira.upexgalaxy.com/browse/BK-181#icft=BK-181) - Authentication: Signup: "Request a new code" calls signup instead of resend, leaks raw validation error
 
-Found incidentally while probing BK-23's staging login blocker, not during a dedicated BK-166 retest session.
+Found incidentally while probing BK-23's staging login blocker, not during a dedicated [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) retest session.
 
-Note: could not create the `Problem/Incident` ("causes") issuelink from this Story to BK-181 — Jira returned `401 No hay permiso de Enlazar Incidencia para la incidencia 'BK-166'` via both `acli` and REST. This is the same Link-Issue permission gap previously hit on this Story for BK-175/BK-177.
+Note: could not create the `Problem/Incident` ("causes") issuelink from this Story to [https://jira.upexgalaxy.com/browse/BK-181#icft=BK-181](https://jira.upexgalaxy.com/browse/BK-181#icft=BK-181) — Jira returned `401 No hay permiso de Enlazar Incidencia para la incidencia 'BK-166'` via both `acli` and REST. This is the same Link-Issue permission gap previously hit on this Story for [https://jira.upexgalaxy.com/browse/BK-175#icft=BK-175](https://jira.upexgalaxy.com/browse/BK-175#icft=BK-175)/[https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177).
+
+---
+
+### Nahuel Gomez - 30/6/2026, 22:13:45
+
+## [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) Automation — Discovery Report
+
+### Key finding
+
+***POST /api/v1/auth/signin WORKS*** on staging — returns 200 with user, session, and PAT.
+
+The old `/auth/login` endpoint (configured in the test framework) returns 404 because [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) replaced it with `/api/v1/auth/signin`. [https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177) (REJECTED) was about staging missing the new routes, but they ARE deployed.
+
+### What this means
+
+1. The test framework's `loginEndpoint` config should be updated from `/auth/login` to `/api/v1/auth/signin`
+2. This unblocks the `integration` test project (currently blocked by api-setup failing on the old endpoint)
+3. Pre-configured PAT (`STAGING*USER*PAT`) is no longer strictly required for API tests — sign-in itself returns a fresh PAT
+
+### Tests written
+
+8 sandbox tests in `tests/integration/auth/auth-signin.sandbox.ts`, all passing:
+
+| ***Scenario**** | ****Expected**** | ****Status*** |
+| --- | --- | --- |
+| Sign in with valid credentials | 200 + user + session + PAT | ✅ |
+| Sign in with wrong password | 401 | ✅ |
+| Sign in with non-existent email | 401 | ✅ |
+| Check email (existing user) | {exists:true, confirmed:true} | ✅ |
+| Check email (unknown) | {exists:false, confirmed:false} | ✅ |
+| GET /me with valid PAT | 200 + user info | ✅ |
+| GET /me without auth | 401 | ✅ |
+| Sign-in PAT authenticates subsequent calls | 200 | ✅ |
+
+### Recommended next step
+
+Update `config/variables.ts` `loginEndpoint` from `/auth/login` to `/auth/signin` — this auto-fixes the api-setup dependency for ALL integration tests.
+
+---
+
+### Nahuel Gomez - 30/6/2026, 22:27:47
+
+## Automation Complete — Combined Summary
+
+All tests pass in CI. Framework: Playwright + TypeScript + KATA, sandbox project (no auth dependency).
+
+### Reports
+
+| ***Report**** | ****URL*** |
+| --- | --- |
+| Allure (latest) | [https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/](https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/) |
+
+### [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) — Auth email+password sign-in API (8 tests)
+
+CI run: [https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28486452620](https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28486452620)
+
+| ***Scenario**** | ****Status*** |
+| --- | --- |
+| Sign in with valid credentials → 200 (user+session+PAT) | ✅ |
+| Sign in with wrong password → 401 | ✅ |
+| Sign in with non-existent email → 401 | ✅ |
+| Check email (existing) → {exists:true, confirmed:true} | ✅ |
+| Check email (unknown) → {exists:false} | ✅ |
+| GET /me with valid PAT → 200 | ✅ |
+| GET /me without auth → 401 | ✅ |
+| Sign-in PAT authenticates subsequent calls | ✅ |
+
+### [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4) — Workspace CRUD (4 tests)
+
+CI run: [https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28487034357](https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28487034357)
+
+| ***Scenario**** | ****Status*** |
+| --- | --- |
+| Create workspace with name+slug → 201 | ✅ |
+| Name < 3 chars → 422 | ✅ |
+| Reserved slug → 422 | ✅ |
+| Duplicate slug → 409 | ✅ |
+
+### [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) — Project CRUD (4 tests)
+
+| ***Scenario**** | ****Status*** |
+| --- | --- |
+| Create project in workspace → 201 | ✅ |
+| Name < 3 chars → 422 | ✅ |
+| Duplicate slug → 409 | ✅ |
+| Non-member → 403 | ✅ |
+
+### [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) — ATC API (17 tests + 1 fixme)
+
+Verified locally and in CI (sandbox project).
+
+| ***Coverage**** | ****Status*** |
+| --- | --- |
+| 12/12 TC outlines automated | ✅ |
+| 17 tests pass, 1 fixme (403 scope) | ✅ |
+
+### Known gaps
+
+- [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) 403 scope test blocked on STAGING*USER*READONLY_PAT
+- Sandbox tests not promoted to integration project (blocked on [https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177): old /auth/login 404s)
+- Key discovery: /api/v1/auth/signin works — loginEndpoint config can be updated to fix this
+
+---
+
+### Nahuel Gomez - 30/6/2026, 23:14:31
+
+## QA Automation Session — Complete Report (2026-06-30)
+
+### Tally
+
+| ***Ticket**** | ****Tests**** | ****Status*** |
+| --- | --- | --- |
+| [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) | 8 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4) | 4 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) | 4 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) | 6 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14) | 5 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) (prev) | 17 | ✅ PASS |
+| ***Total**** | ****44 + 1 fixme*** |  |
+
+### Infrastructure changes
+
+- ***loginEndpoint**** fixed: `/auth/login` → `/api/v1/auth/signin`. The old endpoint 404s ([https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177)). The [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) endpoint works. ****Integration project is now unblocked.***
+- ***AuthApi*** updated to use sign-in PAT (not session token) for API auth — matches [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) coexistence pattern.
+- ***meEndpoint*** fixed to `/api/v1/me` (actual path).
+- ***auth.types.ts*** updated to match real API response shapes.
+- ***jira-attach-evidence.ts*** script created for attaching screenshots to Jira tickets via REST API.
+
+### CI/CD
+
+- All tests pass in sandbox project. Allure reports at:
+
+[https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/](https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/)
+
+### Known gaps (unchanged)
+
+- [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) 403 scope test — blocked on restricted-scope PAT
+- Sandbox → `.test.ts` promotion — now feasible since api-setup works
+- Nightly regression doesn't include sandbox tests yet (PR gate + manual only)
+
+### Next-step candidates
+
+| ***Priority**** | ****Ticket**** | ****Summary**** | ****Est. time*** |
+| --- | --- | --- | --- |
+| 1 | [https://jira.upexgalaxy.com/browse/BK-182#icft=BK-182](https://jira.upexgalaxy.com/browse/BK-182#icft=BK-182) | Bearer run can't resolve active workspace | ~15 min |
+| 2 | [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) | ATC "Used in N tests" report | ~15 min |
+| 3 | [https://jira.upexgalaxy.com/browse/BK-57#icft=BK-57](https://jira.upexgalaxy.com/browse/BK-57#icft=BK-57) | PATCH /modules/{id} atomicity | ~20 min |
+| 4 | [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) | Abort a run in progress | ~20 min |
 
 ---
 

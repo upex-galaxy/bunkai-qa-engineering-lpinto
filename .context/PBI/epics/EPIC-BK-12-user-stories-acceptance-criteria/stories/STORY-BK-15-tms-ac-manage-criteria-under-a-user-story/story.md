@@ -3,10 +3,9 @@
 **Jira Key:** [BK-15](https://jira.upexgalaxy.com/browse/BK-15)
 **Epic:** [BK-12](https://jira.upexgalaxy.com/browse/BK-12) (User Stories & Acceptance Criteria)
 **Type:** Story
-**Status:** QA Approved
+**Status:** Ready For Release
 **Priority:** Medium
-**Story Points:** 3
-**Web Link:** https://staging-upexbunkai.vercel.app/
+**Story Points:** -
 
 ---
 
@@ -33,14 +32,7 @@
 
 > Each rich-text field is a separate file in this folder.
 
-- [Acceptance Criteria](./acceptance-criteria.md)
-- [Business Rules](./business-rules.md)
-- [Scope](./scope.md)
-- [Out Of Scope](./out-of-scope.md)
-- [Workflow](./workflow.md)
-- [Implementation Plan (Dev)](./implementation-plan.md)
 - [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
-- [Acceptance Test Results (QA)](./acceptance-test-results.md)
 
 ---
 
@@ -48,20 +40,20 @@
 
 ### Defect (1)
 
-- [BK-143](https://jira.upexgalaxy.com/browse/BK-143): AC Management: Description Validation: Byte cap enforces 50,000 bytes (decimal) instead of 51,200 bytes (binary KiB) _(Open)_
+- [BK-143](https://jira.upexgalaxy.com/browse/BK-143): AC Management: Description Validation: Byte cap enforces 50,000 bytes (decimal) instead of 51,200 bytes (binary KiB) _(Closed)_
 
 ### Storys (3)
 
-- [BK-18](https://jira.upexgalaxy.com/browse/BK-18): TMS-ATC API | Create and edit ATCs with steps and assertions _(QA Approved)_
-- [BK-14](https://jira.upexgalaxy.com/browse/BK-14): TMS-US | Manage user stories anchored to a module _(Ready For QA)_
-- [BK-17](https://jira.upexgalaxy.com/browse/BK-17): Jira Import | Pull Jira issues by JQL _(QA Approved)_
+- [BK-14](https://jira.upexgalaxy.com/browse/BK-14): TMS-US | Manage user stories anchored to a module _(QA Approved)_
+- [BK-17](https://jira.upexgalaxy.com/browse/BK-17): Jira Import | Pull Jira issues by JQL _(Ready For Release)_
+- [BK-18](https://jira.upexgalaxy.com/browse/BK-18): TMS-ATC API | Create and edit ATCs with steps and assertions _(Ready For Release)_
 
 ---
 
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 19/6/2026
+- **Updated:** 24/7/2026
 - **Reporter:** Ely
 - **Assignee:** maibeth vega
 - **Labels:** acceptance-criteria, mvp, shift-left-reviewed, wave-2

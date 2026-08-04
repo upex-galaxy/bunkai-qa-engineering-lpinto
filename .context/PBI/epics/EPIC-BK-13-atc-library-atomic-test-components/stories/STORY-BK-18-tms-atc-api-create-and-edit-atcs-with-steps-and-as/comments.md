@@ -115,39 +115,39 @@ And an atc.updated event is emitted with affected*test*ids
 
 ***13 Gherkin scenarios produced*** (Happy 2 / Negative 7 / Boundary 2 / Integration 2). Key contract decisions:
 
-|  | Decision  | Rationale  | Source  |
+|  | Decision | Rationale | Source |
 | --- | --- | --- |
 | --- | ---------- | ----------- | -------- |
-| 1  | ***Slug format***: `{module-slug}/atc-{id-first-8-chars`} (lowercase UUID prefix)  | uuid prefix is deterministic (no sequence dependency), unique, and readable. 8 chars balances collision safety vs brevity. Matches architect recommendation on [https://jira.upexgalaxy.com/browse/BK-2#icft=BK-2](https://jira.upexgalaxy.com/browse/BK-2#icft=BK-2) comment.  | Senior DEV  |
-| 2  | ***PATCH semantics***: Full-replace body (PUT-like), NOT partial merge. `ATCCreate` schema reused. Omitted fields are NOT preserved — they are cleared.  | Existing `bunkai*save*atc` RPC replaces children wholesale (no diff). Partial merge would require field-level tracking across 4 tables with no existing infra. If client wants partial, they GET→modify→PATCH.  | Senior DEV  |
-| 3  | ***Version conflict***: Optimistic locking via `If-Match: <version>` header. No version in body. 409 on mismatch.  | Industry standard (RFC 7232). Prevents lost updates. The existing RPC unconditionally bumps version; the route handler checks the header before calling the RPC.  | Senior DEV  |
-| 4  | ***Error codes***: Add `ac*outside*user*story`, `module*outside*project*subtree`, `steps*position*invalid`, `layer*invalid`, `slug*collision` to `API*ERROR*CODES` map. Wrapped via `ApiError('validation*failed', 422, { code: 'ac*outside*user*story' })`.  | The existing 422 flow in `withApiHandler` catches ZodError but NOT semantic validation errors. Semantic errors need explicit `ApiError` throws with domain-specific codes.  | Senior QA  |
-| 5  | ***Auth***: `requireBearerToken` + `requireScope(ctx, 'atc:write')` on both endpoints. `atc:read` tokens are rejected with 403.  | Established pattern from tokens routes. Consistent with existing scope model.  | Senior QA  |
-| 6  | `bunkai*create*atc` ***RPC***: CREATE path needs a NEW RPC that returns the new `atc*id` (unlike `bunkai*save*atc` which is void). Signature: `bunkai*create*atc(p*project*id, p*module*id, p*user*story*id, p*title, p*layer, p*tags, p*steps, p*assertions, p*ac*ids) returns uuid`.  | `bunkai*save*atc` takes `p*atc*id` (UPDATE only). INSERT needs a different signature — no pre-existing id, needs project*id for RLS + slug. Adding a `p*create*flag` parameter would create an ugly dual-path RPC. A dedicated RPC is cleaner.  | Senior DEV  |
-| 7  | `affected*test*ids` ***(PATCH event)***: Query `test*steps` table joining `atc*id`. Empty array = event still fires (consumers filter by `affected*test*ids.length === 0` if they only care about dependency impact).  | The SRS shows `used*in` field on ATC response → `test*steps` links. This is the canonical source.  | Senior DEV  |
-| 8  | ***PATCH**** `user*story*id` ****mutability***: Immutable on PATCH. If client sends `user*story*id`, it is silently ignored (or 422 if different). ACs are bound to the ATC's original user story.  | Re-assigning user*story*id would break AC validation (ACs belong to original US). Cascade re-validation is expensive and adds risk. The architect annotation confirms this.  | Senior PO + Senior DEV  |
+| 1 | ***Slug format***: `{module-slug}/atc-{id-first-8-chars`} (lowercase UUID prefix) | uuid prefix is deterministic (no sequence dependency), unique, and readable. 8 chars balances collision safety vs brevity. Matches architect recommendation on [https://jira.upexgalaxy.com/browse/BK-2#icft=BK-2](https://jira.upexgalaxy.com/browse/BK-2#icft=BK-2) comment. | Senior DEV |
+| 2 | ***PATCH semantics***: Full-replace body (PUT-like), NOT partial merge. `ATCCreate` schema reused. Omitted fields are NOT preserved — they are cleared. | Existing `bunkai*save*atc` RPC replaces children wholesale (no diff). Partial merge would require field-level tracking across 4 tables with no existing infra. If client wants partial, they GET→modify→PATCH. | Senior DEV |
+| 3 | ***Version conflict***: Optimistic locking via `If-Match: <version>` header. No version in body. 409 on mismatch. | Industry standard (RFC 7232). Prevents lost updates. The existing RPC unconditionally bumps version; the route handler checks the header before calling the RPC. | Senior DEV |
+| 4 | ***Error codes***: Add `ac*outside*user*story`, `module*outside*project*subtree`, `steps*position*invalid`, `layer*invalid`, `slug*collision` to `API*ERROR*CODES` map. Wrapped via `ApiError('validation*failed', 422, { code: 'ac*outside*user*story' })`. | The existing 422 flow in `withApiHandler` catches ZodError but NOT semantic validation errors. Semantic errors need explicit `ApiError` throws with domain-specific codes. | Senior QA |
+| 5 | ***Auth***: `requireBearerToken` + `requireScope(ctx, 'atc:write')` on both endpoints. `atc:read` tokens are rejected with 403. | Established pattern from tokens routes. Consistent with existing scope model. | Senior QA |
+| 6 | `bunkai*create*atc` ***RPC***: CREATE path needs a NEW RPC that returns the new `atc*id` (unlike `bunkai*save*atc` which is void). Signature: `bunkai*create*atc(p*project*id, p*module*id, p*user*story*id, p*title, p*layer, p*tags, p*steps, p*assertions, p*ac*ids) returns uuid`. | `bunkai*save*atc` takes `p*atc*id` (UPDATE only). INSERT needs a different signature — no pre-existing id, needs project*id for RLS + slug. Adding a `p*create*flag` parameter would create an ugly dual-path RPC. A dedicated RPC is cleaner. | Senior DEV |
+| 7 | `affected*test*ids` ***(PATCH event)***: Query `test*steps` table joining `atc*id`. Empty array = event still fires (consumers filter by `affected*test*ids.length === 0` if they only care about dependency impact). | The SRS shows `used*in` field on ATC response → `test*steps` links. This is the canonical source. | Senior DEV |
+| 8 | ***PATCH**** `user*story*id` ****mutability***: Immutable on PATCH. If client sends `user*story*id`, it is silently ignored (or 422 if different). ACs are bound to the ATC's original user story. | Re-assigning user*story*id would break AC validation (ACs belong to original US). Cascade re-validation is expensive and adds risk. The architect annotation confirms this. | Senior PO + Senior DEV |
 
 ### ⚠️ Edge Cases Identified
 
 ***14 edge cases catalogued*** (6 High, 5 Medium, 3 Low):
 
-| Sev  | Edge Case  | Mitigation / Decision  |
+| Sev | Edge Case | Mitigation / Decision |
 | --- | --- | --- |
 | ----- | ----------- | ---------------------- |
-| 🔴 High  | POST with invalid PAT (malformed, expired, revoked)  | Auth middleware returns 401 `unauthorized` — already tested in tokens routes.  |
-| 🔴 High  | POST with `atc:read` scope (insufficient)  | `requireScope` returns 403 `forbidden` — established pattern.  |
-| 🔴 High  | PATCH to non-existent ATC id  | 404 `not_found` — same pattern as tokens.  |
-| 🔴 High  | Concurrent PATCH — version conflict (two clients at version 1)  | First wins (200 v2), second gets 409 `conflict`.  |
-| 🔴 High  | Slug collision (same project, same slug)  | DB UNIQUE `(project*id, slug)` constraint. INSERT raises unique violation → map to 409 `slug*collision`.  |
-| 🔴 High  | POST with `module*id` belonging to different project than `user*story*id`  | AC3 covers the positive case. Reject with 422 `module*outside*project*subtree`.  |
-| 🟡 Medium  | POST with empty `steps[]` array  | `ATCCreate` schema requires `minItems: 1`. Zod rejects → 422 `validation_failed`.  |
-| 🟡 Medium  | POST with layer value outside enum `{UI, API, Unit`}  | Zod enum rejects → 422 `validation_failed`.  |
-| 🟡 Medium  | POST with 11 tags (exceeds max 10)  | Zod `maxItems: 10` rejects → 422.  |
-| 🟡 Medium  | PATCH with empty body (no fields changed)  | ***Decision***: Accept empty PATCH as no-op → 200 with same version (no bump). RPC not called.  | Senior DEV  |
-| 🟡 Medium  | POST with `acceptance*criterion*ids` that are valid UUIDs but don't exist in DB  | 422 `ac*outside*user_story` (same code — the query returns empty for non-existent IDs too).  |
-| 🟢 Low  | Title with Unicode/emoji  | Existing DB `text` type handles UTF-8. Zod string accepts it. No special handling needed.  |
-| 🟢 Low  | Step content > 2KB  | Zod `maxLength: 2048` on step content.  |
-| 🟢 Low  | POST with `acceptance*criterion*ids: []` (empty array)  | Zod `minItems: 1` rejects → 422.  |
+| 🔴 High | POST with invalid PAT (malformed, expired, revoked) | Auth middleware returns 401 `unauthorized` — already tested in tokens routes. |
+| 🔴 High | POST with `atc:read` scope (insufficient) | `requireScope` returns 403 `forbidden` — established pattern. |
+| 🔴 High | PATCH to non-existent ATC id | 404 `not_found` — same pattern as tokens. |
+| 🔴 High | Concurrent PATCH — version conflict (two clients at version 1) | First wins (200 v2), second gets 409 `conflict`. |
+| 🔴 High | Slug collision (same project, same slug) | DB UNIQUE `(project*id, slug)` constraint. INSERT raises unique violation → map to 409 `slug*collision`. |
+| 🔴 High | POST with `module*id` belonging to different project than `user*story*id` | AC3 covers the positive case. Reject with 422 `module*outside*project*subtree`. |
+| 🟡 Medium | POST with empty `steps[]` array | `ATCCreate` schema requires `minItems: 1`. Zod rejects → 422 `validation_failed`. |
+| 🟡 Medium | POST with layer value outside enum `{UI, API, Unit`} | Zod enum rejects → 422 `validation_failed`. |
+| 🟡 Medium | POST with 11 tags (exceeds max 10) | Zod `maxItems: 10` rejects → 422. |
+| 🟡 Medium | PATCH with empty body (no fields changed) | ***Decision***: Accept empty PATCH as no-op → 200 with same version (no bump). RPC not called. | Senior DEV |
+| 🟡 Medium | POST with `acceptance*criterion*ids` that are valid UUIDs but don't exist in DB | 422 `ac*outside*user_story` (same code — the query returns empty for non-existent IDs too). |
+| 🟢 Low | Title with Unicode/emoji | Existing DB `text` type handles UTF-8. Zod string accepts it. No special handling needed. |
+| 🟢 Low | Step content > 2KB | Zod `maxLength: 2048` on step content. |
+| 🟢 Low | POST with `acceptance*criterion*ids: []` (empty array) | Zod `minItems: 1` rejects → 422. |
 
 ### 📋 Clarified Business Rules
 
@@ -514,22 +514,22 @@ A no-op is not an error condition. This makes PATCH idempotent by definition.
 
 ### Ely - 8/6/2026, 6:19:58
 
-## 🧪 Listo para QA — BK-18 (TMS-ATC API)
+## 🧪 Listo para QA — [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) (TMS-ATC API)
 
-Desplegado en ***staging***: https://staging-upexbunkai.vercel.app
+Desplegado en ***staging***: [https://staging-upexbunkai.vercel.app](https://staging-upexbunkai.vercel.app/)
 
 ***PR:**** #27 (merge commit `54fcd8b`) · ****Branch:*** `feature/BK-18-atc-create-edit-api` (mergeada y borrada)
 
 ### Qué se entregó
 
 - `POST /api/v1/atcs` — crea un ATC con steps + assertions en una sola llamada transaccional.
-- `PATCH /api/v1/atcs/{id}` — edición estilo PUT (reemplazo total de steps/assertions).
+- `PATCH /api/v1/atcs/{id`} — edición estilo PUT (reemplazo total de steps/assertions).
 
 ### Cómo probar
 
 - ***Auth:*** Personal Access Token (PAT) con scope `atc:write` en header `Authorization: Bearer bk*pat*...`. La sesión por cookie también funciona. Un token con solo `atc:read` → 403.
-- ***Slug:*** `{module-slug}/atc-{8 hex}` — inmutable tras crear (no cambia al renombrar).
-- ***PATCH optimistic locking:*** header `If-Match: <version>` → 409 si la versión no coincide. Body vacío `{}` = no-op 200 (sin incremento de versión, sin evento).
+- ***Slug:*** `{module-slug}/atc-{8 hex`} — inmutable tras crear (no cambia al renombrar).
+- ***PATCH optimistic locking:*** header `If-Match: <version>` → 409 si la versión no coincide. Body vacío {{{}}} = no-op 200 (sin incremento de versión, sin evento).
 - ***Inmutables en PATCH:*** `user*story*id`, `module_id`, `slug`.
 
 ### Escenarios del ATP (todos verificados a nivel RPC contra la DB real; ver la matriz en el PR #27)
@@ -545,18 +545,18 @@ Desplegado en ***staging***: https://staging-upexbunkai.vercel.app
 ### Notas
 
 - Los eventos van a la tabla `activity*log` (`atc.created` / `atc.updated`); `affected*test*ids` = `[]` en el MVP (la tabla `test*steps` llega con EPIC-BK-5).
-- Fuera de alcance (otras stories): GET/search (BK-20), duplicar (BK-23), UI (BK-19), reporte de uso (BK-22).
-- Contrato completo en OpenAPI: `/api/openapi` (paths `/api/v1/atcs` y `/api/v1/atcs/{id}`).
+- Fuera de alcance (otras stories): GET/search ([https://jira.upexgalaxy.com/browse/BK-20#icft=BK-20](https://jira.upexgalaxy.com/browse/BK-20#icft=BK-20)), duplicar ([https://jira.upexgalaxy.com/browse/BK-23#icft=BK-23](https://jira.upexgalaxy.com/browse/BK-23#icft=BK-23)), UI ([https://jira.upexgalaxy.com/browse/BK-19#icft=BK-19](https://jira.upexgalaxy.com/browse/BK-19#icft=BK-19)), reporte de uso ([https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22)).
+- Contrato completo en OpenAPI: `/api/openapi` (paths `/api/v1/atcs` y `/api/v1/atcs/{id`}).
 
 ---
 
 ### Ely - 8/6/2026, 9:11:10
 
-## QA Testing Complete — BK-18
+## QA Testing Complete — [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18)
 
-***Environment******:*** Staging (`https://staging-upexbunkai.vercel.app/api/v1`)
-***Result******:*** FAILED (12/13 TCs — 92%)
-***Surfaces******:*** API + DB (no UI — UI is BK-19)
+***Environment:*** Staging (`https://staging-upexbunkai.vercel.app/api/v1`)
+***Result:*** FAILED (12/13 TCs — 92%)
+***Surfaces:*** API + DB (no UI — UI is [https://jira.upexgalaxy.com/browse/BK-19#icft=BK-19](https://jira.upexgalaxy.com/browse/BK-19#icft=BK-19))
 
 ### Test data used
 
@@ -574,15 +574,15 @@ Desplegado en ***staging***: https://staging-upexbunkai.vercel.app
 
 ### Failed verification
 
-- ***Happy-path PATCH ****`/atcs/{id}`**** (AC******:****** "PATCH returns 200 with version 2") — FAILED***
+- ***Happy-path PATCH**** `/atcs/{id`} ****(AC:**** ****"PATCH returns 200 with version 2") — FAILED***
 
 ### Defect
 
 - ***BK-96*** — ATC Library: ATC PATCH API: Happy-path PATCH /atcs/{id} returns 412 instead of 200 though the edit commits (Severity Major, non-blocking).
 
-***Verdict******:*** FAILED. Recommend NOT QA Sign-Off until BK-96 is fixed and the H2 happy-path PATCH re-runs green. The 12 passing scenarios remain eligible for ROI evaluation.
+***Verdict:*** FAILED. Recommend NOT QA Sign-Off until [https://jira.upexgalaxy.com/browse/BK-96#icft=BK-96](https://jira.upexgalaxy.com/browse/BK-96#icft=BK-96) is fixed and the H2 happy-path PATCH re-runs green. The 12 passing scenarios remain eligible for ROI evaluation.
 
-***Artifacts******:*** ATP BK-94 · ATR BK-95 · Defect BK-96
+***Artifacts:*** ATP [https://jira.upexgalaxy.com/browse/BK-94#icft=BK-94](https://jira.upexgalaxy.com/browse/BK-94#icft=BK-94) · ATR [https://jira.upexgalaxy.com/browse/BK-95#icft=BK-95](https://jira.upexgalaxy.com/browse/BK-95#icft=BK-95) · Defect [https://jira.upexgalaxy.com/browse/BK-96#icft=BK-96](https://jira.upexgalaxy.com/browse/BK-96#icft=BK-96)
 
 ---
 
@@ -590,7 +590,7 @@ Desplegado en ***staging***: https://staging-upexbunkai.vercel.app
 
 ## ✅ Blocker no longer applies — story resumed
 
-This story was blocked in relation to BK-96, which is already ***Closed*** — no open defect blocks this story anymore.
+This story was blocked in relation to [https://jira.upexgalaxy.com/browse/BK-96#icft=BK-96](https://jira.upexgalaxy.com/browse/BK-96#icft=BK-96), which is already ***Closed*** — no open defect blocks this story anymore.
 
 This story has been moved back to ***In Test*** so testing can resume. Please continue the story run.
 
@@ -598,22 +598,199 @@ This story has been moved back to ***In Test*** so testing can resume. Please co
 
 ### Ely - 20/6/2026, 20:05:42
 
-> ***SUCCESS:**** ****QA Verdict******:****** PASSED (GO) — re-run 2026-06-20, staging, API+DB.***
+> ***SUCCESS:**** ****QA Verdict:**** ****PASSED (GO) — re-run 2026-06-20, staging, API+DB.***
 
 ***Re-tested BK-18 end-to-end (modality jira-xray).*** 12/12 test cases PASSED. No open defects.
 
 ***Blocking defect BK-96 — verified FIXED end-to-end.*** This closes the gap left by the prior code-review-only retest. The fix moved the optimistic-lock token to a custom `X-If-Match` header (PR #30, commit `421a917`): `X-If-Match` matching → 200 + version bump + cascade replace; stale → 409 conflict; absent → 200. Legacy `If-Match` still returns 412 at the Vercel edge (documented limitation — `X-If-Match` is the contract).
 
-***Coverage (refactored, parametrized — EP + BVA)******:***
+***Coverage (refactored, parametrized — EP + BVA):***
 
-- ATP BK-94 updated; 12 Xray Tests BK-149…BK-160 created, executed under Test Execution BK-95 (all PASSED), shared Pre-Condition BK-161.
+- ATP [https://jira.upexgalaxy.com/browse/BK-94#icft=BK-94](https://jira.upexgalaxy.com/browse/BK-94#icft=BK-94) updated; 12 Xray Tests BK-149…BK-160 created, executed under Test Execution [https://jira.upexgalaxy.com/browse/BK-95#icft=BK-95](https://jira.upexgalaxy.com/browse/BK-95#icft=BK-95) (all PASSED), shared Pre-Condition [https://jira.upexgalaxy.com/browse/BK-161#icft=BK-161](https://jira.upexgalaxy.com/browse/BK-161#icft=BK-161).
 - Anchoring moat (AC→US, module→subtree), auth/scope gate, step-position rule, request boundaries, transactional rollback (DB-verified), PATCH happy path + optimistic lock + 404 + empty-body no-op + immutable fields.
 
-***DB integrity******:*** transactional rollback verified zero-residue; created ATCs cleaned up (0/0/0).
+***DB integrity:*** transactional rollback verified zero-residue; created ATCs cleaned up (0/0/0).
 
-***Observation (non-blocking)******:*** `affected*test*ids` returns `null` where the MVP contract said `[]` — recommend dev confirm intended representation.
+***Observation (non-blocking):*** `affected*test*ids` returns `null` where the MVP contract said `[]` — recommend dev confirm intended representation.
 
-***Recommendation******:*** ready for QA sign-off.
+***Recommendation:*** ready for QA sign-off.
+
+---
+
+### Nahuel Gomez - 30/6/2026, 0:40:34
+
+## Automated Tests — Implemented (2026-06-29)
+
+7 automated test cases written against staging, all passing.
+
+### Component
+
+`tests/components/api/AtcsApi.ts` — KATA component with 3 ATCs registered in `ApiFixture`.
+
+### Test Coverage (sandbox, waiting on [https://jira.upexgalaxy.com/browse/BK-175#icft=BK-175](https://jira.upexgalaxy.com/browse/BK-175#icft=BK-175)/[https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177) for full project integration)
+
+| ***ATC ID**** | ****Scenario**** | ****Status*** |
+| --- | --- | --- |
+| [https://jira.upexgalaxy.com/browse/BK-149#icft=BK-149](https://jira.upexgalaxy.com/browse/BK-149#icft=BK-149) | POST happy create (valid payload, layer enum) | ✅ Passing |
+| [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) | POST auth gate (401 no auth, 401 invalid token) | ✅ Passing |
+| [https://jira.upexgalaxy.com/browse/BK-153#icft=BK-153](https://jira.upexgalaxy.com/browse/BK-153#icft=BK-153) | POST step validation (non-increasing positions → 422) | ✅ Passing |
+| [https://jira.upexgalaxy.com/browse/BK-154#icft=BK-154](https://jira.upexgalaxy.com/browse/BK-154#icft=BK-154) | POST boundary validation (title min/max length → 422) | ✅ Passing |
+| [https://jira.upexgalaxy.com/browse/BK-156#icft=BK-156](https://jira.upexgalaxy.com/browse/BK-156#icft=BK-156) | PATCH happy path with X-If-Match (full-replace, version bump) | ✅ Passing |
+
+### Quality Gates
+
+- `types:check` — ✅ Clean
+- `lint:check` — ✅ Clean  
+- `kata:manifest:check` — ✅ Up to date (5 components, 12 ATCs)
+- Test execution — ✅ 7/7 passing against live staging
+
+### Known Constraint
+
+Test file uses `.sandbox.ts` project (no auth-setup dependency) because staging auth endpoint is blocked by [https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177). When [https://jira.upexgalaxy.com/browse/BK-175#icft=BK-175](https://jira.upexgalaxy.com/browse/BK-175#icft=BK-175)/[https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177) are resolved, file moves to `tests/integration/atc/` under the `integration` project.
+
+---
+
+### Nahuel Gomez - 30/6/2026, 20:33:12
+
+## ATC API — Automation Complete (v2)
+
+All from EPIC [https://jira.upexgalaxy.com/browse/BK-13#icft=BK-13](https://jira.upexgalaxy.com/browse/BK-13#icft=BK-13) (ATC Library) — tests/integration/atc/atc-create-edit.sandbox.ts
+
+### Coverage (12/12 TCs)
+
+| ***TC**** | ****BK**** | ****Test**** | ****Status*** |
+| --- | --- | --- | --- |
+| TC01 | [https://jira.upexgalaxy.com/browse/BK-149#icft=BK-149](https://jira.upexgalaxy.com/browse/BK-149#icft=BK-149) | POST /atcs creates ATC 201 with steps/assertions/slug/version 1 | ✅ Automated |
+| TC01 | [https://jira.upexgalaxy.com/browse/BK-149#icft=BK-149](https://jira.upexgalaxy.com/browse/BK-149#icft=BK-149) | POST /atcs all layer values (UI/API/Unit) | ✅ Automated |
+| TC02 | [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) | POST /atcs unauthenticated → 401 | ✅ Automated |
+| TC02 | [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) | POST /atcs invalid token → 401 | ✅ Automated |
+| TC02 | [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) | POST /atcs missing atc:write scope → 403 | ⏳ fixme — needs STAGING*USER*READONLY_PAT |
+| TC03 | [https://jira.upexgalaxy.com/browse/BK-151#icft=BK-151](https://jira.upexgalaxy.com/browse/BK-151#icft=BK-151) | AC outside user*story → 422 ac*outside*user*story | ✅ Automated |
+| TC04 | [https://jira.upexgalaxy.com/browse/BK-152#icft=BK-152](https://jira.upexgalaxy.com/browse/BK-152#icft=BK-152) | Module outside subtree → 404/not_found (non-existent UUID) | ✅ Automated |
+| TC05 | [https://jira.upexgalaxy.com/browse/BK-153#icft=BK-153](https://jira.upexgalaxy.com/browse/BK-153#icft=BK-153) | Non-increasing step positions → 422 steps*position*invalid | ✅ Automated |
+| TC06 | [https://jira.upexgalaxy.com/browse/BK-154#icft=BK-154](https://jira.upexgalaxy.com/browse/BK-154#icft=BK-154) | Title too short/long, zero steps, too many tags, invalid layer → 422 | ✅ Automated |
+| TC07 | [https://jira.upexgalaxy.com/browse/BK-155#icft=BK-155](https://jira.upexgalaxy.com/browse/BK-155#icft=BK-155) | Non-existent user*story*id → 404/not_found (no partial write) | ✅ Automated |
+| TC08 | [https://jira.upexgalaxy.com/browse/BK-156#icft=BK-156](https://jira.upexgalaxy.com/browse/BK-156#icft=BK-156) | PATCH /atcs/{id} X-If-Match → version 2 | ✅ Automated |
+| TC08 | [https://jira.upexgalaxy.com/browse/BK-156#icft=BK-156](https://jira.upexgalaxy.com/browse/BK-156#icft=BK-156) | PATCH cascade-replaces children ([https://jira.upexgalaxy.com/browse/BK-96#icft=BK-96](https://jira.upexgalaxy.com/browse/BK-96#icft=BK-96) regression) | ✅ Automated |
+| TC09 | [https://jira.upexgalaxy.com/browse/BK-157#icft=BK-157](https://jira.upexgalaxy.com/browse/BK-157#icft=BK-157) | PATCH matching X-If-Match → 200 | ✅ Automated |
+| TC09 | [https://jira.upexgalaxy.com/browse/BK-157#icft=BK-157](https://jira.upexgalaxy.com/browse/BK-157#icft=BK-157) | PATCH stale X-If-Match → 409/conflict | ✅ Automated |
+| TC09 | [https://jira.upexgalaxy.com/browse/BK-157#icft=BK-157](https://jira.upexgalaxy.com/browse/BK-157#icft=BK-157) | PATCH absent X-If-Match → 200 | ✅ Automated |
+| TC10 | [https://jira.upexgalaxy.com/browse/BK-158#icft=BK-158](https://jira.upexgalaxy.com/browse/BK-158#icft=BK-158) | PATCH non-existent id → 404/not_found | ✅ Automated |
+| TC11 | [https://jira.upexgalaxy.com/browse/BK-159#icft=BK-159](https://jira.upexgalaxy.com/browse/BK-159#icft=BK-159) | PATCH identical payload → 200 (version bumps to 2) | ✅ Automated |
+| TC12 | [https://jira.upexgalaxy.com/browse/BK-160#icft=BK-160](https://jira.upexgalaxy.com/browse/BK-160#icft=BK-160) | PATCH keeps slug, user*story*id, module_id immutable | ✅ Automated |
+
+> ***⚠️*** Tests run as sandbox (`bun playwright test --project=sandbox`). Not yet promoted to `integration` project or added to CI regression suite. 403 test blocked on `STAGING*USER*READONLY_PAT` env var.
+
+---
+
+### Nahuel Gomez - 30/6/2026, 22:27:45
+
+## Automation Complete — Combined Summary
+
+All tests pass in CI. Framework: Playwright + TypeScript + KATA, sandbox project (no auth dependency).
+
+### Reports
+
+| ***Report**** | ****URL*** |
+| --- | --- |
+| Allure (latest) | [https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/](https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/) |
+
+### [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) — Auth email+password sign-in API (8 tests)
+
+CI run: [https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28486452620](https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28486452620)
+
+| ***Scenario**** | ****Status*** |
+| --- | --- |
+| Sign in with valid credentials → 200 (user+session+PAT) | ✅ |
+| Sign in with wrong password → 401 | ✅ |
+| Sign in with non-existent email → 401 | ✅ |
+| Check email (existing) → {exists:true, confirmed:true} | ✅ |
+| Check email (unknown) → {exists:false} | ✅ |
+| GET /me with valid PAT → 200 | ✅ |
+| GET /me without auth → 401 | ✅ |
+| Sign-in PAT authenticates subsequent calls | ✅ |
+
+### [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4) — Workspace CRUD (4 tests)
+
+CI run: [https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28487034357](https://github.com/nelgoez/bunkai-qa-engineering/actions/runs/28487034357)
+
+| ***Scenario**** | ****Status*** |
+| --- | --- |
+| Create workspace with name+slug → 201 | ✅ |
+| Name < 3 chars → 422 | ✅ |
+| Reserved slug → 422 | ✅ |
+| Duplicate slug → 409 | ✅ |
+
+### [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) — Project CRUD (4 tests)
+
+| ***Scenario**** | ****Status*** |
+| --- | --- |
+| Create project in workspace → 201 | ✅ |
+| Name < 3 chars → 422 | ✅ |
+| Duplicate slug → 409 | ✅ |
+| Non-member → 403 | ✅ |
+
+### [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) — ATC API (17 tests + 1 fixme)
+
+Verified locally and in CI (sandbox project).
+
+| ***Coverage**** | ****Status*** |
+| --- | --- |
+| 12/12 TC outlines automated | ✅ |
+| 17 tests pass, 1 fixme (403 scope) | ✅ |
+
+### Known gaps
+
+- [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) 403 scope test blocked on STAGING*USER*READONLY_PAT
+- Sandbox tests not promoted to integration project (blocked on [https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177): old /auth/login 404s)
+- Key discovery: /api/v1/auth/signin works — loginEndpoint config can be updated to fix this
+
+---
+
+### Nahuel Gomez - 30/6/2026, 23:14:38
+
+## QA Automation Session — Complete Report (2026-06-30)
+
+### Tally
+
+| ***Ticket**** | ****Tests**** | ****Status*** |
+| --- | --- | --- |
+| [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) | 8 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4](https://jira.upexgalaxy.com/browse/BK-4#icft=BK-4) | 4 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8](https://jira.upexgalaxy.com/browse/BK-8#icft=BK-8) | 4 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17](https://jira.upexgalaxy.com/browse/BK-17#icft=BK-17) | 6 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14](https://jira.upexgalaxy.com/browse/BK-14#icft=BK-14) | 5 | ✅ PASS |
+| [https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18](https://jira.upexgalaxy.com/browse/BK-18#icft=BK-18) (prev) | 17 | ✅ PASS |
+| ***Total**** | ****44 + 1 fixme*** |  |
+
+### Infrastructure changes
+
+- ***loginEndpoint**** fixed: `/auth/login` → `/api/v1/auth/signin`. The old endpoint 404s ([https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177](https://jira.upexgalaxy.com/browse/BK-177#icft=BK-177)). The [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) endpoint works. ****Integration project is now unblocked.***
+- ***AuthApi*** updated to use sign-in PAT (not session token) for API auth — matches [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166) coexistence pattern.
+- ***meEndpoint*** fixed to `/api/v1/me` (actual path).
+- ***auth.types.ts*** updated to match real API response shapes.
+- ***jira-attach-evidence.ts*** script created for attaching screenshots to Jira tickets via REST API.
+
+### CI/CD
+
+- All tests pass in sandbox project. Allure reports at:
+
+[https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/](https://nelgoez.github.io/bunkai-qa-engineering/staging/sanity/)
+
+### Known gaps (unchanged)
+
+- [https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150](https://jira.upexgalaxy.com/browse/BK-150#icft=BK-150) 403 scope test — blocked on restricted-scope PAT
+- Sandbox → `.test.ts` promotion — now feasible since api-setup works
+- Nightly regression doesn't include sandbox tests yet (PR gate + manual only)
+
+### Next-step candidates
+
+| ***Priority**** | ****Ticket**** | ****Summary**** | ****Est. time*** |
+| --- | --- | --- | --- |
+| 1 | [https://jira.upexgalaxy.com/browse/BK-182#icft=BK-182](https://jira.upexgalaxy.com/browse/BK-182#icft=BK-182) | Bearer run can't resolve active workspace | ~15 min |
+| 2 | [https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22](https://jira.upexgalaxy.com/browse/BK-22#icft=BK-22) | ATC "Used in N tests" report | ~15 min |
+| 3 | [https://jira.upexgalaxy.com/browse/BK-57#icft=BK-57](https://jira.upexgalaxy.com/browse/BK-57#icft=BK-57) | PATCH /modules/{id} atomicity | ~20 min |
+| 4 | [https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36](https://jira.upexgalaxy.com/browse/BK-36#icft=BK-36) | Abort a run in progress | ~20 min |
 
 ---
 
