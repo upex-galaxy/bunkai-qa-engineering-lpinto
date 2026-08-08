@@ -44,21 +44,29 @@
   "packageJsonSync": {
     "package.json": {
       "scripts": {
-        "lastSyncedSha": "a5f848544f56080ceff9a25cade06ccd4b05a35d",
+        "lastSyncedSha": "289cab539646230914e9c7296cda4ba2f0d6da41",
         "appliedKeys": [
           "vars:env:check",
           "env"
         ]
       },
       "devDependencies": {
-        "lastSyncedSha": "a5f848544f56080ceff9a25cade06ccd4b05a35d",
+        "lastSyncedSha": "289cab539646230914e9c7296cda4ba2f0d6da41",
         "appliedKeys": [
           "allure-js-commons"
         ]
+      },
+      "dependencies": {
+        "lastSyncedSha": "289cab539646230914e9c7296cda4ba2f0d6da41",
+        "appliedKeys": []
+      },
+      "lint-staged": {
+        "lastSyncedSha": "289cab539646230914e9c7296cda4ba2f0d6da41",
+        "appliedKeys": []
       }
     }
   },
   "cliVersion": "7.0",
-  "lastSyncedAt": "2026-08-03T17:57:05.952Z",
+  "lastSyncedAt": "2026-08-08T18:50:58.434Z",
   "variableSystemVersion": 1
 }
