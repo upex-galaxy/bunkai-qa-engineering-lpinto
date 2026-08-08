@@ -210,7 +210,7 @@ Pending confirmation: Delivery/PO confirms whether [https://jira.upexgalaxy.com/
 ## Metadata
 
 - **Created:** 28/5/2026
-- **Updated:** 24/7/2026
+- **Updated:** 8/8/2026
 - **Reporter:** Ely
 - **Assignee:** jesusgpythondev
 - **Labels:** shift-left-2026-06-08, shift-left-reviewed

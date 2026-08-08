@@ -3,7 +3,7 @@
 **Jira Key:** [BK-258](https://jira.upexgalaxy.com/browse/BK-258)
 **Epic:** [BK-254](https://jira.upexgalaxy.com/browse/BK-254) (Home Dashboard)
 **Type:** Story
-**Status:** Backlog
+**Status:** Ready For QA
 **Priority:** Medium
 **Story Points:** -
 
@@ -30,7 +30,7 @@ Renders into `home.jsx` (master-design-plan.md §4.2), the "Open bugs" KPI card.
 
 ### Storys (2)
 
-- [BK-41](https://jira.upexgalaxy.com/browse/BK-41): TMS-Defect List | List and filter defects by module, status, severity _(Ready For QA)_
+- [BK-41](https://jira.upexgalaxy.com/browse/BK-41): TMS-Defect List | List and filter defects by module, status, severity _(In Test)_
 - [BK-40](https://jira.upexgalaxy.com/browse/BK-40): TMS-Defect Filing | File a defect from a failing run step _(Ready For QA)_
 
 ---
@@ -38,7 +38,7 @@ Renders into `home.jsx` (master-design-plan.md §4.2), the "Open bugs" KPI card.
 ## Metadata
 
 - **Created:** 31/7/2026
-- **Updated:** 31/7/2026
+- **Updated:** 4/8/2026
 - **Reporter:** Ely
 - **Assignee:** Unassigned
 - **Labels:** blocked, p2

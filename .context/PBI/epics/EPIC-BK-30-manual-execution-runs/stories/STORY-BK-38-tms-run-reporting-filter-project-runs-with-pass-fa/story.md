@@ -171,17 +171,25 @@ AC, ATP, and Business Rules are included in this description because the Jira cu
 
 ## Traceability
 
+### Test Execution (1)
+
+- [BK-319](https://jira.upexgalaxy.com/browse/BK-319): [ATR] BK-38 — TMS-Run Reporting | Filter project runs with pass/fail totals _(ACTIVE)_
+
 ### Storys (2)
 
 - [BK-225](https://jira.upexgalaxy.com/browse/BK-225): TMS-Run Reporting | Filter runs by manual or automated execution mode _(Backlog)_
 - [BK-34](https://jira.upexgalaxy.com/browse/BK-34): TMS-Run Execution | Start a manual run in a chosen environment _(Ready For Release)_
+
+### Test Plan (1)
+
+- [BK-318](https://jira.upexgalaxy.com/browse/BK-318): [ATP] BK-38 — TMS-Run Reporting | Filter project runs with pass/fail totals _(Planning)_
 
 ---
 
 ## Metadata
 
 - **Created:** 28/5/2026
-- **Updated:** 31/7/2026
+- **Updated:** 8/8/2026
 - **Reporter:** Ely
 - **Assignee:** jesusgpythondev
 - **Labels:** implementation-plan-ready, shift-left-2026-06-15, shift-left-reviewed

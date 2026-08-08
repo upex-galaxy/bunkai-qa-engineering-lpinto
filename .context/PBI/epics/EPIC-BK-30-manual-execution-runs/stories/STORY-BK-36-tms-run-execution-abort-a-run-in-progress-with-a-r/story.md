@@ -44,7 +44,7 @@
 ### Storys (2)
 
 - [BK-34](https://jira.upexgalaxy.com/browse/BK-34): TMS-Run Execution | Start a manual run in a chosen environment _(Ready For Release)_
-- [BK-211](https://jira.upexgalaxy.com/browse/BK-211): Notifications | Get notified when a run finishes or is aborted _(Ready For Dev)_
+- [BK-211](https://jira.upexgalaxy.com/browse/BK-211): Notifications | Get notified when a run finishes or is aborted _(Ready For QA)_
 
 ---
 

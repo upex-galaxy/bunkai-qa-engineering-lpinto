@@ -29,7 +29,7 @@ As a QA Lead, I want to see the acceptance criteria and modules that have no tes
 
 ### Story (1)
 
-- [BK-259](https://jira.upexgalaxy.com/browse/BK-259): TMS-Home | Show workspace test coverage summary _(Backlog)_
+- [BK-259](https://jira.upexgalaxy.com/browse/BK-259): TMS-Home | Show workspace test coverage summary _(Ready For QA)_
 
 ### Epics (2)
 

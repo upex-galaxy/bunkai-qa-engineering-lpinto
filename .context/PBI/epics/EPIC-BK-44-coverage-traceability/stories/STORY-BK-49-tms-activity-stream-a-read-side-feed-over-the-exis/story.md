@@ -99,7 +99,7 @@ As a QA Lead, I want a live feed of what changed across the workspace — who cr
 
 ### Story (1)
 
-- [BK-260](https://jira.upexgalaxy.com/browse/BK-260): TMS-Home | Show a condensed recent activity feed _(Backlog)_
+- [BK-260](https://jira.upexgalaxy.com/browse/BK-260): TMS-Home | Show a condensed recent activity feed _(Ready For QA)_
 
 ### Tech Debt (1)
 

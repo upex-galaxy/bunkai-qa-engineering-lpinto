@@ -53,5 +53,28 @@ Mockup — Settings — Notification preferences. Source: .context/designs/bunka
 
 ---
 
+### Automation for Jira - 4/8/2026, 15:54:52
+
+✅ Test Suite is successfully AUTOMATED and MERGED for Regression Runs. 
+QA Task is Done.
+
+---
+
+### Ely - 4/8/2026, 15:59:30
+
+Dev handoff: merged to staging.
+
+PR: https://github.com/upex-galaxy/upex-bunkai-tms/pull/127 (merge commit 2e91ad95)
+Branch: feature/BK-213-notification-preferences
+Migration: supabase/migrations/0062*notification*preferences.sql (additive - new table + RLS)
+Tests: 26 new/updated, all passing; write-path test asserts against the real RLS-scoped insert/update via an independent service-role read
+Staging: deployed, route verified live at /settings/notifications
+
+Known gap (not in this story's scope, flagged for follow-up): preference checks are not yet wired into any notification producer - BK-212's bug trigger still fires unconditionally, and BK-211 (run-lifecycle producer) doesn't exist yet. AC2/AC3's end-to-end suppression isn't real until that follow-up lands.
+
+Status moved to Ready For QA, reassigned to shift-left QA owner.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

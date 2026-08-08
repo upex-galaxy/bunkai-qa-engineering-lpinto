@@ -17,7 +17,7 @@ _Project: BK_
 
 ## [BK-7](https://jira.upexgalaxy.com/browse/BK-7) - Project & Module Hierarchy
 
-**Status:** Planning | **Stories:** 7 | **Points:** 0
+**Status:** Planning | **Stories:** 8 | **Points:** 0
 
 - [BK-8](https://jira.upexgalaxy.com/browse/BK-8) TMS-Project | Create a project inside a workspace _(- pts, Ready For Release)_
 - [BK-9](https://jira.upexgalaxy.com/browse/BK-9) TMS-Module | Create modules with nested sub-modules _(- pts, Ready For Release)_
@@ -26,6 +26,7 @@ _Project: BK_
 - [BK-98](https://jira.upexgalaxy.com/browse/BK-98) TMS-Projects | Switch between Tree, Table & Mind map views in a hardened explorer _(- pts, Ready For Release)_
 - [BK-147](https://jira.upexgalaxy.com/browse/BK-147) App Shell | Open ATCs and Tests as tabs with a persistent explorer _(- pts, Ready For Release)_
 - [BK-148](https://jira.upexgalaxy.com/browse/BK-148) TMS-Project Environments | List, add, rename and remove environments _(- pts, Ready For Release)_
+- [BK-266](https://jira.upexgalaxy.com/browse/BK-266) TMS-Projects | Browse workspace projects in an index with a dedicated create route _(- pts, Ready For QA)_
 
 ## [BK-12](https://jira.upexgalaxy.com/browse/BK-12) - User Stories & Acceptance Criteria
 
@@ -38,14 +39,16 @@ _Project: BK_
 
 ## [BK-13](https://jira.upexgalaxy.com/browse/BK-13) - ATC Library (Acceptance Test Cases)
 
-**Status:** Planning | **Stories:** 6 | **Points:** 0
+**Status:** Planning | **Stories:** 8 | **Points:** 0
 
 - [BK-18](https://jira.upexgalaxy.com/browse/BK-18) TMS-ATC API | Create and edit ATCs with steps and assertions _(- pts, Ready For Release)_
 - [BK-19](https://jira.upexgalaxy.com/browse/BK-19) TMS-ATC Builder | Build an ATC with ordered steps and assertions _(- pts, Ready For Release)_
-- [BK-20](https://jira.upexgalaxy.com/browse/BK-20) TMS-ATC Search | Search and autocomplete ATCs _(- pts, BLOCKED)_
+- [BK-20](https://jira.upexgalaxy.com/browse/BK-20) TMS-ATC Search | Search and autocomplete ATCs _(- pts, QA Approved)_
 - [BK-21](https://jira.upexgalaxy.com/browse/BK-21) TMS-ATC Propagation | Cascade ATC edits to all tests _(- pts, QA Approved)_
 - [BK-22](https://jira.upexgalaxy.com/browse/BK-22) TMS-ATC Usage | See a "Used in N tests" report _(- pts, QA Approved)_
-- [BK-23](https://jira.upexgalaxy.com/browse/BK-23) TMS-ATC Duplicate | Duplicate an ATC with steps and assertions _(- pts, BLOCKED)_
+- [BK-23](https://jira.upexgalaxy.com/browse/BK-23) TMS-ATC Duplicate | Duplicate an ATC with steps and assertions _(- pts, QA Approved)_
+- [BK-267](https://jira.upexgalaxy.com/browse/BK-267) TMS-ATC Library | Browse, search, and filter ATCs across every project _(- pts, Estimation)_
+- [BK-315](https://jira.upexgalaxy.com/browse/BK-315) TMS-ATC Library | Export a Project's ATCs to CSV _(- pts, Backlog)_
 
 ## [BK-24](https://jira.upexgalaxy.com/browse/BK-24) - Tests (chains of ATCs)
 
@@ -62,7 +65,7 @@ _Project: BK_
 
 ## [BK-30](https://jira.upexgalaxy.com/browse/BK-30) - Manual Execution & Runs
 
-**Status:** Planning | **Stories:** 6 | **Points:** 0
+**Status:** Planning | **Stories:** 7 | **Points:** 0
 
 - [BK-34](https://jira.upexgalaxy.com/browse/BK-34) TMS-Run Execution | Start a manual run in a chosen environment _(- pts, Ready For Release)_
 - [BK-35](https://jira.upexgalaxy.com/browse/BK-35) TMS-Run Execution | Mark each step pass, fail, or block _(- pts, QA Approved)_
@@ -70,27 +73,29 @@ _Project: BK_
 - [BK-37](https://jira.upexgalaxy.com/browse/BK-37) TMS-Run History | View a test's past runs, filterable by outcome _(- pts, Ready For QA)_
 - [BK-38](https://jira.upexgalaxy.com/browse/BK-38) TMS-Run Reporting | Filter project runs with pass/fail totals _(- pts, Ready For QA)_
 - [BK-39](https://jira.upexgalaxy.com/browse/BK-39) TMS-Run Execution | Finish a run with a final verdict _(- pts, Ready For Release)_
+- [BK-269](https://jira.upexgalaxy.com/browse/BK-269) TMS-Run Execution | Automatically abort abandoned runs after inactivity _(- pts, Backlog)_
 
 ## [BK-31](https://jira.upexgalaxy.com/browse/BK-31) - Bugs & Defect Heatmap
 
 **Status:** Planning | **Stories:** 5 | **Points:** 0
 
 - [BK-40](https://jira.upexgalaxy.com/browse/BK-40) TMS-Defect Filing | File a defect from a failing run step _(- pts, Ready For QA)_
-- [BK-41](https://jira.upexgalaxy.com/browse/BK-41) TMS-Defect List | List and filter defects by module, status, severity _(- pts, Ready For QA)_
+- [BK-41](https://jira.upexgalaxy.com/browse/BK-41) TMS-Defect List | List and filter defects by module, status, severity _(- pts, In Test)_
 - [BK-42](https://jira.upexgalaxy.com/browse/BK-42) TMS-Defect Heatmap | View count and week-over-week trend per module _(- pts, Ready For QA)_
 - [BK-43](https://jira.upexgalaxy.com/browse/BK-43) TMS-Defect Sync | Sync defects one-way to the external tracker _(- pts, Ready For Dev)_
 - [BK-264](https://jira.upexgalaxy.com/browse/BK-264) TMS-Defect Triage | Assign a defect to a workspace member and update its status _(- pts, Ready For QA)_
 
 ## [BK-44](https://jira.upexgalaxy.com/browse/BK-44) - Coverage & Traceability
 
-**Status:** Planning | **Stories:** 6 | **Points:** 0
+**Status:** Planning | **Stories:** 7 | **Points:** 0
 
-- [BK-45](https://jira.upexgalaxy.com/browse/BK-45) TMS-Traceability | Render full US to bug evidence chain in one read _(- pts, Ready For Dev)_
+- [BK-45](https://jira.upexgalaxy.com/browse/BK-45) TMS-Traceability | Render full US to bug evidence chain in one read _(- pts, QA Approved)_
 - [BK-46](https://jira.upexgalaxy.com/browse/BK-46) TMS-Coverage | Surface untested ACs and modules with not-run filter _(- pts, Ready For QA)_
-- [BK-47](https://jira.upexgalaxy.com/browse/BK-47) TMS-Coverage | Compute time-to-green per user story from run and bug history _(- pts, Ready For QA)_
+- [BK-47](https://jira.upexgalaxy.com/browse/BK-47) TMS-Coverage | Compute time-to-green per user story from run and bug history _(- pts, QA Approved)_
 - [BK-48](https://jira.upexgalaxy.com/browse/BK-48) TMS-Traceability | Filter the chain by verdict, module, and date range _(- pts, Shift-Left QA)_
 - [BK-49](https://jira.upexgalaxy.com/browse/BK-49) TMS-Activity | Stream a read-side feed over the existing activity log _(- pts, Ready For QA)_
 - [BK-50](https://jira.upexgalaxy.com/browse/BK-50) TMS-Traceability | Export the assembled chain as a read-only snapshot _(- pts, Ready For Dev)_
+- [BK-268](https://jira.upexgalaxy.com/browse/BK-268) TMS-Activity | Surface ATC edits with the Tests they affect _(- pts, Backlog)_
 
 ## [BK-70](https://jira.upexgalaxy.com/browse/BK-70) - QA Test Repository
 
@@ -119,7 +124,7 @@ _Project: BK_
 - [BK-202](https://jira.upexgalaxy.com/browse/BK-202) TMS-Test Plan | Create a test plan grouping tests for a goal _(- pts, Backlog)_
 - [BK-203](https://jira.upexgalaxy.com/browse/BK-203) TMS-Test Plan | Add and remove tests from a plan _(- pts, Backlog)_
 - [BK-204](https://jira.upexgalaxy.com/browse/BK-204) TMS-Test Plan | Track plan progress from run outcomes _(- pts, Backlog)_
-- [BK-205](https://jira.upexgalaxy.com/browse/BK-205) TMS-Milestone | Create a milestone with a target date _(- pts, Estimation)_
+- [BK-205](https://jira.upexgalaxy.com/browse/BK-205) TMS-Milestone | Create a milestone with a target date _(- pts, Ready For QA)_
 - [BK-206](https://jira.upexgalaxy.com/browse/BK-206) TMS-Milestone | Assign test plans and track milestone readiness _(- pts, Backlog)_
 - [BK-207](https://jira.upexgalaxy.com/browse/BK-207) TMS-Test Plan | Close a plan with an outcome summary _(- pts, Backlog)_
 
@@ -128,9 +133,9 @@ _Project: BK_
 **Status:** Planning | **Stories:** 5 | **Points:** 0
 
 - [BK-209](https://jira.upexgalaxy.com/browse/BK-209) Notifications | View an inbox of workspace events _(- pts, Ready For QA)_
-- [BK-211](https://jira.upexgalaxy.com/browse/BK-211) Notifications | Get notified when a run finishes or is aborted _(- pts, Ready For Dev)_
+- [BK-211](https://jira.upexgalaxy.com/browse/BK-211) Notifications | Get notified when a run finishes or is aborted _(- pts, Ready For QA)_
 - [BK-212](https://jira.upexgalaxy.com/browse/BK-212) Notifications | Get notified on bug assignment and status changes _(- pts, Ready For QA)_
-- [BK-213](https://jira.upexgalaxy.com/browse/BK-213) Notifications | Configure notification preferences per event type _(- pts, Ready For Dev)_
+- [BK-213](https://jira.upexgalaxy.com/browse/BK-213) Notifications | Configure notification preferences per event type _(- pts, Ready For QA)_
 - [BK-214](https://jira.upexgalaxy.com/browse/BK-214) Notifications | Receive an email digest of unread notifications _(- pts, Backlog)_
 
 ## [BK-210](https://jira.upexgalaxy.com/browse/BK-210) - Team Chat
@@ -169,12 +174,12 @@ _Project: BK_
 
 **Status:** Planning | **Stories:** 6 | **Points:** 0
 
-- [BK-255](https://jira.upexgalaxy.com/browse/BK-255) TMS-Home | Show a personalized welcome banner _(- pts, Backlog)_
-- [BK-256](https://jira.upexgalaxy.com/browse/BK-256) TMS-Home | Show active test runs summary and table _(- pts, Backlog)_
-- [BK-257](https://jira.upexgalaxy.com/browse/BK-257) TMS-Home | Show recent projects with activity and stats _(- pts, Backlog)_
-- [BK-258](https://jira.upexgalaxy.com/browse/BK-258) TMS-Home | Show open bug count and severity breakdown _(- pts, Backlog)_
-- [BK-259](https://jira.upexgalaxy.com/browse/BK-259) TMS-Home | Show workspace test coverage summary _(- pts, Backlog)_
-- [BK-260](https://jira.upexgalaxy.com/browse/BK-260) TMS-Home | Show a condensed recent activity feed _(- pts, Backlog)_
+- [BK-255](https://jira.upexgalaxy.com/browse/BK-255) TMS-Home | Show a personalized welcome banner _(- pts, Ready For QA)_
+- [BK-256](https://jira.upexgalaxy.com/browse/BK-256) TMS-Home | Show active test runs summary and table _(- pts, Ready For QA)_
+- [BK-257](https://jira.upexgalaxy.com/browse/BK-257) TMS-Home | Show recent projects with activity and stats _(- pts, Ready For QA)_
+- [BK-258](https://jira.upexgalaxy.com/browse/BK-258) TMS-Home | Show open bug count and severity breakdown _(- pts, Ready For QA)_
+- [BK-259](https://jira.upexgalaxy.com/browse/BK-259) TMS-Home | Show workspace test coverage summary _(- pts, Ready For QA)_
+- [BK-260](https://jira.upexgalaxy.com/browse/BK-260) TMS-Home | Show a condensed recent activity feed _(- pts, Ready For QA)_
 
 ---
 

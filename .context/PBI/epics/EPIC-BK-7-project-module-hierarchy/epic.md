@@ -112,6 +112,7 @@ See per-story `story.md` for Gherkin acceptance criteria.
 | [BK-98](https://jira.upexgalaxy.com/browse/BK-98) | TMS-Projects | Switch between Tree, Table & Mind map views in a hardened explorer | - | Medium | Ready For Release |
 | [BK-147](https://jira.upexgalaxy.com/browse/BK-147) | App Shell | Open ATCs and Tests as tabs with a persistent explorer | - | Highest | Ready For Release |
 | [BK-148](https://jira.upexgalaxy.com/browse/BK-148) | TMS-Project Environments | List, add, rename and remove environments | - | Medium | Ready For Release |
+| [BK-266](https://jira.upexgalaxy.com/browse/BK-266) | TMS-Projects | Browse workspace projects in an index with a dedicated create route | - | High | Ready For QA |
 
 ---
 

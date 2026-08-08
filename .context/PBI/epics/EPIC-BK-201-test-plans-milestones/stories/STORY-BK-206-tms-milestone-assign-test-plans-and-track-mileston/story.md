@@ -26,7 +26,7 @@ With plans reporting their own progress and milestones carrying target dates, th
 ### Storys (2)
 
 - [BK-204](https://jira.upexgalaxy.com/browse/BK-204): TMS-Test Plan | Track plan progress from run outcomes _(Backlog)_
-- [BK-205](https://jira.upexgalaxy.com/browse/BK-205): TMS-Milestone | Create a milestone with a target date _(Estimation)_
+- [BK-205](https://jira.upexgalaxy.com/browse/BK-205): TMS-Milestone | Create a milestone with a target date _(Ready For QA)_
 
 ---
 

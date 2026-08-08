@@ -353,5 +353,28 @@ Bug filed for the idempotency 500 error: [***BK-248***](https://jira.upexgalaxy.
 
 ---
 
+### Nahuel Gomez - 5/8/2026, 22:27:49
+
+## Automation Update — [BK-248](https://jira.upexgalaxy.com/browse/BK-248) resolved (2026-08-05)
+
+[BK-248](https://jira.upexgalaxy.com/browse/BK-248) (idempotency 500) verified fixed on staging. All 8 KATA integration tests now pass.
+
+| TC | Description | Before | After |
+| --- | --- | --- | --- |
+| [BK-305](https://jira.upexgalaxy.com/browse/BK-305) | POST /tests creates a test chaining 3 ATCs | 400 | 201 ✅ |
+| [BK-305](https://jira.upexgalaxy.com/browse/BK-305) | POST /tests allows duplicate ATCs | 400 | 201 ✅ |
+| [BK-306](https://jira.upexgalaxy.com/browse/BK-306) | Empty atc_ids → 422 | 422 | 422 ✅ |
+| [BK-307](https://jira.upexgalaxy.com/browse/BK-307) | Whitespace title → 422 | 422 | 422 ✅ |
+| [BK-307](https://jira.upexgalaxy.com/browse/BK-307) | 201-char title → 422 | 422 | 422 ✅ |
+| [BK-308](https://jira.upexgalaxy.com/browse/BK-308) | Non-existent ATC → 404 | 500 | 404 ✅ |
+| [BK-309](https://jira.upexgalaxy.com/browse/BK-309) | Idempotency retry → same test | 500 | 201 ✅ |
+| [BK-310](https://jira.upexgalaxy.com/browse/BK-310) | Unauthenticated → 401 | 401 | 401 ✅ |
+
+***8/8 PASS.*** Test-builder module unblocked for regression CI.
+
+Suite fixes applied: workspace*id corrected, Idempotency-Key headers added to validation methods, response schema aligned (atc*ids→steps/id→atc_id).
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

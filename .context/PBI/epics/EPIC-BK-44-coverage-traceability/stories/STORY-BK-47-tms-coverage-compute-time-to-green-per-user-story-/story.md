@@ -3,7 +3,7 @@
 **Jira Key:** [BK-47](https://jira.upexgalaxy.com/browse/BK-47)
 **Epic:** [BK-44](https://jira.upexgalaxy.com/browse/BK-44) (Coverage & Traceability)
 **Type:** Story
-**Status:** Ready For QA
+**Status:** QA Approved
 **Priority:** Medium
 **Story Points:** -
 
@@ -27,17 +27,25 @@ As a QA Lead, I want each user story to show how long it took to go from its fir
 
 ## Traceability
 
+### Test Execution (1)
+
+- [BK-283](https://jira.upexgalaxy.com/browse/BK-283): ATR: BK-47: Story Testing _(ACTIVE)_
+
 ### Epics (2)
 
 - [BK-30](https://jira.upexgalaxy.com/browse/BK-30): Manual Execution & Runs _(Planning)_
 - [BK-31](https://jira.upexgalaxy.com/browse/BK-31): Bugs & Defect Heatmap _(Planning)_
+
+### Test Plan (1)
+
+- [BK-270](https://jira.upexgalaxy.com/browse/BK-270): ATP: BK-47: TMS-Coverage | Compute time-to-green per user story from run and bug history _(Planning)_
 
 ---
 
 ## Metadata
 
 - **Created:** 1/6/2026
-- **Updated:** 1/8/2026
+- **Updated:** 5/8/2026
 - **Reporter:** Ely
 - **Assignee:** Juan Ignacio Marmo
 - **Labels:** implementation-plan-ready, new-feature, shift-left-2026-07-24, shift-left-reviewed

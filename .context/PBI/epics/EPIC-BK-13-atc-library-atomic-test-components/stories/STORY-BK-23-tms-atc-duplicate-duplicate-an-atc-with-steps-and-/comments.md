@@ -304,5 +304,27 @@ Next: Fix [https://jira.upexgalaxy.com/browse/BK-185#icft=BK-185](https://jira.u
 
 ---
 
+### Benjamin Segovia - 7/8/2026, 11:58:32
+
+## Retest complete — corrected verdict: PASSED (blocked only by a Jira permission gap, not by app behavior)
+
+Retested against staging (`https://staging-upexbunkai.vercel.app`) now that BK-184 and BK-185 are both Cerrada.
+
+An earlier same-day pass mis-read TC11/TC10 as a regression (tested the `title` field). That was a mistake in how the retest was briefed, not a real finding: BK-184's shipped fix (PR #107, commit `c74f36c`) renamed the request field from `title` to `new*title` to match the SRS spec — `new*title` applying and `title` being silently ignored is the correct, documented post-fix behavior. A combined-body probe (`{"title":"AAAA","new_title":"BBBB"}` → applied `"BBBB"`) confirms this directly.
+
+***Corrected results — 17/17 applicable TCs PASSED******:***
+
+- TC11 / TC10 (custom title via `new_title`) — PASSED
+- UI Duplicate action, both entry points (BK-185 fix) — PASSED
+- TC02 (0-step ATC duplicate) — DESCOPED: a 0-step ATC cannot exist anywhere in the system (`POST /atcs` with `steps:[]` → `422 validation_failed`, API-level `min(1)`). Structural, not a gap.
+- TC03 (0-assertion ATC duplicate) — PASSED (previously BLOCKED on missing test data, now seeded and verified)
+- AC1 / AC4 / TC17 regression sanity — PASSED, no collateral damage from either fix
+
+***Known gap (non-blocking)******:**** the DB leg (row-level isolation check for AC4) could not be run — `DBHUB_**` is unset in `.env` for the staging DB MCP, same gap hit during today's BK-175 retest. UI-level evidence for AC4 stands in as the available signal; a DB spot-check is recommended once DBHub access is configured.
+
+***Why this ticket isn't transitioned yet******:*** the authenticated QA account currently lacks `EDIT*ISSUES` / `TRANSITION*ISSUES` on this specific issue type (Historia/Story) in project BK — confirmed via `mypermissions`, and reproducible on both the ATR custom-field write and the status transition. The same account has full edit/transition rights on Bug-type BK issues (used earlier today on BK-175). This reads as an issue-type-scoped permission-scheme gap, likely a leftover from the upexgalaxy71 site migration. Flagging for whoever has permission-scheme access on project BK — once granted, this ticket moves straight to QA Approved with no re-testing needed.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

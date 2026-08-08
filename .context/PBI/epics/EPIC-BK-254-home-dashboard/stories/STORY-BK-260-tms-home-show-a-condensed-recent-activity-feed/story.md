@@ -3,7 +3,7 @@
 **Jira Key:** [BK-260](https://jira.upexgalaxy.com/browse/BK-260)
 **Epic:** [BK-254](https://jira.upexgalaxy.com/browse/BK-254) (Home Dashboard)
 **Type:** Story
-**Status:** Backlog
+**Status:** Ready For QA
 **Priority:** Medium
 **Story Points:** -
 
@@ -37,7 +37,7 @@ Renders into `home.jsx` (master-design-plan.md §4.2), the "Recent activity" sec
 ## Metadata
 
 - **Created:** 31/7/2026
-- **Updated:** 31/7/2026
+- **Updated:** 4/8/2026
 - **Reporter:** Ely
 - **Assignee:** Unassigned
 - **Labels:** p2

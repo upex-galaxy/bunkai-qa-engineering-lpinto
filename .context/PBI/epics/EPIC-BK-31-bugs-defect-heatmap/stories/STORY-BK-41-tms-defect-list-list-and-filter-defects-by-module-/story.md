@@ -3,7 +3,7 @@
 **Jira Key:** [BK-41](https://jira.upexgalaxy.com/browse/BK-41)
 **Epic:** [BK-31](https://jira.upexgalaxy.com/browse/BK-31) (Bugs & Defect Heatmap)
 **Type:** Story
-**Status:** Ready For QA
+**Status:** In Test
 **Priority:** Medium
 **Story Points:** -
 
@@ -144,16 +144,16 @@ Archived/soft-deleted module defects are hidden by default in [https://jira.upex
 ### Storys (2)
 
 - [BK-40](https://jira.upexgalaxy.com/browse/BK-40): TMS-Defect Filing | File a defect from a failing run step _(Ready For QA)_
-- [BK-258](https://jira.upexgalaxy.com/browse/BK-258): TMS-Home | Show open bug count and severity breakdown _(Backlog)_
+- [BK-258](https://jira.upexgalaxy.com/browse/BK-258): TMS-Home | Show open bug count and severity breakdown _(Ready For QA)_
 
 ---
 
 ## Metadata
 
 - **Created:** 28/5/2026
-- **Updated:** 1/8/2026
+- **Updated:** 6/8/2026
 - **Reporter:** Ely
-- **Assignee:** jesusgpythondev
+- **Assignee:** micaelavirgagarcia
 - **Labels:** shift-left-2026-06-27, shift-left-reviewed
 
 ---

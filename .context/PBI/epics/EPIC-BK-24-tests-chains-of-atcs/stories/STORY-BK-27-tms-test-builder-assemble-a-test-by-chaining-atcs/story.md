@@ -105,7 +105,7 @@ Shift-Left QA reviewed this Story. The full ATP DRAFT (25 scenarios across Posit
 ## Metadata
 
 - **Created:** 27/5/2026
-- **Updated:** 23/7/2026
+- **Updated:** 5/8/2026
 - **Reporter:** Ely
 - **Assignee:** Andrés Daniel Cumare Morales
 - **Labels:** master-sprint-4, mvp, shift-left-2026-06-06, shift-left-reviewed, tests-epic

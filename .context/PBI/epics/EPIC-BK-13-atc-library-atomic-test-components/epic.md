@@ -68,17 +68,19 @@ Maps PRD EPIC-BK-004 (US 4.1..4.6) and SRS FR-010..FR-014.
 | --- | ----- | ------ | -------- | ------ |
 | [BK-18](https://jira.upexgalaxy.com/browse/BK-18) | TMS-ATC API | Create and edit ATCs with steps and assertions | - | Medium | Ready For Release |
 | [BK-19](https://jira.upexgalaxy.com/browse/BK-19) | TMS-ATC Builder | Build an ATC with ordered steps and assertions | - | Medium | Ready For Release |
-| [BK-20](https://jira.upexgalaxy.com/browse/BK-20) | TMS-ATC Search | Search and autocomplete ATCs | - | Medium | BLOCKED |
+| [BK-20](https://jira.upexgalaxy.com/browse/BK-20) | TMS-ATC Search | Search and autocomplete ATCs | - | Medium | QA Approved |
 | [BK-21](https://jira.upexgalaxy.com/browse/BK-21) | TMS-ATC Propagation | Cascade ATC edits to all tests | - | Medium | QA Approved |
 | [BK-22](https://jira.upexgalaxy.com/browse/BK-22) | TMS-ATC Usage | See a "Used in N tests" report | - | Medium | QA Approved |
-| [BK-23](https://jira.upexgalaxy.com/browse/BK-23) | TMS-ATC Duplicate | Duplicate an ATC with steps and assertions | - | Medium | BLOCKED |
+| [BK-23](https://jira.upexgalaxy.com/browse/BK-23) | TMS-ATC Duplicate | Duplicate an ATC with steps and assertions | - | Medium | QA Approved |
+| [BK-267](https://jira.upexgalaxy.com/browse/BK-267) | TMS-ATC Library | Browse, search, and filter ATCs across every project | - | Medium | Estimation |
+| [BK-315](https://jira.upexgalaxy.com/browse/BK-315) | TMS-ATC Library | Export a Project's ATCs to CSV | - | Medium | Backlog |
 
 ---
 
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 11/7/2026
+- **Updated:** 7/8/2026
 - **Reporter:** Ely
 - **Assignee:** Ely
 - **Labels:** mvp, wave-2

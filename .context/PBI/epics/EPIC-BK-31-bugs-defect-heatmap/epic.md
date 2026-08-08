@@ -26,7 +26,7 @@ Because engineering already lives in their own tracker, every defect filed in Bu
 | Key | Story | Points | Priority | Status |
 | --- | ----- | ------ | -------- | ------ |
 | [BK-40](https://jira.upexgalaxy.com/browse/BK-40) | TMS-Defect Filing | File a defect from a failing run step | - | Medium | Ready For QA |
-| [BK-41](https://jira.upexgalaxy.com/browse/BK-41) | TMS-Defect List | List and filter defects by module, status, severity | - | Medium | Ready For QA |
+| [BK-41](https://jira.upexgalaxy.com/browse/BK-41) | TMS-Defect List | List and filter defects by module, status, severity | - | Medium | In Test |
 | [BK-42](https://jira.upexgalaxy.com/browse/BK-42) | TMS-Defect Heatmap | View count and week-over-week trend per module | - | Medium | Ready For QA |
 | [BK-43](https://jira.upexgalaxy.com/browse/BK-43) | TMS-Defect Sync | Sync defects one-way to the external tracker | - | Medium | Ready For Dev |
 | [BK-264](https://jira.upexgalaxy.com/browse/BK-264) | TMS-Defect Triage | Assign a defect to a workspace member and update its status | - | Medium | Ready For QA |

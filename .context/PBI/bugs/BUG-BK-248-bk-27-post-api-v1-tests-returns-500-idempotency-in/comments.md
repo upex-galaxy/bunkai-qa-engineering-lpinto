@@ -66,5 +66,46 @@ Spun off as its own follow-up rather than expanding this bug-fix PR's scope. If 
 
 ---
 
+### Nahuel Gomez - 5/8/2026, 22:20:53
+
+## [BK-248](https://jira.upexgalaxy.com/browse/BK-248) — Acceptance Test Results (ATR)
+
+***Result: PASSED*** · Tested: 2026-08-05 · Environment: Staging · Tester: Nahuel Gomez
+
+### Verification Results
+
+| # | Checkpoint | Expected | Actual | Status |
+| --- | --- | --- | --- | --- |
+| 1 | POST /tests + Idempotency-Key + valid workspace + ATCs | 201 Created | 201 | PASS |
+| 2 | POST /tests + Idempotency-Key + nonexistent workspace*id | 422 validation*failed | 422 | PASS |
+| 3 | Same request x2 with same Idempotency-Key (replay) | Same test ID | Match confirmed | PASS |
+| 4 | No Idempotency-Key header (regression guard) | 400 | 400 | PASS |
+| 5 | KATA test-builder.test.ts — all 8 tests | 8/8 pass | 8/8 pass | PASS |
+
+### KATA Test Results
+
+All 8 test scenarios pass:
+
+- [BK-305](https://jira.upexgalaxy.com/browse/BK-305): POST /tests creates a test chaining 3 ATCs — PASS
+- [BK-305](https://jira.upexgalaxy.com/browse/BK-305): POST /tests allows duplicate ATC IDs in chain — PASS
+- [BK-306](https://jira.upexgalaxy.com/browse/BK-306): POST /tests rejects empty atc_ids with 422 — PASS
+- [BK-307](https://jira.upexgalaxy.com/browse/BK-307): POST /tests rejects whitespace-only title with 422 — PASS
+- [BK-307](https://jira.upexgalaxy.com/browse/BK-307): POST /tests rejects 201-character title with 422 — PASS
+- [BK-308](https://jira.upexgalaxy.com/browse/BK-308): POST /tests returns 404 for non-existent ATC IDs — PASS
+- [BK-309](https://jira.upexgalaxy.com/browse/BK-309): POST /tests with Idempotency-Key returns same test on retry — PASS
+- [BK-310](https://jira.upexgalaxy.com/browse/BK-310): POST /tests rejects unauthenticated request with 401 — PASS
+
+### Test Suite Fixes Applied
+
+- Fixed workspace_id: project UUID replaced with actual workspace UUID (dfdd3fb7-0724-4eb5-b970-1498e949beb9)
+- Added Idempotency-Key header to createTestEmptyChain and createTestWithInvalidTitle
+- Fixed response schema: atc*ids → steps, id → atc*id
+
+### Verdict
+
+***PASSED.*** Idempotency fix confirmed — FK violation 23503 now returns 422 instead of 500. All 4 previously blocked KATA tests pass. [BK-27](https://jira.upexgalaxy.com/browse/BK-27) automation unblocked.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

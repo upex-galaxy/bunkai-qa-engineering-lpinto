@@ -26,7 +26,7 @@ Mateo reads dashboards, not feeds — he opens Bunkai when there is a reason to.
 ### Storys (2)
 
 - [BK-209](https://jira.upexgalaxy.com/browse/BK-209): Notifications | View an inbox of workspace events _(Ready For QA)_
-- [BK-213](https://jira.upexgalaxy.com/browse/BK-213): Notifications | Configure notification preferences per event type _(Ready For Dev)_
+- [BK-213](https://jira.upexgalaxy.com/browse/BK-213): Notifications | Configure notification preferences per event type _(Ready For QA)_
 
 ---
 

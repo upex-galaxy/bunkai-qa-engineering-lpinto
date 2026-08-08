@@ -175,5 +175,27 @@ Reassigned to you as the shift-left QA owner for this story.
 
 ---
 
+### Andrés Daniel Cumare Morales - 5/8/2026, 6:33:41
+
+## Acceptance Criteria + ATP reconciled and synced (2026-08-05)
+
+Reconciled `acceptance*criteria` and `acceptance*test_plan` (ATP DRAFT), merging: the 2026-06-10 shift-left baseline, the 2026-07-31 PO/Dev ratification, and the 2026-07-31 mockup correction (`settings-workspaces.png`, attachment 10199).
+
+### Changes
+
+- ***New Scenario A**** (leaving the only workspace) — corrected from "route to `/onboarding`" to a ****block***, matching the mockup's "state:single-workspace" panel, which explicitly says the Leave action does not render for a user's only workspace.
+- ***New Scenario B / New Scenario C*** — confirmed as ratified, unaffected by the mockup; "NEEDS CONFIRMATION" flags removed.
+- PAT auto-revocation folded into Scenario B as an explicit clause.
+
+### Open question — still unresolved, needs a real answer
+
+Confirm-dialog mechanism for "Leave workspace" — simple confirm/cancel naming the workspace, or type-to-confirm? No design-authoritative answer exists yet (the only prior answer was role-played, not ratified). Please confirm before Stage 1 test planning parametrizes Scenario 1's interaction details.
+
+### Also fixed
+
+`.agents/jira-fields.json` had a stale field ID for `acceptance*criteria` (`customfield*10063`, which now resolves to the unrelated "Time to resolution" SLA field) — corrected to `customfield_10097`. This is why the AC field looked empty in earlier tooling checks; it wasn't, the catalog pointed at the wrong field.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

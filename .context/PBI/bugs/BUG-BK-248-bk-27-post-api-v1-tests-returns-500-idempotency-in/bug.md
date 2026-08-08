@@ -2,7 +2,7 @@
 
 **Jira Key:** [BK-248](https://jira.upexgalaxy.com/browse/BK-248)
 **Priority:** Medium
-**Status:** Ready For QA
+**Status:** Closed
 **Components:** None
 **Severity:** Siempre
 
@@ -38,7 +38,7 @@ Idempotency middleware at lib/api/idempotency.ts fails on insert into idempotenc
 ## Metadata
 
 - **Created:** 22/7/2026
-- **Updated:** 31/7/2026
+- **Updated:** 5/8/2026
 - **Reporter:** Nahuel Gomez
 - **Assignee:** Nahuel Gomez
 - **Labels:** automation-found, bk-27, idempotency, regression-blocker

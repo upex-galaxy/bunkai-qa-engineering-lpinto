@@ -63,10 +63,14 @@ Implements ***FR-004***.
 
 ### Tests (4)
 
-- [BK-251](https://jira.upexgalaxy.com/browse/BK-251): BK-6: TC2: should reject the switch with 403 given the user has no membership in the target workspace _(Candidate)_
+- [BK-251](https://jira.upexgalaxy.com/browse/BK-251): BK-6: TC2: should reject the switch with 403 given the user has no membership in the target workspace _(AUTOMATED)_
 - [BK-253](https://jira.upexgalaxy.com/browse/BK-253): BK-6: TC4: should display the newly active workspace in the header switcher after switch and page reload _(Candidate)_
-- [BK-252](https://jira.upexgalaxy.com/browse/BK-252): BK-6: TC3: should reject the switch with 403 given the user's membership in the target workspace is suspended _(Candidate)_
+- [BK-252](https://jira.upexgalaxy.com/browse/BK-252): BK-6: TC3: should reject the switch with 403 given the user's membership in the target workspace is suspended _(AUTOMATED)_
 - [BK-250](https://jira.upexgalaxy.com/browse/BK-250): BK-6: TC1: should update active workspace context when switching to a workspace given the user is an active member _(Candidate)_
+
+### Defect (1)
+
+- [BK-316](https://jira.upexgalaxy.com/browse/BK-316): WorkspaceSwitch: API: active-workspace switch not reflected in Bearer/PAT-authenticated GET /me _(Ready For QA)_
 
 ### Bug (1)
 
@@ -77,7 +81,7 @@ Implements ***FR-004***.
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 31/7/2026
+- **Updated:** 6/8/2026
 - **Reporter:** Ely
 - **Assignee:** Luis Eduardo Flores Villarroel
 - **Labels:** mvp, tenancy, wave-1

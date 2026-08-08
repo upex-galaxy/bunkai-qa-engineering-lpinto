@@ -3,7 +3,7 @@
 **Jira Key:** [BK-213](https://jira.upexgalaxy.com/browse/BK-213)
 **Epic:** [BK-208](https://jira.upexgalaxy.com/browse/BK-208) (Notifications Center)
 **Type:** Story
-**Status:** Ready For Dev
+**Status:** Ready For QA
 **Priority:** Medium
 **Story Points:** -
 
@@ -34,7 +34,7 @@ Once run and bug events flow into the inbox, volume becomes the enemy: a busy wo
 ## Metadata
 
 - **Created:** 11/7/2026
-- **Updated:** 30/7/2026
+- **Updated:** 4/8/2026
 - **Reporter:** Ely
 - **Assignee:** Carlos Alberto Chiavassa
 - **Labels:** new-feature, post-mvp

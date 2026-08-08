@@ -260,5 +260,18 @@ One consolidated table (was 18 separate scenario blocks across AC1–AC5 plus ne
 - [ ] Story enters sprint at status `Ready For Dev` once estimated
 - [ ] When Story reaches `Ready For QA`, `/sprint-testing` will short-circuit refinement (label `shift-left-reviewed` detected)
 
+## Refresh — 2026-08-04 (Mockup Cross-Reference)
+
+Live mockup reviewed (local server + Playwright): `../upex-bunkai-tms/.context/designs/.../milestones-board.html`. Ratified in this session's Three Amigos refresh (full detail in the description and in the local `shift-left-refinement.md`):
+
+- Q1 (target date upper bound) — ratified: no upper bound.
+- Q2 (internal-whitespace duplicate) — ratified: allowed as distinct.
+- Edit UX corrected: inline card, not a modal — supersedes the 2026-07-24 Dev Frontend decision.
+- ***NEW BLOCKING — C1***: the mockup's detail view always renders BK-206's Attach-plans/readiness UI with no "BK-205-only" state, conflicting with this Story's own `scope.md` ("empty plans area"). Needs explicit PO/Dev/Design ratification before Ready For Dev — see description for the full writeup.
+
+## C1 resolved — 2026-08-05
+
+`scope.md` wins: BK-206 still in Backlog, this Story ships the detail view with an empty plans area only, no Attach-plans/readiness UI. New AC scenario added to make it testable ("Should open a milestone's detail view showing only its own details and an empty plans area", `@scope-boundary`). All Critical Questions from this refinement (Q1, Q2, C1) are now closed — see description for full history.
+
 ---
 _Synced from Jira by sync-jira-issues_

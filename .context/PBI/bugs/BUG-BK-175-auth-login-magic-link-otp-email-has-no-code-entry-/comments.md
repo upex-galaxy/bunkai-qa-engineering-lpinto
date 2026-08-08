@@ -153,5 +153,207 @@ Either way works for me — just flagging so we don't cross a process line. Once
 
 ---
 
+### Benjamin Segovia - 5/8/2026, 14:37:11
+
+> ***WARNING:*** PR checked 2026-08-05: still blocked, needs action from someone with repo/Vercel admin access.
+
+## PR status check
+
+[PR #61 — fix(BK-175): add OTP code-entry field to magic-link login](https://github.com/upex-galaxy/upex-bunkai-tms/pull/61)
+
+- ***Opened******:*** 2026-07-28, `staging` ← `fix/BK-175/magic-link-otp-code`
+- ***Reviews******:*** none requested, none submitted (`reviews: []`, `reviewRequests: []`)
+- ***Vercel check******:*** `FAILURE` — but not a real test failure. The bot comment says the deploy needs a `upexgalaxy-saiotest` team member to authorize it before Vercel will even build the preview.
+- ***Merge state******:*** `BLOCKED` (`mergeable: MERGEABLE` — no code conflicts, purely a policy/check gate)
+
+## Ask
+
+Two actions, both need repo/Vercel admin access I don't have:
+
+1. Authorize the Vercel deploy for this PR (link in the bot comment on the PR).
+2. Assign a reviewer so it moves out of the queue.
+
+Fix has been sitting ready for review for over a week — flagging so it doesn't keep blocking staging QA.
+
+---
+
+### Ely - 6/8/2026, 6:51:41
+
+## Root-cause analysis (2026-08-06)
+
+> ***NOTE:*** The defect is real, but the diagnosis in the report points at the symptom rather than the cause. There is no missing input; there is a login endpoint that silently enrols unknown addresses.
+
+`POST /api/v1/auth/magic-link` calls `signInWithOtp` ***without*** `shouldCreateUser`, and that option defaults to `true`:
+
+```ts
+await supabase.auth.signInWithOtp({
+  email,
+  options: { emailRedirectTo: redirect },   // shouldCreateUser not set -> true
+});
+```
+
+So an address with ***no account*** is enrolled instead of rejected, and Supabase answers with the `Confirm signup` template — a 6-digit code, because `/api/v1/auth/confirm` verifies with `type: 'signup'` — while the caller waits on the "Check your inbox" screen for a link that never arrives.
+
+An address that ***already has an account*** receives the `Magic Link` template: link, click, authenticated, no code involved. That is why the flow works for existing testers and only broke during this reproduction, which used a fresh address.
+
+## Why a code-entry field is the wrong fix
+
+Adding the input proposed in PR #61 would make the login screen prompt for a value the correct flow never sends. For an existing account no code is generated at all, so the field would sit empty and unusable in the normal path.
+
+## The fix (PR #134)
+
+1. `shouldCreateUser: false` — login only mails a link to an address that already has an account. Enrolment stays in `/signup`.
+2. The resulting 4xx is swallowed into the same `{ ok: true }` a delivered link returns. Answering differently for an unknown address would turn this endpoint into an account oracle; this matches the anti-enumeration stance `resend` / `signup` / `confirm` already document.
+3. The route no longer forwards the raw upstream `error.message` — the same leak BK-181 closed in `resend`.
+
+Tests drive the real handler against real Supabase Auth: no user is created for an unknown address, the response is indistinguishable from a delivered link, and malformed input still fails validation with 422.
+
+## Unverified
+
+Two facts could not be checked from the code and would change the conclusion if they differ:
+
+| Fact | Why it matters |
+| --- | --- |
+| The Supabase email-template configuration | Not versioned in this repo. The link-vs-code split is inferred from `type: 'signup'` in `/api/v1/auth/confirm`. |
+| Whether the address used in the reproduction already had an account | If it did, this analysis is wrong and the code-entry field is the correct fix. |
+
+## Secondary finding
+
+`shouldCreateUser: true` on a login endpoint lets anyone enrol arbitrary addresses by typing them into the form, independent of this bug.
+
+---
+
+### Automation for Jira - 6/8/2026, 7:23:35
+
+✅ Test Suite is successfully AUTOMATED and MERGED for Regression Runs. 
+QA Task is Done.
+
+---
+
+### Ely - 6/8/2026, 20:09:39
+
+## Close-out discrepancy — this fix is already shipped to `staging`, but the ticket still reads `In Review`
+
+Found by the autonomous `bug` delivery routine on 2026-08-06 while auditing the open-defect surface. Recording it rather than transitioning, because this run did not do the work and does not know the intended QA owner.
+
+***Git evidence*** (git is the source of truth here, not the ticket status):
+
+- Fix commit: `87ea7f4` — "fix(BK-175): stop the magic-link route from silently enrolling unknown emails"
+- Merge commit: `a25398b` — PR #134, `fix/BK-175-magic-link-no-silent-signup` into `staging`
+- `git merge-base --is-ancestor a25398b origin/staging` exits 0 — genuinely reachable from the integration branch.
+
+No branch and no open PR remain for this ticket. The work landed; only the status did not follow.
+
+***Suggested action***: transition BK-175 to `Ready For QA` and assign its shift-left QA owner, or say why it should stay in review. This is the second consecutive routine run to observe it.
+
+---
+
+**Posted by the autonomous **`bug`** delivery routine. Not human sign-off.**
+
+---
+
+### Benjamin Segovia - 7/8/2026, 11:00:26
+
+## Confirming the reproduction address
+
+Re: the "Unverified" question above — the original repro (2026-06-22 16:01 UTC) used `bunkai-staging-userbunk@olkacoraug.resend.app`, a disposable Resend test inbox created fresh for that session. It had no prior Supabase account: this was the first and only sign-in attempt against that address, and the OTP email that came back was the ***8-digit signup-style code with no link*** (captured verbatim via `resend emails receiving get`, see the comment above with the raw email body).
+
+That matches the root-cause theory exactly: an address with no account hits `signInWithOtp`, `shouldCreateUser` defaults to `true`, the address gets silently enrolled, and Supabase answers with the Confirm-signup template instead of the magic-link one.
+
+Closing #61 in favor of #134 stands confirmed. Re-verifying the fix on staging now that #134 is merged and deployed.
+
+---
+
+### Benjamin Segovia - 7/8/2026, 11:16:57
+
+## Acceptance Test Results (ATR)
+
+> `{{jira.acceptance*test*results}}` is not on this issue's edit screen (Bug/Error work type) — posting as the documented fallback comment per `.agents/jira-required.yaml`.
+
+```
+BK-175 TEST RESULTS
+Tested: 2026-08-07
+Environment: Staging
+Tester: Benjamin Segovia
+Result: PASSED (3/3)
+
+SUMMARY
+  Retested PR #134's shouldCreateUser: false fix on
+  POST /api/v1/auth/magic-link against the three scenarios required by the
+  Stage 1 veto (Auth / External-integration / State-machine class change).
+  Overall outcome: GO. The fix behaves correctly on staging across all three
+  scenarios. No blocking findings.
+
+RETEST SCENARIOS (bug ticket — no TCs in-sprint; these ARE the retest cases)
+  Scenario A: unknown email not silently enrolled ... PASSED
+  Scenario B: existing account still works ......... PASSED
+  Regression: malformed email input ................ PASSED
+
+TEST DATA
+  Unknown-email fixture: bunkai-bk175-retest01@olkacoraug.resend.app
+                          (fresh disposable inbox, no prior account)
+  Known-account fixture: STAGING*USER*EMAIL (value read from .env at
+                          execution time, never printed)
+
+BUGS FOUND
+  None
+
+OBSERVATIONS
+  Scenario A — POST /api/v1/auth/magic-link returned 200 {"ok":true},
+  byte-identical response shape to Scenario B (no user-enumeration signal).
+  Resend inbox checked immediately and again after 15s: zero inbound emails
+  for the fixture address.
+
+  Scenario B — same 200 {"ok":true} response. Magic-link email arrived
+  ~8s later ("Your sign-in link", type=magiclink Supabase link, not a code).
+  Clicking through authenticated the session (redirected to /projects).
+
+  Regression check — "not-an-email" kept the "Send magic link" button
+  disabled; zero network calls fired (confirmed via playwright-cli network
+  capture). No regression introduced by PR #134.
+
+  Tool gap — DBHub MCP (staging-dhhub) did not surface this session, so
+  Scenario A's auth.users zero-rows check could not be performed directly
+  against the database. The PASS verdict for Scenario A rests on
+  evidence-absence (no email delivered + response shape identical to the
+  known-account case), which is the primary signal defined in the retest
+  plan, not a DB row count. Flagged as a coverage gap, not a blocker.
+
+RECOMMENDATIONS
+  Re-run a DB spot-check on auth.users for the Scenario A fixture email
+  once DBHub MCP staging access is restored, to directly confirm zero
+  enrollment (currently inferred from evidence-absence, not queried).
+  Stage 4 (test-documentation) to decide whether this bug is
+  regression-worthy enough to promote into a persistent Test.
+```
+
+---
+
+### Benjamin Segovia - 7/8/2026, 11:17:03
+
+QA Bug Verification - BK-175
+
+Environment: Staging
+Result: VERIFIED - Bug fix confirmed
+
+TEST DATA USED:
+
+- Unknown-email fixture: bunkai-bk175-retest01@olkacoraug.resend.app (fresh disposable inbox, no prior account)
+- Known-account fixture: STAGING*USER*EMAIL (value read from .env at execution time)
+
+VERIFICATION:
+
+- Scenario A — unknown email not silently enrolled: PASSED. `POST /api/v1/auth/magic-link` returned `200 {"ok":true}`, byte-identical to the known-account response (no enumeration signal). Resend inbox checked immediately and again after 15s: zero inbound emails. Evidence: `BK-175-scenario-a-check-your-inbox.png`
+- Scenario B — existing account still works: PASSED. Same `200 {"ok":true}` response; magic-link email arrived ~8s later as a clickable `type=magiclink` link (not a code); clicking through authenticated the session (`/projects`). Evidence: `BK-175-scenario-b-magic-link-email.png`, `BK-175-scenario-b-post-login-authenticated.png`
+- Regression check — malformed email input: PASSED. "Send magic link" stayed disabled for `not-an-email`, zero network calls fired — no regression from PR #134. Evidence: `BK-175-regression-malformed-email-validation.png`
+
+This closes the "Unverified" root-cause question raised above (2026-08-06): the original 2026-06-22 repro address had no prior account (confirmed in the comment above this one), which matches the `shouldCreateUser` defaulting-to-`true` theory exactly. It also confirms the sync-bot's stale-status flag was correct — the fix was already shipped and working; only the ticket status hadn't followed.
+
+Tool gap — DBHub MCP (staging-dhhub) was not available this session, so Scenario A's `auth.users` zero-rows check could not be confirmed directly against the database. The PASS verdict rests on evidence-absence (no email delivered, response shape identical to the known-account case) rather than a DB row count — this is a coverage gap, not a blocker, and a follow-up DB spot-check is recommended once DBHub access is restored (see Recommendations in the ATR above).
+
+Artifacts: ATR (comment above)
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

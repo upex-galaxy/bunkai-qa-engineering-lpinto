@@ -85,13 +85,14 @@ Bearer callers with valid workspace membership and `run:execute` should resolve 
 - is dependency for: [BK-49](https://jira.upexgalaxy.com/browse/BK-49) - TMS-Activity | Stream a read-side feed over the existing activity log
 - relates to: [BK-39](https://jira.upexgalaxy.com/browse/BK-39) - TMS-Run Execution | Finish a run with a final verdict
 - relates to: [BK-262](https://jira.upexgalaxy.com/browse/BK-262) - PAT | Enforce capability scopes on every non-ATC route
+- relates to: [BK-316](https://jira.upexgalaxy.com/browse/BK-316) - WorkspaceSwitch: API: active-workspace switch not reflected in Bearer/PAT-authenticated GET /me
 
 ---
 
 ## Metadata
 
 - **Created:** 25/6/2026
-- **Updated:** 2/8/2026
+- **Updated:** 6/8/2026
 - **Reporter:** jesusgpythondev
 - **Assignee:** jesusgpythondev
 - **Labels:** bk-39-follow-up, pat, run-creation, workspace-resolution

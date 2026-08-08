@@ -29,7 +29,7 @@ As a QA Lead, I want to export a user story's assembled evidence chain as a shar
 
 ### Story (1)
 
-- [BK-45](https://jira.upexgalaxy.com/browse/BK-45): TMS-Traceability | Render full US to bug evidence chain in one read _(Ready For Dev)_
+- [BK-45](https://jira.upexgalaxy.com/browse/BK-45): TMS-Traceability | Render full US to bug evidence chain in one read _(QA Approved)_
 
 ---
 

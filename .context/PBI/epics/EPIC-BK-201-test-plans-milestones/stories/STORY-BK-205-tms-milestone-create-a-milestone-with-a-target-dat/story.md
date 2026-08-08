@@ -3,7 +3,7 @@
 **Jira Key:** [BK-205](https://jira.upexgalaxy.com/browse/BK-205)
 **Epic:** [BK-201](https://jira.upexgalaxy.com/browse/BK-201) (Test Plans & Milestones)
 **Type:** Story
-**Status:** Estimation
+**Status:** Ready For QA
 **Priority:** Medium
 **Story Points:** -
 
@@ -113,6 +113,48 @@ Test Plans organize what a cycle verifies; a Milestone anchors when it must be r
 
 Backend ≈5, Frontend ≈5, Design = small non-blocking spike — converged team estimate (not a simple sum) once the editing-scope question was resolved. Not written to the Jira Story Points field by this session — left for the real team's own estimation ritual.
 
+## Three Amigos Session — Decisions (Refresh, 2026-08-04, Mockup Cross-Reference — DRAFT, pending real team ratification)
+
+> This session was AI-facilitated to accelerate the actual Dev/Design/PO/QA conversation, triggered by the milestones-board mockup landing on 2026-07-30 (see Ely's comment below). Treat every decision below as a strong starting draft, not a final sign-off — the real stakeholders should confirm or override before Ready For Dev. Live mockup reviewed via local Playwright session: `../upex-bunkai-tms/.context/designs/bunkai-test-management-tool/bk-201-test-plans-milestones/milestones-board.html`.
+
+### C1 — BLOCKING, not resolved by this session — needs real PO/Dev/Design ratification
+
+***Finding****: the delivered mockup's Milestone detail view unconditionally renders the Attach-plans button, the readiness card, and the attached-plans table in every state (default, overdue, viewer-role) — there is no "BK-205-only" variant. This conflicts with this Story's own `scope.md`, which says the detail view ships with ****"an empty plans area"*** only — no attach/readiness UI, since that arrives with the sibling story (assign test plans and track readiness).
+
+***Why it matters***: the mockup was commissioned as one combined screen covering both stories together (per the design brief), so it naturally shows the end-state UI — that does not mean this Story ships that whole state. This changes Frontend's actual build scope and this Story's Definition of Done.
+
+***Recommended default (NOT ratified — needs explicit PO call)***: `scope.md` wins. This Story ships with the header + an empty "no plans attached yet" placeholder — no Attach-plans button, no readiness card, no attached-plans table. Those arrive with the sibling story. Frontend needs a reduced variant of the detail view for this Story's release; Design should confirm whether that reduced state already exists or needs producing.
+
+***Alternative*** (if PO decides otherwise): both stories ship as one integrated increment despite separate Jira tracking, in which case the mockup is correct as-is and `scope.md`'s "empty plans area" wording should be updated to match.
+
+### PO decisions (ratified — cheapest, already-implemented defaults)
+
+1. ***No upper bound on target date.*** The mockup's date picker sets only `min` (today), never a `max`, and no validation path checks one — matches the already-drafted AC. Ratifies the previously open Q1.
+2. ***Internal-whitespace name variants are allowed as distinct milestones.*** The mockup's `validateMs()` trims leading/trailing whitespace only before comparing, matching Backend's already-built `UNIQUE(project_id, lower(trim(name)))` index — changing this now would require a DB index migration for a rare, cosmetic edge case. Ratifies the previously open Q2.
+
+### Dev Frontend correction (supersedes the 2026-07-24 decision)
+
+1. ***Editing is inline, not a modal.*** The 2026-07-24 session assumed "editing reuses the create-dialog in edit mode." The delivered mockup does the opposite: `Edit details` swaps a card inline into the detail page (readiness card and attached-plans table stay visible below), while `Create` uses a true modal overlay. The mockup is the current, most recent decision — the DRAFT text from 07-24 is corrected. This affects locator/ATC design for automation (`#edit-form` inline card vs. `.overlay .modal`) and manual test steps (Esc key behavior is a separate code path for inline edit vs. overlay dismiss).
+
+### Design notes (non-blocking, confirm-only)
+
+1. ***Live character counter under description — not present in the mockup.*** The 2026-07-24 session called for one given the new 500-char cap; the delivered mockup shows a plain textarea with no counter. Weak, inconclusive evidence (could be a prototype omission, could be a reversed decision) — confirm with Design, do not change any AC either way.
+2. ***UI copy says "Editor access," the ratified role name is "member."**** The mockup's viewer-role note reads **"Editing and attaching plans require Editor access"* — but `business-rules.md` and every AC use the real role name "member." Recommend aligning the copy before implementation so QA and users aren't tracking two different vocabularies for the same gate.
+
+### QA notes
+
+- Live mockup review used a local static server + Playwright screenshots across List / Create / Detail / Edit / Overdue / Viewer-role states — no state variant omits the Attach/Readiness UI, which is the strongest evidence behind the C1 finding.
+- `business-rules.md`'s "Design intent" line ("days-remaining counter that changes tone as the date approaches") is stale — already superseded by the 2026-07-24 Design decision ("no urgency/overdue color treatment for this Story") and confirmed absent in the mockup (only a binary on-track/overdue chip). Recommend a doc cleanup pass, not an AC change.
+- Full mockup cross-reference detail, screenshots, and reasoning: local working file `shift-left-refinement.md` in this Story's PBI folder.
+
+## C1 — RESOLVED (2026-08-05)
+
+***Decision***: `scope.md` wins. BK-206 (assign test plans / track milestone readiness) remains in Backlog and has not started; this Story's own `scope.md` already defines the release-1 deliverable as "Milestone detail view with its details and an empty plans area." BK-205 ships the detail view WITHOUT the Attach-plans button, readiness card, or attached-plans table — those arrive with the sibling story. The combined mockup (`milestones-board.html`) is the target end-state once BK-206 also ships, not part of this Story's Definition of Done.
+
+***Made concrete***: a new AC scenario was added — "Should open a milestone's detail view showing only its own details and an empty plans area" (`@scope-boundary`) — so Frontend and QA have a testable definition of the reduced state, not just prose in `scope.md`.
+
+***No change needed*** to `scope.md` or `out-of-scope.md` — both already stated this; the gap was that the mockup (delivered after those fields were written) looked like it contradicted them, and nothing had explicitly reconciled the two until now.
+
 ---
 
 ## Fields
@@ -134,10 +176,10 @@ Backend ≈5, Frontend ≈5, Design = small non-blocking spike — converged tea
 ## Metadata
 
 - **Created:** 11/7/2026
-- **Updated:** 30/7/2026
+- **Updated:** 5/8/2026
 - **Reporter:** Ely
 - **Assignee:** Carlos Alcala
-- **Labels:** new-feature, post-mvp, shift-left-2026-07-22, shift-left-reviewed
+- **Labels:** new-feature, post-mvp, shift-left-2026-07-22, shift-left-2026-08-04, shift-left-reviewed
 
 ---
 

@@ -76,8 +76,8 @@ Ready for estimation after expert-panel refinement. QA recommends 5 SP with conf
 ### Storys (5)
 
 - [BK-42](https://jira.upexgalaxy.com/browse/BK-42): TMS-Defect Heatmap | View count and week-over-week trend per module _(Ready For QA)_
-- [BK-41](https://jira.upexgalaxy.com/browse/BK-41): TMS-Defect List | List and filter defects by module, status, severity _(Ready For QA)_
-- [BK-258](https://jira.upexgalaxy.com/browse/BK-258): TMS-Home | Show open bug count and severity breakdown _(Backlog)_
+- [BK-41](https://jira.upexgalaxy.com/browse/BK-41): TMS-Defect List | List and filter defects by module, status, severity _(In Test)_
+- [BK-258](https://jira.upexgalaxy.com/browse/BK-258): TMS-Home | Show open bug count and severity breakdown _(Ready For QA)_
 - [BK-35](https://jira.upexgalaxy.com/browse/BK-35): TMS-Run Execution | Mark each step pass, fail, or block _(QA Approved)_
 - [BK-43](https://jira.upexgalaxy.com/browse/BK-43): TMS-Defect Sync | Sync defects one-way to the external tracker _(Ready For Dev)_
 
@@ -86,9 +86,9 @@ Ready for estimation after expert-panel refinement. QA recommends 5 SP with conf
 ## Metadata
 
 - **Created:** 28/5/2026
-- **Updated:** 1/8/2026
+- **Updated:** 8/8/2026
 - **Reporter:** Ely
-- **Assignee:** Ely
+- **Assignee:** jesusgpythondev
 - **Labels:** shift-left-2026-06-17, shift-left-reviewed
 
 ---

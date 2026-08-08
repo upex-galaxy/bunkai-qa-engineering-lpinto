@@ -191,5 +191,31 @@ Merged to `staging`: [PR #98](https://github.com/upex-galaxy/upex-bunkai-tms/pul
 
 ---
 
+### Juan Ignacio Marmo - 5/8/2026, 19:12:14
+
+## QA Sign-Off — BK-47
+
+***QA******:*** Juan Ignacio Marmo
+***Date******:*** 2026-08-06
+***Environment******:*** Staging
+***Verdict******:*** PASSED ✓
+
+All 6 acceptance criteria verified. 12 test cases executed — 10 PASS, 2 deferred to automation (same-timestamp boundary + RPC error mock).
+
+No blocking defects found. Story is ready for release.
+
+***Key notes for the team******:***
+
+- Scope confirmed run-data-only (no bug/defect dependency) per Ely's 2026-08-01 clarification.
+- Left-nav "Metrics" link disabled ("soon") is confirmed out of scope for this story.
+- Metrics page is fully reachable via direct URL: `/projects/{slug}/metrics`.
+
+***Key discovery during execution******:***
+The RPC `bunkai*report*project*recovery*cycles` reads `run*atcs.outcome`, NOT `run.verdict` alone. Any test data seeding (manual or automated) must follow the full flow: `create run → mark each step → finish run`. Calling finish without marking steps produces all-skipped outcomes and the RPC returns `no*cycle` for every story regardless of the run verdict.
+
+***Full ATR on******:*** BK-283
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

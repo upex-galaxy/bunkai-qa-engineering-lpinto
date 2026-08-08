@@ -3,7 +3,7 @@
 **Jira Key:** [BK-211](https://jira.upexgalaxy.com/browse/BK-211)
 **Epic:** [BK-208](https://jira.upexgalaxy.com/browse/BK-208) (Notifications Center)
 **Type:** Story
-**Status:** Ready For Dev
+**Status:** Ready For QA
 **Priority:** Medium
 **Story Points:** -
 
@@ -34,7 +34,7 @@ Runs already end in exactly two final verdicts — passed or failed — or get a
 ## Metadata
 
 - **Created:** 11/7/2026
-- **Updated:** 30/7/2026
+- **Updated:** 6/8/2026
 - **Reporter:** Ely
 - **Assignee:** Carlos Alberto Chiavassa
 - **Labels:** new-feature, post-mvp

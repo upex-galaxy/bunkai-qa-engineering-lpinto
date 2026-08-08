@@ -3,7 +3,7 @@
 **Jira Key:** [BK-23](https://jira.upexgalaxy.com/browse/BK-23)
 **Epic:** [BK-13](https://jira.upexgalaxy.com/browse/BK-13) (ATC Library (Acceptance Test Cases))
 **Type:** Story
-**Status:** BLOCKED
+**Status:** QA Approved
 **Priority:** Medium
 **Story Points:** -
 
@@ -46,7 +46,7 @@
 
 ### Bug (1)
 
-- [BK-175](https://jira.upexgalaxy.com/browse/BK-175): Auth: Login: Magic-link OTP email has no code-entry field on staging _(In Review)_
+- [BK-175](https://jira.upexgalaxy.com/browse/BK-175): Auth: Login: Magic-link OTP email has no code-entry field on staging _(Closed)_
 
 ### Story (1)
 
@@ -57,9 +57,9 @@
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 24/7/2026
+- **Updated:** 7/8/2026
 - **Reporter:** Ely
-- **Assignee:** Ely
+- **Assignee:** Benjamin Segovia
 - **Labels:** atc, clone, mvp, wave-2
 
 ---

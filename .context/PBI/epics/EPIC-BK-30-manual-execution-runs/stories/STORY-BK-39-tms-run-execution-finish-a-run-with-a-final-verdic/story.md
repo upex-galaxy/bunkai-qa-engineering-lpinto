@@ -326,7 +326,7 @@ Scenario: Human, AI Agent, and CI finish handling are consistent
 ### Storys (4)
 
 - [BK-34](https://jira.upexgalaxy.com/browse/BK-34): TMS-Run Execution | Start a manual run in a chosen environment _(Ready For Release)_
-- [BK-211](https://jira.upexgalaxy.com/browse/BK-211): Notifications | Get notified when a run finishes or is aborted _(Ready For Dev)_
+- [BK-211](https://jira.upexgalaxy.com/browse/BK-211): Notifications | Get notified when a run finishes or is aborted _(Ready For QA)_
 - [BK-222](https://jira.upexgalaxy.com/browse/BK-222): TMS-Automation API | Submit an automated run with step results _(Backlog)_
 - [BK-223](https://jira.upexgalaxy.com/browse/BK-223): TMS-Automation API | Stream step results during an automated run _(Backlog)_
 
@@ -335,7 +335,7 @@ Scenario: Human, AI Agent, and CI finish handling are consistent
 ## Metadata
 
 - **Created:** 28/5/2026
-- **Updated:** 24/7/2026
+- **Updated:** 8/8/2026
 - **Reporter:** Ely
 - **Assignee:** jesusgpythondev
 - **Labels:** shift-left-2026-06-13, shift-left-reviewed

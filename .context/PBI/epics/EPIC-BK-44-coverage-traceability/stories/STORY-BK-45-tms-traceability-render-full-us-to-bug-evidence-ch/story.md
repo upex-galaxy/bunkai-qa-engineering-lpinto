@@ -3,7 +3,7 @@
 **Jira Key:** [BK-45](https://jira.upexgalaxy.com/browse/BK-45)
 **Epic:** [BK-44](https://jira.upexgalaxy.com/browse/BK-44) (Coverage & Traceability)
 **Type:** Story
-**Status:** Ready For Dev
+**Status:** QA Approved
 **Priority:** Medium
 **Story Points:** -
 
@@ -27,6 +27,10 @@ As a QA Lead, I want to open any user story and see its full evidence chain — 
 
 ## Traceability
 
+### Defect (1)
+
+- [BK-317](https://jira.upexgalaxy.com/browse/BK-317): Coverage & Traceability: Latest-run status pill shows "Aborted" — AC-01 (BK-45) specifies pass/fail/blocked/skipped _(Open)_
+
 ### Story (1)
 
 - [BK-50](https://jira.upexgalaxy.com/browse/BK-50): TMS-Traceability | Export the assembled chain as a read-only snapshot _(Ready For Dev)_
@@ -42,9 +46,9 @@ As a QA Lead, I want to open any user story and see its full evidence chain — 
 ## Metadata
 
 - **Created:** 1/6/2026
-- **Updated:** 30/7/2026
+- **Updated:** 8/8/2026
 - **Reporter:** Ely
-- **Assignee:** Ely
+- **Assignee:** Benjamin Segovia
 - **Labels:** shift-left-2026-06-11, shift-left-reviewed
 
 ---
