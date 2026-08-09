@@ -22,22 +22,22 @@ import { expect, test } from '@TestFixture';
 
 test.describe('PROJ-100: Example API', () => {
   /**
-   * Tests successful resource creation.
+   * Tests successful sign-in.
    * ATC: PROJ-101
    */
-  test('PROJ-100: should create resource successfully', { tag: ['@critical'] }, async ({ api }) => {
+  test('PROJ-100: should sign in successfully', { tag: ['@critical'] }, async ({ api }) => {
     // ARRANGE - Prepare test data using DataFactory (available via api.data)
     const payload = api.data.createCredentials();
 
     // ACT & ASSERT - ATC handles the complete flow
-    const [_response, body, sentPayload] = await api.example.createResourceSuccessfully(payload);
+    const [_response, body, sentPayload] = await api.example.signInSuccessfully(payload);
 
     // Additional test-level assertions (optional)
     expect(body.user.email).toBe(sentPayload.email);
   });
 
   /**
-   * Tests error handling for invalid data.
+   * Tests error handling for invalid credentials.
    * ATC: PROJ-102
    */
   test('PROJ-100: should return error for invalid data', async ({ api }) => {
@@ -48,6 +48,6 @@ test.describe('PROJ-100: Example API', () => {
     };
 
     // ACT & ASSERT - ATC validates error response
-    await api.example.createResourceWithInvalidData(invalidPayload);
+    await api.example.signInWithInvalidCredentials(invalidPayload);
   });
 });

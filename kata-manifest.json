@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-06-29T10:36:11.223Z",
+  "generatedAt": "2026-08-09T21:27:01.080Z",
   "components": {
     "api": [
       {
@@ -27,17 +27,17 @@
         "atcs": [
           {
             "id": "PROJ-101",
-            "method": "createResourceSuccessfully",
-            "line": 57
+            "method": "signInSuccessfully",
+            "line": 55
           },
           {
             "id": "PROJ-102",
-            "method": "createResourceWithInvalidData",
-            "line": 88
+            "method": "signInWithInvalidCredentials",
+            "line": 86
           },
           {
             "id": "PROJ-103",
-            "method": "getResourceSuccessfully",
+            "method": "getHealthStatus",
             "line": 113
           }
         ]

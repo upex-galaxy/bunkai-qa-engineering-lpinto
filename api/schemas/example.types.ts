@@ -1,15 +1,13 @@
 /**
  * KATA Framework - Type Facade: Example Domain
  *
- * ⚠️  REFERENCE ONLY — THIS FILE USES FICTIONAL SCHEMA NAMES
- *
- * This file demonstrates the Type Facade Pattern for organizing OpenAPI types.
- * Schema names like 'ExampleModel' don't exist — they are placeholders.
- * Use this as a structural guide when creating your own domain type facades.
+ * ⚠️  REFERENCE PATTERN — this file demonstrates the Type Facade Pattern
+ * for organizing OpenAPI types, now bound to REAL Bunkai schemas
+ * (adapted 2026-08-09 after `bun run api:sync` replaced the stub spec).
  *
  * To create a new type facade:
  * 1. Copy this file to api/schemas/{domain}.types.ts
- * 2. Replace fictional schemas with your real OpenAPI schema names
+ * 2. Replace the schemas below with your real OpenAPI schema names
  * 3. Add re-export to api/schemas/index.ts
  * 4. Import in your component: import type { X } from '@schemas/{domain}.types'
  *
@@ -29,45 +27,30 @@ import type { components, paths } from '@openapi';
 // Schema Types (from components.schemas)
 // ============================================================================
 
-/** TODO: Replace with your actual schema name from openapi-types.ts */
-export type ExampleModel = components['schemas']['ExampleModel'];
-
-/** TODO: Replace with your actual schema name */
-export type ExampleListModel = components['schemas']['ExampleListModel'];
+/** Canonical error envelope returned by every /api/v1 route on failure */
+export type ErrorEnvelope = components['schemas']['ErrorEnvelope'];
 
 // ============================================================================
-// Endpoint Types - POST /api/example
+// Endpoint Types - POST /api/v1/auth/signin
 // ============================================================================
 
 /** Private helper: extracts the POST operation type for cleaner access */
-type CreateExamplePath = paths['/api/example']['post'];
+type SignInPath = paths['/api/v1/auth/signin']['post'];
 
-/** Request body for creating an example resource */
-export type CreateExampleRequest = CreateExamplePath['requestBody']['content']['application/json'];
+/** Request body for headless password sign-in */
+export type SignInRequest = SignInPath['requestBody']['content']['application/json'];
 
-/** Successful response (201) */
-export type CreateExampleResponse = CreateExamplePath['responses']['201']['content']['application/json'];
-
-// ============================================================================
-// Endpoint Types - GET /api/example/{id}
-// ============================================================================
-
-type GetExamplePath = paths['/api/example/{id}']['get'];
-
-/** Path parameters (e.g., { id: string }) */
-export type GetExampleParams = GetExamplePath['parameters']['path'];
-
-/** Successful response (200) */
-export type GetExampleResponse = GetExamplePath['responses']['200']['content']['application/json'];
+/** Successful response (200) — session + auto-minted PAT */
+export type SignInResponse = SignInPath['responses']['200']['content']['application/json'];
 
 // ============================================================================
-// Endpoint Types - PUT /api/example/{id}
+// Endpoint Types - GET /api/v1/health
 // ============================================================================
 
-type UpdateExamplePath = paths['/api/example/{id}']['put'];
+type HealthPath = paths['/api/v1/health']['get'];
 
-export type UpdateExampleRequest = UpdateExamplePath['requestBody']['content']['application/json'];
-export type UpdateExampleResponse = UpdateExamplePath['responses']['200']['content']['application/json'];
+/** Successful response (200) — service identity + probe timestamp */
+export type HealthResponse = HealthPath['responses']['200']['content']['application/json'];
 
 // ============================================================================
 // Custom Types (not in OpenAPI spec)
@@ -78,7 +61,7 @@ export type UpdateExampleResponse = UpdateExamplePath['responses']['200']['conte
  * Common cases: error response shapes not documented, test helpers,
  * or types for endpoints that lack schema definitions.
  */
-export interface ExampleErrorResponse {
+export interface AuthErrorResponse {
   error: string
   message?: string
   statusCode?: number
