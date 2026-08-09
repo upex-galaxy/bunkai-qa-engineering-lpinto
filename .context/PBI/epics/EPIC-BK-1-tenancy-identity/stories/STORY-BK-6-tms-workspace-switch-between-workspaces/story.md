@@ -76,12 +76,16 @@ Implements ***FR-004***.
 
 - [BK-83](https://jira.upexgalaxy.com/browse/BK-83): WorkspaceSwitch: API: POST /api/v1/me/active-workspace response missing workspace fields (id, slug, name, role) _(Closed)_
 
+### Tech Story (1)
+
+- [BK-328](https://jira.upexgalaxy.com/browse/BK-328): Add data-testid attributes to WorkspaceSwitcher component (unblocks BK-253 automation) _(To Do)_
+
 ---
 
 ## Metadata
 
 - **Created:** 19/5/2026
-- **Updated:** 6/8/2026
+- **Updated:** 8/8/2026
 - **Reporter:** Ely
 - **Assignee:** Luis Eduardo Flores Villarroel
 - **Labels:** mvp, tenancy, wave-1

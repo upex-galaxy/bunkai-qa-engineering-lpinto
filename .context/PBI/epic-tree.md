@@ -71,7 +71,7 @@ _Project: BK_
 - [BK-35](https://jira.upexgalaxy.com/browse/BK-35) TMS-Run Execution | Mark each step pass, fail, or block _(- pts, QA Approved)_
 - [BK-36](https://jira.upexgalaxy.com/browse/BK-36) TMS-Run Execution | Abort a run in progress with a reason _(- pts, QA Approved)_
 - [BK-37](https://jira.upexgalaxy.com/browse/BK-37) TMS-Run History | View a test's past runs, filterable by outcome _(- pts, Ready For QA)_
-- [BK-38](https://jira.upexgalaxy.com/browse/BK-38) TMS-Run Reporting | Filter project runs with pass/fail totals _(- pts, Ready For QA)_
+- [BK-38](https://jira.upexgalaxy.com/browse/BK-38) TMS-Run Reporting | Filter project runs with pass/fail totals _(- pts, QA Approved)_
 - [BK-39](https://jira.upexgalaxy.com/browse/BK-39) TMS-Run Execution | Finish a run with a final verdict _(- pts, Ready For Release)_
 - [BK-269](https://jira.upexgalaxy.com/browse/BK-269) TMS-Run Execution | Automatically abort abandoned runs after inactivity _(- pts, Backlog)_
 
@@ -94,7 +94,7 @@ _Project: BK_
 - [BK-47](https://jira.upexgalaxy.com/browse/BK-47) TMS-Coverage | Compute time-to-green per user story from run and bug history _(- pts, QA Approved)_
 - [BK-48](https://jira.upexgalaxy.com/browse/BK-48) TMS-Traceability | Filter the chain by verdict, module, and date range _(- pts, Shift-Left QA)_
 - [BK-49](https://jira.upexgalaxy.com/browse/BK-49) TMS-Activity | Stream a read-side feed over the existing activity log _(- pts, Ready For QA)_
-- [BK-50](https://jira.upexgalaxy.com/browse/BK-50) TMS-Traceability | Export the assembled chain as a read-only snapshot _(- pts, Ready For Dev)_
+- [BK-50](https://jira.upexgalaxy.com/browse/BK-50) TMS-Traceability | Export the assembled chain as a read-only snapshot _(- pts, QA Approved)_
 - [BK-268](https://jira.upexgalaxy.com/browse/BK-268) TMS-Activity | Surface ATC edits with the Tests they affect _(- pts, Backlog)_
 
 ## [BK-70](https://jira.upexgalaxy.com/browse/BK-70) - QA Test Repository

@@ -28,7 +28,7 @@ It delivers four connected views: the full evidence chain from a user story down
 | [BK-47](https://jira.upexgalaxy.com/browse/BK-47) | TMS-Coverage | Compute time-to-green per user story from run and bug history | - | Medium | QA Approved |
 | [BK-48](https://jira.upexgalaxy.com/browse/BK-48) | TMS-Traceability | Filter the chain by verdict, module, and date range | - | Medium | Shift-Left QA |
 | [BK-49](https://jira.upexgalaxy.com/browse/BK-49) | TMS-Activity | Stream a read-side feed over the existing activity log | - | Medium | Ready For QA |
-| [BK-50](https://jira.upexgalaxy.com/browse/BK-50) | TMS-Traceability | Export the assembled chain as a read-only snapshot | - | Medium | Ready For Dev |
+| [BK-50](https://jira.upexgalaxy.com/browse/BK-50) | TMS-Traceability | Export the assembled chain as a read-only snapshot | - | Medium | QA Approved |
 | [BK-268](https://jira.upexgalaxy.com/browse/BK-268) | TMS-Activity | Surface ATC edits with the Tests they affect | - | Medium | Backlog |
 
 ---

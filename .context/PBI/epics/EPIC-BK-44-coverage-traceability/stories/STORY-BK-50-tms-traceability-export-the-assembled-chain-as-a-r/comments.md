@@ -276,5 +276,245 @@ Mockup — Traceability chain — export. Source: .context/designs/bunkai-test-m
 
 ---
 
+### Ely - 8/8/2026, 15:27:26
+
+## AI Tech Lead — Decision: BK-50's ratified export design rests on a false infrastructure premise. What is the correct delivery mechanism?
+
+> ***ERROR:**** This comment ****supersedes the infrastructure half of the PO Decision of 2026-07-10 (comment 11047, Q1 and Q3)**** and ****supersedes the Dev Decision of 2026-07-10 (comment 11048, Q1, Q2 and its cleanup design) in full***. Verified against as-built code on `origin/staging` (`5d1c9df`), not against documents. Same supersession pattern used on BK-43 (comment 12170, 2026-08-05).
+
+### 1. The false premise, stated plainly
+
+Comment 11047 justifies its Q1 decision with: **"Cloudflare R2 already exists in our stack for file storage — no new infrastructure."**
+
+***That is false. There is no object storage in this repository, in any form.*** A full sweep of `origin/staging@5d1c9df` returns zero hits for every one of:
+
+| Probe | Result |
+| --- | --- |
+| `Cloudflare` / `R2` in application code | 0 hits |
+| `@aws-sdk/*`, `S3Client`, `getSignedUrl`, `presign` | 0 hits; no storage SDK in `package.json` |
+| `.storage.from(` (Supabase Storage) | 0 hits |
+| `@vercel/blob` | 0 hits |
+| Bucket / storage DDL across all 68 migrations | 0 hits |
+| Storage credentials in `.env.example` / `.env` | 0 hits |
+
+R2 is a ***planned Sprint-4 external dependency, not a provisioned one****: `master-implementation-plan.md:377-383` lists it under external dependencies with **"Lead-time***:**** R2 account + bucket provisioning + IAM keys"** and a stand-in for Sprints 1-3. `SRS/non-functional-specs.md:54` and `SRS/architecture-specs.md:168-171` name R2 as the intended blob backend, which is an architectural intent, not an existing capability.
+
+Three further as-built facts that the ratified design assumed away:
+
+- ***There is no export precedent at all.*** No CSV writer, no PDF library, no `Content-Disposition`, no `@media print`, no download route, no share-link or token-gated public page anywhere in the app.
+- ***There is no anonymous data-access surface.**** `middleware.ts:10-11` gates `/home`, `/projects`, `/onboarding`, `/settings`, `/activity`; the only public prefixes are `/login`, `/auth`, `/api/auth`. Migration `0068:318` ****explicitly revokes*** the traceability RPC from `public` and `anon`, granting only `authenticated` and `service_role`.
+- ***There is no scheduler.*** No `pg_cron`, no `supabase/functions`, no Vercel cron entry. Comment 11048's "Layer 2 (Cron Cleanup)" would be the first one in the project.
+
+The 2026-08-06 delivery-record ruling on evidence-file hosting already established the shape of this work: activating blob storage is **"a tech-story trio plus a blob-authorization ADR (blobs sit outside ADR-0012's RLS/RPC invariant)"**. That is what comment 11047 unknowingly folded into a 5-point story.
+
+### 2. The async premise is also refuted
+
+Comment 11048 Q1 chose an async `export_jobs` job table because **"a full chain snapshot for 500+ entities requires N+1-safe querying, DOM-like HTML assembly, and R2 upload, easily exceeding 10s."**
+
+As built, chain assembly is ***one round trip***: `bunkai*report*story*traceability(p*actor*user*id uuid, p*user*story*id uuid) returns jsonb` (`supabase/migrations/0068*story*traceability*report.sql:98-131`), served synchronously today at `app/api/v1/projects/[id]/traceability/route.ts` to an interactive page (`components/traceability/TraceabilityChainView.tsx`). If that single call were near the 10s budget, BK-45's shipped screen would already be timing out. Rendering a string template from a jsonb payload already in memory adds no meaningful time, and the R2 upload (the only genuinely slow leg) disappears under the ruling below.
+
+***The ****`export_jobs`**** table, the background worker, the presigned URL, the 30-day lifecycle rule and the daily Vercel Cron cleanup are all cancelled.*** They exist only to serve a storage backend that does not exist and that this story should not provision.
+
+### 3. Candidates scored
+
+Criteria and weights, stated before the scores: product value against the story's actual goal (x3), security risk (x3), consistency with in-repo precedent and the ratified design contract (x2), implementation cost against a 5-point budget (x2), reversibility (x1). Scores /10.
+
+| # | Option | Value x3 | Security x3 | Precedent x2 | Cost x2 | Revers. x1 | ***Total*** |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| A | Build as ratified: provision R2, presigned URL, anonymous access, `export_jobs`, cron cleanup | 7 | 2 | 3 | 2 | 3 | ***40*** |
+| B | Swap backend to Supabase Storage, keep the no-login signed-URL model | 7 | 2 | 2 | 4 | 5 | ***44*** |
+| C | Authenticated in-app persisted snapshot (`snapshots` table), no external storage, no anonymous access; split external sharing out | 4 | 9 | 6 | 5 | 6 | ***67*** |
+| D | Keep BK-50 as scoped, slice it into follow-up tickets the way BK-43 was sliced | 3 | 5 | 5 | 6 | 8 | ***54*** |
+| ***E**** | ****Client-initiated download of a self-contained static document, rendered synchronously by the existing authenticated route. No storage, no anonymous surface, no job table, no cron.**** | ****9**** | ****10**** | ****9**** | ****9**** | ****10**** | ****103*** |
+
+Reasoning behind the scores that carry the result:
+
+- ***A scores 2 on security**** because it creates the application's first anonymous data-access surface, in direct contradiction of `0068:318`'s explicit revoke from `anon`, and puts a full evidence chain behind bearer-link auth. It scores 2 on cost because R2 account plus bucket plus IAM keys plus an S3 SDK plus a migration plus a background worker plus a first-ever cron plus a blob-authorization ADR is not a 5-point story. It scores 7 rather than 9 on product value because a 7-day signed URL over a 30-day object is a ****self-destructing**** audit record; the story asks for a **fixed* record.
+- ***B scores worse than A on precedent (2)**** despite being cheaper. The 2026-08-06 delivery-record ruling states the blob backend is **already chosen as R2, NOT Supabase Storage*, citing `SRS/non-functional-specs.md:54` and `SRS/architecture-specs.md:168-171`. Picking Supabase Storage inside a 5-point story would silently overturn a spec-level architecture choice as a side effect of an export feature. It keeps A's anonymous surface unchanged, so it keeps A's security score.
+- ***C scores 9 on security and 4 on product value.*** It is safe and it is buildable, but it removes the story's headline value: an auditor would need a Bunkai login, which is the exact thing the user story rules out.
+- ***D scores 3 on product value**** because slicing does not touch the false premise; it defers the same undeliverable design into more tickets. BK-43 was sliced because its scope genuinely exceeded its estimate. Here the scope **shrinks* once the premise is corrected, so slicing solves the wrong problem.
+- ***E wins on every axis except none.*** It is not a near-tie: 103 against a runner-up of 67.
+
+### 4. Decision
+
+***Option E. BK-50 v1 produces a self-contained document file that the browser downloads directly to the requester's machine. No object storage, no hosted artifact, no anonymous access surface, no ****`export_jobs`**** table, no background worker, no cron, no new SDK, no new migration.***
+
+Mechanism:
+
+1. The Export snapshot button calls the ***already-shipped*** `GET /api/v1/projects/{id}/traceability?story={id}` path (or a sibling route reusing the same RPC) under the caller's existing authenticated session.
+2. The returned `jsonb` chain is rendered into a ***single self-contained HTML document*** (inline styles, no external references, no network calls) carrying the export timestamp, the workspace/project/story identity, and every chain entity and field the screen shows.
+3. The document is delivered as a file download (`Content-Disposition: attachment`, or an equivalent client-side `Blob` + object URL), named on the mockup's pattern `trace-<story>-YYYYMMDD-HHMM.html`.
+4. The confirmation toast fires exactly as the ratified mockup specifies.
+
+Why this is not a compromise but the better artifact:
+
+- ***It is what the ratified design contract already says.**** `.context/designs/bunkai-test-management-tool/bk-44-metrics-coverage/traceability-chain.html:536-537` uses the ****download**** icon (`#i-download`); `:1021` composes a ****filename**** (`trace-us-104-YYYYMMDD-HHMM`); `:859-866` is a "Snapshot exported" toast. `master-design-plan.md:241` ratifies it as **"a point-in-time export carrying its own real timestamp (confirmation toast, mono filename)"**. There is no link, no share sheet, no copy-URL control anywhere in the mockup. ****The mockup was posted to this ticket on 2026-07-30, twenty days after comment 11047***, so it is the later artifact and it contradicts 11047's hosted-link model. Per Critical Rule #15 the mockup is the design contract.
+- ***It satisfies the story's goal more completely than the ratified design did.*** The auditor receives a file they keep permanently. No login (the goal), no expiry (11047's model expires in 7 days), no link to leak, no 30-day object deletion. Scenario E1 ("snapshot remains retrievable after the source story is deleted/archived") is satisfied absolutely rather than for 30 days.
+- ***It satisfies AC2 immutability with less machinery than 11047 claimed for R2.**** A file on the recipient's disk is the strongest possible freeze. Comment 11047 Q2's conclusion (no snapshots table in v1) ****survives this ruling*** and is reaffirmed; only its delivery mechanism changes.
+
+The one deliberate departure from the mockup: the mockup's toast composes a `.json` filename. This ruling ships `.html` instead, because the artifact's consumer is a human auditor and AC3.1 requires the empty-chain export to **"state the story had no coverage"**, which is rendered prose, not an empty array. This is a ***UI spec-only departure*** and must be recorded as a `master-design-plan.md` §5 divergence row before BK-50 merges, per Critical Rule #15. No ADR: no schema, auth model, or cross-cutting invariant is touched and the change is fully reversible (fails the ADR gate).
+
+### 5. Security determination, and what is NOT mine to decide
+
+***The ruling above is mine to make, and I have made it.**** Option E creates ****no new security surface***. It reads data the caller is already authorized to read, through an authenticated route that already exists and already carries the shipped non-disclosure contract (`mapTraceabilityRpcError` collapses missing, foreign-workspace and non-member stories into one 404). The artifact crosses the trust boundary only by the user's own deliberate act of forwarding a file, which is the same posture the product already accepts for a screenshot. `0068:318`'s revoke from `anon` stays intact, ADR-0012's invariant is untouched, and no blob-authorization ADR is needed. Per the decision protocol, applying an established ratified security posture to new code is implementation, not a new decision.
+
+***The anonymous-link capability is a different matter, and it is NOT mine to decide.**** Serving a full evidence chain (story, ACs, ATCs, tests, run outcomes, defect titles and statuses) to an unauthenticated caller would be the application's ****first**** anonymous data-access surface and would accept a risk this project has never accepted. That falls squarely in the escalate-only category "deciding a **new** security posture, or accepting a risk nobody has accepted before", which Critical Rule #18 does ****not**** override (Rule #18 replaces the **product** escalation category only). ****A human must accept that posture before any anonymous-link story is built.*** I am stating that rather than quietly routing around it.
+
+If and when a human does approve it, these controls are mandatory, not optional:
+
+- Token entropy ***≥128 bits***, CSPRNG-generated, never derived from a row id or a sequence.
+- Hard server-side expiry, independent of any storage-layer expiry, plus ***explicit revocation*** by the issuing workspace.
+- ***No enumeration***: an unknown token, an expired token and a revoked token must return the identical response. No existence echo, matching the 404 contract already shipped for the authenticated path.
+- ***Scope of exactly one story's chain***, resolved server-side from the token. No caller-supplied ids on the anonymous path.
+- ***No PII beyond what the chain itself renders.*** Actor emails in particular must not ride along; note that `bunkai*resolve*activity_actors` already leaked exactly that class of data once (ADR-0012's context section).
+- ***An audit row per issuance and per anonymous fetch***, including issuing user, workspace, story, timestamp and requester IP.
+- Rate limiting on the anonymous endpoint, `X-Robots-Tag: noindex`, and no CDN edge caching of the response.
+- A ***link-authorization ADR*** landing with it, since bearer-link access sits outside ADR-0012's actor-bind invariant by construction.
+
+### 6. What this means for BK-50's status
+
+BK-50 is ***buildable today**** under this ruling. Its dependency BK-45 is genuinely satisfied (merge `f75709e`, verified an ancestor of `origin/staging`), the data source is shipped and sound, and the corrected scope is materially ****smaller*** than 5 points: one render function, one route or client handler, one button, one toast. No migration.
+
+It should ***stay ****`Ready For Dev` as re-scoped, with one precondition: the Acceptance Criteria field still carries stale `NEEDS PO/DEV CONFIRMATION` markers and Scenario E2 still contradicts comment 11047 Q3. See the companion ****AI Product Owner*** comment on this ticket for the AC ruling and the exact rewrite. This pass deliberately did not transition, reassign, or write any code or migration.
+
+---
+
+### Ely - 8/8/2026, 15:27:27
+
+## AI Product Owner — Decision: What is BK-50's correct v1 scope, and which of Scenario E2 or comment 11047 Q3 survives?
+
+> ***ERROR:**** This comment ****supersedes the PO Decision of 2026-07-10 (comment 11047) on Q1's delivery channel and on Q3's anonymous-access clause****. Comment 11047 Q2 (no snapshots table in v1) is ****reaffirmed, not superseded****. Companion ruling: the ****AI Tech Lead*** comment on this ticket, which establishes the infrastructure facts this decision rests on. Same supersession pattern used on BK-43 (comment 12170, 2026-08-05).
+
+### 1. Why this is being reopened
+
+Comment 11047 is a well-formed decision built on a factual error. Its Q1 rationale asserts **"Cloudflare R2 already exists in our stack for file storage — no new infrastructure."** Verified against as-built code on `origin/staging@5d1c9df`: ***there is no object storage in this repository in any form*** (no R2, no S3 SDK, no Supabase Storage call, no `@vercel/blob`, no bucket DDL in 68 migrations, no storage credentials). The full evidence is in the AI Tech Lead comment.
+
+That error propagated. The decision that felt free ("no new infrastructure") is in fact the most expensive option on the board, and it silently carried a second, larger decision with it: creating the application's first anonymous data-access surface.
+
+### 2. The product question, restated
+
+The user story is the authority: **"As a QA Lead, I want to export a user story's assembled evidence chain as a shareable, read-only pack so that I can hand auditors and stakeholders a fixed record ******without giving them system access****."**
+
+Two requirements, both binding, and comment 11047 conflated them:
+
+- ***No system access**** for the recipient. This is a requirement about the **recipient*, and it is satisfied by any artifact that does not require a Bunkai account.
+- ***A fixed record.*** The artifact must not change, and it must still be there when the auditor opens it.
+
+Comment 11047 read "no system access" as necessarily meaning "a public URL". It does not. Handing someone a file satisfies "no system access" completely, and satisfies "fixed record" ***better*** than a link that dies in 7 days.
+
+### 3. Candidates scored
+
+Criteria and weights, stated before the scores: product value against the story's own goal (x3), security risk (x3), consistency with in-repo precedent and the ratified design contract (x2), implementation cost against the 5-point budget (x2), reversibility (x1). Scores /10.
+
+| # | Option | Value x3 | Security x3 | Precedent x2 | Cost x2 | Revers. x1 | ***Total*** |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| A | Build as ratified: provision R2, presigned URL, anonymous access, `export_jobs`, cron cleanup | 7 | 2 | 3 | 2 | 3 | ***40*** |
+| B | Swap the backend to Supabase Storage, keep the no-login signed-URL model | 7 | 2 | 2 | 4 | 5 | ***44*** |
+| C | Authenticated in-app persisted snapshot, no external storage, no anonymous access; split external sharing into a follow-up | 4 | 9 | 6 | 5 | 6 | ***67*** |
+| D | Keep BK-50 as scoped and slice it into follow-up tickets the way BK-43 was sliced | 3 | 5 | 5 | 6 | 8 | ***54*** |
+| ***E**** | ****Downloadable self-contained snapshot document, generated synchronously from the shipped chain endpoint. No hosting, no anonymous surface.**** | ****9**** | ****10**** | ****9**** | ****9**** | ****10**** | ****103*** |
+
+The product-value column is where this decision actually turns, so it is worth being explicit about it:
+
+- ***A and B score 7, not 9.*** They deliver the no-login recipient, but the artifact is temporary by design: a 7-day signed URL over an object deleted at 30 days (comment 11048 Q2). An audit record that expires in a week is a weak reading of "fixed record", and it makes Scenario E1 ("the snapshot remains retrievable after the source story is deleted") true only for 30 days.
+- ***C scores 4, and I want to be unambiguous about why******:****** option C removes the story's headline value.*** An in-app authenticated snapshot means the auditor needs a Bunkai login, which is the exact condition the user story rules out. C is the safe option and it is genuinely buildable, but it delivers roughly half of what was asked. Had E not been available, C would have won on the weighted total and I would have ruled for it while saying plainly that the story's stated goal was being deferred to a follow-up. E makes that trade unnecessary.
+- ***D scores 3.**** Slicing does not address the false premise; it distributes an undeliverable design across more tickets and buys another refinement cycle. BK-43 was sliced because its scope genuinely exceeded its estimate. BK-50's scope **shrinks* once the premise is corrected, so slicing is the wrong instrument here.
+- ***E scores 9 on value*** because the auditor keeps the file permanently: no login, no expiry, no link to leak, no deletion window. It is a strictly better "fixed record" than the ratified design produced.
+
+### 4. Decision
+
+***Option E. BK-50 v1 delivers a downloadable, self-contained, read-only snapshot document. No hosted artifact, no public link, no anonymous access.***
+
+The winner is also the option the project had already ratified visually. The design contract for this screen (`master-design-plan.md:241`, mockup `bk-44-metrics-coverage/traceability-chain.html`) specifies the Export action as **"a point-in-time export carrying its own real timestamp (confirmation toast, mono filename)"**, drawn with a ***download**** icon and a composed ****filename****. There is no link, share sheet, or copy-URL control anywhere in that mockup. ****The mockup was attached to this ticket on 2026-07-30, twenty days after comment 11047***, making it the later and governing artifact under Critical Rule #15. Comment 11047's hosted-link model was never reconciled with it.
+
+***In scope for v1******:***
+
+- Export action on the traceability screen, rendered per the mockup (accent button, download icon, confirmation toast with the real export timestamp and the composed filename).
+- A single self-contained document containing every chain entity and field the screen shows, plus the export timestamp and the workspace / project / story identity.
+- The empty-chain case renders as prose stating the story had no coverage as of the export timestamp (AC3.1), not as an empty structure.
+- Any Viewer-or-above workspace member can trigger it. ***This half of comment 11047 Q3 survives unchanged*** and is already how the shipped endpoint behaves.
+
+***Out of scope for v1 (unchanged from the ticket's Out Of Scope field, plus these)******:***
+
+- Hosted artifacts, public links, signed URLs, anonymous retrieval.
+- A `snapshots` table or any deep copy. ***Comment 11047 Q2 is reaffirmed****: the exported file **is* the snapshot.
+- Job tables, background workers, retention lifecycles, scheduled cleanup. All of comment 11048's apparatus is cancelled by the AI Tech Lead ruling.
+- PDF output and branding/layout configuration.
+
+***Artifact format******:**** a self-contained ****HTML**** document. This preserves the format half of comment 11047 Q1, whose reasoning was sound and remains sound: no PDF or document-generation library exists in this project, adding one is scope creep, and HTML renders from a string template with zero new dependencies. Only Q1's **destination* was wrong. Note that the mockup's toast composes a `.json` filename; shipping `.html` instead is a deliberate, recorded departure, because the consumer is a human auditor and AC3.1 requires rendered prose for the empty case. It must be logged as a `master-design-plan.md` §5 spec-only divergence row before BK-50 merges (no ADR required: no schema, auth model or invariant is touched, and it is fully reversible).
+
+### 5. Reconciling Scenario E2 against comment 11047 Q3
+
+These two have been in direct contradiction on this ticket since 2026-07-10. E2 requires that unauthenticated retrieval be ***rejected****; 11047 Q3 requires that it be ****allowed***.
+
+***Scenario E2 survives. Comment 11047 Q3's anonymous-access clause is superseded.***
+
+Three reasons, in order of weight. First, under Option E there is no retrievable URL at all, so "anyone with the link can view it" describes a capability that v1 does not build. Second, E2 is consistent with the codebase as built: migration `0068:318` explicitly revokes the traceability RPC from `public` and `anon`, and `middleware.ts:10-11` admits only `/login`, `/auth` and `/api/auth` as public prefixes. Q3 would have required reversing both. Third, and decisively, the anonymous-access clause was never the PO's to grant unilaterally: it is a ***new security posture***, and per the AI Tech Lead ruling on this ticket it requires human acceptance before anything is built on it. Critical Rule #18 gives the AI product authority; it does not extend to accepting a first-of-its-kind security risk.
+
+***The Acceptance Criteria field must be rewritten before development starts.*** Every `NEEDS PO/DEV CONFIRMATION` marker is now resolved and must be struck. Specifically:
+
+| AC | Ruling |
+| --- | --- |
+| ***1.1*** | Confirmed. Strike the marker. "Artifact" is now defined: a downloaded self-contained HTML document. |
+| ***1.2**** | Unchanged and already satisfied by shipped behaviour: a foreign-workspace or non-member story id returns ****404***, not 403, per `mapTraceabilityRpcError`'s non-disclosure contract. Write 404 explicitly rather than "403/404". |
+| ***2.1*** | Confirmed, and now trivial to verify: re-open the downloaded file after the live chain changes; contents are identical. |
+| ***2.2*** | Confirmed: two exports produce two independent files. |
+| ***3.1*** | Confirmed. The empty-chain document states in prose that the story had no coverage as of the export timestamp. |
+| ***E1**** | Confirmed and ****strengthened***. Under the R2 design this held for 30 days; under this ruling the file is on the recipient's machine and survives indefinitely. Rewrite as: the exported file remains readable after the source story is deleted or archived, with no dependency on Bunkai. |
+| ***E2**** | ****Survives, reworded.*** v1 exposes no unauthenticated retrieval path. Rewrite as: an unauthenticated request to the export endpoint is rejected (redirect to login for a browser session, 401 for an API caller), and no anonymous retrieval path for an exported snapshot exists. |
+| ***E3*** | Confirmed, unchanged: chain assembly failure produces a clear error and no partial file. |
+
+### 6. Status recommendation, and the follow-up that is NOT being created here
+
+***BK-50 should stay ****`Ready For Dev`****, conditional on the AC field being rewritten per §5 first.**** Its dependency BK-45 is genuinely shipped (merge `f75709e`, verified an ancestor of `origin/staging`), the data source is live, and the corrected scope is materially ****smaller**** than its 5-point estimate: a render function, a route or client handler, a button and a toast, with no migration. Re-pointing the estimate is a planning call, not this pass's. ****This pass deliberately did not transition or reassign the ticket, and wrote no code, migration, or new ticket.***
+
+One follow-up is recommended but ***not created here***, and it must not start until a human accepts its security posture:
+
+> ***Recommended follow-up (not created)******:****** share an exported snapshot by link, without a Bunkai login.*** This restores nothing that Option E removes (the auditor already gets a permanent file with no account); it adds the convenience of pasting a URL into an email rather than attaching a file. It is the story that would create the application's first anonymous data-access surface, and it therefore needs explicit human acceptance of that posture, plus a link-authorization ADR, plus the mandatory controls enumerated in §5 of the AI Tech Lead comment on this ticket. Do not fold it back into BK-50.
+
+### 7. For the next agent reading this ticket
+
+Do not re-derive any of the following. Refute the evidence or follow it.
+
+1. ***"R2 already exists in our stack" is false.*** Verified against `origin/staging@5d1c9df`. R2 is an unprovisioned Sprint-4 external dependency (`master-implementation-plan.md:377-383`).
+2. ***Supabase Storage is not the alternative.*** The delivery record's 2026-08-06 ruling fixes the intended blob backend as R2 (`SRS/non-functional-specs.md:54`, `SRS/architecture-specs.md:168-171`); do not overturn that inside an export story.
+3. ***The mockup post-dates comment 11047 and governs.*** Download icon, composed filename, confirmation toast, no link anywhere.
+4. ***The anonymous-link question is reserved for a human.*** It is not a product call and Rule #18 does not cover it.
+
+---
+
+### Automation for Jira - 8/8/2026, 15:53:48
+
+🔎 Pull Request created. Task is pending to ANALYZE and REVIEW by the team. Waiting for PR Approval.
+
+---
+
+### Automation for Jira - 8/8/2026, 16:03:13
+
+✅ Pull Request is successfully MERGED and DEPLOYED on QA. 
+It's Ready for Testing Phase! 
+Dev Task is Done.
+
+---
+
+### Ely - 8/8/2026, 16:04:53
+
+## Ready for QA — BK-50 merged to staging
+
+Merged: [PR #145](https://github.com/upex-galaxy/upex-bunkai-tms/pull/145) → `staging` (merge commit `7b16c0cc4d744966e6a1fdff34bdcf2bf426f213`, verified an ancestor of `origin/staging`).
+
+***What shipped***: the Export snapshot button on the traceability screen (`/projects/{slug}/traceability?story={id}`). Click it and the browser downloads a self-contained HTML document (`trace-<story>-YYYYMMDD-HHMM.html`) containing the full evidence chain as of that moment, with a confirmation toast. Implements Option E from this ticket's own ruling (comments 12238/12239) — no migration, no new route, no storage, no anonymous access.
+
+***Suggested manual checks on staging*** (beyond the automated coverage in `lib/traceability/export-snapshot.test.ts`, 13 tests):
+
+- Export a story with a populated chain (mixed pass/fail ATCs) → open the downloaded file offline, confirm every AC/ATC/test/run/defect visible on screen is present.
+- Export a story with zero ACs → confirm the file states the story had no coverage as of the export timestamp (AC3.1), not an empty table.
+- Export twice in a row → confirm two independent files with different timestamps in the name.
+- Try reaching the export path signed out → confirm login redirect (browser) / 401 (API), same as the existing traceability screen.
+
+Design-plan divergence D26 (filename `.html` vs. the mockup's `.json`) is logged in `.context/design/master-design-plan.md` §5.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_
