@@ -1,393 +1,137 @@
-# Domain Glossary — Bunkai
-
-> Generated: 2026-06-06
-> Sources: `../upex-bunkai-tms/supabase/migrations/*.sql`, `../upex-bunkai-tms/lib/types.ts`, `../upex-bunkai-tms/.context/business/business-data-map.md`
-
-## Core Entities
-
-### Workspace
-
-| Field | Type | Description |
-|-------|------|-------------|
-| Technical Name | `workspaces` | Multi-tenant root entity |
-| Business Name | Workspace | Organization-level container |
-| Table | `workspaces` | |
-| Key Attributes | `id` (UUID PK), `name` (text), `slug` (unique), `created_at`, `updated_at` | |
-| Found In | `supabase/migrations/0001_tenancy.sql`, `lib/types.ts` | |
-
-**Relationships**: Has many `workspace_members`, Has many `projects`
-
-### WorkspaceMember
-
-| Field | Type | Description |
-|-------|------|-------------|
-| Technical Name | `workspace_members` | User membership in workspace |
-| Business Name | Member | User with role in a workspace |
-| Table | `workspace_members` | |
-| Key Attributes | `workspace_id` (FK), `user_id` (FK), `role` (enum), `joined_at` | |
-| Found In | `supabase/migrations/0001_tenancy.sql` | |
-
-**Relationships**: Belongs to `workspaces`, Belongs to `users` (auth.users)
-
-### Project
-
-| Field | Type | Description |
-|-------|------|-------------|
-| Technical Name | `projects` | Top-level test project |
-| Business Name | Project | Collection of modules and tests |
-| Table | `projects` | |
-| Key Attributes | `id` (UUID PK), `workspace_id` (FK), `name` (text), `slug` (text), `created_at`, `updated_at` | |
-| Found In | `supabase/migrations/0002_projects_modules.sql`, `lib/types.ts` | |
-
-**Relationships**: Belongs to `workspaces`, Has many `modules`
-
-### Module
-
-| Field | Type | Description |
-|-------|------|-------------|
-| Technical Name | `modules` | Self-referential tree node (max depth 6) |
-| Business Name | Module | Folder/category for organizing test artifacts |
-| Table | `modules` | |
-| Key Attributes | `id` (UUID PK), `project_id` (FK), `parent_id` (FK self-ref, nullable), `name` (text), `position` (integer), `created_at`, `updated_at` | |
-| Found In | `supabase/migrations/0002_projects_modules.sql`, `lib/types.ts` | |
-
-**Relationships**: Belongs to `projects`, Belongs to self (`parent_id`), Has many `user_stories`
-
-### UserStory
-
-| Field | Type | Description |
-|-------|------|-------------|
-| Technical Name | `user_stories` | Feature description from user perspective |
-| Business Name | User Story | Requirements unit |
-| Table | `user_stories` | |
-| Key Attributes | `id` (UUID PK), `module_id` (FK), `title` (text), `description` (markdown), `jira_issue_key` (text nullable), `position` (integer), `created_at`, `updated_at` | |
-| Found In | `supabase/migrations/0003_authoring.sql`, `lib/types.ts` | |
-
-**Relationships**: Belongs to `modules`, Has many `acceptance_criteria`
-
-### AcceptanceCriterion
-
-| Field | Type | Description |
-|-------|------|-------------|
-| Technical Name | `acceptance_criteria` | Condition that a story must satisfy |
-| Business Name | Acceptance Criterion (AC) | Gherkin-style condition |
-| Table | `acceptance_criteria` | |
-| Key Attributes | `id` (UUID PK), `user_story_id` (FK), `description` (markdown/Gherkin), `position` (integer), `created_at`, `updated_at` | |
-| Found In | `supabase/migrations/0003_authoring.sql`, `lib/types.ts` | |
-
-**Relationships**: Belongs to `user_stories`, Has many ATCs through junction table `atc_acceptance_criteria`
-
-### Atc (Atomic Test Component)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| Technical Name | `atcs` | Atomic, reusable test action |
-| Business Name | ATC | Smallest testable unit (e.g. "Login with valid credentials") |
-| Table | `atcs` | |
-| Key Attributes | `id` (UUID PK), `project_id` (FK), `name` (text), `description` (text), `expected_result` (text), `search_vector` (tsvector), `version` (integer), `created_at`, `updated_at` | |
-| Found In | `supabase/migrations/0004_atcs.sql`, `lib/types.ts` | |
-
-**Relationships**: Belongs to `projects`, Has many `atc_steps`, Has many `atc_assertions`, Has many `acceptance_criteria` through `atc_acceptance_criteria`
-
-### AtcStep
-
-| Field | Type | Description |
-|-------|------|-------------|
-| Technical Name | `atc_steps` | Ordered step within an ATC |
-| Business Name | Step | Action instruction (e.g. "Enter email") |
-| Table | `atc_steps` | |
-| Key Attributes | `id` (UUID PK), `atc_id` (FK), `position` (integer), `description` (text), `data` (jsonb nullable), `created_at`, `updated_at` | |
-| Found In | `supabase/migrations/0004_atcs.sql` | |
-
-**Relationships**: Belongs to `atcs`
-
-### AtcAssertion
-
-| Field | Type | Description |
-|-------|------|-------------|
-| Technical Name | `atc_assertions` | Expected outcome within an ATC |
-| Business Name | Assertion | Verification point (e.g. "Dashboard shows logged-in user") |
-| Table | `atc_assertions` | |
-| Key Attributes | `id` (UUID PK), `atc_id` (FK), `position` (integer), `description` (text), `expected` (jsonb nullable), `created_at`, `updated_at` | |
-| Found In | `supabase/migrations/0004_atcs.sql` | |
-
-**Relationships**: Belongs to `atcs`
-
-### AccessToken
-
-| Field | Type | Description |
-|-------|------|-------------|
-| Technical Name | `access_tokens` | PAT for CLI/AI/auth |
-| Business Name | Personal Access Token (PAT) | API credential for agentic/automated access |
-| Table | `access_tokens` | |
-| Key Attributes | `id` (UUID PK), `workspace_id` (FK), `user_id` (FK), `token_prefix` (text), `hash` (text), `scope` (text[]), `expires_at` (timestamptz nullable), `created_at`, `last_used_at` | |
-| Found In | `supabase/migrations/0008_access_tokens.sql`, `lib/types.ts` | |
-
-**Relationships**: Belongs to `workspaces`, Belongs to `users`
-
-## Enumerations and Constants
-
-### Role (workspace_members.role)
-
-| Value | Business Meaning | Usage Context |
-|-------|-----------------|---------------|
-| `owner` | Full workspace admin | CRUD everything, manage members |
-| `admin` | Workspace administrator | CRUD everything except billing/members |
-| `member` | Standard contributor | Create/edit tests, runs, bugs in assigned modules |
-| `viewer` | Read-only access | View reports, runs, dashboards |
-
-Found In: `supabase/migrations/0001_tenancy.sql`
-
-### Status (shared across entities)
-
-| Value | Business Meaning | Usage Context |
-|-------|-----------------|---------------|
-| `draft` | Being created | UserStory, AcceptanceCriterion, Atc, Test, Run |
-| `active` | Ready for use | UserStory, AcceptanceCriterion, Atc, Test |
-| `completed` | Done | Run |
-| `archived` | No longer in use | UserStory, AcceptanceCriterion, Atc, Test |
-
-### PAT Scope Values
-
-| Value | Business Meaning |
-|-------|-----------------|
-| `atc:read` | Read ATCs |
-| `atc:write` | Create/update ATCs |
-| `run:execute` | Execute test runs |
-| `workspace:admin` | Admin workspace |
-
-Found In: `lib/types.ts`, `supabase/migrations/0008_access_tokens.sql`
-
-## Entity Relationships Diagram
-
-```mermaid
-erDiagram
-    workspaces ||--o{ workspace_members : has
-    workspaces ||--o{ projects : contains
-    projects ||--o{ modules : contains
-    modules ||--o{ user_stories : contains
-    user_stories ||--o{ acceptance_criteria : has
-    projects ||--o{ atcs : contains
-    atcs ||--o{ atc_steps : has
-    atcs ||--o{ atc_assertions : has
-    atcs }o--o{ acceptance_criteria : anchored_through
-    workspaces ||--o{ access_tokens : has
-
-    workspaces {
-        uuid id PK
-        text name
-        text slug UK
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    workspace_members {
-        uuid workspace_id FK
-        uuid user_id FK
-        text role
-        timestamptz joined_at
-    }
-    projects {
-        uuid id PK
-        uuid workspace_id FK
-        text name
-        text slug
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    modules {
-        uuid id PK
-        uuid project_id FK
-        uuid parent_id FK "nullable, self-ref"
-        text name
-        integer position
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    user_stories {
-        uuid id PK
-        uuid module_id FK
-        text title
-        text description
-        text jira_issue_key "nullable"
-        integer position
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    acceptance_criteria {
-        uuid id PK
-        uuid user_story_id FK
-        text description
-        integer position
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    atcs {
-        uuid id PK
-        uuid project_id FK
-        text name
-        text description
-        text expected_result
-        tsvector search_vector
-        integer version
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    atc_steps {
-        uuid id PK
-        uuid atc_id FK
-        integer position
-        text description
-        jsonb data "nullable"
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    atc_assertions {
-        uuid id PK
-        uuid atc_id FK
-        integer position
-        text description
-        jsonb expected "nullable"
-        timestamptz created_at
-        timestamptz updated_at
-    }
-    access_tokens {
-        uuid id PK
-        uuid workspace_id FK
-        uuid user_id FK
-        text token_prefix
-        text hash
-        text[] scope
-        timestamptz expires_at "nullable"
-        timestamptz created_at
-        timestamptz last_used_at
-    }
-```
-
-## Business Rules
-
-### BR-001: ATC Must Anchor to Acceptance Criterion
-- **Description**: Every ATC must be linked to at least one Acceptance Criterion via the `atc_acceptance_criteria` junction table
-- **Entities Affected**: ATC, AcceptanceCriterion
-- **Validation**: FK constraint + application-level check in `bunkai_save_atc()` RPC
-- **Found In**: `supabase/migrations/0004_atcs.sql` — `atc_acceptance_criteria` junction table
-
-### BR-002: Module Tree Max Depth 6
-- **Description**: Module hierarchy cannot exceed 6 levels (self-referential tree)
-- **Entities Affected**: Module
-- **Validation**: Application-level check before insert
-- **Found In**: `supabase/migrations/0002_projects_modules.sql` — `parent_id` self-ref FK
-
-### BR-003: Workspace Membership Required for Access
-- **Description**: All data access is gated by RLS policies checking `workspace_members`
-- **Entities Affected**: All entities
-- **Validation**: RLS policies on every table
-- **Error Message**: HTTP 403 / `insufficient_permission`
-- **Found In**: All migration files — RLS policies on each table
-
-### BR-004: PAT Hash Comparison is Constant-Time
-- **Description**: Bearer token validation uses constant-time SHA-256 hash comparison to prevent timing attacks
-- **Entities Affected**: AccessToken
-- **Validation**: `lib/api/middleware/bearer.ts` — `crypto.timingSafeEqual`
-- **Found In**: `lib/api/middleware/bearer.ts`
-
-## Terminology Mapping
-
-### Technical → Business
-
-| Technical | Business |
-|-----------|----------|
-| `workspace` | Organization / Team |
-| `workspace_member` | Team Member |
-| `project` | Test Project |
-| `module` | Test Module / Folder |
-| `user_story` | User Story |
-| `acceptance_criterion` | Acceptance Criterion (AC) |
-| `atc` | Atomic Test Component (ATC) |
-| `atc_step` | Test Step |
-| `atc_assertion` | Test Assertion / Verification |
-| `access_token` | Personal Access Token (PAT) |
-
-### Abbreviations
-
-| Abbreviation | Expansion |
-|-------------|-----------|
-| ATC | Atomic Test Component |
-| AC | Acceptance Criterion |
-| PAT | Personal Access Token |
-| RLS | Row-Level Security |
-| TMS | Test Management System |
-| US | User Story |
-
-## Status / State Flows
-
-```mermaid
-stateDiagram-v2
-    [*] --> draft: Create
-    draft --> active: Publish
-    active --> archived: Archive
-    archived --> active: Restore
-
-    state ATC-State {
-        [*] --> draft
-        draft --> active
-        active --> archived
-        archived --> active
-    }
-
-    state Run-State {
-        [*] --> pending
-        pending --> running
-        running --> passed
-        running --> failed
-        running --> blocked
-        passed --> [*]
-        failed --> [*]
-        blocked --> [*]
-    }
-```
-
-## UI Labels Reference
-
-### Key Form Fields
-
-| Field | UI Label | Technical Field |
-|-------|----------|-----------------|
-| ATC Name | "ATC Name" | `atcs.name` |
-| ATC Description | "Description" | `atcs.description` |
-| Step Description | "Step" | `atc_steps.description` |
-| Step Data | "Test Data" | `atc_steps.data` |
-| Assertion | "Expected Result" | `atc_assertions.description` |
-| User Story Title | "Title" | `user_stories.title` |
-| User Story Description | "Description" | `user_stories.description` |
-| Module Name | "Module Name" | `modules.name` |
-| Project Name | "Project Name" | `projects.name` |
-| Workspace Name | "Workspace Name" | `workspaces.name` |
-
-### Key Action Buttons
-
-| Button | Action | Endpoint |
-|--------|--------|----------|
-| "Save ATC" | Save atomic test component | `bunkai_save_atc()` RPC |
-| "Create Project" | Create new project | `POST /api/v1/projects` |
-| "Add Step" | Add step to ATC | Client-side → `bunkai_save_atc()` |
-| "Add Assertion" | Add assertion to ATC | Client-side → `bunkai_save_atc()` |
-| "Add User Story" | Create user story | `POST /api/v1/user-stories` |
-| "Add AC" | Add acceptance criterion | `POST /api/v1/acceptance-criteria` |
-| "Anchor to US" | Link ATC to user story | `POST /api/v1/anchoring` |
-
-## QA Usage Guide
-
-This glossary supports the following testing activities:
-
-- **Test Data Creation**: Use entity table definitions and JSON examples to construct valid test payloads
-- **State Transition Testing**: Use state diagrams to verify all legal transitions and reject illegal ones
-- **RLS Testing**: Use role enum values to verify permission boundaries per entity
-- **API Testing**: Use endpoint patterns and expected payload shapes from entity tables
-- **UI Testing**: Use UI labels and button names for locator strategies and assertion targets
-- **Business Rule Testing**: Use BR entries to derive negative test cases
-
-## Discovery Gaps
-
-- [ ] Direct DB access not configured — entity example values inferred from migration SQL, not from live data sampling
-- [ ] Some endpoint paths (projects, user-stories, etc.) may have different actual routes — need to verify via target `app/api/` or OpenAPI spec
-- [ ] UI label references based on component code — i18n files may contain canonical translations not yet checked
+# Domain Glossary — Bunkai (QA Lens)
+
+> Generated: 2026-08-09
+> Mirror of: `../upex-bunkai-tms/.context/business/domain-glossary.md` (canonical, refreshed 2026-08)
+> **Single source of truth for domain terminology.** Any document, Jira issue, UI copy, or commit that uses one of these terms MUST match the definition here. When in doubt, this file wins over memory, intuition, or older docs.
+>
+> Canonical upstream: the `agentic-qa-boilerplate` skills (`test-automation`, `test-documentation`, `sprint-testing`). Bunkai (the product) is the TMS materialization of that methodology.
+>
+> Maintained alongside: `business-data-map.md` (data model), `business-api-map.md` (API narrative).
+
+---
+
+## 0. The ATC clarification — read this first
+
+**ATC = Acceptance Test Case.** It does NOT stand for "Atomic Test Component".
+
+The confusion is understandable and worth recording so it never recurs:
+
+- An ATC, when automated, has an **atomic architecture** (precondition + action bundled as one indivisible mini-flow), and
+- in KATA it is implemented as a decorated method of a **Component** (Domain Component layer).
+
+So "atomic" and "component" are *properties of how an ATC is implemented*, not its name. The acronym itself has always meant **Acceptance Test Case** — the industry-rooted term within the IQL strategy.
+
+> Canonical sentence (test-automation skill, `references/kata-architecture.md` §6):
+> "An ATC (Acceptance Test Case) is a **complete test case (mini-flow), not a single interaction**. Each ATC maps 1:1 to a ticket via `@atc('TICKET-ID')`."
+
+Remediation status: wrong expansion corrected across Jira content and repo docs on 2026-06-10.
+
+---
+
+## 1. Core acronyms
+
+| Acronym | Expansion | One-line definition |
+| --- | --- | --- |
+| **ATC** | Acceptance Test Case | Reusable, atomic unit of verification: precondition + action + assertions, mandatorily anchored to a User Story and ≥1 Acceptance Criterion. The heart of Bunkai. |
+| **KATA** | Component Action Test Architecture | Layered test-automation architecture (TestContext → Base → Domain Components → Steps → Fixtures) where ATCs live as decorated component methods. Named after the martial-arts *kata* — Bunkai (分解) is literally "the art of breaking down a kata into its applications". |
+| **IQL** | Integrated Quality Lifecycle | The professional QA methodology that integrates planning, documentation, execution, and reporting into one traceable lifecycle. KATA is its automation arm. |
+| **US** | User Story | The requirement under test. Anchors all test work to product intent. |
+| **AC** | Acceptance Criterion | Atomic, testable condition of a US. The provenance unit ATCs bind to (M:N). |
+| **ATP** | Acceptance Test Plan | Stage-1 artifact: test analysis, risk, scenarios, AC→TC coverage map for one US. |
+| **ATR** | Acceptance Test Results | Stage-3 artifact: execution outcomes, evidence, findings, per-TC status for one US. |
+| **TC** | Test Case | TMS entity validating a single behavior: precondition + steps + expected results. In Bunkai, a Test is an ordered chain of ATCs. |
+| **TMS** | Test Management System | The product category Bunkai belongs to. |
+
+---
+
+## 2. Methodology terms (IQL / KATA)
+
+| Term | Definition | Source |
+| --- | --- | --- |
+| **KATA layers** | 1 — TestContext (global utilities); 2 — Base Components (`ApiBase`, `UiBase`); 3 — Domain Components (business logic holding ATCs); 3.5 — Steps (reusable precondition chains); 4 — Fixtures (DI entry points). Higher layers may use lower layers, never the reverse. | `test-automation/references/kata-architecture.md` §1 |
+| **Component (KATA)** | A Domain-layer class bundling related ATCs: `{Resource}Api extends ApiBase` or `{Page}Page extends UiBase`. One component per file; max ~15–20 ATCs per component. | `kata-architecture.md` §5 |
+| **TC Identity rule** | A TC is defined by exactly two elements: precondition (state) + action (trigger). Every expected result from the same precondition + action is an assertion of the *same* TC. This is the "atomic" property. | `kata-architecture.md` §2 |
+| **Steps (layer 3.5)** | Reusable chains of 3+ ATCs used as preconditions. Not `@atc`-decorated, not reported to the TMS individually. | `kata-architecture.md` §8 |
+| **Fixture** | Dependency-injection entry point exposing components to tests (`ApiFixture`, `UiFixture`, `StepsFixture`, `TestFixture`). Lazy: API tests never open a browser. | `kata-architecture.md` §7 |
+| **Traceability** | Bidirectional linkage US ↔ ATP ↔ ATR ↔ TC: given any one artifact you can navigate to the other three. Broken traceability renders a TC unmaintainable. | `tms-architecture.md` §3–4 |
+| **Workflow Status (TC)** | Where a TC sits in its documentation/automation lifecycle: Draft → In Design → Ready → Manual / In Review → Candidate → In Automation → Pull Request → Automated → Deprecated. Persists across runs. | `tms-conventions.md` §4 |
+| **Execution Status (Run)** | Did the TC pass its last run: TODO / EXECUTING / PASS / FAIL / ABORTED / BLOCKED. Per-run, independent from Workflow Status ("Automated" + "FAIL" is a valid combination). | `tms-conventions.md` §4 |
+| **ROI (automation)** | `(Frequency × Impact × Stability) / (Effort × Dependencies)`. Drives the Candidate / Manual / Deferred verdict for each TC. | `tms-conventions.md` §9 |
+| **Smoke test** | Rapid Go/No-Go gate run first in execution: env health + critical paths (~10–20% of suite). Smoke failure is a hard blocker. | `sprint-testing/SKILL.md` gotcha #4 |
+| **TC naming** | `{US_ID}: TC#: Validate <CORE> <CONDITIONAL>` — e.g. `BK-101: TC1: Validate successful login with valid credentials`. | `tms-conventions.md` §2 |
+| **End-to-End (E2E) Test** | An *assembled* test artifact: a continuous chain of ATCs that traverses a complete user journey from point A to point B (positive, alternative, or negative path). Think LEGO: each brick is an ATC; the built model is the E2E test. In Bunkai it materializes as a **Test** (ordered chain of ATC references). Lives in `tests/e2e/**` in KATA. | `kata-architecture.md` §1 (Tests layer); user clarification 2026-06-10 |
+| **Integration Test** | Same assembled nature as an E2E test (a chain of ATCs), but its objective is validating the interaction *between* components/services (API ↔ DB, service ↔ service) rather than a full user journey. Lives in `tests/integration/**` in KATA. | `kata-architecture.md` §1; user clarification 2026-06-10 |
+| **Path semantics (positive / alternative / negative)** | Every assembled test (E2E or integration) walks one path toward its objective: the happy route (positive), a valid detour (alternative), or a failure route (negative). The ATCs chosen are the "stepping stones" that realize that specific path. | user clarification 2026-06-10 |
+| **Defect vs Bug** | Defect = any deviation from specification (formal artifact). Bug = a defect discovered during test execution; triaged (severity, root cause) before filing. Blocking bugs pause execution; non-blocking are logged and the pass continues. | `sprint-testing/SKILL.md` gotcha #10 |
+
+---
+
+## 3. Bunkai product entities (data model)
+
+Authoritative detail: `business-data-map.md`. Short forms here for terminology consistency.
+
+| Entity | Definition |
+| --- | --- |
+| **Workspace** | Multi-tenant root. Owns Projects and membership. |
+| **Project** | Container of Modules, Stories, ATCs, Tests, Runs, Bugs inside a Workspace. |
+| **Module** | First-class tree node (depth ≤ 6) partitioning features. Coverage rollups and defect heatmaps aggregate by Module — it is *not* a folder name. |
+| **User Story (US)** | Markdown-bodied requirement, optional `external_id` (Jira key). Has 1..N ACs. |
+| **Acceptance Criterion (AC)** | Atomic, sortable, Markdown-bodied testable behavior of a US. |
+| **ATC** | Acceptance Test Case: title, layer (`UI \| API \| Unit`), tags, ordered `atc_steps`, ordered `atc_assertions`, plus `atc_acceptance_criteria` M:N join binding it to ≥1 AC. Orphan ATCs are rejected at the schema-constraint level. Unit of *authorship*. |
+| **Test** | Named container owning an **ordered chain of ATC references** (`test_steps`: test_id + atc_id + position). References, not copies → "one-edit-many-tests". A chain is a *sequence, not a set*: the same ATC may appear at more than one position, so each chain row carries its own surrogate **step_id** (see *Chain step*). Unit of *execution*. |
+| **Chain step (`test_step`)** | One position in a Test's ATC chain: a surrogate `step_id` (`test_steps.id`) + the referenced `atc_id` + its `position`. The **step_id is the stable per-row handle** — the identifier used to reorder, address, or key a chain row — *not* the `atc_id`, because the same `atc_id` may legally repeat at several positions. "Reorder the chain" means permuting `step_id`s; the run order is the resulting sequence of `atc_id`s. |
+| **Run** | One execution instance of a Test against an environment (executor: human / agent / ci). Snapshots step content (`run_atcs`, `run_steps`) so editing an ATC later never corrupts history. |
+| **Project Environment** | A named deployment target a Run executes against (e.g. Staging, Production), scoped to a single Project (`project_environments`). Names are unique per Project (case-insensitive), 1–50 chars after trim; seeded **Staging** + **Production** per Project. Managed (add / rename / remove) from the project explorer rail (BK-148); removal is blocked while any Run references it, preserving run history. Prose form "environment" / "Project environment"; code form `project_environments` / `environment_id`. |
+| **Bug** | Native defect record anchored to Module + ATC + Run — lives inside the test cycle, not delegated to Jira (optional one-way Jira sync). |
+
+Post-MVP entities (epics BK-201 / BK-208 / BK-210 / BK-221 / BK-224), added 2026-07-11:
+
+| Entity | Definition |
+| --- | --- |
+| **Test Plan** | Named grouping of Tests inside a Project for a goal, cycle, or release. Membership is curated — a Test may belong to multiple plans. Progress is derived from members' latest run outcomes. Closing a plan captures an outcome summary and makes it read-only. **Not the ATP** (Acceptance Test Plan, §1) — the ATP is the per-US QA documentation artifact; a Test Plan is the TMS grouping entity. Never shorten either to bare "plan" (see §4). |
+| **Milestone** | Named goal with a target date inside a Project. Aggregates Test Plans; readiness is derived from plan progress. Overdue when the target date passes unmet. |
+| **Notification** | Record of a workspace event delivered to a member's inbox. Respects entity visibility (RLS) — a member is never notified about entities they cannot see. |
+| **Notification Inbox** | Per-user list of Notifications with unread state. |
+| **Event Type** | Category of notifiable event: run lifecycle, bug lifecycle, mention. |
+| **Email Digest** | Periodic email summarizing a member's unread Notifications. |
+| **Channel** | Real-time conversation space scoped to a Workspace or a Project. Visibility follows membership. |
+| **Message** | Single chat entry authored by a member inside a Channel. Editable by its author for 15 minutes; deletion leaves a deleted-message placeholder. |
+| **Mention** | @-reference to a member inside a Message. Triggers a Notification. |
+| **Rich Link** | Entity reference (ATC / Test / Run) rendered in chat as a card with title + status. Permission-aware: resolves only for members who can see the entity. |
+| **Execution Mode** | How a Run was executed: `manual` \| `automated`. |
+| **Automation Status** | Per-Test attribute: `manual-only` \| `candidate` \| `automated`. Deliberately **simpler than the Workflow Status (TC)** lifecycle (§2, Draft → In Design → … → Deprecated) — that lifecycle governs the QA-side documentation/automation process of a TC; Automation Status is the coarse product-layer flag on a Test. Do not conflate the two. |
+| **CI Results File** | Machine-readable test-results report produced by a CI pipeline (e.g. JUnit XML), uploadable to create an automated Run. |
+| **Billing Plan (Tier)** | Workspace subscription level: Free \| Team \| Enterprise. Always say "Billing Plan" or "Tier" — never bare "Plan", which collides with **Test Plan** (see §4). |
+| **Seat** | One active workspace member counted against the Tier limit. |
+| **Subscription** | The workspace's active paid arrangement: renewal date, payment method. |
+| **Invoice** | Billing document for one charge period, downloadable. |
+| **status_dot** | Design/mockup term for the coloured dot that renders a row's Execution Status (§2) in tree, list, and autocomplete surfaces. Its values are the execution set `pass \| fail \| blocked \| skipped \| running \| unrun`. It is a presentation affordance, not a data field: it names a dot, not a lifecycle, and it does not appear as an API field name — APIs expose the underlying value as `status`. No documentation-maturity lifecycle exists on `atcs` or `tests`. Recorded 2026-08-06 with the BK-187 decision. |
+| **Run-status grain split** | Three distinct run-status enumerations coexist at three different grains, and none of them is wrong — the defect was that the split was never labelled. **Run grain** (`runs.status`, the whole execution): `running \| passed \| failed \| aborted`. **Position grain** (`run_atcs.status`, one chain step within a run): `pending \| passed \| failed \| blocked \| skipped`. **Derived traceability state** (the chain-view's rendered chip, combining both): `in_flight \| aborted \| passed \| failed \| blocked \| skipped`. Invariant: `aborted` is a **run-grain terminal outcome only** — it names the whole execution's anomalous termination and never appears at the position grain (a step is `skipped`, never `aborted`). §2's "Execution Status (Run)" and this table's `status_dot` row each describe one grain correctly on their own terms; neither is a typo needing to converge with the other. Do not attempt to harmonise the KATA/IQL methodology vocabulary (`tms-conventions.md`'s `TODO \| EXECUTING \| PASS \| FAIL \| ABORTED \| BLOCKED`) with this product-schema split — that is a separate, larger question, out of scope here. Recorded 2026-08-08 with the BK-317 decision (root cause of BK-45 AC-01 shipping an incomplete run-status list). |
+
+---
+
+## 4. Anti-glossary — terms to never use
+
+| Wrong | Right | Why it's wrong |
+| --- | --- | --- |
+| "Atomic Test Component" | **Acceptance Test Case** | Misexpansion of ATC. Atomicity and component-hood are implementation properties (see §0). |
+| "Komponent Action Test Architecture" | **Component Action Test Architecture** | Spelling drift from an early design chat (`.context/designs/.../chats/chat1.md`, 2026-05-11). The boilerplate skill — the canonical source — spells it "Component"; the K in KATA comes from the martial-arts term *kata*, mirrored by the brand name Bunkai. |
+| "test case" for an ATC chain | **Test** | In Bunkai a Test is the chain; the chained units are ATCs. Keep the two words distinct. |
+| "test component" | **ATC**, **end-to-end test**, or **integration test** — by context | Ambiguous and generic ("a component of testing" says nothing). If the sentence means the minimal atomic unit that satisfies an AC → **ATC**. If it means the assembled chain walking a journey → **end-to-end test** or **integration test**. Never leave "test component" in specs, ACs, or Jira content. |
+| "reorder a Test by ATC" / "reorder the `atc_id`s" | **reorder the chain by step_id** (chain-step handle) | A Test chain may hold the same `atc_id` at several positions, so an `atc_id` cannot identify a single row. Reorder addresses rows by **step_id** (`test_steps.id`). Speak of `atc_id` only for the resulting *run order*, never as the reorder handle. Recorded during BK-28 (chain reorder). |
+| bare "plan" / "Plan" | **Test Plan**, **Billing Plan (Tier)**, or **ATP** — by context | Three distinct concepts collide on the word: the TMS grouping of Tests (Test Plan, §3), the workspace subscription level (Billing Plan / Tier, §3), and the per-US QA artifact (ATP, §1). Bare "plan" in specs, ACs, or Jira content is ambiguous — always use the full term. Recorded 2026-07-11 with the post-MVP entities (BK-201/208/210/221/224). |
+| `status_dot` as an ATC lifecycle enum (`draft` / `ready` / `automated` / `deprecated`) | **Execution Status**, exposed in APIs as `status` | No ATC documentation-lifecycle column exists in the schema, and `status_dot` appears in zero lines of shipped code. The four-value set originated in a BK-20 refinement comment (2026-06-01, T4) that mis-attributed it to the 8-state **Workflow Status (TC)** (§2). It blocked BK-20 for five weeks. Recorded 2026-08-06 with the BK-187 decision. |
+
+---
+
+## 5. Change protocol
+
+1. New domain term or changed meaning → update this file FIRST, in the same PR.
+2. Term used in Jira content (summary, description, custom fields) → keep Jira wording aligned with §1–§3.
+3. Disagreement between docs → this glossary wins; if the glossary itself is wrong, fix it via PR with an entry in §4 documenting the deprecated usage.
+
+---
+
+## 6. QA repo note (replaces the old June-2026 version)
+
+The previous version of this file (generated 2026-06-06) contained the **incorrect ATC expansion "Atomic Test Component"**, an invented `draft/active/archived` status lifecycle that does not exist in the schema, and fabricated endpoints (`POST /api/v1/projects`, `/user-stories`, `/anchoring`). All of that is superseded by this mirror of the target's canonical glossary (2026-08-09, staging state). When refreshing, re-mirror from `../upex-bunkai-tms/.context/business/domain-glossary.md` — this file is a mirror, not an independent source.

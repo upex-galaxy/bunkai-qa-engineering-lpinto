@@ -1,18 +1,18 @@
 # Business API Map — Bunkai (QA Lens)
 
-> Generated: 2026-06-19
-> Sources: `../upex-bunkai-tms/public/openapi.json`, `../upex-bunkai-tms/src/app/api/v1/`, `../upex-bunkai-tms/src/middleware.ts`, `../upex-bunkai-tms/lib/api/middleware/bearer.ts`
-> Last verified against OpenAPI on 2026-06-19
+> Generated: 2026-08-09
+> Sources: `../upex-bunkai-tms/public/openapi.json`, `../upex-bunkai-tms/app/api/v1/` (64 route files, 81 handlers), `../upex-bunkai-tms/lib/api/handler.ts`, `../upex-bunkai-tms/lib/api/principal.ts`, `../upex-bunkai-tms/lib/api/middleware/bearer.ts`, `../upex-bunkai-tms/middleware.ts`, `../upex-bunkai-tms/supabase/migrations/0001..0068`
+> Last verified against OpenAPI on 2026-08-09
 
 ---
 
 ## 1. Executive summary
 
-Bunkai's API lets two distinct operator types interact with the same test-management data model: **human QA engineers** through a browser-based web app, and **AI agents / CI pipelines** through bearer-authenticated programmatic calls. The API surface is intentionally minimal — only 5 documented REST endpoints exist in the versioned `/api/v1` layer. Most data access flows through Supabase PostgREST (auto-generated REST from PostgreSQL views/tables) and Server Actions (Next.js RPC-style mutations), both gated by Row-Level Security (RLS) on every table.
+Bunkai's API lets two distinct operator types drive the same test-management data model: **human QA engineers** through a session-cookie browser app, and **AI agents / CI pipelines** through bearer PATs. Since June 2026 the `/api/v1` surface grew roughly **3× — from 19 endpoints to 64 route files / 81 handlers** — and the product moved from "auth + tenancy skeleton" to a working test lifecycle: test chains, run execution, native bugs with triage, coverage reporting, notifications, and async Jira import all now have versioned endpoints over RPCs and RLS.
 
-The auth model splits cleanly: session cookies for browser users (Supabase SSR magic-link flow), Personal Access Tokens (PATs) for scripts and agents. Workspace membership roles (viewer → member → admin → owner) control what each caller can do across the tenant boundary.
+The auth model was rebuilt around a **unified Principal** (ADR-0001): `withApiHandler()` + `resolveIdentity()` collapse cookie and Bearer callers into one identity, and `requires:` scope gates are now **enforced** (previously `requireScope()` existed but no route called it). Signup is **verification-first** (BK-166): an unconfirmed account can do nothing — only email confirmation mints the session and first PAT. A password sign-in mints a PAT in the same call, so headless/agent flows never touch a browser.
 
-Three critical business journeys dominate: **onboarding a workspace** (signup → workspace → project), **authoring an ATC** (story binding → steps → assertions → save), and **executing a run** (agent API flow or manual UI flow). Each journey crosses the API boundary differently — some through the versioned REST layer, others through PostgREST or Server Actions, all protected by RLS.
+Four product surfaces dominate the staging API: **run execution** (start → step-marking → finish/abort with state machines + triggers), **bug management** (provenance from run steps, forward-only triage), **coverage/traceability** (per-project and workspace roll-ups, export chain), and **async Jira import** (202 + worker + poll). Core authoring data (projects, modules, stories, ACs, ATCs) still flows mostly through Supabase PostgREST and `bunkai_*` RPCs, all RLS-gated.
 
 ---
 
@@ -22,353 +22,331 @@ Three critical business journeys dominate: **onboarding a workspace** (signup �
 
 | Tier | Who it applies to | How to acquire | Where enforced (code path) |
 |------|-------------------|----------------|---------------------------|
-| Public | Unauthenticated callers | None — no credential required | `middleware.ts` allows `/api/v1/health`, `/api/v1/auth/*`, `/auth/*`, `/login` |
-| Session-authenticated | Browser users (human QAs) | Magic link OTP via `POST /api/v1/auth/magic-link` → click link → `supabase.auth.exchangeCodeForSession()` → cookie auto-set | `middleware.ts` checks `getUser()`, redirects to `/login` on protected paths |
-| PAT-authenticated | AI agents, CI/CD, scripts | Issue PAT via `POST /api/v1/tokens` (session-gated) → send `Authorization: Bearer bk_pat_<prefix>.<secret>` | `lib/api/middleware/bearer.ts` — parses prefix, SHA-256 compares, checks `revoked_at`/`expires_at`, returns `BearerContext` |
-| Role-gated (workspace) | Workspace members | Assigned at workspace join | RLS policies via `bunkai_is_workspace_member()`, `bunkai_can_write_workspace()`, `bunkai_is_workspace_admin()`, `bunkai_is_workspace_owner()` SECURITY DEFINER helpers |
-| Scope-gated (PAT) | PAT holders | Scopes set at token creation: `atc:read`, `atc:write`, `run:execute`, `workspace:admin` | `requireScope(scope)` guard in bearer middleware — checked per-route |
+| Public | Unauthenticated callers | None — no credential required | `middleware.ts` allows `/api/v1/health`, `/api/v1/auth/*` (signup/signin/confirm/resend/check-email/magic-link), `/api/v1` banner |
+| Session-authenticated | Browser users (human QAs) | Signup → confirm OTP (or legacy magic link) → Supabase session cookie | `middleware.ts` `getUser()` + `lib/api/handler.ts` `auth: 'required'` |
+| Bearer PAT | AI agents, CI/CD, scripts | Minted atomically by `POST /auth/signin` and `POST /auth/confirm`; managed via `/tokens` | `lib/api/middleware/bearer.ts` — prefix lookup, SHA-256 compare, `revoked_at`/`expires_at`, uniform 401 `"Invalid token."` |
+| Principal (unified) | Any authenticated caller | Either flavor above; `resolveIdentity()` normalizes | `lib/api/principal.ts` — session JWT **or** PAT-JWT (`mintUserJwt`) → one `Principal { userId, kind: session\|pat, scopes }`; PAT path uses an **RLS-scoped client AS user, never service role** |
+| Scope-gated (requires:) | PAT holders | Scopes fixed at mint: `atc:read`, `atc:write`, `run:execute`, `workspace:admin` (the latter **rejected at runtime**, ADR-0005) | `lib/api/handler.ts` `requires: ['atc:read', ...]` — enforced on every decorated route; cookie callers are treated as holding all capabilities |
+| Role-gated (workspace) | Workspace members | Assigned at join/invite acceptance | RLS policies via `bunkai_is_workspace_member()`, `bunkai_can_write_workspace()`, `bunkai_is_workspace_admin()`, `bunkai_is_workspace_owner()` SECURITY DEFINER helpers + handler-level admin/owner gates |
+| Active-workspace | Any authenticated user | `POST /api/v1/me/active-workspace` (membership-validated) → `bk_active_ws` httpOnly cookie; Bearer callers pass/derive `workspace_id` explicitly | `assertWorkspaceContext` (ADR-0006) — cookie and Bearer paths converge on the same workspace assertion |
 
 ### Workspace member roles
 
 ```
 viewer (read-only)
   ↓
-member (read + write ATCs, runs)
+member (read + write tests, ATCs, runs, bugs)
   ↓
-admin (manage members, edit workspace settings)
+admin (manage members, invites, environments, milestones)
   ↓
-owner (delete workspace, transfer ownership)
+owner (workspace settings, transfer/delete)
 ```
 
-### Token flow — PAT auth scheme
+### Token flow — verification-first signup (BK-166)
 
 ```
-┌──────────┐     POST /api/v1/tokens (cookie)     ┌──────────────┐
-│  Browser  │ ──────────────────────────────────→   │  Supabase DB │
-│  (session) │  ←── { token: "bk_pat_..." } ──────  │  (SHA-256    │
-└──────────┘     (shown once, not stored)           │   hashed)    │
-                                                     └──────┬───────┘
-                                                            │
-┌──────────┐     GET /api/v1/...                            │
-│  Agent    │ ─── Authorization: Bearer bk_pat_... ──────→  │
-│  / CLI    │                                               │
-└──────────┘     bearer.ts:                                  │
-                 1. Parse "bk_pat_<prefix>.<secret>"          │
-                 2. Lookup token_prefix (indexed)            │
-                 3. SHA-256(secret) == stored_hash?           │
-                 4. revoked_at? expires_at?                    │
-                 5. Scopes contain required scope?             │
-                 ↓ OK                                        │
-                 BearerContext { userId, workspaceId, scopes, tokenId }
+┌──────────┐  POST /api/v1/auth/signup        ┌──────────────────────┐
+│  Browser │  { email, password }             │  Supabase Auth       │
+│          │ ────────────────────────────────►│  Admin API createUser│
+└──────────┘                                  │  (email_confirm:f)   │
+        │                                     └──────────┬───────────┘
+        │  ← 202 { ok, "pending_confirmation" }          │ (no session,
+        │     (NO session, NO PAT at this point)         │  no PAT yet)
+        │                                               ▼
+        │  POST /api/v1/auth/confirm { email, otp } ────►  GoTrue verifyOtp
+        │                                               │
+        │  ← 200 { user, session, pat: { token,         │ session + PAT
+        │       scopes, expires_at } }  ◄── minted      │ minted ATOMICALLY
+        │              (bk_pat_... + sb-*-auth-token)   └─────────────────
 ```
 
-### Token flow — Session cookie scheme
+### Token flow — headless sign-in (PAT minted in the same call)
 
 ```
-User enters email → POST /api/v1/auth/magic-link
-  → Supabase GoTrue sends OTP email
-  → User clicks link → GET /auth/callback?code=...
-  → exchangeCodeForSession() → sb-*-auth-token cookie set
-  → middleware.ts reads cookie → getUser() → session.user
-  → Server Components / Route Handlers use supabase SSR client
-  → RLS policies resolve via auth.uid()
+Agent/CLI → POST /api/v1/auth/signin { email, password }
+  → Supabase signInWithPassword (legacy min(6))
+  → response: { user, session, pat: { token, scopes, expires_at } }
+  → subsequent calls: Authorization: Bearer bk_pat_<prefix>.<secret>
 ```
 
-### Protected API surface (by auth tier)
+### Token flow — PAT verification (any subsequent call)
 
-| Endpoint | Auth required | Scope required |
-|----------|--------------|----------------|
-| `GET /api/v1/health` | None | — |
-| `POST /api/v1/auth/magic-link` | None | — |
-| `GET /api/v1/tokens` | Session cookie | — |
-| `POST /api/v1/tokens` | Session cookie | — |
-| `DELETE /api/v1/tokens/{id}` | Session cookie | — |
-| All `/api/v1/projects`, `/api/v1/modules`, etc. (PostgREST) | Session cookie or PAT bearer | RLS-enforced |
+```
+Agent → Authorization: Bearer bk_pat_<12-prefix>.<secret>
+  bearer.ts:
+  1. parse prefix + remainder → fullSecret
+  2. lookup token_prefix (indexed access_tokens)
+  3. fetch sibling hashes from access_token_secrets (least-privilege table)
+  4. SHA-256(fullSecret) == stored hash?
+  5. revoked_at null? expires_at not past?
+  ↓ OK → resolver mints user-scoped JWT (`mintUserJwt`) → db client AS user
+  ↓      → RLS applies exactly like a session (same rows, same policies)
+  ↓ FAIL → uniform 401 "Invalid token." (never leaks which check failed)
+  (fire-and-forget last_used_at touch)
+```
+
+**Key invariant (QA-critical)**: a PAT never escalates — the downstream DB client runs with the owner's `auth.uid` under normal RLS, and `requires:` scopes are checked per-route. Authorization is user-identity + token-scope, not token-only.
 
 ---
 
 ## 3. Critical business journeys
 
-### Journey 1: User onboarding (Signup → First project)
+### Journey 1: Verification-first signup (BK-166)
 
-**Business purpose**: A new user authenticates, creates a workspace, and lands on their first project ready to author ATCs.
+**Business purpose**: A new user creates an account; no capability (session, PAT, workspace) exists until the email is confirmed — preventing mass unconfirmed account creation.
 
 ```
-  User             Browser           API Gateway        Supabase Auth      Supabase DB
-   │                  │                  │                  │                  │
-   │  Enter email     │                  │                  │                  │
-   │────────────────→│                  │                  │                  │
-   │                  │ POST /api/v1     │                  │                  │
-   │                  │  /auth/magic-link│                  │                  │
-   │                  │────────────────→│                  │                  │
-   │                  │                  │                  │                  │
-   │                  │                  │  signInWithOtp()│                  │
-   │                  │                  │────────────────→│                  │
-   │                  │                  │                  │── OTP email ──→  │
-   │  Click magic     │                  │                  │                  │
-   │  link            │                  │                  │                  │
-   │────────────────→│                  │                  │                  │
-   │                  │ GET /auth/callback?code=...          │                  │
-   │                  │────────────────→│                  │                  │
-   │                  │                  │ exchangeCodeForSession()           │
-   │                  │                  │────────────────→│                  │
-   │                  │                  │  ←── session cookie ──────────→   │
-   │                  │                  │                  │                  │
-   │                  │ Redirect /onboarding                │                  │
-   │                  │←───────────────│                  │                  │
-   │                  │                  │                  │                  │
-   │  Fill workspace  │                  │                  │                  │
-   │  name + slug     │                  │                  │                  │
-   │────────────────→│                  │                  │                  │
-   │                  │ Server Action:  │                  │                  │
-   │                  │ bunkai_bootstrap_workspace() RPC    │                  │
-   │                  │──────────────────────────────────────────────────────→│
-   │                  │                  │                  │                  │
-   │                  │                  │                  │  Create workspace│
-   │                  │                  │                  │  + owner member  │
-   │                  │                  │                  │  (atomic tx)     │
-   │                  │                  │                  │                  │
-   │                  │ Redirect /projects                  │                  │
-   │                  │←───────────────│                  │                  │
+User            Browser            API            GoTrue Auth
+ │  email+pass   │                 │                 │
+ │──────────────►│  POST /auth/signup               │
+ │               │────────────────►│  createUser()   │
+ │               │                 │────────────────►│
+ │  ← 202 pending_confirmation    │                 │
+ │◄──────────────│                 │                 │
+ │  open inbox → OTP (6–8 digits)  │                 │
+ │  enter OTP    │  POST /auth/confirm { email, otp }│
+ │──────────────►│────────────────►│  verifyOtp()    │
+ │               │                 │────────────────►│
+ │               │                 │  mint session + PAT (atomic tx)
+ │  ← 200 { user, session, pat }  │                 │
+ │◄──────────────│                 │                 │
+ │  POST /auth/resend (if expired) │  re-send OTP    │
+ │  POST /auth/check-email         │  pre-submit check (public)
 ```
 
-**Endpoints involved**:
-- `POST /api/v1/auth/magic-link` — public
-- `GET /auth/callback?code=` — Supabase Auth handler
-- Server Action: `bunkai_bootstrap_workspace(p_slug, p_name)` RPC
+**Endpoints**: `POST /api/v1/auth/signup`, `POST /api/v1/auth/confirm`, `POST /api/v1/auth/resend`, `POST /api/v1/auth/check-email` (all public). Legacy: `POST /api/v1/auth/magic-link` still exists.
 
-**Entities touched**: `auth.users`, `workspaces`, `workspace_members`
+**Entities touched**: `auth.users` (`access_tokens`, `access_token_secrets` minted at confirm).
 
-**Feature IDs**: Feature-map pending — no existing feature-map to cross-reference.
+**Feature IDs**: FEAT-AUTH-006, FEAT-AUTH-001..005, FEAT-API-006.
 
 **Numbered narrative**:
-1. User submits email via magic-link form → browser POSTs to `/api/v1/auth/magic-link`
-2. API handler calls `supabase.auth.signInWithOtp()` → Supabase GoTrue sends email with one-time code
-3. User clicks link → lands on `/auth/callback?code=...` → server calls `exchangeCodeForSession()` which sets the `sb-*-auth-token` session cookie
-4. Middleware detects auth → redirects to `/projects`; since user has no workspace, middleware redirects to `/onboarding`
-5. User fills workspace form (name + slug) → Server Action calls `bunkai_bootstrap_workspace()` RPC which atomically creates the workspace row + owner membership row
-6. On success → redirect to `/projects` with workspace context in session
+1. Signup returns **202 `pending_confirmation`** — no session, no PAT, even on success (BK-166 contract).
+2. Password rules are **asymmetric by design**: `min(8)` at signup, `min(6)` legacy at signin.
+3. Duplicate email → **409 without echoing account existence** (no account-enumeration oracle).
+4. Confirm validates the OTP and mints **session + PAT in the same transaction** — the account is unusable before this call succeeds.
+5. Resend/confirm asymmetry and OTP expiry are the QA-critical edges (wrong OTP, expired OTP, rate limits).
 
-**What breaks if the API hangs here**: User is stuck at onboarding, cannot proceed to authoring. Cross-workspace isolation unverified → potential data leak.
+**What breaks if the API hangs here**: unconfirmed accounts silently stuck; OTP expiry races; 409-no-echo abused as an enumeration oracle if error wording leaks.
 
 ---
 
-### Journey 2: ATC authoring (Create ATC with steps + assertions)
+### Journey 2: Workspace & member onboarding
 
-**Business purpose**: A QA engineer creates a structured Acceptance Test Case bound to a user story and its acceptance criteria.
+**Business purpose**: A new user materializes their first workspace and brings teammates in with scoped roles.
 
 ```
-  QA Engineer         Browser (SSR)        Supabase PostgREST      Database
-       │                    │                     │                   │
-       │  Navigate to       │                     │                   │
-       │  project page      │                     │                   │
-       │─────────────────→  │                     │                   │
-       │                    │  GET /rest/v1/      │                   │
-       │                    │  modules?project_id=│                   │
-       │                    │────────────────────→│                   │
-       │                    │                     │───SELECT─────────→│
-       │                    │  ←── module tree ───│                   │
-       │                    │                     │                   │
-       │                    │  GET /rest/v1/      │                   │
-       │                    │  user_stories?      │                   │
-       │                    │  module_id=in.(...)  │                   │
-       │                    │────────────────────→│                   │
-       │                    │                     │───SELECT─────────→│
-       │                    │  ←── story list ────│                   │
-       │                    │                     │                   │
-       │  Open ATC editor   │                     │                   │
-       │─────────────────→  │                     │                   │
-       │                    │                     │                   │
-       │  Write steps +     │                     │                   │
-       │  assertions        │                     │                   │
-       │─────────────────→  │                     │                   │
-       │                    │ Server Action:      │                   │
-       │                    │ saveAtcAction()     │                   │
-       │                    │  → bunkai_save_atc  │                   │
-       │                    │    RPC (atomic)     │                   │
-       │                    │──────────────────────────────────────→│
-       │                    │                     │                   │
-       │                    │  ←── success ───────│                   │
-       │  ←── UI updated ──│                     │                   │
+User              API                    DB (RPC)              Invitee
+ │  POST /workspaces { name, slug }       │                      │
+ │ ──────────────────────────────────────►│  bunkai_bootstrap_   │
+ │                                       │  workspace() (atomic  │
+ │                                       │  ws + owner member)   │
+ │  ← 200 { id, slug } (409 if slug taken)│                      │
+ │  POST /workspaces/{id}/invites { email, role }                │
+ │ ──────────────────────────────────────►                       │
+ │  ← 200 { token, accept_url } (token returned exactly once)    │
+ │  (URL shared out-of-band)                                     │
+ │                                        │                      │  GET /invites/accept?token=...
+ │                                        │                      │  POST /api/v1/invites/accept
+ │                                        │                      │  (cookie OR bearer; email MUST
+ │                                        │                      │   match invite → 403 otherwise)
+ │                                        │  INSERT membership    │
+ │                                        │  stamp accepted_at    │
+ │                                        │◄─────────────────────│
+ │                                        │  200 { workspace_id, role } ──► redirect /home
 ```
 
-**Endpoints involved**:
-- Supabase PostgREST (auto-generated): `GET /rest/v1/modules`, `GET /rest/v1/user_stories`, etc.
-- Server Action: `saveAtcAction` → `bunkai_save_atc()` RPC (not a REST endpoint)
+**Endpoints**: `POST /api/v1/workspaces` (+ `GET`), `GET/PATCH /api/v1/workspaces/{id}`, `GET/POST /api/v1/workspaces/{id}/invites`, `DELETE /api/v1/workspaces/{id}/invites/{inviteId}`, `POST /api/v1/invites/accept`, `GET /api/v1/me`, `POST /api/v1/me/active-workspace`, `GET /api/v1/workspaces/{id}/membership`.
 
-**Entities touched**: `modules`, `user_stories`, `acceptance_criteria`, `atcs`, `atc_steps`, `atc_assertions`, `atc_acceptance_criteria`
+**Entities touched**: `workspaces`, `workspace_members`, `workspace_invites`, `workspace_invite_secrets`.
 
-**Feature IDs**: Feature-map pending.
+**Feature IDs**: FEAT-WS-001..006, FEAT-API-008.
 
 **Numbered narrative**:
-1. QA navigates to `/projects/{slug}` — page loads modules tree via PostgREST query (RLS-gated to workspace members)
-2. QA selects module → stories load via PostgREST query filtered by module
-3. QA opens ATC editor → fills title, layer (UI/API/Unit), steps (numbered markdown), assertions (YAML bullets), binds to user story + ACs
-4. On save → Server Action calls `bunkai_save_atc` RPC which atomically replaces ATC header, steps, assertions, and AC bindings in one transaction
-5. Components revalidate (`revalidatePath`) → UI reflects saved state
+1. Workspace creation is one atomic RPC (workspace + owner member); slug conflicts → 409, validated 3–40 chars.
+2. Invites are pending with a 24h TTL; token returned once; email match is mandatory at redemption (403 mismatch, 409 non-pending/expired).
+3. Accept works with **cookie OR bearer** — this is the first dual-auth surface QA must test for identical RLS outcomes.
+4. `active-workspace` sets `bk_active_ws` cookie; membership-validated on every write. Bearer callers instead assert `workspace_id` per call (`assertWorkspaceContext`, ADR-0006).
 
-**What breaks if the API hangs here**: ATC creation fails silently (user loses work). RLS misconfiguration could leak ATCs across workspaces.
+**What breaks if the API hangs here**: token replay after acceptance (stamped + status check is the guard); stale `bk_active_ws` showing another tenant's context; rapid double-switch race before cookie write lands.
 
 ---
 
-### Journey 3: Agent API run (Programmatic test execution)
+### Journey 3: Agentic test execution (run lifecycle)
 
-**Business purpose**: An AI agent or CI pipeline executes a test by fetching its ATC chain, posting step results, and completing the run — all through bearer-authenticated API calls.
+**Business purpose**: An agent or CI executes a Test's ATC chain against a Project Environment and produces a comparable, traceable Run — the "three execution modes, one data model" promise.
 
 ```
-  Agent/CLI            API Gateway        Middleware         Database
-       │                    │                 │                │
-       │  GET /api/v1/      │                 │                │
-       │  tests/{id}        │                 │                │
-       │  ?expand=atcs      │                 │                │
-       │─────────────────→  │                 │                │
-       │                    │ bearer.ts:      │                │
-       │                    │ validate PAT    │                │
-       │                    │ check scopes    │                │
-       │                    │ requireScope()  │                │
-       │                    │ {'atc:read'}    │                │
-       │                    │                 │                │
-       │                    │  SELECT tests   │                │
-       │                    │  + atcs + steps │                │
-       │                    │  (RLS-gated)    │                │
-       │                    │──────────────────────────────→  │
-       │  ←── test with    │                 │                │
-       │  expanded ATCs ───│                 │                │
-       │                    │                 │                │
-       │  POST /api/v1/     │                 │                │
-       │  runs              │                 │                │
-       │  Idempotency-Key:  │                 │                │
-       │  uuid              │                 │                │
-       │─────────────────→  │                 │                │
-       │                    │ bearer.ts:      │                │
-       │                    │ {'run:execute'} │                │
-       │                    │ idempotency.ts  │                │
-       │                    │  (skeleton)     │                │
-       │                    │                 │                │
-       │                    │  INSERT run     │                │
-       │                    │  INSERT run_atcs│                │
-       │                    │──────────────────────────────→  │
-       │  ←── run_id ──────│                 │                │
-       │                    │                 │                │
-       │  POST /api/v1/     │                 │                │
-       │  runs/{id}/steps   │                 │                │
-       │  {step_id,status}  │                 │                │
-       │─────────────────→  │                 │                │
-       │                    │  UPDATE         │                │
-       │                    │  run_steps      │                │
-       │                    │  (cascade       │                │
-       │                    │   recompute)    │                │
-       │                    │──────────────────────────────→  │
-       │                    │                 │                │
-       │  POST /api/v1/     │                 │                │
-       │  runs/{id}/finish  │                 │                │
-       │─────────────────→  │                 │                │
-       │                    │  UPDATE runs    │                │
-       │                    │  status →       │                │
-       │                    │  passed/failed  │                │
-       │                    │──────────────────────────────→  │
-       │  ←── run result ──│                 │                │
+Agent/CI              API                                DB (RPCs + triggers)
+ │  GET /tests/{id} (full chain read)                       │
+ │ ────────────────────────────────────────────────────────►│  bunkai_get_test_expanded
+ │  ← 200 { test, chain: [atc_id, steps, assertions...] }   │
+ │  POST /runs { test_id, environment_id, start_token? }    │
+ │  (Idempotency detectable: HTTP key or 24h start_token)   │
+ │ ────────────────────────────────────────────────────────►│  bunkai_create_run (45200..)
+ │  ← 200 { run_id, run_atcs }   (run_atcs snapshot per position grain) 
+ │  POST /runs/{id}/steps/{stepId}/mark { status }          │
+ │ ────────────────────────────────────────────────────────►│  trigger recomputes run_atcs.status
+ │  POST /runs/{id}/finish { via }                          │
+ │ ────────────────────────────────────────────────────────►│  runs.status → passed | failed (terminal)
+ │  POST /runs/{id}/abort { via }                           │
+ │ ────────────────────────────────────────────────────────►│  runs.status → aborted (terminal)
+ │  GET /runs/{id} (expanded)  ────────────────────────────►│  bunkai_get_run_expanded
+ │  ← 200 { run, run_atcs, run_steps, env, executor }       │
 ```
 
-**Endpoints involved**:
-- `GET /api/v1/tests/{id}?expand=atcs` (planned — not yet in OpenAPI)
-- `POST /api/v1/runs` with `Idempotency-Key` header (planned)
-- `POST /api/v1/runs/{id}/steps` (planned)
-- `POST /api/v1/runs/{id}/finish` (planned)
-- `GET /api/v1/tokens` — bearer token used here
+**Endpoints**: `GET/POST /api/v1/tests`, `GET/PATCH/DELETE /api/v1/tests/{id}`, `POST /api/v1/tests/{id}/reorder`, `PUT /api/v1/tests/{id}/tags` (whole-set replace, `X-If-Match` optimistic lock → `bunkai_set_test_tags`), `POST /api/v1/tests/{id}/runs`, `POST /api/v1/runs`, `GET /api/v1/runs/{id}`, `POST /api/v1/runs/{id}/steps/{stepId}/mark`, `POST /api/v1/runs/{id}/finish`, `POST /api/v1/runs/{id}/abort`, `GET /api/v1/workspaces/{id}/active-runs`.
 
-**Entities touched**: `tests`, `test_steps`, `runs`, `run_atcs`, `run_steps`
+**Entities touched**: `tests`, `test_steps`, `project_environments`, `runs`, `run_atcs`, `run_steps`, `idempotency_keys`.
 
-**Feature IDs**: Feature-map pending.
+**Feature IDs**: FEAT-RUN-001..006, FEAT-TEST-001..005, FEAT-ENV-001..002, FEAT-API-003.
 
 **Numbered narrative**:
-1. Agent authenticates with PAT via `Authorization: Bearer bk_pat_<prefix>.<secret>` — bearer middleware validates token, extracts `BearerContext`
-2. Agent fetches test with expanded ATCs → API returns the ATC chain with steps and expected outcomes
-3. Agent creates a run with idempotency key → API creates `runs` + `run_atcs` rows in pending state
-4. Agent iterates through ATCs, POSTing each step result → API inserts `run_steps`, DB trigger recomputes `run_atcs.status`
-5. Agent POSTs finish → API transitions `runs.status` to `passed` or `failed` based on aggregated results
+1. Runs snapshot chain content (`run_atcs`, `run_steps`) — later ATC edits never corrupt history.
+2. `start_token` (24h window) + idempotency key make replays detectable — **now functional** (FEAT-API-003), not a skeleton.
+3. Position grain (`run_atcs.status`: pending/passed/failed/blocked/skipped) recomputes via trigger; run grain (`runs.status`: running/passed/failed/aborted) is terminal via finish/abort — `aborted` never appears at position grain (see domain-glossary run-status grain split).
+4. `via` parameter records the executor (manual/agent/ci) on terminal transitions (migration 0067).
+5. Environments are project-scoped with unique names; removal blocked while any Run references them (history preservation).
 
-**What breaks if the API hangs here**: Duplicate runs (idempotency key not yet implemented). Inconsistent run status if cascade recompute fails.
+**What breaks if the API hangs here**: duplicate runs (idempotency leak), inconsistent run status if trigger cascades fail, finish/abort accepting `via` values that break the activity feed's redaction contract.
 
 ---
 
-### Journey 4: Manual run + bug filing
+### Journey 4: Native bug reporting & triage
 
-**Business purpose**: A QA manually executes a test in the browser, marks steps pass/fail, and files a bug when a step fails — all within the Bunkai UI.
+**Business purpose**: A QA files a bug anchored to a module, ATC and run **inside the test cycle** — no Jira hand-off — and triages it through a forward-only lifecycle.
 
 ```
-  QA (browser)          UI (SSR)           Supabase PostgREST       DB
-       │                    │                     │                  │
-       │  Open test page    │                     │                  │
-       │─────────────────→  │                     │                  │
-       │                    │  GET /rest/v1/       │                  │
-       │                    │  tests?expand=atcs   │                  │
-       │                    │────────────────────→│                  │
-       │                    │                     │───SELECT────────→│
-       │  ←── test tree ───│                     │                  │
-       │                    │                     │                  │
-       │  Start run         │                     │                  │
-       │─────────────────→  │                     │                  │
-       │                    │  POST /rest/v1/runs  │                  │
-       │                    │────────────────────→│                  │
-       │                    │                     │───INSERT────────→│
-       │  Step A: pass      │                     │                  │
-       │─────────────────→  │                     │                  │
-       │                    │  PATCH /rest/v1/     │                  │
-       │                    │  run_steps/{id}     │                  │
-       │                    │────────────────────→│                  │
-       │                    │                     │───UPDATE────────→│
-       │  Step B: fail      │                     │                  │
-       │─────────────────→  │                     │                  │
-       │                    │  PATCH run_steps     │                  │
-       │                    │────────────────────→│                  │
-       │                    │                     │───UPDATE────────→│
-       │                    │                     │  trigger:        │
-       │                    │                     │  recompute       │
-       │                    │                     │  run_atcs.status │
-       │  File bug          │                     │                  │
-       │─────────────────→  │                     │                  │
-       │                    │  POST /rest/v1/bugs  │                  │
-       │                    │────────────────────→│                  │
-       │                    │                     │───INSERT────────→│
-       │  ←── bug created  │                     │                  │
+QA                  API                                 DB (trigger + RPC backstop)
+ │  POST /bugs { module_id, run_step_id, summary, ... }      │
+ │ ────────────────────────────────────────────────────────►│  provenance derived server-side
+ │                                                          │  from run_step_id; module ∈ project
+ │                                                          │  re-validated (45300)
+ │  ← 200 { bug_id, status: open }                          │
+ │  POST /bugs/{id}/assign { user_id }                      │
+ │ ────────────────────────────────────────────────────────►│  assignee must be member (45312)
+ │                                                          │  viewer cannot be assigned (45313)
+ │  POST /bugs/{id}/status { status }                       │
+ │ ────────────────────────────────────────────────────────►│  forward-only adjacency:
+ │                                                          │  open→in_progress→resolved→closed
+ │                                                          │  (45310 skip, 45311 backward)
+ │  GET /projects/{id}/bugs  ·  GET /projects/{id}/bugs/heatmap
+ │  GET /workspaces/{id}/open-bugs                          │
 ```
 
-**Endpoints involved**:
-- Supabase PostgREST: `GET /rest/v1/tests`, `POST /rest/v1/runs`, `PATCH /rest/v1/run_steps`, `POST /rest/v1/bugs`
+**Endpoints**: `POST /api/v1/bugs`, `GET /api/v1/workspaces/{id}/open-bugs`, `POST /api/v1/bugs/{id}/assign`, `POST /api/v1/bugs/{id}/status`, `GET /api/v1/projects/{id}/bugs`, `GET /api/v1/projects/{id}/bugs/heatmap`.
 
-**Entities touched**: `tests`, `runs`, `run_atcs`, `run_steps`, `bugs`
+**Entities touched**: `bugs`, `run_steps`, `modules`, `workspace_members`.
 
-**Feature IDs**: Feature-map pending.
+**Feature IDs**: FEAT-BUG-001..005.
 
 **Numbered narrative**:
-1. QA opens a test page — UI fetches test with expanded ATCs via PostgREST
-2. QA clicks "Start run" → POST creates `runs` row with status `running`, creates child `run_atcs` in `pending`
-3. QA marks each step pass/fail → PATCH updates `run_steps`, DB trigger recomputes parent `run_atcs.status` via `CASE WHEN` aggregation
-4. When a step fails → QA can file a bug via POST to `bugs` table, linked to `run_id` + `atc_id` + `module_id`
-5. Run completes → status transitions to `passed` (all pass) or `failed` (any fail)
+1. Bug provenance (module + ATC + run) is derived server-side from `run_step_id` — a bug cannot be filed against an unrelated module (re-validation 45300).
+2. Lifecycle is **forward-only**, enforced twice: DB trigger (`bunkai_bugs_check_consistency`) + RPC; SQLSTATEs 45310/45311 reject skips/backwards.
+3. Assignee eligibility is checked (workspace member, not viewer) — 45312/45313.
+4. Heatmap aggregates by module — feeds defect trends without needing Jira.
 
-**What breaks if the API hangs here**: Lost step results if PATCH fails mid-run. Bug without run context if POST fails after step result.
+**What breaks if the API hangs here**: trigger/RPC double layer disagreeing on a transition; assignment to a viewer silently accepted; heatmap totals diverging from `bugs` rows.
 
 ---
 
-### Journey 5: Cross-workspace isolation
+### Journey 5: Coverage, traceability & recovery metrics
 
-**Business purpose**: Verify that workspace B users cannot see, modify, or delete data belonging to workspace A — the core tenancy guarantee.
+**Business purpose**: Leadership and QA need trustworthy numbers: what % of acceptance criteria is covered, the full US→AC→ATC→Test→Run chain, and defect recovery cadence.
 
-**API boundary**: Every PostgREST query goes through RLS policies that check `bunkai_is_workspace_member(ws_id)` and role-based helpers. PATs are scoped to workspace. Session cookies resolve to `auth.uid()` which RLS uses to check `workspace_members`.
+```
+Consumer             API                                      DB (report RPCs)
+ │  GET /projects/{id}/coverage                                 │
+ │ ───────────────────────────────────────────────────────────►│  sum(ac_bound)/sum(ac_total)
+ │  ← 200 { per-module + project totals }  (NOT mean of %)     │
+ │  GET /workspaces/{id}/coverage                               │
+ │ ───────────────────────────────────────────────────────────►│  workspace-wide roll-up
+ │  ← 200 { workspace totals }        (same sum/sum rule)      │
+ │  GET /projects/{id}/traceability                             │
+ │ ───────────────────────────────────────────────────────────►│  full US↔AC↔ATC↔Test↔Run chain
+ │  ← 200 { export-ready chain }   (BK-50)                     │
+ │  GET /projects/{id}/metrics/recovery-cycles                  │
+ │ ───────────────────────────────────────────────────────────►│  bug open→resolved cadence
+ │  ← 200 { recovery cycles }                                  │
+ │  GET /atcs/{id}/usage · POST /atcs/{id}/duplicate            │
+ │  GET /atcs/search (tsvector)                                 │
+```
 
-**Endpoints involved**: All `/rest/v1/*` PostgREST endpoints (enforced by RLS, not by application middleware)
+**Endpoints**: `GET /api/v1/projects/{id}/coverage`, `GET /api/v1/workspaces/{id}/coverage`, `GET /api/v1/projects/{id}/traceability`, `GET /api/v1/projects/{id}/metrics/recovery-cycles`, `GET /api/v1/atcs/{id}/usage`, `POST /api/v1/atcs/{id}/duplicate`, `GET /api/v1/atcs/search`, `GET /api/v1/atcs`, `GET/PATCH/DELETE /api/v1/atcs/{id}`.
 
-**Entities touched**: All tables with `workspace_id` FK — `projects`, `modules`, `user_stories`, `atcs`, `tests`, `runs`, `bugs`
+**Entities touched**: `acceptance_criteria`, `atcs`, `atc_acceptance_criteria`, `test_steps`, `runs`, `bugs`.
 
-**Feature IDs**: Feature-map pending.
+**Feature IDs**: FEAT-COV-001..004, FEAT-ATC-001..007, FEAT-API-004.
 
-**Cross-workspace test pattern**:
-1. Create entity in Workspace A
-2. As Workspace B member → LIST entities → expect 0 results
-3. As Workspace B member → READ entity by ID → expect 403 or 404
-4. As Workspace B member → DELETE entity → expect 403
+**Numbered narrative**:
+1. **Coverage invariant (QA-critical)**: roll-ups are `sum(ac_bound)/sum(ac_total)`, never a mean of percentages — Home page and API share `lib/home/coverage.ts` (incl. workspace scope), so both must return identical numbers.
+2. Traceability export (BK-50) materializes the full bidirectional chain — regression of links (orphan ACs, broken ATC↔AC joins) shows up here first.
+3. Recovery-cycle metric derives from bug timestamps (open → resolved) — depends on upstream bug lifecycle correctness.
+
+**What breaks if the API hangs here**: Home/API coverage divergence (sum/sum vs mean bug), stale traceability after ATC repoint, recovery metrics feeding minutes off a wrong bug state.
+
+---
+
+### Journey 6: Async Jira import
+
+**Business purpose**: A workspace migrates stories/tests from Jira Cloud into Bunkai without blocking the UI — one active import per project, polled to completion.
+
+```
+Client              API                         Worker (Vercel after())
+ │  POST /imports { jira_project_key, ... }          │
+ │ ────────────────────────────────────────────────► │  202 accepted immediately
+ │  ← 202 { import_id }                              │  (409 if another import is
+ │                                                   │   still active for the project)
+ │                                                   │  after() → lib/jira/import-runner
+ │  GET /imports/{id}  ◄─── polling ────────────────►│  writes progress/result rows
+ │  ← 200 { status: running | done | failed, ... }   │
+ │            (200-empty/wrong-state semantics, not 404-style surprises)
+```
+
+**Endpoints**: `POST /api/v1/imports`, `GET /api/v1/imports/{id}`.
+
+**Entities touched**: `import_jobs` (0019/0020), Jira Cloud REST (outbound, one-way).
+
+**Feature IDs**: FEAT-IMPORT-001..002.
+
+**Numbered narrative**:
+1. One active import per project (DB constraint) → 409 on concurrent attempt.
+2. Worker executes in the request's `after()` — UI is never blocked; client polls `GET /imports/{id}`.
+3. Failure modes live in worker timing: crash mid-import leaves `running`; poll must surface terminal states honestly.
+
+**What breaks if the API hangs here**: worker crash → stuck `running` forever; replaying the same project import corrupting stories (dedup proof needed).
+
+---
+
+### Journey 7: Day-2 attention surfaces (activity + notifications)
+
+**Business purpose**: Teams see what changed (activity stream) and get notified of events they can actually see (RLS-aware notifications).
+
+```
+User            API                                          DB
+ │  GET /activity?limit=&cursor= (workspace context)             │
+ │ ────────────────────────────────────────────────────────────►│  activity_log (RLS-filtered)
+ │  ← 200 { items, next_cursor? }  (empty items = valid 200)    │
+ │  GET /workspaces/{id}/notifications                          │
+ │ ────────────────────────────────────────────────────────────►│  unread_count + rows
+ │  POST /workspaces/{id}/notifications/read-all                │
+ │  POST /notifications/{id}/read                               │
+ │  GET/PUT /notification-preferences                           │
+ │  GET /workspaces/{id}/recent-projects · open-bugs · active-runs (Home widgets)
+```
+
+**Endpoints**: `GET /api/v1/activity`, `GET /api/v1/workspaces/{id}/notifications`, `POST /api/v1/workspaces/{id}/notifications/read-all`, `POST /api/v1/notifications/{id}/read`, `GET/PUT /api/v1/notification-preferences`, `GET /api/v1/workspaces/{id}/recent-projects`, `GET /api/v1/workspaces/{id}/open-bugs`, `GET /api/v1/workspaces/{id}/active-runs`.
+
+**Entities touched**: `activity_log`, `notifications`, `notification_preferences`.
+
+**Feature IDs**: FEAT-ACT-001, FEAT-NOTIF-001..004, FEAT-WS-006.
+
+**Numbered narrative**:
+1. Activity cursor pagination: `workspace_id` required for Bearer callers (422 otherwise); **empty items = 200, never 404**; RLS collapses rows the caller cannot see (no leak).
+2. Notifications respect entity visibility — `entity_available` computed per row; a member is never notified about entities they cannot see; abort reason is redacted from the feed on run abort (0067).
+3. Preferences (PUT) control which event categories land in the inbox.
+
+**What breaks if the API hangs here**: cursor loops or duplicates on paginated activity; notifications leaking entity context across workspace boundaries; read-all stamping races.
 
 ---
 
@@ -377,80 +355,55 @@ User enters email → POST /api/v1/auth/magic-link
 ### Layered diagram
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│  CLIENT LAYER                                                     │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
-│  │ Browser  │  │  CLI     │  │  CI/CD   │  │  AI Agent        │  │
-│  │ (React)  │  │  (curl)  │  │ (GitHub) │  │  (MCP Client)    │  │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └───────┬──────────┘  │
-│       │             │             │                 │              │
-│  ┌────▼─────────────▼─────────────▼─────────────────▼──────────┐  │
-│  │  EDGE / GATEWAY                                              │  │
-│  │  ┌────────────────────────────────────────────────────────┐  │  │
-│  │  │  Vercel Edge Network (CDN + middleware.ts)             │  │  │
-│  │  │  - Auth redirects (session check)                     │  │  │
-│  │  │  - Static asset serving                               │  │  │
-│  │  └────────────────────────────────────────────────────────┘  │  │
-│  └──────────────────────────────────────────────────────────────┘  │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │  API / ROUTE HANDLER LAYER (Next.js 15 App Router)          │  │
-│  │                                                              │  │
-│  │  ┌────────────────────────┐  ┌────────────────────────────┐  │  │
-│  │  │  Versioned REST API    │  │  Server Actions            │  │  │
-│  │  │  (/api/v1/*)           │  │  (saveAtcAction, etc.)     │  │  │
-│  │  │                        │  │                            │  │  │
-│  │  │  - withApiHandler()    │  │  - Direct RPC calls        │  │  │
-│  │  │  - bearer middleware   │  │  - revalidatePath()        │  │  │
-│  │  │  - idempotency (skel)  │  │  - Session-only (no PAT)   │  │  │
-│  │  │  - request ID + log    │  │                            │  │  │
-│  │  └───────────┬────────────┘  └───────────┬────────────────┘  │  │
-│  │              │                            │                    │  │
-│  │  ┌───────────▼────────────────────────────▼────────────────┐  │  │
-│  │  │  Supabase PostgREST (auto-generated REST)               │  │  │
-│  │  │  - Read queries for UI (modules, stories, ATCs, etc.)  │  │  │
-│  │  │  - CRUD on runs, steps, bugs                            │  │  │
-│  │  │  - RLS policies on EVERY row                            │  │  │
-│  │  └─────────────────────────────────────────────────────────┘  │  │
-│  └──────────────────────────────────────────────────────────────┘  │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │  PERSISTENCE LAYER (Supabase — managed Postgres 16)         │  │
-│  │                                                              │  │
-│  │  ┌─────────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐  │  │
-│  │  │  PostgreSQL │  │  GoTrue  │  │  Storage │  │  Realtime │  │  │
-│  │  │  (24 tbls)  │  │  Auth    │  │  (future)│  │  (future) │  │  │
-│  │  │             │  │          │  │          │  │           │  │  │
-│  │  │  - RLS      │  │  Magic   │  │          │  │           │  │  │
-│  │  │  - Triggers │  │  link    │  │          │  │           │  │  │
-│  │  │  - Sec def  │  │  OTP     │  │          │  │           │  │  │
-│  │  │    helpers   │  │          │  │          │  │           │  │  │
-│  │  └─────────────┘  └──────────┘  └──────────┘  └───────────┘  │  │
-│  └──────────────────────────────────────────────────────────────┘  │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │  EXTERNAL INTEGRATIONS (planned / configured)                │  │
-│  │  ┌──────────┐  ┌──────────┐                                  │  │
-│  │  │  Resend  │  │  Jira    │                                  │  │
-│  │  │  (email) │  │  (sync)  │                                  │  │
-│  │  └──────────┘  └──────────┘                                  │  │
-│  └──────────────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│  CLIENT LAYER                                                         │
+│   Browser (React) · CLI (curl) · CI/CD · AI Agent (MCP client)       │
+└───────────┬───────────────────────────────┬──────────────────────────┘
+            │ cookie                        │ Bearer bk_pat_...
+┌───────────▼───────────────────────────────▼──────────────────────────┐
+│  EDGE / GATEWAY — Vercel Edge + middleware.ts                        │
+│   public prefixes: /login /auth* /invites /api/v1/auth* /api/v1/health│
+└───────────────────────────┬──────────────────────────────────────────┘
+┌───────────────────────────▼──────────────────────────────────────────┐
+│  ROUTE HANDLER LAYER (Next.js 15 App Router, 64 route files)         │
+│   withApiHandler({ auth, requires }) → Principal (resolveIdentity)   │
+│    ├─ cookie session (supabase-ssr) ──┐  ┌─ bearer.ts (PAT verify)   │
+│    └──────┬────────────────────┬──────┘  └──► mintUserJwt (AS user)  │
+│   Session paths                │           Agent paths               │
+│   (mutations, UI)              ▼                                     │
+│                      unified Principal → handler logic               │
+└───────────────────────────┬──────────────────────────────────────────┘
+┌───────────────────────────▼──────────────────────────────────────────┐
+│  DATA ACCESS LAYER                                                    │
+│   PostgREST (UI reads, RLS) · bunkai_* RPCs (~91, SECURITY DEFINER)  │
+│   assertWorkspaceContext (ADR-0006) · RLS (auth.uid, helpers)        │
+└───────────────────────────┬──────────────────────────────────────────┘
+┌───────────────────────────▼──────────────────────────────────────────┐
+│  PERSISTENCE LAYER — Supabase (Postgres, 31 tables + auth + realtime)│
+│   triggers (status recompute, consistency) · idempotency_keys        │
+│   access_tokens + access_token_secrets (split, least-privilege)      │
+└───────────────────────────┬──────────────────────────────────────────┘
+┌───────────────────────────▼──────────────────────────────────────────┐
+│  EXTERNAL — GoTrue (auth) · Jira Cloud (import, one-way) ·           │
+│  Vercel after() workers · Resend (email, configured)                 │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Component table
 
 | Component | Role | Persistence / Integrations touched | Why it matters for QA |
 |-----------|------|-----------------------------------|-----------------------|
-| `middleware.ts` | Edge auth gate | Supabase SSR `getUser()` | Session expiry redirects users mid-flow |
-| `withApiHandler()` | Request lifecycle | Structured logging, error mapping | Consistent error envelopes — test against `ErrorEnvelope` schema |
-| `bearer.ts` | PAT validation | `access_tokens` table (indexed `token_prefix`) | Token revocation lag is immediate (DB read per request) |
-| Versioned REST (`/api/v1`) | Public API surface | Supabase Auth + DB via RPC | Thin wrapper — most business logic is in RLS, not in handlers |
-| Server Actions | Browser mutations | Supabase RPC (`bunkai_save_atc`) | Not callable from PAT — only session flows. Agentic paths bypass this layer |
-| PostgREST | Auto-generated REST | All 24 tables with RLS | Default data access path for UI — RLS bugs = data leaks |
-| RLS policies | Row-level authorization | All tables via SECURITY DEFINER helpers | **Single most critical component** — a bug here is a data leak |
-| DB triggers | Status recomputation | `run_steps` → `run_atcs` → `runs` | Cascade failures produce inconsistent run states |
-| OpenAPI spec | API documentation | Auto-generated from Zod schemas | Source of truth for contract — spec vs implementation drift |
+| `middleware.ts` | Edge auth gate | Supabase SSR `getUser()`, public-prefix allowlist | Session expiry mid-flow redirects; subtle drift in public prefix list = auth bypass |
+| `withApiHandler()` | Request lifecycle | Structured logging, error mapping, `auth` + `requires` resolution | Consistent error envelopes; a misdecorated route (`auth` missing) = silent privilege hole |
+| `principal.ts` | Unified identity | Session JWT or `mintUserJwt` (PAT → RLS client AS user) | **The dual-path pivot** — cookie vs Bearer must resolve identical rows on every route |
+| `bearer.ts` | PAT validation | `access_tokens` + `access_token_secrets` | Immediate revocation (DB read per request); uniform 401 contract |
+| `workspace-cookie.ts` | Active-workspace context | `bk_active_ws` httpOnly cookie | Membership validated on every write; stale cookie = wrong tenant |
+| Versioned REST (`/api/v1`) | Public API surface | Supabase Auth + RPCs + PostgREST reads | Thin wrapper — role gates in handlers, RLS underneath; 81 handlers to keep in contract tests |
+| `bunkai_*` RPCs (~91) | Mutation/report layer | SECURITY DEFINER functions, SQLSTATEs (45200.., 45300.., 45500..) | RPC + trigger double layers must agree; SQLSTATE mapping to HTTP codes is a contract |
+| PostgREST | Auto-generated REST | All 31 tables with RLS | Default UI read path — RLS bug = data leak |
+| DB triggers | Recomputation + consistency | `run_atcs.status`, `bunkai_bugs_check_consistency`, `activity_log` sink, realtime (0043) | Cascade failures produce inconsistent run/bug states |
+| Vercel `after()` workers | Async work | `import_jobs` (Jira import) | Worker crash leaves `running` forever — poll UX contract |
+| OpenAPI pipeline | API documentation | Zod → `scripts/openapi-gen.ts` → `public/openapi.json` | Spec vs implementation drift — contract tests source of truth |
 
 ---
 
@@ -458,14 +411,15 @@ User enters email → POST /api/v1/auth/magic-link
 
 | Service | Trigger | Direction | Failure mode (user-visible) | Journeys affected |
 |---------|---------|-----------|-----------------------------|-------------------|
-| Supabase GoTrue (Auth) | `POST /api/v1/auth/magic-link` | Outbound sync | 5xx → email not sent, user cannot log in | User onboarding (J1) |
-| Supabase GoTrue (Auth) | `GET /auth/callback` | Inbound | OTP exchange fails → blank page, no session | User onboarding (J1) |
-| Resend (email) | Planned — magic-link delivery via SMTP | Outbound async | N/A — not yet wired in code | N/A |
-| Jira (Atlassian) | Planned — webhook sync | Bidirectional | N/A — not yet wired in code | N/A |
-| Supabase PostgREST | All UI CRUD queries | Auto-generated | 5xx → blank pages, save failures | All journeys |
-| Supabase DB triggers | `run_steps` INSERT/UPDATE | Internal | Non-atomic cascade → stale run status | Agent run (J3), Manual run (J4) |
+| Supabase GoTrue (Auth) | `POST /auth/signup|signin|confirm|resend|magic-link` | Outbound sync | 5xx → email/OTP not delivered, account unusable; rate limits 429 | J1, J2 |
+| Supabase GoTrue (Auth) | OTP verification callback | Inbound | OTP exchange fails → no session, blank page | J1 |
+| Jira Cloud | `POST /imports` → `lib/jira/import-runner` | Outbound (one-way import) | Worker crash → import stuck `running`; partial imports deduped? | J6 |
+| Vercel `after()` | Async import processing | Internal async | Import never completing without a UI error | J6 |
+| Supabase Realtime | Trigger broadcast (0043) | Internal | Stale live views if channel auth misconfigured | J3, J7 |
+| Resend (email) | Notifications/digests (configured; wiring not verified) | Outbound async | Not yet evidenced in staging code paths | J7 (future) |
+| Supabase PostgREST | All UI CRUD reads | Auto-generated | 5xx → blank pages | All |
 
-**Current state**: Zero external third-party SDKs in `package.json`. Supabase is the sole backend dependency — auth, database, and auto-generated REST are all within the Supabase ecosystem. Resend and Jira are configured in `.env.example` but not wired in application code.
+**Current state**: no third-party SDKs beyond Supabase; the only external HTTP integration evidenced in staging code is the **Jira import runner** (one-way). Jira write-back and Resend delivery remain configured-but-unverified.
 
 ---
 
@@ -475,46 +429,35 @@ User enters email → POST /api/v1/auth/magic-link
 
 | Entity | How API exposes it | Data-map anchor |
 |--------|-------------------|-----------------|
-| `workspaces` | PostgREST + RPC `bunkai_bootstrap_workspace()` | `business-data-map.md` §1 #1 |
-| `workspace_members` | PostgREST (RLS-gated) | `business-data-map.md` §1 #2 |
-| `workspace_invites` | Planned PostgREST | `business-data-map.md` §1 #3 |
-| `access_tokens` | `GET/POST /api/v1/tokens`, `DELETE /api/v1/tokens/{id}` | `business-data-map.md` §1 #4 |
-| `projects` | PostgREST | `business-data-map.md` §1 #5 |
-| `modules` | PostgREST | `business-data-map.md` §1 #6 |
-| `environments` | PostgREST | `business-data-map.md` §1 #7 |
-| `integrations` | PostgREST | `business-data-map.md` §1 #8 |
-| `user_stories` | PostgREST | `business-data-map.md` §1 #9 |
-| `acceptance_criteria` | PostgREST | `business-data-map.md` §1 #10 |
-| `atcs` | PostgREST + Server Action `saveAtcAction` → RPC | `business-data-map.md` §1 #11 |
-| `atc_steps` | Embedded in ATC save RPC | `business-data-map.md` §1 #12 |
-| `atc_assertions` | Embedded in ATC save RPC | `business-data-map.md` §1 #13 |
-| `atc_acceptance_criteria` | Embedded in ATC save RPC | `business-data-map.md` §1 #14 |
-| `tests` | PostgREST (planned `/api/v1/tests` endpoint) | `business-data-map.md` §1 #15 |
-| `test_steps` | PostgREST | `business-data-map.md` §1 #16 |
-| `runs` | PostgREST (planned `/api/v1/runs` endpoint) | `business-data-map.md` §1 #17 |
-| `run_atcs` | PostgREST (auto-created by trigger) | `business-data-map.md` §1 #18 |
-| `run_steps` | PostgREST | `business-data-map.md` §1 #19 |
-| `bugs` | PostgREST | `business-data-map.md` §1 #20 |
-| `activity_log` | PostgREST | `business-data-map.md` §1 #21 |
-| `idempotency_keys` | Planned (skeleton middleware exists) | `business-data-map.md` §1 #22 |
-| `feature_flags` | PostgREST | `business-data-map.md` §1 #23 |
-| `imports` | PostgREST | `business-data-map.md` §1 #24 |
+| `workspaces` / `workspace_members` / `workspace_invites` (+ secrets) | Workspace + invites + membership endpoints (J2) | `business-data-map.md` §1 workspace cluster |
+| `access_tokens` / `access_token_secrets` | `/api/v1/tokens` + mint on signin/confirm | `business-data-map.md` §1 auth cluster |
+| `tests` / `test_steps` | `/api/v1/tests*` (incl. reorder, tags with `X-If-Match`) | `business-data-map.md` §1 tests cluster |
+| `project_environments` | `/api/v1/environments*`, `/api/v1/projects/{id}/environments` | `business-data-map.md` §1 environments |
+| `runs` / `run_atcs` / `run_steps` | `/api/v1/runs*` (+ `tests/{id}/runs`) | `business-data-map.md` §1 runs cluster |
+| `bugs` | `/api/v1/bugs*` (+ status, assign, heatmap, open-bugs) | `business-data-map.md` §1 bugs cluster |
+| `atcs` + children | `/api/v1/atcs*` (+ search, usage, duplicate) | `business-data-map.md` §1 atcs cluster |
+| `modules` / `user_stories` / `acceptance_criteria` | `/api/v1/modules*`, `/user-stories*`, `/acceptance-criteria*` + PostgREST | `business-data-map.md` §1 authoring cluster |
+| `milestones` | `/api/v1/milestones*`, `/projects/{id}/milestones` | `business-data-map.md` §1 milestones |
+| `import_jobs` | `/api/v1/imports*` | `business-data-map.md` §1 imports |
+| `activity_log` / `notifications` / `notification_preferences` | `/activity`, `/notifications*`, `/notification-preferences` | `business-data-map.md` §1 collaboration cluster |
 
 ### Feature-map features this API backs
 
-**Feature-map does not exist yet.** No FEAT-IDs to cross-reference. See §Discovery Gaps.
+| Journey | Feature IDs |
+|---------|-------------|
+| Verification-first signup (J1) | FEAT-AUTH-001..007, FEAT-API-006 |
+| Workspace & member onboarding (J2) | FEAT-WS-001..006, FEAT-API-008 |
+| Run execution (J3) | FEAT-RUN-001..006, FEAT-TEST-001..005, FEAT-ENV-001..002, FEAT-API-003 |
+| Bugs + triage (J4) | FEAT-BUG-001..005 |
+| Coverage / traceability (J5) | FEAT-COV-001..004, FEAT-ATC-001..007 |
+| Jira import (J6) | FEAT-IMPORT-001..002 |
+| Activity / notifications (J7) | FEAT-ACT-001, FEAT-NOTIF-001..004, FEAT-WS-006 |
 
 ### OpenAPI spec location
 
-- **Generated spec**: `../upex-bunkai-tms/public/openapi.json` (OpenAPI 3.1, 529 lines)
-- **Served at**: `GET /api/openapi` (force-static, cached 300s)
-- **UI**: `GET /api/docs` — Scalar API reference
-- **Generation pipeline**: Zod schemas → `@asteasolutions/zod-to-openapi` → `scripts/openapi-gen.ts` → `public/openapi.json`
-- **TypeScript types**: `api/schemas/` via `bun run api:sync` (OpenAPI → TypeScript)
-
-### Event / webhook surface
-
-- **No webhooks implemented yet.** The OpenAPI spec lists an empty `webhooks: {}` section. The `integrations` table schema exists but no webhook dispatch code is wired.
+- **Generated spec**: `../upex-bunkai-tms/public/openapi.json` (OpenAPI 3.1) — served at `GET /api/openapi`, UI at `GET /api/docs` (Scalar)
+- **TypeScript types**: `api/schemas/` via `bun run api:sync`
+- **Auth vocabulary**: `lib/api/handler.ts`, `lib/api/principal.ts`, `lib/api/middleware/bearer.ts`
 
 ---
 
@@ -522,12 +465,16 @@ User enters email → POST /api/v1/auth/magic-link
 
 | Gap | Severity | Detail |
 |-----|----------|--------|
-| `business-feature-map.md` missing | MEDIUM | Journey-to-feature cross-references are placeholders. No FEAT-IDs to anchor against. Generate via `/business-feature-map` command. |
-| `/api/v1/runs` endpoints not yet in OpenAPI | HIGH | Agent API Run journey (J3) is traced from planned endpoints — the actual route files do not exist yet. Contract testing cannot begin. |
-| Idempotency middleware is skeleton-only | MEDIUM | `idempotency.ts` validates header format but has no replay store (`idempotency_keys` table is unused). Duplicate POST detection is absent — QA must test with deliberate replays. |
-| Auth code paths for PAT not fully observable | LOW | The `bearer.ts` middleware exists and is importable, but no versioned endpoint currently uses `requireBearerToken()` + `requireScope()`. The middleware is effectively untested in production. |
-| Resend email integration not wired | LOW | `RESEND_API_KEY` is in `.env.example` but no `resend` SDK is in `package.json`. Magic-link delivery relies entirely on Supabase GoTrue's built-in email (no custom SMTP). |
-| Jira sync not implemented | LOW | `integrations` table and `Jira` env vars exist but no sync code. Bug filing is native (Bunkai `bugs` table) with no external push. |
-| RLS policy audit needed | MEDIUM | Authorization relies entirely on RLS policies. If a future endpoint bypasses PostgREST (e.g., adds a new `/api/v1` route with direct DB access), it must re-implement the same checks or risk data leaks. |
-| No rate limiting | LOW | Rate limits are mentioned in OpenAPI (429 for magic-link OTP) but enforced by Supabase, not by the application layer. No application-level rate limiting exists. |
-| Run timeout sweeper not inspectable via API | LOW | The auto-abort mechanism for abandoned runs (every 15 min) is a DB-level cron — no API endpoint exposes its state or allows manual trigger. |
+| Dual-path RLS parity untested | HIGH | Every route resolving cookie vs Bearer to the same rows (`mintUserJwt` + RLS AS user) needs a consent QA suite; PAT impersonation of a session user is the top auth risk. |
+| `workspace:admin` scope accepted-but-rejected | HIGH | ADR-0005: minted PATs may carry `workspace:admin`, but `requires:` rejects it at runtime. Verify the rejection is consistent across all routes and that creating such a PAT doesn't advertise a capability that never works. |
+| Coverage roll-up invariant unverified | HIGH | `sum/sum` (never mean-of-percentages) shared Home/API `lib/home/coverage.ts` — parity test between Home page and both coverage endpoints required (FEAT-COV-001). |
+| OpenAPI spec vs 64 routes drift | MEDIUM | Not every route file may be documented in `public/openapi.json`; contract tests should diff route inventory against the spec (9 of 64+ endpoints verified by grep only). |
+| Abort-reason redaction | MEDIUM | Run abort writes a reason that must be redacted from activity feed (0067). Untested cross-surface consistency (run detail vs feed). |
+| Idempotency window semantics | MEDIUM | HTTP key vs 24h `start_token` interplay on `POST /runs`: hard-replay detection is functional now — test key reuse across/concurrent calls, and expiry at the 24h boundary. |
+| Magic-link legacy coexistence | MEDIUM | `POST /auth/magic-link` coexists with verification-first confirm; canonical path unknown. Both must be tested, and the 409-no-echo invariant verified on both. |
+| Jira import resilience | MEDIUM | No retry/backoff evidence in `import-runner`; crash leaves `running` forever; concurrent-import 409 is the only guard. Worker-failure simulation needed. |
+| Notifications cross-workspace leak | MEDIUM | `entity_available` per-row RLS: verify a member never receives notifications for entities outside their workspaces, and read-all races. |
+| Rate limiting | LOW | No application-layer rate limiting; 429s come from Supabase only. |
+| Run timeout sweeper | LOW | Auto-abort of abandoned runs (15-min cron) is DB-level; no API endpoint exposes its state — QA must test via DB, not API. |
+
+---
