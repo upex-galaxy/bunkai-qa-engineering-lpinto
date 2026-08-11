@@ -99,25 +99,25 @@ The 2026-06-16 verdict was "No" due to non-existent dependencies (BK-45 chain, B
 
 #### Scenario 1.1: Should filter chain rows by single verdict value when a result toggle is pressed (Type: Positive, Priority: High)
 
-- **Given**: a user story with chain rows having mixed outcomes (pass, fail, blocked, skipped, running)
-- **When**: the Senior QA Engineer presses the "Fail" result toggle (`data-result="fail"`, `aria-pressed="true"`)
-- **Then**: only chain rows with `data-status="fail"` are visible (`data-hidden="false"`); all other rows are hidden (`data-hidden="true"`)
-- **Then**: the AC card remains visible if it has at least one visible row; hidden if zero visible rows
-- **Then**: a per-AC note shows "n of m shown ·" in the AC header (`span.fnote`)
-- **Then**: the active-filter summary shows `Active filters: Result: fail` chip
+- Given a user story with chain rows having mixed outcomes (pass, fail, blocked, skipped, running)
+- When the Senior QA Engineer presses the "Fail" result toggle (`data-result="fail"`, `aria-pressed="true"`)
+- Then only chain rows with `data-status="fail"` are visible (`data-hidden="false"`); all other rows are hidden (`data-hidden="true"`)
+- And the AC card remains visible if it has at least one visible row; hidden if zero visible rows
+- And a per-AC note shows "n of m shown ·" in the AC header (`span.fnote`)
+- And the active-filter summary shows `Active filters: Result: fail` chip
 
 #### Scenario 1.2: Should filter chain rows by multiple verdict values when multiple toggles are pressed (Type: Positive, Priority: High)
 
-- **Given**: chain rows with outcomes pass, fail, blocked, skipped
-- **When**: the Senior QA Engineer presses "Fail" AND "Blocked" toggles (both `aria-pressed="true"`)
-- **Then**: only rows with `data-status="fail"` OR `data-status="blocked"` are visible
-- **Then**: active-filter summary shows `Result: fail, blocked`
+- Given chain rows with outcomes pass, fail, blocked, skipped
+- When the Senior QA Engineer presses "Fail" AND "Blocked" toggles (both `aria-pressed="true"`)
+- Then only rows with `data-status="fail"` OR `data-status="blocked"` are visible
+- And active-filter summary shows `Result: fail, blocked`
 
 #### Scenario 1.3: Should support all six verdict values per D27 mandate (Type: Positive, Priority: High)
 
-- **Given**: the result filter bar
-- **When**: inspecting the available toggle buttons
-- **Then**: six toggles exist: Pass, Fail, Blocked, Skipped, Aborted, Running — per D27 the real filter must be six-wide even though the mockup CSS only defines five variants (omits `aborted`)
+- Given the result filter bar
+- When inspecting the available toggle buttons
+- Then six toggles exist: Pass, Fail, Blocked, Skipped, Aborted, Running — per D27 the real filter must be six-wide even though the mockup CSS only defines five variants (omits `aborted`)
 
 **NEEDS PO/DEV CONFIRMATION** — verify the real BK-45 chain endpoint exposes all six outcome values; the mockup demo data only shows five.
 
@@ -125,73 +125,70 @@ The 2026-06-16 verdict was "No" due to non-existent dependencies (BK-45 chain, B
 
 #### Scenario 2.1: Should filter chain rows by exact module value when a module is selected (Type: Positive, Priority: High)
 
-- **Given**: chain rows with modules MOD-001, MOD-002, MOD-008
-- **When**: the Senior QA Engineer selects `MOD-001` from the module dropdown (`#f-module`)
-- **Then**: only rows with `data-module="MOD-001"` are visible
-- **Then**: the active-filter summary shows `Module: MOD-001`
+- Given chain rows with modules MOD-001, MOD-002, MOD-008
+- When the Senior QA Engineer selects `MOD-001` from the module dropdown (`#f-module`)
+- Then only rows with `data-module="MOD-001"` are visible
+- And the active-filter summary shows `Module: MOD-001`
 
 #### Scenario 2.2: Should filter chain rows by inclusive date range on latest-run date (Type: Positive, Priority: High)
 
-- **Given**: chain rows with `data-date` values spanning multiple dates (e.g. "2026-07-18", "2026-07-21", "2026-07-24", "2026-07-28")
-- **When**: the Senior QA Engineer enters From `2026-07-20` and To `2026-07-25`
-- **Then**: only rows with `data-date` between "2026-07-20" and "2026-07-25" inclusive are visible (rows with date "2026-07-21" and "2026-07-24" visible; "2026-07-18" and "2026-07-28" hidden)
-- **Then**: rows with empty `data-date` are excluded when date filter is active
+- Given chain rows with `data-date` values spanning multiple dates (e.g. "2026-07-18", "2026-07-21", "2026-07-24", "2026-07-28")
+- When the Senior QA Engineer enters From `2026-07-20` and To `2026-07-25`
+- Then only rows with `data-date` between "2026-07-20" and "2026-07-25" inclusive are visible (rows with date "2026-07-21" and "2026-07-24" visible; "2026-07-18" and "2026-07-28" hidden)
+- And rows with empty `data-date` are excluded when date filter is active
 
 #### Scenario 2.3: Should apply AND logic across result + module + date filters (Type: Positive, Priority: High)
 
-- **Given**: chain rows with mixed modules, outcomes, and dates
-- **When**: the Senior QA Engineer selects module `MOD-001`, presses "Fail" toggle, and enters a date range
-- **Then**: only rows matching ALL THREE criteria are visible (AND, not OR)
-- **Then**: the active-filter summary shows all three chips: `Result: fail`, `Module: MOD-001`, `From <date>`, `To <date>`
+- Given chain rows with mixed modules, outcomes, and dates
+- When the Senior QA Engineer selects module `MOD-001`, presses "Fail" toggle, and enters a date range
+- Then only rows matching ALL THREE criteria are visible (AND, not OR)
+- And the active-filter summary shows all three chips: `Result: fail`, `Module: MOD-001`, `From <date>`, `To <date>`
 
 #### Scenario 2.4: Should reject inverted date range inline without breaking other filters (Type: Negative, Priority: High)
 
-- **Given**: the date filter inputs
-- **When**: the Senior QA Engineer enters From `2026-07-25` and To `2026-07-20` (inverted)
-- **Then**: the error message "From date is after to date. Date filter ignored until fixed." appears (`#date-error`, `role="alert"`)
-- **Then**: both date inputs get `aria-invalid="true"`
-- **Then**: the date filter is IGNORED (not applied, not auto-swapped) — rows are NOT filtered by date
-- **Then**: other filters (result, module) continue to work unaffected
+- Given the date filter inputs
+- When the Senior QA Engineer enters From `2026-07-25` and To `2026-07-20` (inverted)
+- Then the error message "From date is after to date. Date filter ignored until fixed." appears (`#date-error`, `role="alert"`)
+- And both date inputs get `aria-invalid="true"`
+- And the date filter is IGNORED (not applied, not auto-swapped) — rows are NOT filtered by date
+- And other filters (result, module) continue to work unaffected
 
 #### Scenario 2.5: Should hide AC card only when ALL its rows are filtered out (Type: Positive, Priority: Medium)
 
-- **Given**: AC with 2 rows (one pass, one fail)
-- **When**: the Senior QA Engineer filters by result "fail"
-- **Then**: AC card remains visible with 1 of 2 rows shown
-- **Then**: the per-AC note shows "1 of 2 shown ·"
+- Given AC with 2 rows (one pass, one fail)
+- When the Senior QA Engineer filters by result "fail"
+- Then AC card remains visible with 1 of 2 rows shown
+- And the per-AC note shows "1 of 2 shown ·"
 
 ### AC3 — Zero-match state ("Filters excluded everything")
 
 #### Scenario 3.1: Should show distinct "Filters excluded everything" panel when filters match no rows (Type: Negative, Priority: High)
 
-- **Given**: chain rows exist but a filter combination matches none of them
-- **When**: the Senior QA Engineer applies that filter combination
-- **Then**: the `#filtered-empty` panel appears with:
-  - Title: "Filters excluded everything"
-  - Body: "N chain entries exist for US-XXX, and the active filters match none of them. The data is still there: this is a filter result, not a coverage gap."
-  - Button: "Clear all filters" (`#btn-clear-2`)
-- **Then**: the chain column headers and story head are hidden
-- **Then**: this panel is visually distinct from the zero-coverage banner (`data-tone="gap"`) and the zero-AC empty panel
+- Given chain rows exist but a filter combination matches none of them
+- When the Senior QA Engineer applies that filter combination
+- Then the `#filtered-empty` panel appears with title "Filters excluded everything", body copy, and "Clear all filters" button (`#btn-clear-2`)
+- And the chain column headers and story head are hidden
+- And this panel is visually distinct from the zero-coverage banner (`data-tone="gap"`) and the zero-AC empty panel
 
 ### AC4 — Active-filter summary and Clear-all
 
 #### Scenario 4.1: Should display active-filter chip summary when any filter is applied (Type: Positive, Priority: Medium)
 
-- **Given**: one or more filters active
-- **When**: the Senior QA Engineer looks at the filter bar
-- **Then**: the `#active-summary` bar appears with `Active filters:` text + filter chips
-- **Then**: each active filter shows as a chip: `Result: <vals>`, `Module: <mod>`, `From <date>`, `To <date>`
-- **Then**: the `#row-count` element shows "N of M chain entries shown" via `aria-live="polite"`
+- Given one or more filters active
+- When the Senior QA Engineer looks at the filter bar
+- Then the `#active-summary` bar appears with `Active filters:` text + filter chips
+- And each active filter shows as a chip: `Result: <vals>`, `Module: <mod>`, `From <date>`, `To <date>`
+- And the `#row-count` element shows "N of M chain entries shown" via `aria-live="polite"`
 
 #### Scenario 4.2: Should clear all filters when Clear-all is pressed (Type: Positive, Priority: Medium)
 
-- **Given**: one or more filters active
-- **When**: the Senior QA Engineer presses "Clear all" (`#btn-clear` or `#btn-clear-2`)
-- **Then**: all result toggles reset to `aria-pressed="false"`
-- **Then**: module select resets to "all"
-- **Then**: date inputs clear to empty
-- **Then**: the full unfiltered chain is restored
-- **Then**: the active-filter summary hides
+- Given one or more filters active
+- When the Senior QA Engineer presses "Clear all" (`#btn-clear` or `#btn-clear-2`)
+- Then all result toggles reset to `aria-pressed="false"`
+- And module select resets to "all"
+- And date inputs clear to empty
+- And the full unfiltered chain is restored
+- And the active-filter summary hides
 
 ---
 
