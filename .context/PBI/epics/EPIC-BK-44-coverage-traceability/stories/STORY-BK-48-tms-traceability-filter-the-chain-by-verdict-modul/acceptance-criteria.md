@@ -1,64 +1,216 @@
 # BK-48 — Acceptance Criteria
 
-> Jira field: `customfield_10063` · [View in Jira](https://jira.upexgalaxy.com/browse/BK-48)
+> Jira field: `customfield_10097` · [View in Jira](https://jira.upexgalaxy.com/browse/BK-48)
 
-## Original AC1 — Filter the chain to failures only
+# Acceptance Criteria — BK-48 (Refreshed 2026-08-10, PO Decisions Applied)
 
-### Scenario 1.1: Should show only failed criteria, tests and runs when filtering by result "failed" (Type: Positive, Priority: High)
+## AC1 — Result filter (multi-select toggle buttons, row-level, six-value verdict)
 
-- ***Given***: a user story with a mix of passing and failing runs across its chain (e.g. AC-1 → Test-A → Run "pass"; AC-2 → Test-B → Run "fail")
-- ***When***: the Senior QA Engineer applies the result filter with value `"failed"`
-- ***Then***: the chain shows only AC-2 / Test-B / its failing Run (and any linked defect); AC-1 / Test-A are hidden or excluded from the rendered chain
+### Scenario 1.1: Should filter chain rows by single verdict value when a result toggle is pressed (Type: Positive, Priority: High)
 
-***NEEDS PO/DEV CONFIRMATION*** — whether filtering prunes the tree (hides whole AC/Test branches with no failing descendant) or filters Run rows only while keeping parent rows visible.
+- ***Given***: a user story with chain rows having mixed outcomes (pass, fail, blocked, skipped, running)
+- ***When***: the Senior QA Engineer presses the "Fail" result toggle (`data-result="fail"`, `aria-pressed="true"`)
+- ***Then***: only chain rows with `data-status="fail"` are visible; all other rows are hidden
+- ***Then***: the AC card remains visible if it has at least one visible row; hidden if zero visible rows
+- ***Then***: a per-AC note shows "n of m shown ·" in the AC header
+- ***Then***: the active-filter summary shows "Result: fail" chip
 
-### Scenario 1.2: Should leave passing branches visible when not all of a story's tests failed under the same AC (Type: Edge, Priority: Medium)
+### Scenario 1.2: Should filter chain rows by multiple verdict values when multiple toggles are pressed (Type: Positive, Priority: High)
 
-- ***NEEDS PO/DEV CONFIRMATION***: behavior inferred — confirm before sprint planning
-- ***Given***: AC-1 has Test-A (passed) and Test-B (failed)
-- ***When***: the Senior QA Engineer filters by result "failed"
-- ***Then***: TBD pending Ambiguity #2 resolution — either AC-1 disappears entirely, or AC-1 renders showing only Test-B
+- ***Given***: chain rows with outcomes pass, fail, blocked, skipped
+- ***When***: the Senior QA Engineer presses "Fail" AND "Blocked" toggles (both `aria-pressed="true"`)
+- ***Then***: only rows with `data-status="fail"` OR `data-status="blocked"` are visible
+- ***Then***: active-filter summary shows "Result: fail, blocked"
 
-## Original AC2 — Filter by module and date range
+### Scenario 1.3: Should support all six verdict values per D27 mandate (Type: Positive, Priority: High)
 
-### Scenario 2.1: Should show only evidence for a given module within a given date range (Type: Positive, Priority: High)
+- ***Given***: the result filter bar
+- ***When***: inspecting the available toggle buttons
+- ***Then***: six toggles exist: Pass, Fail, Blocked, Skipped, Aborted, Running
 
-- ***Given***: evidence spanning multiple modules (e.g. `Payments`, `Auth/Login`) and multiple dates (e.g. Run executed_at values across several days)
-- ***When***: the Senior QA Engineer filters by module `"Payments"` and date range `2026-06-01` to `2026-06-15`
-- ***Then***: the chain shows only evidence belonging to the `Payments` module with Run `executed_at` between `2026-06-01T00:00:00` and `2026-06-15T23:59:59` inclusive
+### Scenario 1.4: Should gracefully handle rows with missing or unknown data-status (Type: Boundary, Priority: Medium)
 
-***NEEDS PO/DEV CONFIRMATION*** — whether the module filter is exact-match on the selected module node or tree-scoped to include descendant sub-modules.
+- ***Given***: a chain row where `data-status` is missing or empty
+- ***When***: any result filter is active
+- ***Then***: the row is EXCLUDED from filtered results (not shown as "unknown")
+- ***Then***: the row is still visible when NO result filter is active (full chain view)
+- ***Then***: no console error is thrown
 
-### Scenario 2.2: Should apply module and date filters as AND logic, not OR (Type: Positive, Priority: Medium)
+### Scenario 1.5: Should support keyboard navigation in result toggles (Type: Positive, Priority: High)
 
-- ***NEEDS PO/DEV CONFIRMATION***: behavior inferred — confirm before sprint planning
-- ***Given***: evidence exists for module `Payments` outside the date range, AND evidence exists for module `Auth` inside the date range
-- ***When***: the Senior QA Engineer filters by module `Payments` AND date range covering only the `Auth` evidence's dates
-- ***Then***: zero results are returned (neither the out-of-range `Payments` evidence nor the wrong-module `Auth` evidence qualifies) — confirms AND, not OR, combination semantics
+- ***Given***: the result filter bar with 6 toggles
+- ***When***: the Senior QA Engineer presses Tab to enter the filter bar, then Space/Enter to toggle each button
+- ***Then***: each toggle receives focus visibly (focus-visible), Space/Enter toggles aria-pressed, Escape exits the group
 
-## Original AC3 — Filter with no matches
+## AC2 — Module filter (exact-match select, archived modules excluded) + date range (inclusive, latest-run date)
 
-### Scenario 3.1: Should show an empty result with active filters clearly stated when a filter combination matches no evidence (Type: Negative, Priority: High)
+### Scenario 2.1: Should filter chain rows by exact module value when a module is selected (Type: Positive, Priority: High)
 
-- ***Given***: a filter combination (e.g. module `"NonexistentModule"` and/or a date range with zero evidence) that matches no chain rows
+- ***Given***: chain rows with modules MOD-001, MOD-002, MOD-008
+- ***When***: the Senior QA Engineer selects "MOD-001" from the module dropdown
+- ***Then***: only rows with `data-module="MOD-001"` are visible
+- ***Then***: the active-filter summary shows "Module: MOD-001"
+
+### Scenario 2.2: Should exclude archived modules from the module dropdown (Type: Positive, Priority: High)
+
+- ***Given***: the system has modules MOD-001 (active), MOD-002 (active), MOD-003 (archived)
+- ***When***: the Senior QA Engineer opens the module dropdown
+- ***Then***: only active modules (MOD-001, MOD-002) appear in the dropdown
+- ***Then***: MOD-003 (archived) is NOT listed
+- ***Then***: if ALL evidence belongs to archived modules and no module filter is selected, the full chain is shown (module filter stays at "all")
+
+### Scenario 2.3: Should filter chain rows by inclusive date range on latest-run date (Type: Positive, Priority: High)
+
+- ***Given***: chain rows with `data-date` values spanning multiple dates
+- ***When***: the Senior QA Engineer enters From "2026-07-20" and To "2026-07-25"
+- ***Then***: only rows with `data-date` between "2026-07-20" and "2026-07-25" inclusive are visible
+- ***Then***: rows with empty `data-date` are excluded when date filter is active
+
+### Scenario 2.4: Should apply AND logic across result + module + date filters (Type: Positive, Priority: High)
+
+- ***Given***: chain rows with mixed modules, outcomes, and dates
+- ***When***: the Senior QA Engineer selects module "MOD-001", presses "Fail" toggle, and enters a date range
+- ***Then***: only rows matching ALL THREE criteria are visible (AND, not OR)
+
+### Scenario 2.5: Should reject inverted date range inline without breaking other filters (Type: Negative, Priority: High)
+
+- ***Given***: the date filter inputs
+- ***When***: the Senior QA Engineer enters From "2026-07-25" and To "2026-07-20" (inverted)
+- ***Then***: the error message "From date is after to date. Date filter ignored until fixed." appears
+- ***Then***: both date inputs get `aria-invalid="true"`
+- ***Then***: the date filter is IGNORED while invalid; other filters continue to work
+
+### Scenario 2.6: Should hide AC card only when ALL its rows are filtered out (Type: Positive, Priority: Medium)
+
+- ***Given***: AC with 2 rows (one pass, one fail)
+- ***When***: the Senior QA Engineer filters by result "fail"
+- ***Then***: AC card remains visible with 1 of 2 rows shown
+- ***Then***: the per-AC note shows "1 of 2 shown ·"
+
+### Scenario 2.7: Should gracefully handle rows with missing data-module (Type: Boundary, Priority: Medium)
+
+- ***Given***: a chain row where `data-module` is missing or empty
+- ***When***: a module filter is active
+- ***Then***: the row is EXCLUDED from filtered results
+- ***Then***: the row is still visible when NO module filter is active
+
+### Scenario 2.8: Should support keyboard navigation in module dropdown (Type: Positive, Priority: High)
+
+- ***Given***: the module dropdown is focused
+- ***When***: the Senior QA Engineer presses ArrowDown/ArrowUp to navigate options, Enter to select, Escape to close
+- ***Then***: options are navigable, selection commits on Enter, dropdown closes on Escape
+
+### Scenario 2.9: Should support keyboard navigation in date inputs (Type: Positive, Priority: High)
+
+- ***Given***: the From/To date inputs are focused
+- ***When***: the Senior QA Engineer types a date, uses ArrowUp/ArrowDown to increment/decrement, presses Enter
+- ***Then***: input accepts typing, arrows adjust date value, Enter confirms and moves focus
+
+### Scenario 2.10: Should filter to exact single day when From equals To (Type: Positive, Priority: Medium)
+
+- ***Given***: chain rows with dates "2026-07-20", "2026-07-21", "2026-07-22"
+- ***When***: the Senior QA Engineer enters From "2026-07-21" and To "2026-07-21"
+- ***Then***: only rows with data-date="2026-07-21" are visible
+
+### Scenario 2.11: Should rely on browser native validation for manual date input (Type: Negative, Priority: Low)
+
+- ***Given***: the date input (type="date")
+- ***When***: the Senior QA Engineer manually types "2026-13-45" (invalid month/day)
+- ***Then***: browser shows native validation UI, form does not submit invalid value, filter ignores invalid input
+
+## AC3 — Zero-match state ("Filters excluded everything")
+
+### Scenario 3.1: Should show distinct "Filters excluded everything" panel when filters match no rows (Type: Negative, Priority: High)
+
+- ***Given***: chain rows exist but a filter combination matches none of them
 - ***When***: the Senior QA Engineer applies that filter combination
-- ***Then***: the view shows an empty result, and the currently active filter values are displayed in a way distinct from BK-45's "no coverage exists at all" empty state
+- ***Then***: the filtered-empty panel appears with:
+- ***Then***: this panel is visually distinct from the zero-coverage banner and the zero-AC empty panel
 
-## New scenarios surfaced from edge-case analysis — NEEDS PO/DEV CONFIRMATION
+## AC4 — Active-filter summary and Clear-all
 
-### Scenario E1: Should reject or auto-correct an inverted date range (from-date after to-date) (Type: Negative, Priority: Medium)
+### Scenario 4.1: Should display active-filter chip summary when any filter is applied (Type: Positive, Priority: Medium)
 
-- ***NEEDS PO/DEV CONFIRMATION***: behavior inferred — confirm before sprint planning
-- ***Given***: the Senior QA Engineer enters a `from` date later than the `to` date
-- ***When***: the filter is applied
-- ***Then***: TBD — either a validation error blocks the apply action, or the values are auto-swapped
+- ***Given***: one or more filters active
+- ***When***: the Senior QA Engineer looks at the filter bar
+- ***Then***: the active-summary bar appears with "Active filters:" text + filter chips
+- ***Then***: each active filter shows as a chip: "Result: vals", "Module: mod", "From date", "To date"
+- ***Then***: the row-count element shows "N of M chain entries shown" via aria-live
 
-### Scenario E2: Should resolve to the empty-result state when filtering by an archived module (Type: Edge, Priority: High)
+### Scenario 4.2: Should clear all filters when Clear-all is pressed (Type: Positive, Priority: Medium)
 
-- ***NEEDS PO/DEV CONFIRMATION***: behavior inferred — confirm before sprint planning
-- ***Given***: a module that has been soft-archived (cascade-archived per existing `bunkai*archive*module_subtree` behavior)
-- ***When***: that module is selected as a filter (if still selectable) or passed via URL param
-- ***Then***: TBD — either excluded from the module picker entirely, or resolves to AC3's empty-result state
+- ***Given***: one or more filters active
+- ***When***: the Senior QA Engineer presses "Clear all"
+- ***Then***: all result toggles reset to `aria-pressed="false"`
+- ***Then***: module select resets to "all"
+- ***Then***: date inputs clear to empty
+- ***Then***: the full unfiltered chain is restored
+- ***Then***: URL query params are cleared (back to clean URL)
+
+### Scenario 4.3: Should return focus to first filter after Clear-all (Type: Positive, Priority: High)
+
+- ***Given***: one or more filters active, Clear-all button focused
+- ***When***: the Senior QA Engineer presses Clear-all
+- ***Then***: all filters reset, focus moves to the first result toggle (or module dropdown if no result toggles)
+
+### Scenario 4.4: Should announce row count changes via aria-live (Type: Positive, Priority: High)
+
+- ***Given***: filters applied, row count shows "5 of 20 chain entries shown"
+- ***When***: the Senior QA Engineer adds/removes a filter
+- ***Then***: the #row-count element updates and announces the new count via aria-live="polite"
+
+## AC5 — Filter-state persistence via URL query params
+
+### Scenario 5.1: Should persist filter state in URL query params when filters are applied (Type: Positive, Priority: Medium)
+
+- ***Given***: the Senior QA Engineer applies filters (result=Fail, module=MOD-001, from=2026-07-20, to=2026-07-25)
+- ***When***: the URL is inspected
+- ***Then***: the URL contains query params: `?result=fail&module=MOD-001&from=2026-07-20&to=2026-07-25`
+- ***Then***: the filter state is fully reproducible from the URL alone
+
+### Scenario 5.2: Should restore filter state from URL query params on page load (Type: Positive, Priority: Medium)
+
+- ***Given***: a URL with filter query params (e.g. shared by a colleague)
+- ***When***: the Senior QA Engineer opens that URL
+- ***Then***: the filters are automatically applied matching the URL params
+- ***Then***: the chain is filtered accordingly
+- ***Then***: the active-filter chips reflect the restored state
+
+### Scenario 5.3: Should handle browser back/forward navigation with filter state (Type: Positive, Priority: Low)
+
+- ***Given***: the Senior QA Engineer applies filters, then navigates away, then presses Back
+- ***When***: the browser returns to the filtered view
+- ***Then***: the filters are restored from the URL history
+- ***Then***: the chain is filtered accordingly
+
+### Scenario 5.4: Should handle invalid or missing URL params gracefully (Type: Negative, Priority: Low)
+
+- ***Given***: a URL with invalid filter params (e.g. `?result=invalid_value`)
+- ***When***: the page loads
+- ***Then***: invalid params are silently ignored (not applied)
+- ***Then***: the chain shows the full unfiltered view
+- ***Then***: no error is shown to the user
+
+### Scenario 5.5: Should support partial URL query params (Type: Positive, Priority: Medium)
+
+- ***Given***: URLs with only one filter type: `?result=fail`, `?module=MOD-001`, `?from=2026-07-20`, `?to=2026-07-25`
+- ***When***: the Senior QA Engineer opens each URL
+- ***Then***: only the specified filter is applied, other filters remain at default (all/empty)
+
+### Scenario 5.6: Should support open-ended date ranges (solo From / solo To) (Type: Positive, Priority: Medium)
+
+- ***Given***: chain rows spanning multiple dates
+- ***When***: the Senior QA Engineer enters only From "2026-07-20" (To empty) OR only To "2026-07-25" (From empty)
+- ***Then***: solo From → rows >= From date visible; solo To → rows <= To date visible
+
+## AC6 — Frontend defensive validation for missing data-date
+
+### Scenario 6.1: Should handle rows with missing data-date gracefully (Type: Boundary, Priority: Medium)
+
+- ***Given***: a chain row where `data-date` is missing or empty
+- ***When***: the date filter is active
+- ***Then***: the row is excluded from filtered results
+- ***Then***: the row is visible when no date filter is active
 
 ---
 _Synced from Jira by sync-jira-issues_

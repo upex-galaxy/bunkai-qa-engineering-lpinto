@@ -3,9 +3,10 @@
 **Jira Key:** [BK-48](https://jira.upexgalaxy.com/browse/BK-48)
 **Epic:** [BK-44](https://jira.upexgalaxy.com/browse/BK-44) (Coverage & Traceability)
 **Type:** Story
-**Status:** Shift-Left QA
+**Status:** Estimation
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 3
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -60,6 +61,59 @@ As a Senior QA Engineer, I want to filter the evidence chain by result, module a
 
 ---
 
+## QA Refinements (Shift-Left Analysis) — Updated 2026-08-10
+
+> ***Supersedes 2026-06-16 analysis.*** All dependencies (BK-45, BK-24, BK-30, BK-31, BK-50) are now SHIPPED.
+
+### Design Contract Status
+
+| # | Ambiguity | Resolution | Source |
+| --- | --- | --- | --- |
+| 1 | Result filter target | RESOLVED: Row `data-status` (latest-run outcome). Six-value set (pass/fail/blocked/skipped/aborted/running). | HTML lines 559-563; D27 |
+| 2 | Tree-pruning vs row-level | RESOLVED: ROW-LEVEL filtering. AC card hidden only when ALL rows filtered out. | HTML lines 939-949 |
+| 3 | Module filter scope | RESOLVED: Exact-match on `data-module`. NOT tree-scoped. | HTML line 926 |
+| 4 | Date range anchor | RESOLVED: Filters `data-date` (latest-run date). INCLUSIVE bounds. | HTML lines 928-933 |
+| 5 | AND vs OR | RESOLVED: AND across result + module + date. | HTML lines 914-936 |
+| 6 | Active filter display | RESOLVED: "Active filters:" + chips + Clear all button + aria-live count. | HTML lines 588-595 |
+| 7 | Empty states | RESOLVED: THREE distinct states (filter-empty / zero-coverage / zero-AC). | HTML lines 805-812 |
+
+### Still Open (0 items — ALL RESOLVED by PO decisions 2026-08-11)
+
+| # | Item | Resolution |
+|---|------|-----------|
+| 1 | Filter-state persistence (URL params vs local) | URL query params (shareability, back button, zero cost) |
+| 2 | Archived-module behavior | Excluded from dropdown (archived = inactive = not shown) |
+| 3 | Shipped-chain alignment | Assume fields exist + frontend defensive validation |
+
+### Coverage Estimate: 26 outlines (updated 2026-08-11)
+
+- Positive: 14 (single/multi verdict, six values, module, archived exclusion, date, AND, URL persist/restore, partial URL, open-ended date, keyboard nav result/module/date, focus mgmt, aria-live)
+- Negative: 4 (inverted date, zero-match, invalid URL params, browser native date validation)
+- Boundary: 3 (date inclusive edges, empty-date exclusion, AC card hide rule)
+- Integration: 1 (real BK-45 data)
+- Accessibility: 4 (keyboard nav result/module/date, focus mgmt, aria-live)
+
+### Critical Questions for PO — ALL RESOLVED (2026-08-11)
+
+1. ***Filter-state persistence*** → **URL query params** — shareability, back button, zero cost.
+2. ***Archived-module behavior*** → **Excluded from dropdown** — archived = inactive = not shown.
+3. ***Shipped-chain alignment*** → **Assume fields exist + defensive frontend** — missing attrs excluded from filtered, shown in full view.
+
+> Full refinement in the ATP DRAFT field and shift-left-refinement.md.
+
+---
+
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
+
+---
+
 ## Traceability
 
 ### Epic (1)
@@ -71,10 +125,10 @@ As a Senior QA Engineer, I want to filter the evidence chain by result, module a
 ## Metadata
 
 - **Created:** 1/6/2026
-- **Updated:** 30/7/2026
+- **Updated:** 11/8/2026
 - **Reporter:** Ely
 - **Assignee:** pinto.lucas.nahuel
-- **Labels:** new-feature, shift-left-2026-06-16, shift-left-reviewed, sprint-planning-estimated
+- **Labels:** +shift-left-2026-08-10, new-feature, shift-left-2026-06-16, shift-left-reviewed, sprint-planning-estimated
 
 ---
 
