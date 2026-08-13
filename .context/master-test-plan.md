@@ -1,30 +1,31 @@
 # Master Test Plan — Bunkai TMS
 
 > What to test in this system, and why.
+> Regenerated: 2026-08-13 (synced to staging branch, tip `5e0134c`)
 
 ---
 
 ## 1. Executive Risk Map
 
-Bunkai enforces structural traceability at the DB level, but the system is in **early stage** — of 24 data-map entities, only `atcs` and `access_tokens` have full CRUD via the versioned API. The rest rely on PostgREST auto-endpoints (read-only or not yet migrated). The deepest risk today is **tenant isolation (RLS)**: a single missing policy on any table leaks data across workspaces with zero UI feedback. Second is **ATC save integrity**: the `bunkai_save_atc` RPC is a single atomic write that bundles header, steps, assertions, and AC bindings — a rollback failure loses the entire ATC. Third is **auth middleware quality**: the bearer middleware exists (`requireBearerToken`) but zero routes call it — effectively dead code.
+Bunkai's API surface has grown to **64 route files / 82 handlers** covering a full test lifecycle: ATC authoring, test chains, run execution, native bug triage, coverage reporting, notifications, and async Jira import. The auth model was rebuilt around a **unified Principal** (ADR-0001) where cookie and bearer callers resolve to identical rows, and **scopes are now enforced** via `requires:`. Verification-first signup (BK-166) means unconfirmed accounts can do nothing.
 
-The planned run execution engine, testing chains, Jira sync, and defect management are **not yet implemented** (see §10 Discovery Gaps). Risk scoring below reflects what's testable today.
+The deepest risk today is **tenant isolation (RLS)** — a single missing policy on any table leaks data across workspaces with zero UI feedback, and the dual-path auth (cookie vs PAT→`mintUserJwt`) must produce identical RLS outcomes on every route. Second is **run execution integrity** — the state machine spans four tables (`runs`, `run_atcs`, `run_steps`, triggers) with cascading recomputation; a trigger failure leaves inconsistent run status. Third is **idempotency correctness** — now functional on runs/tests/atcs/imports, but the 24h `start_token` window vs HTTP key interplay is untested at boundaries.
 
 | Priority | Flow | Why it matters | Depends on / Affects | Testable Today? |
 |----------|------|----------------|----------------------|-----------------|
-| CRITICAL | Tenant isolation — RLS (FEAT-WS-004) | Sole auth mechanism — one missing policy = cross-workspace data leak | All entities gated by workspace_id | ✅ Yes (manual API) |
-| CRITICAL | ATC save integrity (FEAT-ATC-001) | Atomic `bunkai_save_atc` RPC — partial failure loses header/steps/assertions/AC links | ATC authoring, edit propagation | ✅ Yes (API) |
-| CRITICAL | Auth — session middleware (FEAT-AUTH-002) | Edge middleware is the gate — bypass or stale cookie = unauthorized access | All authenticated pages, API routes | ✅ Yes (E2E) |
-| HIGH | PAT auth (FEAT-AUTH-005) | Token hash storage, revoke-then-create race, missing scope enforcement on routes | API endpoints, future agent execution | ✅ Yes (API) |
-| HIGH | ATC anchoring integrity (FEAT-ATC-002) | M:N binding via `atc_acceptance_criteria` — orphaned links, duplicate bindings | ATC ↔ AC traceability | ✅ Yes (API) |
-| HIGH | Module tree integrity (FEAT-PROJ-002) | Self-referential FK + materialized path — cycle detection, depth-6 enforcement | Sidebar tree view, navigation | ✅ Yes (API) |
-| HIGH | Bearer middleware — dead code gap | `requireBearerToken()` exists but no route calls it (FEAT-API-006) | All future API routes | ⚠️ No routes wired |
-| MEDIUM | ATC versioning (FEAT-ATC-005) | Version bump on save but no history UI — silent regression detection | Edit propagation audit | ✅ Yes (DB) |
-| MEDIUM | API error envelope consistency (FEAT-API-001) | Bearer middleware returns raw 401, not `ErrorEnvelope` — inconsistent shape | Developer experience | ✅ Yes (API) |
-| MEDIUM | Idempotency (FEAT-API-003) | Skeleton only — header validates, no replay store. Duplicate POSTs not caught | Future run creation (agent) | ⚠️ Not functional |
-| PLANNED | ATC edit propagation | Core trust mechanism — but `tests`/`test_steps` not yet migrated | Planned Phase 2 | ❌ Not testable |
-| PLANNED | Run execution state machine | Inconsistent run/step statuses produce unreliable reports | Planned Phase 2 | ❌ Not testable |
-| PLANNED | Jira bug sync (async backoff) | Bugs never reach external tracker | Planned Phase 3 | ❌ Not testable |
+| CRITICAL | Tenant isolation — RLS (FEAT-WS-004) | Sole auth mechanism — one missing policy = cross-workspace data leak | All entities gated by workspace_id | ✅ Yes (API) |
+| CRITICAL | Dual-path RLS parity (cookie vs PAT) | `mintUserJwt` + RLS AS user must resolve identical rows to session | Every authenticated route, bearer middleware | ✅ Yes (API) |
+| CRITICAL | Run execution state machine (FEAT-RUN-001..006) | Cascading triggers recompute run_atcs/run_steps status; trigger failure = inconsistent state | Tests, coverage, activity, notifications | ✅ Yes (API) |
+| CRITICAL | Verification-first signup (FEAT-AUTH-006) | Unconfirmed accounts cannot do anything; OTP flow must be airtight | Auth, workspace bootstrap, all downstream | ✅ Yes (API) |
+| HIGH | Bug triage lifecycle (FEAT-BUG-001..005) | Forward-only adjacency enforced by DB trigger + RPC double layer; disagreement = silent corruption | Activity, notifications, heatmap | ✅ Yes (API) |
+| HIGH | Scope enforcement via `requires:` (FEAT-API-006) | PAT holders must be rejected on insufficient scope; cookie callers hold all caps | All versioned API endpoints | ✅ Yes (API) |
+| HIGH | ATC save + edit propagation (FEAT-ATC-001, FEAT-ATC-005) | Atomic RPC bundles header+steps+assertions+AC bindings; propagation to chained tests | Tests, coverage traceability | ✅ Yes (API) |
+| HIGH | Coverage roll-up invariant (FEAT-COV-001) | `sum(ac_bound)/sum(ac_total)` — never mean-of-percentages; Home page and API share code | Home dashboard, project metrics | ✅ Yes (API) |
+| HIGH | Idempotency correctness (FEAT-API-003) | Runs/tests/atcs/imports have replay store; 24h `start_token` window interplay with HTTP key | Run creation, concurrent agents | ✅ Yes (API) |
+| MEDIUM | Async Jira import (FEAT-IMPORT-001..002) | One active per project; worker crash leaves `running` forever | Import lifecycle, story/AC data | ✅ Yes (API) |
+| MEDIUM | Cross-workspace notifications (FEAT-NOTIF-001..004) | `entity_available` per-row RLS; member must never see notifications for hidden entities | Inbox, read-all races | ✅ Yes (API) |
+| MEDIUM | Activity feed integrity (FEAT-ACT-001) | Cursor pagination; `run.aborted.reason` redacted from feed; empty = 200 never 404 | Activity UI, audit trail | ✅ Yes (API) |
+| MEDIUM | Abort-reason redaction (FEAT-RUN-003) | `run.aborted.reason` must be dropped from activity feed (0067) | Activity, notifications | ✅ Yes (API) |
 
 ---
 
@@ -32,116 +33,176 @@ The planned run execution engine, testing chains, Jira sync, and defect manageme
 
 ### CRITICAL: Tenant isolation — RLS (FEAT-WS-004)
 
-**Why it matters.** Bunkai uses Supabase Row-Level Security as its **sole** authorization mechanism. Every entity has a workspace_id FK. A single missing RLS policy on any table — or a SECURITY DEFINER helper regression — exposes all data across workspaces. This is a **silent security failure** — no UI error, no log, no alert. The feature-map confirms RLS policies exist across 9+ tables with zero automated test coverage.
+**Why it matters.** Bunkai uses Supabase Row-Level Security as its **sole** authorization mechanism. Every entity has a `workspace_id` FK (direct or via project). A single missing RLS policy on any table — or a SECURITY DEFINER helper regression — exposes all data across workspaces. This is a **silent security failure** — no UI error, no log, no alert.
 
 **What commonly breaks.** New PostgREST endpoints added without RLS (easy to miss when tables are auto-exposed), SECURITY DEFINER helper functions with infinite recursion or wrong `current_workspace_id()` resolution, bulk PATCH operations that skip policy checks, SELECT with crafted IDs that bypass the workspace filter.
 
 **Dependencies.** All entities, every table with workspace_id FK.
 
 **What an experienced QA would check:**
-- Create entity in workspace A, attempt to READ/LIST/UPDATE/DELETE from workspace B — expect 403 or empty list for EVERY entity type (workspaces, projects, modules, US, AC, ATC, tokens)
+- Create entity in workspace A, attempt to READ/LIST/UPDATE/DELETE from workspace B — expect 403 or empty list for EVERY entity type
 - Attempt to reference workspace A's project ID when creating a resource authenticated as workspace B — expect 403
 - Test PAT tokens: a token issued in workspace A must not list workspace B's resources
 - Verify RLS security definer helpers (`current_workspace_id()`) do not return wrong workspace_id on session switch
 - Test `?include_archived` flag does not bypass RLS
 
-### CRITICAL: ATC save integrity (FEAT-ATC-001)
+### CRITICAL: Dual-path RLS parity (cookie vs PAT)
 
-**Why it matters.** The `bunkai_save_atc` RPC is the single atomic write that persists ATC header + steps + assertions + AC bindings in one server action. If the RPC fails mid-flight — network drop, DB constraint violation, or a version collision — the entire ATC is lost. The feature-map confirms this is the **only** entity with full versioned CRUD, making it the single most value-critical surface in the system.
+**Why it matters.** The unified Principal (ADR-0001) collapses cookie and bearer callers into one identity via `resolveIdentity()`. For bearer callers, `mintUserJwt` creates a per-request JWT and runs the DB client AS the user under normal RLS. If `mintUserJwt` produces a JWT with wrong claims, or the RLS-scoped client doesn't match the session path, every bearer call leaks or over-restricts data.
 
-**What commonly breaks.** Race condition when two editors save the same ATC simultaneously (version bump collision), Monaco editor content not serialized correctly before the server action, AC binding links lost on re-save, markdown/YAML parsing mismatch on round-trip.
+**What commonly breaks.** JWT claims missing `workspace_id`, PAT JWT expiry not matching token expiry, RLS client using service role instead of user-scoped, workspace context not propagated to the DB client.
 
-**Dependencies.** ATC CRUD (FEAT-ATC-001), ATC anchoring (FEAT-ATC-002), Step/assertion parsing (FEAT-ATC-003).
-
-**What an experienced QA would check:**
-- Create ATC with 5 steps, 3 assertions, 2 AC anchors → verify all persisted via GET
-- Edit title, save → verify version bumped
-- Concurrent save from two browser tabs → second save fails gracefully (version conflict)
-- Remove all steps → save → verify empty steps persisted (or rejected)
-- Corrupt YAML in assertions field → verify 422 with clear error
-
-### HIGH: PAT auth — token lifecycle (FEAT-AUTH-005)
-
-**Why it matters.** PATs are the auth mechanism for API consumers and future agent execution. The feature-map reveals a critical finding: the bearer middleware (`requireBearerToken`, `requireScope`) exists but **zero route handlers currently call it** (FEAT-API-006). This means PAT auth is dead code — no route enforces bearer validation. BK-84 and BK-135 proved real regressions on staging.
-
-**What commonly breaks.** Token hash storage leak in logs, revoke-then-create race (old token still valid), `workspace:admin` scope issued to `member` role (BK-135), `revoked_at` or `expires_at` not checked on lookup.
-
-**Dependencies.** `access_tokens` table, bearer middleware, all future API routes.
+**Dependencies.** `principal.ts`, `bearer.ts`, `assertWorkspaceContext` (ADR-0006), every versioned API route.
 
 **What an experienced QA would check:**
-- POST /api/v1/tokens → create PAT, verify `bk_pat_` prefix and SHA-256 hash storage
-- DELETE /api/v1/tokens/{id} → soft-revoke, verify cannot list/use the token after
-- Create PAT with `workspace:member` role → attempt admin operation → expect 403
-- Token format: `bk_pat_<prefix>.<secret>` shown once, never again
-- TTL enforcement: set PAT with 1-day TTL, verify expired after
+- Create entity as cookie session → read same entity as PAT bearer → expect identical result
+- Create PAT scoped to workspace A → call workspace B endpoint → expect 403
+- Verify `assertWorkspaceContext` blocks bearer callers from cross-workspace admin ops
+- Test that cookie callers hold ALL capabilities while PATs hold declared subset
+- Verify `workspace:admin` scope on PAT is rejected at runtime (ADR-0005)
 
-### ⚠️ PLANNED — Run execution engine (FEAT-RUN-001)
+### CRITICAL: Run execution state machine (FEAT-RUN-001..006)
 
-**Not yet testable.** The run execution engine — `runs`, `run_atcs`, `run_steps`, `bugs`, `tests`, `test_steps` tables — does not exist yet. The `run:execute` scope is defined in migration 0008 but no routes, no state machine, no timeout sweeper, no cascading triggers are deployed. This section is placeholder for Phase 2.
+**Why it matters.** The run lifecycle spans `runs`, `run_atcs`, `run_steps` with cascading triggers that recompute status at each grain. A trigger failure leaves `run_atcs.status` stale while `runs.status` advances, producing reports that disagree with execution reality. The `via` parameter (0067) records executor mode (manual/agent/ci) on terminal transitions.
 
-**What an experienced QA would check once available:**
-- Pass all steps → run_atcs.status = pass, runs.status = passed
-- Fail one step → run_atcs.status = fail, runs.status = failed
-- Abort mid-run → remaining steps = skipped
-- Attempt to finish with a pending step → 422
+**What commonly breaks.** Trigger cascade failure on step mark, finish accepting invalid verdicts, abort reason leaking into activity feed, `start_token` 24h window not enforced, concurrent step marks from agent + human.
+
+**Dependencies.** `tests`, `test_steps`, `project_environments`, all run RPCs, activity_log triggers, notification triggers.
+
+**What an experienced QA would check:**
+- Pass all steps → run_atcs.status = passed, runs.status = passed
+- Fail one step → run_atcs.status = failed, runs.status = failed
+- Abort mid-run → remaining steps = skipped, abort reason never in activity feed
+- Finish with a pending step → 422
 - Concurrent step results from agent + human → no inconsistent state
-- Run timeout sweeper abandons stale runs
+- POST /runs with same Idempotency-Key → idempotent replay (200), not duplicate
+- Start run with expired `start_token` (>24h) → new run created
 
-### HIGH: ATC anchoring integrity (FEAT-ATC-002)
+### CRITICAL: Verification-first signup (FEAT-AUTH-006)
 
-**Why it matters.** Every ATC requires at least one AC anchor before it can be saved. The M:N binding via `atc_acceptance_criteria` join table is the structural traceability backbone — if binding is lost on re-save, or duplicate bindings are created, the US → AC → ATC chain is broken. The feature-map flags this as MEDIUM-HIGH risk.
+**Why it matters.** Since BK-166, signup returns **202 `pending_confirmation`** — no session, no PAT. Only email confirmation (OTP 6–8 digits) mints session + PAT atomically. An unconfirmed account can do nothing. The `min(8)` password at signup vs `min(6)` legacy at signin is an asymmetric contract.
 
-**What commonly breaks.** Re-saving an ATC drops existing AC bindings (full-replace semantics), duplicate anchor entries on concurrent saves, anchoring to ACs from a different user story not allowed but not validated, story search not finding existing ACs.
+**What commonly breaks.** Duplicate email leaking account existence (must return 409 without echo), wrong OTP returning distinguishable errors (must be uniform 401), OTP expiry races, resend/confirm asymmetry, rate limiting (429 mapping).
 
-**Dependencies.** `atc_acceptance_criteria` join table, `saveAtcAction` Server Action, `AnchoringPanel` UI.
-
-**What an experienced QA would check:**
-- Create ATC anchored to AC-1, save → verify `atc_acceptance_criteria` has 1 row
-- Edit ATC, add AC-2 anchor, save → verify 2 rows (old binding preserved)
-- Remove AC-1, save → verify 1 row (AC-2 only, AC-1 removed)
-- Attempt to save ATC without any AC anchor → rejected
-- Search for user story in anchoring panel → verify ACs load correctly
-
-### MEDIUM: Module tree integrity (FEAT-PROJ-002)
-
-**Why it matters.** The module tree is self-referential (parent_id on modules) with a max depth of 6 and a materialized path computed via trigger. The sidebar tree view, ATC table module-path column, and all tree navigation depend on it. The feature-map confirms this is stable but has no creation UI — modules are created via PostgREST directly or not at all.
-
-**What commonly breaks.** Cycle detection missing (module A parent of module B, module B parent of module A), depth >6 not rejected, materialized path not updated after parent move, soft-delete cascade not archiving children.
-
-**Dependencies.** `modules` table tree builder, PostgREST endpoints, Sidebar UI component.
+**Dependencies.** Supabase GoTrue, `access_tokens`, `access_token_secrets`, all downstream auth.
 
 **What an experienced QA would check:**
-- Create module depth 1 → 6 → verify tree renders (max depth = 6)
-- Attempt depth 7 → verify rejected
-- Create root module, child, grandchild → verify materialized path ancestry
-- Attempt to set parent_id creating a cycle → verify rejected
-- Soft-delete a parent module → verify children also archived (cascade)
+- Signup → 202 `pending_confirmation` (NO session, NO PAT)
+- Confirm with correct OTP → 200 with session + PAT atomically
+- Confirm with wrong OTP → uniform 401 (no "no such pending signup" vs "wrong code" distinction)
+- Duplicate email → 409 without echoing account existence
+- Resend OTP → new OTP generated, old OTP invalidated
+- Password rules: signup enforces `min(8)`, signin keeps `min(6)` legacy
+
+### HIGH: Bug triage lifecycle (FEAT-BUG-001..005)
+
+**Why it matters.** Bugs are native defect records anchored to module + ATC + run. The lifecycle is **forward-only** (`open → in_progress → resolved → closed`), enforced twice: DB trigger (`bunkai_bugs_check_consistency`) + RPC. Skip or backward transitions are rejected (45310/45311). Assignee eligibility is checked (workspace member, not viewer — 45312/45313).
+
+**What commonly breaks.** Trigger/RPC double layer disagreeing on a transition, assignment to a viewer silently accepted, heatmap totals diverging from `bugs` rows, bug provenance (module + ATC + run) derived incorrectly from `run_step_id`.
+
+**Dependencies.** `run_steps`, `modules`, `workspace_members`, activity_log, notifications.
+
+**What an experienced QA would check:**
+- File bug with `run_step_id` → verify module/ATC/run derived server-side
+- Attempt skip transition (open → resolved) → 45310
+- Attempt backward transition (resolved → in_progress) → 45311
+- Assign to viewer → 45313
+- Assign to non-member → 45312
+- Heatmap totals match `bugs` row count per module
+
+### HIGH: Scope enforcement via `requires:` (FEAT-API-006)
+
+**Why it matters.** PAT holders are gated by scopes fixed at mint: `atc:read`, `atc:write`, `run:execute`, `workspace:admin` (rejected at runtime, ADR-0005). `withApiHandler({ requires: [...] })` enforces scope before handlers run. Cookie callers hold ALL capabilities. A misdecorated route (`requires` missing) = silent privilege hole.
+
+**What commonly breaks.** Route missing `requires:` annotation, scope vocabulary mismatch between mint and enforcement, `workspace:admin` accepted at mint but rejected at runtime without clear error.
+
+**Dependencies.** `withApiHandler`, `requireCapability()`, `bearer.ts`, every decorated route.
+
+**What an experienced QA would check:**
+- PAT with `atc:read` scope → call `atc:write` endpoint → 403
+- PAT with no scopes → call any `requires:` endpoint → 403
+- Cookie session → call any endpoint → succeeds (all capabilities)
+- PAT with `workspace:admin` → rejected at runtime (ADR-0005)
+- Verify every versioned route has correct `requires:` annotation
+
+### HIGH: ATC save + edit propagation (FEAT-ATC-001, FEAT-ATC-005)
+
+**Why it matters.** The `bunkai_create_atc` / `bunkai_update_atc` RPCs are atomic writes that bundle header + steps + assertions + AC bindings. Version bump + full-replace + activity event happen in one transaction. `X-If-Match: <version>` provides optimistic locking (409 on conflict). Edit propagation computes `affected_test_ids` in the same transaction (0035).
+
+**What commonly breaks.** Race condition on concurrent saves (version collision), AC bindings lost on re-save (full-replace semantics), propagation `affected_test_ids` empty when it shouldn't be, steps/assertions parsing mismatch on round-trip.
+
+**Dependencies.** `atc_acceptance_criteria` join table, `test_steps` (propagation targets), activity_log.
+
+**What an experienced QA would check:**
+- Create ATC with 5 steps, 3 assertions, 2 AC anchors → verify all persisted
+- Edit title → verify version bumped
+- Concurrent save from two tabs → second fails with version conflict (409)
+- Edit ATC → verify `affected_test_ids` in activity event matches chained tests
+- Remove all AC anchors → save → verify rejected (orphan ATC)
+
+### HIGH: Coverage roll-up invariant (FEAT-COV-001)
+
+**Why it matters.** Coverage is `sum(ac_bound)/sum(ac_total)` — **never** a mean of per-project percentages. Home page and API route share `lib/home/coverage.ts`, so both must return identical numbers. The workspace roll-up uses the same RPCs as per-project.
+
+**What commonly breaks.** Home page computing mean-of-percentages while API computes sum/sum, workspace roll-up disagreeing with sum of project totals, stale coverage after ATC repoint.
+
+**Dependencies.** `acceptance_criteria`, `atc_acceptance_criteria`, `test_steps`, `runs`, `run_steps`.
+
+**What an experienced QA would check:**
+- `GET /projects/{id}/coverage` matches Home page coverage chip
+- `GET /workspaces/{id}/coverage` = sum of project coverages (not mean of percentages)
+- Edit AC anchoring → coverage recalculates on next read
+- Project with zero ATCs → coverage = 0 (not NaN or error)
+
+### HIGH: Idempotency correctness (FEAT-API-003)
+
+**Why it matters.** Runs, tests, atcs, and imports have functional replay stores. HTTP `Idempotency-Key` header is required on `POST /runs`, `POST /tests`, `POST /atcs`. The 24h `start_token` window on runs provides domain-level idempotency distinct from the HTTP key.
+
+**What commonly breaks.** Same key with different body → should return stored result (not re-execute), key expiry at 24h boundary, concurrent requests with same key (race), replay store not cleaned up.
+
+**Dependencies.** `idempotency_keys` table, all create endpoints.
+
+**What an experienced QA would check:**
+- POST /runs with key → 201; same key → 200 (stored result); same key + different body → 409
+- POST /runs with `start_token` → 201; same token within 24h → idempotent replay; same token after 24h → new run
+- Concurrent POST /runs with same key → exactly one succeeds, others get stored result
+- POST /tests, /atcs, /imports with key → same idempotent behavior
 
 ---
 
 ## 3. State machines that matter
 
-### Workspace invites: pending → accepted / expired / revoked
+### Run status — three grains
 
-**Why transitions matter.** Accepting an expired invite (24h TTL) is a security gap. The feature-map confirms the `workspace_invites` table exists but the invite flow has no UI — the state machine is schema-only.
+**Why transitions matter.** Three distinct run-status enumerations coexist at three different grains (BK-317). Mixing them produces incorrect reports.
 
-**Transitions most likely to be broken.** Expiry not enforced at API level (only DB check constraint), nullable `expires_at` bypasses the guard, revoked invites still actionable.
+| Grain | States | Transitions | Terminal |
+|-------|--------|-------------|----------|
+| Run grain (`runs.status`) | running → passed / failed / aborted | finish (verdict), abort (reason ≤500ch) | passed/failed/aborted |
+| Position grain (`run_atcs.status`) | pending → passed / failed / blocked / skipped | aggregated from child run_steps marks | passed/failed/blocked/skipped |
+| Step grain (`run_steps.status`) | pending → passed / failed / blocked / skipped | single mark per step | passed/failed/blocked/skipped |
 
-**How corruption would be detected (or not).** Only visible if someone checks the invite status before accepting. No UI notification for revoked/expired invites.
+**Invariant:** `aborted` is run-grain ONLY; a step is `skipped`, never `aborted`.
 
-### ATC version: bump on save (no history)
+**Transitions most likely to be broken.** Trigger cascade failure on step mark (position grain doesn't recompute), finish accepting `via` values that break activity feed redaction, abort reason surfacing in activity feed (BK-49).
 
-**Why transitions matter.** The `atcs.version` column increments on every save but there is no history table or rollback. If a corrupt save overwrites a good version, the previous state is unrecoverable.
+### Bug lifecycle — forward-only
 
-**Transitions most likely to be broken.** Concurrent saves causing version collision (lost update), negative version numbers (DB constraint might not prevent), version not incremented on partial edits.
+**Why transitions matter.** `open → in_progress → resolved → closed` is enforced by DB trigger + RPC. Skip or backward = 45310/45311. Assignee eligibility (member role ≥ member) enforced by 45312/45313.
 
-### Planned — Run state machine (not yet implemented)
+**Transitions most likely to be broken.** Direct SQL bypassing the trigger, assignee change without status transition, heatmap computed from stale bug states.
 
-Not yet testable. The runs engine (`running → passed / failed / aborted`) with cascading `run_atcs` and `run_steps` status triggers is planned for Phase 2.
+### Workspace invites — TTL-gated
 
-### Planned — Bug state machine (not yet implemented)
+**Why transitions matter.** `pending → accepted / revoked / expired` with 24h TTL. Expired invite acceptance = security gap. Rotate (+7d) clears prior acceptance.
 
-Not yet testable. The bug lifecycle (`open → in_progress → resolved → closed → open`) is planned with the defect management module.
+**Transitions most likely to be broken.** Expiry not enforced at API level (only DB check), revoked invite still actionable, email mismatch at redemption.
+
+### Import jobs — async lifecycle
+
+**Why transitions matter.** `pending → running → succeeded / failed` with one active per project. Worker crash leaves `running` forever.
+
+**Transitions most likely to be broken.** Worker crash → stuck `running`, concurrent import attempt → 409 (must be serialized), partial import data on failure.
 
 ---
 
@@ -149,20 +210,21 @@ Not yet testable. The bug lifecycle (`open → in_progress → resolved → clos
 
 | Process | What it does | What breaks if it fails | Detection | QA strategy | Status |
 |---------|-------------|------------------------|-----------|-------------|--------|
-| atcs.search_vector refresh | tsvector on INSERT/UPDATE ATC | ATC search returns stale/no results | User says "can't find ATC" | Search after ATC create, verify ranked result | ✅ Active |
-| modules.path update | Materialized path computed on INSERT/UPDATE module | Tree view shows wrong nesting | Silent — tree renders wrong | Create depth-3 tree, verify paths via DB | ✅ Active |
-| Soft-delete cascade | UPDATE children archived_at when parent archived | Orphaned visible data | None — invisible until queried | Archive project, verify children also archived | ✅ Active |
-| Idempotency cleanup cron | DELETE expired keys every hour | Expired keys block legitimate retries (false 200) | None — agent sees 200 | ⚠️ Not migrated yet — no idempotency table | ❌ Planned |
-| Run timeout sweeper | Auto-abort runs with no activity for 15 min | Abandoned runs stay "running" forever | None — only visible in run list | Not testable — runs engine not implemented | ❌ Planned |
-| Jira bug sync retry | Exponential backoff on failed syncs | Bugs never reach external tracker | activity_log shows retry attempts | Not testable — Jira sync not implemented | ❌ Planned |
-| run_atcs.status recomputation | CASE WHEN trigger on run_steps | Run status never updates | No alert, log only | Not testable — runs engine not implemented | ❌ Planned |
-| module_defect_stats MV | Nightly cron to refresh heatmap | Heatmap shows yesterday's data | Manual "last refreshed" | Not testable — heatmap not implemented | ❌ Planned |
+| `run_atcs.status` recomputation | CASE WHEN trigger on run_steps marks | Run position status stale | No alert — reports disagree with execution | Mark step → verify run_atcs.status updates atomically | ✅ Active |
+| `bunkai_bugs_check_consistency` | Table trigger on bugs INSERT/UPDATE | Invalid transitions accepted | SQLSTATE 45310/45311 on violation | Direct SQL attempt invalid transition | ✅ Active |
+| `atc.updated` event + `affected_test_ids` | Inside `bunkai_update_atc` transaction (0035) | Activity log missing propagation | Event payload has empty `affected_test_ids` | Edit ATC chained in 2+ tests, verify event | ✅ Active |
+| `bunkai_notify_bug_event` | Bug assign/status RPCs → notifications rows | Members not notified of bug changes | No notification in inbox | Assign bug → verify notification created | ✅ Active |
+| `bunkai_notify_run_event` | Run finish/abort → notifications rows | Members not notified of run outcomes | No notification in inbox | Finish run → verify notification created | ✅ Active |
+| `activity_log` sink | SECURITY DEFINER RPCs write activity rows | Activity feed empty or stale | Feed shows no recent events | Perform actions → verify activity feed updated | ✅ Active |
+| `atcs.tsv` refresh | tsvector on title/tag change (0004) | ATC search returns stale/no results | User says "can't find ATC" | Search after ATC create/update | ✅ Active |
+| Run realtime replication (0043) | Run row changes → broadcast | Live views stale | Browser shows old run status | Two-session test: start run → verify realtime | ✅ Active |
+| Run timeout/24h `start_token` | RPC level | Abandoned runs abortable window | Runs stuck `running` | Wait >24h → verify new run can be started | ✅ Active |
+| `import_jobs` worker | `after()` on POST /imports | Import stuck `running` forever | Poll shows `running` indefinitely | POST import → poll until succeeded/failed | ✅ Active |
+| Idempotency cleanup | TTL-based cleanup of expired keys | Expired keys block legitimate retries | Agent sees stored result instead of fresh | Wait for key expiry → verify fresh execution | ✅ Active |
 
 ---
 
 ## 5. External integrations — failure points
-
-The feature-map confirms only **Supabase** is actively integrated. All other services (Resend, Jira, Tavily, n8n) have env vars configured but zero application code consuming them. This dramatically reduces the integration testing surface.
 
 ### Supabase (Postgres + Auth + Realtime) — ACTIVE
 
@@ -171,33 +233,29 @@ The feature-map confirms only **Supabase** is actively integrated. All other ser
 | RLS policy gap | Data leak across workspaces | Single missing policy = all data exposed — test every entity with workspace_id |
 | Auth session expiry | User kicked mid-workflow | Session must refresh silently via Supabase's auto-refresh |
 | PostgREST auto-endpoints | Read/write bypasses versioned API | Tables auto-exposed — RLS is the only guard on most entities |
+| GoTrue OTP delivery | Signup/confirm blocked | Rate limits (429), email provider down |
+| Realtime broadcast | Live run views stale | Channel auth misconfigured → no broadcast |
 
-### Jira (import) — Configured only, no code
-
-| Aspect | Impact | Notes |
-|--------|--------|-------|
-| Import credentials missing (BK-142) | Import endpoint exists but may fail | `ATLASSIAN_*` env vars set but Jira sync code not implemented |
-| AC extraction heuristic | Not yet built | Planned Phase 3 |
-
-### OAuth providers (GitHub / Google) — Planned next sprint
+### Jira Cloud — ACTIVE (one-way import)
 
 | Aspect | Impact | Notes |
 |--------|--------|-------|
-| Provider down | Sign-up blocked for that provider | Must fall back gracefully to email/password or show clear error |
-| Popup blocker | OAuth flow never completes | Non-blocking message, alternative sign-up path visible |
+| Worker crash → import stuck `running` | Poll shows `running` forever | No retry/backoff evidence in `import-runner` |
+| Concurrent import 409 | Only guard against duplicate imports | One active per project (DB constraint 0020) |
+| Jira API rate limits | Partial import | Worker pages Jira API — rate limit = incomplete data |
 
-### Resend — Configured only, not wired
+### Resend — CONFIGURED ONLY
 
 | Aspect | Impact | Notes |
 |--------|--------|-------|
-| No SDK in package.json | Magic-link delivery uses Supabase GoTrue default provider | Cannot customize or test transactional email flow — FEAT-INT-002 |
+| No SDK in package.json | Magic-link delivery uses Supabase GoTrue default | Cannot customize or test transactional email flow |
 
 ---
 
 ## 6. Dependency cascade between flows
 
 ```
-Sign-up / Auth
+Sign-up / Auth (verification-first)
     │
     ▼
 Workspace creation ──► Project ──► Module tree
@@ -206,100 +264,104 @@ Workspace creation ──► Project ──► Module tree
     │                           User Story + ACs
     │                                    │
     │                                    ▼
-    │                             ATC creation  ◄── (current system boundary)
+    │                             ATC creation
     │                                    │
     │                       ┌────────────┴────────────┐
     │                       ▼                         ▼
-    │              Planned Phase 2:           Planned Phase 3:
-    │           Test (ATC chain) ──►       Jira bug sync
-    │           Run execution
-    │           Bug filing
-    │           Heatmap
+    │              Test (ATC chain)            Jira import (async)
+    │                       │
+    │                       ▼
+    │              Run execution ──► Bug filing
+    │                       │              │
+    │                       ▼              ▼
+    │              Coverage / Traceability  Activity + Notifications
     │
     ▼
-Reports / dashboard (PostgREST)
+Home dashboard (aggregates all above)
 ```
 
-**Critical chains to verify end-to-end (testable today):**
-- `Sign-up → Workspace → Project → Module → US → AC → ATC` — the setup chain. If it breaks at any link, no ATC can be authored. This is the only complete end-to-end flow available in the current system.
-- `ATC create → Edit → Verify version bump` — the write cycle. A corrupt save loses the entire ATC.
+**Critical chains to verify end-to-end:**
+- `Signup → Workspace → Project → Module → US → AC → ATC → Test → Run → Bug` — the complete lifecycle. If it breaks at any link, the downstream entity cannot be created.
+- `ATC edit → Propagate to Test A and Test B` — edit propagation must update all chained tests atomically.
+- `Run step mark → trigger recomputes run_atcs → finish → activity + notification` — cascade must be atomic.
 - `Workspace A ↔ Workspace B isolation` — RLS is the only auth mechanism on most tables. Test every entity.
-
-**Planned chains (not testable until Phase 2+):**
-- `ATC edit → Propagate to Test A and Test B` — requires `tests` table migration.
-- `Run → Fail step → Bug → Jira sync` — requires runs engine + bugs table + Jira sync code.
 
 ---
 
 ## 7. Edge cases developers commonly forget
 
 ### Concurrency
-- Two users saving the same ATC simultaneously — version collision must produce a clear conflict error, not silent overwrite (FEAT-ATC-005)
-- Two users creating the same project slug in different workspaces — must be allowed (slugs are workspace-scoped)
+- Two users saving the same ATC simultaneously — version collision must produce 409, not silent overwrite
+- Two agents starting runs with the same Idempotency-Key — must be idempotent
 - Revoke PAT while a request is in-flight using that token — must check `revoked_at` on every request
+- Concurrent step marks on the same run — trigger must handle race
 
 ### Data limits
 - Module depth >6 → rejected (FEAT-PROJ-002)
-- Description >50 KB → should be rejected (BK-099 — not yet enforced)
-- Workspace slug 3-40 chars, lowercase/digits/hyphens only (FEAT-WS-001)
-- PAT TTL up to 365 days — verify expiry enforcement (FEAT-AUTH-005)
+- ATC title min length (0058) — verify enforcement
+- ATC tags cap guard (0065) — verify enforcement
+- Abort reason ≤500 chars — verify truncation or rejection
+- Workspace slug 3–40 chars, lowercase/digits/hyphens only (FEAT-WS-001)
+- PAT TTL up to 365 days — verify expiry enforcement
 
 ### Timezone / DST
 - Invite token TTL (24h) crossing DST boundary — must use UTC internally
-- Activity log timestamps — not yet migrated but design must store UTC
+- `start_token` 24h window — must use UTC
+- Activity log timestamps — must store UTC
 
 ### Permission boundaries (FEAT-WS-002)
 - Workspace member cannot delete workspace (owner only)
 - Workspace member cannot invite new members (admin+ only)
 - Viewer role can read but not create/edit/delete anything
 - PAT tokens inherit the role of the issuing user at creation time — role changes after issuance must NOT affect existing tokens (BK-135 regression)
-- Bearer middleware `requireScope()` must reject insufficient-scope tokens
+- Bearer middleware `requires:` must reject insufficient-scope tokens
+- `workspace:admin` scope accepted at mint but rejected at runtime (ADR-0005)
 
 ### Orphaned states
 - Delete a user — what happens to their ATCs? Orphaned ownership.
 - Archive a module — children must also archive (soft-delete cascade confirmed in data-map)
 - Delete a project — all modules, US, AC, ATC under that project cascade?
-- Delete an ATC referenced by nothing — clean delete allowed? (No `tests` table to be referenced by)
+- Delete an ATC referenced by 2+ tests — propagation must handle gracefully
+- Bug with deleted run_step_id — provenance links nullable, but UI must handle
 
 ### ATC save edge cases
 - Empty steps array — should save with zero steps
 - Empty assertions array — should save with zero assertions
 - Same AC anchored twice — should deduplicate or reject
-- ATC title with special characters — must not break the Monaco editor
-- Steps markdown with code blocks — must survive round-trip parse/serialize (FEAT-ATC-003)
+- ATC title with special characters — must not break Monaco editor
+- Steps markdown with code blocks — must survive round-trip parse/serialize
 
 ### Auth edge cases
 - Session cookie expired mid-session — Supabase auto-refresh must work silently
 - PAT with `bk_pat_` prefix but malformed hash — expect 401, not 500
 - Token from another workspace's scope — expect 403 on cross-workspace read
+- Signup with existing email → 409 without echoing account existence
+- Wrong OTP → uniform 401 (no distinguishable error messages)
 
 ---
 
 ## 8. Pre-release checklist (priority-ordered)
 
-### Testable today (system boundary = ATC authoring)
-
+### CRITICAL
 1. Verify RLS on every entity with workspace_id: create in workspace A, read/update/delete from workspace B → 403 or empty result
-2. Run the setup chain: sign-up → workspace → project → module → US → AC → ATC → verify ATC persisted with all anchors
-3. Create ATC with 5 steps, 3 assertions, 2 AC anchors → verify GET returns all data
-4. Edit ATC title → verify version incremented
-5. Concurrent save on same ATC from two tabs → second save fails with version conflict
-6. Create module at depth 7 → rejected; depth 6 → success; verify materialized path
-7. Soft-delete a module (archive) → verify children also archived
-8. Create PAT, list tokens, revoke, verify revoked token not listed
-9. Create PAT with `workspace:member` scope → attempt admin operation → 403 (BK-135 regression)
-10. Create entity in workspace A → verify workspace B cannot access via crafted ID (RLS)
-11. Verify API error envelope consistency: invalid input → 422 with `{ error: { code, message, details } }`
-12. Attempt ATC save without AC anchor → rejected (FEAT-ATC-002)
+2. Verify dual-path RLS parity: create entity as cookie session → read as PAT bearer → identical result
+3. Run the complete lifecycle: signup → confirm → workspace → project → module → US → AC → ATC → test → run → bug
+4. Verify run state machine: pass all → passed; fail one → failed; abort → skipped; finish with pending → 422
+5. Verify verification-first signup: 202 pending_confirmation → confirm OTP → session + PAT atomically
 
-### Planned (not testable until Phase 2+)
+### HIGH
+6. Verify bug triage lifecycle: forward-only transitions (45310/45311), assignee eligibility (45312/45313)
+7. Verify scope enforcement: PAT with `atc:read` → call `atc:write` → 403
+8. Verify ATC save: create with steps+assertions+AC anchors → edit → verify version bump + propagation
+9. Verify coverage invariant: Home page coverage chip = `GET /projects/{id}/coverage` = `GET /workspaces/{id}/coverage`
+10. Verify idempotency: POST /runs with key → 201; same key → 200; same key + different body → 409
 
-13. Edit ATC referenced by 2+ tests — verify all tests reflect the change (requires `tests` table)
-14. Run state machine: pass all → passed; fail one → failed; abort → skipped; finish with pending → 422
-15. POST /runs with idempotency key → 201; same key → 200; same key after >24h → 201
-16. Import 501 Jira issues → 500 created, 501st rejected
-17. File bug from run → verify auto-context + Jira sync attempt
-18. Rate-limit burst: 101 writes/min → 429 on 101st
+### MEDIUM
+11. Verify async import: POST /imports → 202 → poll until succeeded/failed; concurrent → 409
+12. Verify notifications: assign bug → notification created; finish run → notification created
+13. Verify activity feed: cursor pagination, empty = 200 never 404, abort reason redacted
+14. Verify cross-workspace notifications: member never sees notifications for hidden entities
+15. Verify module tree: depth 6 → success; depth 7 → rejected; archive cascade
 
 ---
 
@@ -307,20 +369,26 @@ Reports / dashboard (PostgREST)
 
 - Flow-level diagrams and state-machine transition tables → `.context/business/business-data-map.md`
 - Feature catalog, CRUD matrix, feature flags → `.context/business/business-feature-map.md`
-- API endpoint inventory / contracts → `bun run api:sync` + `/business-api-map`
+- API endpoint inventory / contracts → `business-api-map.md` + `bun run api:sync`
 - Detailed test case definitions and traceability → TMS (see `/test-documentation`)
 - Sprint-level execution order → `.context/reports/SPRINT-{N}-TESTING.md` (see `/sprint-testing`)
-- MVP out-of-scope features → `.context/PRD/executive-summary.md` (mind-map, semantic search, SSO, agentic protocol, self-hosted Docker)
+- MVP out-of-scope features → `.context/PRD/executive-summary.md`
 
 ---
 
 ## 10. Discovery gaps
 
-- **CRUD coverage is critically low** — of 24 data-map entities, only `atcs` and `access_tokens` have full CRUD via the versioned API. Most entities are read-only through PostgREST with no creation/update/deletion UI. The runs engine, tests, bugs, activity_log, imports, and 5+ other tables are not yet migrated. The system is running ahead of its database — testing is constrained to read operations and ATC/token flows.
-- **Bearer middleware is dead code** — `requireBearerToken()` and `requireScope()` exist in `lib/api/middleware/bearer.ts` but no route handler currently calls them. PAT auth cannot be verified end-to-end through the API; only token CRUD endpoints can be tested (creation, listing, revocation). Middleware enforcement is speculative until routes are wired.
-- **No incident data from Jira bug tracker ingested** — 29 bugs from the BK board (BK-51 through BK-182) were not analyzed against this plan. Historical bug patterns could validate or adjust risk scores. Run `jira:sync-issues pull --include-comments` and cross-reference.
-- **OpenAPI spec is incomplete** — only 5 endpoints documented (Health, Auth, Tokens). PostgREST endpoints, Server Actions, and the entire UI data layer are absent from the spec. Contract testing coverage is ~20%.
-- **Idempotency not functional** — header validation only, no replay store. Once write endpoints land in Phase 2, duplicate POSTs will not be caught.
-- **No UI for entity creation** — projects, modules, user stories, and ACs have no creation form. They appear to be created through external imports (Jira) or direct DB inserts. ATCs cannot be created without first having a story + AC to anchor to — this is a bootstrap dependency that must be tested manually.
-- **External integration SLAs not documented** — rate limits and timeouts for Supabase Auth, PostgREST, and OAuth providers are not sourced.
-- **Agent execution protocol** (Karim) assumed POST-based — confirm if WebSocket or SSE channels exist for real-time step reporting when runs engine lands.
+| Gap | Severity | Detail |
+|-----|----------|--------|
+| Dual-path RLS parity untested | HIGH | Every route resolving cookie vs Bearer to the same rows needs a consent QA suite; PAT impersonation is the top auth risk |
+| `workspace:admin` scope accepted-but-rejected | HIGH | ADR-0005: minted PATs may carry `workspace:admin`, but `requires:` rejects it at runtime — verify consistency |
+| Coverage roll-up invariant unverified | HIGH | `sum/sum` shared Home/API — parity test required |
+| OpenAPI spec vs 64 routes drift | MEDIUM | Not every route may be documented in `public/openapi.json` |
+| Abort-reason redaction | MEDIUM | Run abort writes reason that must be redacted from activity feed (0067) — cross-surface consistency untested |
+| Idempotency window semantics | MEDIUM | HTTP key vs 24h `start_token` interplay — boundary testing needed |
+| Jira import resilience | MEDIUM | No retry/backoff evidence; worker crash leaves `running` forever |
+| Notifications cross-workspace leak | MEDIUM | `entity_available` per-row RLS — verify entity visibility respected |
+| Rate limiting | LOW | No application-layer rate limiting; 429s from Supabase only |
+| Run timeout sweeper | LOW | Auto-abort of abandoned runs (15-min cron) — testable via DB, not API |
+| No workspace delete/slug rotation | LOW | Multi-tenant lifecycle incomplete |
+| Resend email wiring | LOW | Configured but not wired — GoTrue handles OTP email |

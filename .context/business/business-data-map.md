@@ -1,6 +1,6 @@
 # Business Data Map — Bunkai (QA Lens)
 
-> Generated: 2026-08-09 (v2 — synced to `upex-bunkai-tms` staging branch, tip `5e0134c`)
+> Generated: 2026-08-09 (v2 — synced to `upex-bunkai-tms` staging branch, tip `5e0134c`; refreshed 2026-08-13)
 > Sources: `../upex-bunkai-tms/supabase/migrations/` (0001–0068), `../upex-bunkai-tms/app/api/v1/`, `../upex-bunkai-tms/lib/`, `../upex-bunkai-tms/.context/business/events.md`
 > Cross-refs: `.context/business/business-feature-map.md`, `.context/business/business-api-map.md`, `.context/business/domain-glossary.md`
 > Delta vs v1 (2026-08-09, main branch): runs/tests/bugs/environments/imports/milestones/notifications/activity/coverage NOW REAL (were "planned"). Schema grew 0012 → 0068 migrations.
@@ -194,7 +194,7 @@ For each entity with `workspace_id` FK (direct or via project):
 | Milestones | 0064 | create/update + events (no status, no delete) |
 | Import jobs REAL | 0019, 0020 | async Jira import + one-active-per-project |
 | Auth verification-first | 0033, 0034, BK-166 | signup 202 pending_confirmation; confirm mints session+PAT; admin scope never global (ADR-0005) |
-| Versioned API expanded | — | 19 → 64 route files; ~81 handlers; idempotency functional; scopes enforced via `requires:` |
+| Versioned API expanded | — | 19 → 64 route files; ~82 handlers; idempotency functional; scopes enforced via `requires:` |
 | Module/US/AC CRUD via API | 0013–0018, 0021–0023 | soft-delete, move, description, ordering, ready-to-test gate, activity events |
 
 ---

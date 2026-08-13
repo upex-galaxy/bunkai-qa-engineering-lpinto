@@ -1,6 +1,6 @@
 # Domain Glossary — Bunkai (QA Lens)
 
-> Generated: 2026-08-09
+> Generated: 2026-08-09 (refreshed 2026-08-13)
 > Mirror of: `../upex-bunkai-tms/.context/business/domain-glossary.md` (canonical, refreshed 2026-08)
 > **Single source of truth for domain terminology.** Any document, Jira issue, UI copy, or commit that uses one of these terms MUST match the definition here. When in doubt, this file wins over memory, intuition, or older docs.
 >

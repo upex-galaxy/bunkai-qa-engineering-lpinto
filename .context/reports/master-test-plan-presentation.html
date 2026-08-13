@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Master Test Plan — Bunkai TMS</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="tpl-testing-safety-alert">
+<div class="deck">
+
+  <!-- 1. PORTADA -->
+  <section class="slide is-active">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag">QA · Plan Maestro</span><span class="ts-page">01 / 14</span></div>
+    <div class="ts-kicker">Bunkai TMS — Agosto 2026</div>
+    <h1 class="ts-h1">Master<br><span class="red">Test Plan</span></h1>
+    <p class="ts-sub">Qué probar en este sistema, y por qué importa.<br>64 rutas · 82 handlers · 35 entidades · 11 procesos automáticos.</p>
+    <div class="ts-alert-box">
+      <h3>El sistema creció 3× desde Junio 2026</h2>
+      <p>De "auth + tenancy skeleton" a un ciclo de vida completo: tests, runs, bugs, cobertura, notificaciones e importación async de Jira.</p>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>BUNKAI · MASTER TEST PLAN · 2026.08</span><span>01 / 14</span></div>
+  </section>
+
+  <!-- 2. MAPA DE RIESGOS -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag">Mapa de Riesgos</span><span class="ts-page">02 / 14</span></div>
+    <div class="ts-kicker">Resumen Ejecutivo</div>
+    <h2 class="ts-h2">Los 4 flujos <span class="red">CRÍTICOS</span></h2>
+    <div class="ts-grid-2">
+      <div class="ts-card" style="border-top:4px solid var(--ts-red)"><div class="lbl">CRÍTICO #1</div><h4>Aislamiento Tenant — RLS</h4><p>Único mecanismo de auth. Una política faltante = fuga de datos entre workspaces sin UI, sin logs.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-red)"><div class="lbl">CRÍTICO #2</div><h4>Paridad Dual-Path RLS</h4><p>Cookie vs PAT → `mintUserJwt` deben resolver filas idénticas. Si falla, cada llamada bearer filtra o expone datos.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-red)"><div class="lbl">CRÍTICO #3</div><h4>Máquina de Estados — Runs</h4><p>4 tablas + triggers en cascada. Un trigger fallido = estado inconsistente en reportes y métricas.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-red)"><div class="lbl">CRÍTICO #4</div><h4>Signup Verificación-Primero</h4><p>BK-166: cuentas sin confirmar no pueden hacer NADA. El flujo OTP debe ser hermético.</p></div>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>riesgos · executive map</span><span>02 / 14</span></div>
+  </section>
+
+  <!-- 3. MAPA DE RIESGOS — HIGH -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag amber">Mapa de Riesgos</span><span class="ts-page">03 / 14</span></div>
+    <div class="ts-kicker">Resumen Ejecutivo</div>
+    <h2 class="ts-h2">Los 5 flujos <span class="ts-highlight-amber">ALTOS</span></h2>
+    <div class="ts-grid-3">
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Ciclo Vida Bugs</h4><p>Solo-adelante enforced por trigger + RPC. Salto = 45310.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Enforcement Scopes</h4><p>`requires:` en every route. Cookie = todas caps. PAT = declaradas.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Save + Propagación ATC</h4><p>RPC atómico: header+steps+assertions+AC. Versión = optimistic lock.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Invariante Cobertura</h4><p>`sum/sum` nunca media-de-porcentajes. Home y API comparten código.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Idempotency</h4><p>Funcional en runs/tests/atcs/imports. Ventana 24h `start_token` vs HTTP key.</p></div>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>riesgos · high priority</span><span>03 / 14</span></div>
+  </section>
+
+  <!-- 4. CRÍTICO #1: RLS -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag">CRÍTICO · RLS</span><span class="ts-page">04 / 14</span></div>
+    <div class="ts-kicker">Aislamiento Tenant</div>
+    <h2 class="ts-h2">Una política faltante = <span class="red">fuga silenciosa</span></h2>
+    <p class="ts-sub">RLS es el ÚNICO mecanismo de autorización. Cada tabla con `workspace_id` FK debe tener políticas correctas.</p>
+    <div class="ts-alert-box">
+      <h3>Qué se rompe comúnmente</h3>
+      <p>• Nuevos endpoints PostgREST sin RLS<br>• SECURITY DEFINER helpers con recursión infinita<br>• Operaciones bulk PATCH que saltan policy checks<br>• SELECT con IDs crafted que evitan workspace filter</p>
+    </div>
+    <div class="ts-checklist">
+      <div class="ts-check ok"><div class="box">✓</div><div class="txt">Crear entidad en Workspace A → leer/actualizar/eliminar desde B → 403 o lista vacía</div></div>
+      <div class="ts-check ok"><div class="box">✓</div><div class="txt">PAT de Workspace A no lista recursos de Workspace B</div></div>
+      <div class="ts-check ok"><div class="box">✓</div><div class="txt">`current_workspace_id()` no retorna workspace_id incorrecto al cambiar de sesión</div></div>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>critical · tenant isolation</span><span>04 / 14</span></div>
+  </section>
+
+  <!-- 5. CRÍTICO #2: DUAL-PATH -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag">CRÍTICO · Dual-Path</span><span class="ts-page">05 / 14</span></div>
+    <div class="ts-kicker">Paridad Cookie vs PAT</div>
+    <h2 class="ts-h2">Dos caminos, <span class="red">una identidad</span></h2>
+    <p class="ts-sub">El Principal unificado (ADR-0001) colapsa cookie y bearer en una identidad. `mintUserJwt` crea un JWT por request y ejecuta el DB client AS el usuario bajo RLS normal.</p>
+    <div class="ts-grid-2">
+      <div class="ts-card" style="border-top:4px solid var(--ts-red)"><div class="lbl">RIESGO</div><h4>Si falla</h4><p>• JWT claims sin `workspace_id`<br>• Expiry del PAT JWT no coincide con token<br>• DB client usa service role en vez de user-scoped<br>• Workspace context no propagado</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-green)"><div class="lbl">VERIFICAR</div><h4>Qué probar</h4><p>• Crear entidad como cookie → leer como PAT → resultado idéntico<br>• PAT workspace A → endpoint workspace B → 403<br>• `assertWorkspaceContext` bloquea cross-workspace admin</p></div>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>critical · dual-path parity</span><span>05 / 14</span></div>
+  </section>
+
+  <!-- 6. CRÍTICO #3: RUNS -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag">CRÍTICO · Runs</span><span class="ts-page">06 / 14</span></div>
+    <div class="ts-kicker">Máquina de Estados — Run Execution</div>
+    <h2 class="ts-h2">Tres granos, <span class="red">un invariante</span></h2>
+    <p class="ts-sub">`aborted` es SOLO run-grain. Un paso es `skipped`, NUNCA `aborted` (BK-317).</p>
+    <div class="ts-grid-3">
+      <div class="ts-card" style="border-top:4px solid var(--ts-red)"><div class="lbl">RUN GRAIN</div><h4>runs.status</h4><p>running → passed / failed / aborted<br><br>Terminal via finish (verdict) o abort (reason ≤500ch)</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">POSITION GRAIN</div><h4>run_atcs.status</h4><p>pending → passed / failed / blocked / skipped<br><br>Recomputado via trigger en cascada desde run_steps</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-green)"><div class="lbl">STEP GRAIN</h4><h4>run_steps.status</h4><p>pending → passed / failed / blocked / skipped<br><br>Single mark por step (`bunkai_mark_run_step`)</p></div>
+    </div>
+    <div class="ts-alert-box amber">
+      <h3>Cascada de triggers</h3>
+      <p>Step mark → trigger recomputa run_atcs → finish/abort → activity + notifications. Un trigger fallido = estado inconsistente en reportes.</p>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>critical · run state machine</span><span>06 / 14</span></div>
+  </section>
+
+  <!-- 7. CRÍTICO #4: SIGNUP -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag">CRÍTICO · Auth</span><span class="ts-page">07 / 14</span></div>
+    <div class="ts-kicker">Signup Verificación-Primero (BK-166)</div>
+    <h2 class="ts-h2">Sin confirmación = <span class="red">sin credenciales</span></h2>
+    <div class="ts-grid-2">
+      <div class="ts-card" style="border-top:4px solid var(--ts-green)"><div class="lbl">FLUJO</div><h4>Qué debe pasar</h4><p>1. Signup → 202 `pending_confirmation` (NO session, NO PAT)<br>2. Email OTP (6–8 dígitos)<br>3. Confirm → 200 con session + PAT atómicamente<br>4. Duplicate email → 409 sin echo de existencia</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-red)"><div class="lbl">EDGE CASES</div><h4>Qué probar</h4><p>• OTP wrong → 401 uniforme (sin distinguir "no existe" de "código mal")<br>• OTP expirado → rechazo correcto<br>• Resend invalida OTP anterior<br>• Password: signup min(8), signin min(6) legacy</p></div>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>critical · verification-first</span><span>07 / 14</span></div>
+  </section>
+
+  <!-- 8. ALTO: BUGS + SCOPES -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag amber">ALTO · Bugs + Scopes</span><span class="ts-page">08 / 14</span></div>
+    <div class="ts-kicker">Ciclo Vida Bugs + Enforcement de Scopes</div>
+    <h2 class="ts-h2">Adelante-solo y <span class="ts-highlight-amber">scopes enforced</span></h2>
+    <div class="ts-grid-2">
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">BUGS</div><h4>Vida — Adelante-Solo</h4><p><b>open → in_progress → resolved → closed</b><br><br>Trigger + RPC double layer. Salto = 45310, retroceso = 45311. Asignee debe ser member ≥ member (45312/45313).</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">SCOPES</div><h4>Enforcement via `requires:`</h4><p><b>atc:read · atc:write · run:execute · workspace:admin</b><br><br>`workspace:admin` aceptado al mint pero rechazado en runtime (ADR-0005). Cookie = todas caps.</p></div>
+    </div>
+    <div class="ts-alert-box">
+      <h3>Double layer debe concordar</h3>
+      <p>Trigger DB y RPC de bugs validan la misma restricción. Si no concuerdan, transiciones inválidas pasan silenciosamente.</p>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>high · bugs + scopes</span><span>08 / 14</span></div>
+  </section>
+
+  <!-- 9. ALTO: ATC + COBERTURA + IDEMPOTENCY -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag amber">ALTO · ATC + Cobertura</span><span class="ts-page">09 / 14</span></div>
+    <div class="ts-kicker">ATC Save, Cobertura, Idempotency</div>
+    <h2 class="ts-h2">Tres pilares <span class="ts-highlight-amber">functionales</span></h2>
+    <div class="ts-grid-3">
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ATC SAVE</div><h4>RPC Atómico</h4><p>Header + steps + assertions + AC bindings en una transacción. `X-If-Match` = optimistic lock (409 on conflict). Propagación a tests encadenados (0035).</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">COBERTURA</div><h4>Invariante sum/sum</h4><p>`sum(ac_bound)/sum(ac_total)` — NUNCA media de porcentajes. Home y API comparten `lib/home/coverage.ts`. Nunca deben discrepar.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">IDEMPOTENCY</div><h4>Replay Store Funcional</h4><p>Runs/tests/atcs/imports. HTTP key + ventaja 24h `start_token` en runs. Misma key + mismo body = stored result.</p></div>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>high · atc + coverage + idempotency</span><span>09 / 14</span></div>
+  </section>
+
+  <!-- 10. SILENT KILLERS -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag amber">Asesinos Silenciosos</span><span class="ts-page">10 / 14</span></div>
+    <div class="ts-kicker">Procesos Automáticos</div>
+    <h2 class="ts-h2">11 procesos que fallan <span class="red">sin feedback</span></h2>
+    <div class="ts-grid-2">
+      <div class="ts-card" style="border-top:4px solid var(--ts-red)"><div class="lbl">CRÍTICO</div><h4>Trigger Cascada Runs</h4><p>Step mark → recomputa run_atcs.status. Si falla, posición stale mientras run avanzado. Sin alerta.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-red)"><div class="lbl">CRÍTICO</div><h4>Bug Consistency Trigger</h4><p>`bunkai_bugs_check_consistency` en INSERT/UPDATE. Si no valida, transiciones inválidas aceptadas.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Propagación ATC</h4><p>`atc.updated` event + `affected_test_ids` en misma transacción. Payload vacío = activity log incompleto.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Notificaciones Bug/Run</h4><p>`bunkai_notify_bug_event` y `bunkai_notify_run_event`. Si falla, miembros no notificados.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Activity Log Sink</h4><p>Escrito SOLO via SECURITY DEFINER RPCs. Si falla, feed de actividad vacío o stale.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-green)"><div class="lbl">MEDIO</div><h4>Import Worker</h4><p>`after()` en POST /imports. Crash = stuck `running` forever. Sin retry/backoff evidente.</p></div>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>silent killers · automated processes</span><span>10 / 14</span></div>
+  </section>
+
+  <!-- 11. INTEGRACIONES EXTERNAS -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag">Integraciones</span><span class="ts-page">11 / 14</span></div>
+    <div class="ts-kicker">Puntos de Fallo Externos</div>
+    <h2 class="ts-h2">Supabase + Jira Cloud</h2>
+    <div class="ts-grid-2">
+      <div class="ts-card" style="border-top:4px solid var(--ts-red)"><div class="lbl">SUPABASE</div><h4>Postgres + Auth + Realtime</h4><p>• <b>RLS gap</b> → fuga entre workspaces<br>• <b>Auth expiry</b> → usuario expulsado mid-workflow<br>• <b>PostgREST</b> → endpoints auto-expuestos, RLS único guard<br>• <b>GoTrue OTP</b> → rate limits 429<br>• <b>Realtime</b> → channel auth mal configurado = sin broadcast</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">JIRA</div><h4>Importación Async (One-Way)</h4><p>• <b>Worker crash</b> → import stuck `running` forever<br>• <b>Concurrent 409</b> → único guard contra imports duplicados<br>• <b>Rate limits</b> → datos parciales<br>• <b>Resend</b> → configurado pero no wired (GoTrue maneja OTP)</p></div>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>integrations · failure points</span><span>11 / 14</span></div>
+  </section>
+
+  <!-- 12. CASCADAS -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag">Dependencias</span><span class="ts-page">12 / 14</span></div>
+    <div class="ts-kicker">Cascada entre Flujos</div>
+    <h2 class="ts-h2">Cadenas críticas <span class="red">end-to-end</span></h2>
+    <pre class="ts-codebox" style="font-size:16px;line-height:2"><span class="cm"> Signup → Workspace → Project → Module → US → AC → ATC</span>
+         <span class="st">│</span>
+         <span class="st">├─► Test (cadena ATC) ─► Run ─► Bug</span>
+         <span class="st">│</span>
+         <span class="st">├─► Jira Import (async)</span>
+         <span class="st">│</span>
+         <span class="st">└─► Coverage / Traceability / Activity / Notifications</span>
+
+<span class="kw"> Si falla en cualquier eslabón → downstream no puede crearse</span></pre>
+    <div class="ts-alert-box">
+      <h3>Cadenas a verificar end-to-end</h3>
+      <p>• <b>Setup chain</b>: signup → confirm → workspace → project → module → US → AC → ATC<br>• <b>Write cycle</b>: ATC edit → propagación a Test A y Test B<br>• <b>Run cascade</b>: step mark → trigger → finish → activity + notification<br>• <b>Isolation</b>: Workspace A ↔ Workspace B — RLS en cada entidad</p>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>cascade · dependency chains</span><span>12 / 14</span></div>
+  </section>
+
+  <!-- 13. CHECKLIST PRE-LANZAMIENTO -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag green">Checklist</span><span class="ts-page">13 / 14</span></div>
+    <div class="ts-kicker">Pre-Lanzamiento</div>
+    <h2 class="ts-h2">15 verificaciones <span class="ts-highlight-green">priorizadas</span></h2>
+    <div class="ts-checklist">
+      <div class="ts-check"><div class="box">1</div><div class="txt"><b>CRÍTICO:</b> RLS en cada entidad con workspace_id → 403 o vacío desde otro workspace</div></div>
+      <div class="ts-check"><div class="box">2</div><div class="txt"><b>CRÍTICO:</b> Paridad dual-path → cookie session = PAT bearer en mismas filas</div></div>
+      <div class="ts-check"><div class="box">3</div><div class="txt"><b>CRÍTICO:</b> Lifecycle completo → signup → confirm → workspace → project → module → US → AC → ATC → test → run → bug</div></div>
+      <div class="ts-check"><div class="box">4</div><div class="txt"><b>CRÍTICO:</b> Run state machine → pass all = passed; fail one = failed; abort = skipped; finish with pending = 422</div></div>
+      <div class="ts-check"><div class="box">5</div><div class="txt"><b>CRÍTICO:</b> Verification-first signup → 202 pending → confirm OTP → session + PAT atómicamente</div></div>
+      <div class="ts-check ok"><div class="box">6</div><div class="txt"><b>ALTO:</b> Bug triage → adelante-solo (45310/45311), elegibilidad assignee (45312/45313)</div></div>
+      <div class="ts-check ok"><div class="box">7</div><div class="txt"><b>ALTO:</b> Enforcement scopes → PAT atc:read → llamar atc:write → 403</div></div>
+      <div class="ts-check ok"><div class="box">8</div><div class="txt"><b>ALTO:</b> ATC save → crear con steps+assertions+AC → editar → verificar versión + propagación</div></div>
+      <div class="ts-check ok"><div class="box">9</div><div class="txt"><b>ALTO:</b> Cobertura → Home chip = GET /projects/{id}/coverage = GET /workspaces/{id}/coverage</div></div>
+      <div class="ts-check ok"><div class="box">10</div><div class="txt"><b>ALTO:</b> Idempotency → POST /runs con key → 201; misma key → 200; misma key + body distinto → 409</div></div>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>checklist · pre-release</span><span>13 / 14</span></div>
+  </section>
+
+  <!-- 14. GAPS + CIERRE -->
+  <section class="slide">
+    <div class="ts-stripe"></div>
+    <div class="ts-chrome"><span class="ts-alert-tag amber">Gaps + Cierre</span><span class="ts-page">14 / 14</span></div>
+    <div class="ts-kicker">Discovery Gaps</div>
+    <h2 class="ts-h2">12 gaps <span class="ts-highlight-amber">abiertos</span></h2>
+    <div class="ts-grid-2">
+      <div class="ts-card" style="border-top:4px solid var(--ts-red)"><div class="lbl">HIGH</div><h4>3 gaps críticos</h4><p>• Paridad dual-path RLS no testeada<br>• `workspace:admin` scope aceptado-rechazado<br>• Invariante cobertura sum/sum no verificado</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">MEDIUM</div><h4>5 gaps medios</h4><p>• OpenAPI vs 64 rutas drift<br>• Abort-reason redaction<br>• Idempotency window semantics<br>• Jira import resilience<br>• Notifications cross-workspace leak</p></div>
+    </div>
+    <div class="ts-alert-box green" style="margin-top:24px">
+      <h3>Próximos pasos</h3>
+      <p>• Ejecutar checklist pre-lanzamiento (§8)<br>• Priorizar suites de aislamiento dual-path<br>• Configurar DBHub para verificación directa de RLS<br>• Cubrir gaps de OpenAPI spec vs rutas reales</p>
+    </div>
+    <div class="ts-stripe-b"></div>
+    <div class="ts-footer"><span>BUNKAI · MASTER TEST PLAN · Q&A</span><span>14 / 14</span></div>
+  </section>
+
+</div>
+<script src="runtime.js"></script>
+</body>
+</html>

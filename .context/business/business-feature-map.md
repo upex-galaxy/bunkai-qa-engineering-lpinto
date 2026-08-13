@@ -1,7 +1,7 @@
 # Business Feature Map — Bunkai (QA Lens)
 
-> Generated: 2026-08-09 (v2 — synced to `upex-bunkai-tms` staging branch, tip `5e0134c`)
-> Sources: `../upex-bunkai-tms/app/` (33 pages), `../upex-bunkai-tms/app/api/v1/` (64 route files), `../upex-bunkai-tms/supabase/migrations/` (0001–0068), `../upex-bunkai-tms/lib/`
+> Generated: 2026-08-09 (v2 — synced to `upex-bunkai-tms` staging branch, tip `5e0134c`; refreshed 2026-08-13)
+> Sources: `../upex-bunkai-tms/app/` (31 pages), `../upex-bunkai-tms/app/api/v1/` (64 route files), `../upex-bunkai-tms/supabase/migrations/` (0001–0068), `../upex-bunkai-tms/lib/`
 > Cross-refs: `.context/business/business-data-map.md`, `.context/business/business-api-map.md`
 > Delta vs v1 (main, 2026-08-09): runs/tests/bugs/imports/milestones/notifications/activity/coverage moved from Planned → Stable. Versioned API 19 → 64 routes.
 
@@ -809,7 +809,7 @@
 
 ---
 
-## 4. API endpoint inventory (64 route files, ~81 handlers)
+## 4. API endpoint inventory (64 route files, ~82 handlers)
 
 ### Versioned REST (`/api/v1`) — by domain
 
