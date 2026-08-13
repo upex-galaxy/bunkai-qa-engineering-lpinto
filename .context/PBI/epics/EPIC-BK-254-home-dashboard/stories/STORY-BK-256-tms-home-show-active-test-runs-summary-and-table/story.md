@@ -26,6 +26,18 @@ Renders into `home.jsx` (master-design-plan.md §4.2), the "Active test runs" se
 
 ---
 
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Implementation Plan (Dev)](./implementation-plan.md)
+
+---
+
 ## Metadata
 
 - **Created:** 31/7/2026

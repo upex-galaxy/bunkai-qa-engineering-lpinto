@@ -5,7 +5,8 @@
 **Type:** Story
 **Status:** QA Approved
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 3
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -167,6 +168,19 @@ AC, ATP, and Business Rules are included in this description because the Jira cu
 
 ---
 
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
+- [Implementation Plan (Dev)](./implementation-plan.md)
+
+---
+
 ## Traceability
 
 ### Test Execution (1)
@@ -187,9 +201,9 @@ AC, ATP, and Business Rules are included in this description because the Jira cu
 ## Metadata
 
 - **Created:** 28/5/2026
-- **Updated:** 8/8/2026
+- **Updated:** 9/8/2026
 - **Reporter:** Ely
-- **Assignee:** jesusgpythondev
+- **Assignee:** Ely
 - **Labels:** implementation-plan-ready, shift-left-2026-06-15, shift-left-reviewed
 
 ---

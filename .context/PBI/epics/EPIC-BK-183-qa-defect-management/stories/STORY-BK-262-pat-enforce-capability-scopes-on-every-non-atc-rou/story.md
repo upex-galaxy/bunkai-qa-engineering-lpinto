@@ -27,6 +27,17 @@
 
 ---
 
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+
+---
+
 ## Traceability
 
 ### Bugs (7)
@@ -48,7 +59,7 @@
 ## Metadata
 
 - **Created:** 2/8/2026
-- **Updated:** 2/8/2026
+- **Updated:** 11/8/2026
 - **Reporter:** Ely
 - **Assignee:** Unassigned
 

@@ -4,6 +4,10 @@
 **Priority:** High
 **Status:** Closed
 **Components:** User Stories & Acceptance Criteria
+**Severity:** Mayor
+**Error Type:** Functional
+**Test Environment:** Staging
+**Fix Type:** Bugfix
 
 ---
 
@@ -45,6 +49,12 @@ Missing client-side submit guard: the counter color changes to text-signal-block
 - tc-06-after-reload.png: Story reopened with 51,000 chars still loaded
 
 ***Fix***: bugfix
+
+---
+
+## 🔍 Root Cause
+
+**Category:** Code Error
 
 ---
 

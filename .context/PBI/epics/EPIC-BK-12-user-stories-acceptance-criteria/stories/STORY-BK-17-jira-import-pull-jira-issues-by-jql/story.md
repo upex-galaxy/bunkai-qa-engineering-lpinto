@@ -5,7 +5,8 @@
 **Type:** Story
 **Status:** Ready For Release
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 5
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -78,6 +79,19 @@ The user opens Project settings, picks ***Import from Jira***, enters a JQL, and
 ---
 
 **QA Acceptance Test Plan posted as a 4-part comment series (jira-native modality —** `Acceptance Test Plan (ATP)` **custom field not configured on this instance). Test Results placeholder posted; full ATR to follow at Stage 3.**
+
+---
+
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
+- [Implementation Plan (Dev)](./implementation-plan.md)
 
 ---
 

@@ -5,7 +5,7 @@
 **Type:** Story
 **Status:** Ready For QA
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 3
 
 ---
 
@@ -18,6 +18,19 @@ As Elena Vargas, Senior QA Engineer, I want to configure which event types notif
 ## Context
 
 Once run and bug events flow into the inbox, volume becomes the enemy: a busy workspace can bury the one notification that matters. This story adds a Notifications sub-view to the existing Settings hub where Elena toggles each event type (run lifecycle, bug lifecycle, and mentions as a declared-but-future type) per channel (in-app, email). The email channel feeds the digest story; the mentions row is groundwork for the future Team Chat epic. This story activates once the inbox (sibling story) and the Settings hub are live.
+
+---
+
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
+- [Mockup](./mockup.md)
 
 ---
 

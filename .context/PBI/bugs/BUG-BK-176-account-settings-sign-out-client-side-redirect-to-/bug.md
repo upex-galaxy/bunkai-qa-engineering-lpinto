@@ -4,6 +4,10 @@
 **Priority:** Low
 **Status:** Ready For QA
 **Components:** Account & Settings
+**Severity:** Menor
+**Error Type:** Functional
+**Test Environment:** Staging
+**Fix Type:** Bugfix
 
 ---
 
@@ -63,6 +67,12 @@ After successful sign-out, the user should be immediately redirected to `/login`
 ## Related Stories
 
 - Related: [https://jira.upexgalaxy.com/browse/BK-86#icft=BK-86](https://jira.upexgalaxy.com/browse/BK-86#icft=BK-86) (Account | View my identity, role, and sign out)
+
+---
+
+## 🔍 Root Cause
+
+**Category:** Code Error
 
 ---
 

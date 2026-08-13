@@ -35,7 +35,7 @@ The mockup's greeting eyebrow line ("SPRINT 24-Q2 · DAY 7/10") implies a Sprint
 
 | Key | Story | Points | Priority | Status |
 | --- | ----- | ------ | -------- | ------ |
-| [BK-255](https://jira.upexgalaxy.com/browse/BK-255) | TMS-Home | Show a personalized welcome banner | - | Medium | Ready For QA |
+| [BK-255](https://jira.upexgalaxy.com/browse/BK-255) | TMS-Home | Show a personalized welcome banner | - | Medium | In Test |
 | [BK-256](https://jira.upexgalaxy.com/browse/BK-256) | TMS-Home | Show active test runs summary and table | - | Medium | Ready For QA |
 | [BK-257](https://jira.upexgalaxy.com/browse/BK-257) | TMS-Home | Show recent projects with activity and stats | - | Medium | Ready For QA |
 | [BK-258](https://jira.upexgalaxy.com/browse/BK-258) | TMS-Home | Show open bug count and severity breakdown | - | Medium | Ready For QA |

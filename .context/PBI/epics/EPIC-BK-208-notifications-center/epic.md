@@ -3,7 +3,7 @@
 **Jira Key:** [BK-208](https://jira.upexgalaxy.com/browse/BK-208)
 **Priority:** Medium
 **Status:** Planning
-**Total Story Points:** 0
+**Total Story Points:** 29
 
 ---
 
@@ -35,10 +35,10 @@ Bunkai already records everything that matters — runs finish, bugs land on peo
 
 | Key | Story | Points | Priority | Status |
 | --- | ----- | ------ | -------- | ------ |
-| [BK-209](https://jira.upexgalaxy.com/browse/BK-209) | Notifications | View an inbox of workspace events | - | Medium | Ready For QA |
-| [BK-211](https://jira.upexgalaxy.com/browse/BK-211) | Notifications | Get notified when a run finishes or is aborted | - | Medium | Ready For QA |
-| [BK-212](https://jira.upexgalaxy.com/browse/BK-212) | Notifications | Get notified on bug assignment and status changes | - | Medium | Ready For QA |
-| [BK-213](https://jira.upexgalaxy.com/browse/BK-213) | Notifications | Configure notification preferences per event type | - | Medium | Ready For QA |
+| [BK-209](https://jira.upexgalaxy.com/browse/BK-209) | Notifications | View an inbox of workspace events | 13 | Medium | Ready For QA |
+| [BK-211](https://jira.upexgalaxy.com/browse/BK-211) | Notifications | Get notified when a run finishes or is aborted | 5 | Medium | Ready For QA |
+| [BK-212](https://jira.upexgalaxy.com/browse/BK-212) | Notifications | Get notified on bug assignment and status changes | 8 | Medium | Ready For QA |
+| [BK-213](https://jira.upexgalaxy.com/browse/BK-213) | Notifications | Configure notification preferences per event type | 3 | Medium | Ready For QA |
 | [BK-214](https://jira.upexgalaxy.com/browse/BK-214) | Notifications | Receive an email digest of unread notifications | - | Medium | Backlog |
 
 ---

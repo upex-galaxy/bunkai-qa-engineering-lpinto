@@ -3,9 +3,9 @@
 **Jira Key:** [BK-267](https://jira.upexgalaxy.com/browse/BK-267)
 **Epic:** [BK-13](https://jira.upexgalaxy.com/browse/BK-13) (ATC Library (Acceptance Test Cases))
 **Type:** Story
-**Status:** Estimation
+**Status:** ABORTED
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 1
 
 ---
 
@@ -48,12 +48,35 @@
 
 ---
 
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
+- [Mockup](./mockup.md)
+
+---
+
+## Traceability
+
+### Storys (3)
+
+- [BK-439](https://jira.upexgalaxy.com/browse/BK-439): TMS-ATC Library | Browse every ATC in the workspace from one index _(Backlog)_
+- [BK-440](https://jira.upexgalaxy.com/browse/BK-440): TMS-ATC Library | Find an ATC by name as you type _(Backlog)_
+- [BK-441](https://jira.upexgalaxy.com/browse/BK-441): TMS-ATC Library | Narrow the index by Project, Module, layer and anchor _(Backlog)_
+
+---
+
 ## Metadata
 
 - **Created:** 4/8/2026
-- **Updated:** 7/8/2026
+- **Updated:** 13/8/2026
 - **Reporter:** Ely
-- **Assignee:** Facu Barea
+- **Assignee:** Ely
 - **Labels:** shift-left-2026-08-07, shift-left-reviewed
 
 ---

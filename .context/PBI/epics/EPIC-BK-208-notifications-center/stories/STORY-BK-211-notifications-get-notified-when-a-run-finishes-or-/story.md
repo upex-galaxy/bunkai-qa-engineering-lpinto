@@ -5,7 +5,7 @@
 **Type:** Story
 **Status:** Ready For QA
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 5
 
 ---
 
@@ -18,6 +18,20 @@ As Elena Vargas, Senior QA Engineer, I want to be notified when a run I started 
 ## Context
 
 Runs already end in exactly two final verdicts — passed or failed — or get aborted with a reason. When someone else finishes the work (a teammate picking up her run, an AI agent, or CI acting as executor), Elena currently finds out only by checking. This story subscribes the run starter to those terminal events and delivers them into the notification inbox. It activates once the inbox (sibling story) is live; the run lifecycle it listens to already ships with epic [https://jira.upexgalaxy.com/browse/BK-30#icft=BK-30](https://jira.upexgalaxy.com/browse/BK-30#icft=BK-30) Manual Execution & Runs.
+
+---
+
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
+- [Mockup](./mockup.md)
+- [Implementation Plan (Dev)](./implementation-plan.md)
 
 ---
 

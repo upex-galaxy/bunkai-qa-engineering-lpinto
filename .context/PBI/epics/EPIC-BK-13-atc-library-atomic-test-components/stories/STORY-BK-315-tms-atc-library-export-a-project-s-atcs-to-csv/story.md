@@ -5,7 +5,7 @@
 **Type:** Story
 **Status:** Backlog
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 1
 
 ---
 
@@ -20,6 +20,18 @@
 ## Context
 
 No export capability exists anywhere in the product today. The existing Jira import machinery (BK-17) only writes User Stories and Acceptance Criteria — it never touches ATCs. BK-50 exports a single User Story's evidence chain, a different entity boundary (see Out of Scope). This story is the first export capability at the ATC-library level.
+
+---
+
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
 
 ---
 

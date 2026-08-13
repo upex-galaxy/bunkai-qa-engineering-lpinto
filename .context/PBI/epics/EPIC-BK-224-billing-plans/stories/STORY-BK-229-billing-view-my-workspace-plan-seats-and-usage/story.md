@@ -3,7 +3,7 @@
 **Jira Key:** [BK-229](https://jira.upexgalaxy.com/browse/BK-229)
 **Epic:** [BK-224](https://jira.upexgalaxy.com/browse/BK-224) (Billing & Plans)
 **Type:** Story
-**Status:** Backlog
+**Status:** Shift-Left QA
 **Priority:** Medium
 **Story Points:** -
 
@@ -21,6 +21,19 @@ Bunkai Cloud is onboarding paying teams. The Billing section is a new sub-view o
 
 ---
 
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
+- [Mockup](./mockup.md)
+
+---
+
 ## Traceability
 
 ### Storys (3)
@@ -34,9 +47,9 @@ Bunkai Cloud is onboarding paying teams. The Billing section is a new sub-view o
 ## Metadata
 
 - **Created:** 11/7/2026
-- **Updated:** 30/7/2026
+- **Updated:** 12/8/2026
 - **Reporter:** Ely
-- **Assignee:** Unassigned
+- **Assignee:** pinto.lucas.nahuel
 
 ---
 

@@ -4,6 +4,10 @@
 **Priority:** High
 **Status:** Duplicated
 **Components:** Tenancy & Identity
+**Severity:** Mayor
+**Error Type:** Integration
+**Test Environment:** Staging
+**Fix Type:** Bugfix
 
 ---
 
@@ -46,6 +50,12 @@ PAT bearer tokens are rejected with 401 on module and workspace resource endpoin
 ## Related Stories
 
 - Related: [https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10](https://jira.upexgalaxy.com/browse/BK-10#icft=BK-10) (TC-I04)
+
+---
+
+## 🔍 Root Cause
+
+**Category:** Code Error
 
 ---
 

@@ -4,6 +4,10 @@
 **Priority:** Highest
 **Status:** Closed
 **Components:** Tenancy & Identity
+**Severity:** Crítica
+**Error Type:** Functional
+**Test Environment:** Staging
+**Fix Type:** Bugfix
 
 ---
 
@@ -46,6 +50,30 @@ The staging magic-link login flow cannot be completed: Supabase Auth sends a 6-d
 **RELATED STORIES**
 
 - Related: [https://jira.upexgalaxy.com/browse/BK-23#icft=BK-23](https://jira.upexgalaxy.com/browse/BK-23#icft=BK-23)
+
+---
+
+## 🐞 Actual Result
+
+No input field appears for the OTP code; the user cannot complete login via the email Bunkai actually sends (a 6-digit code, not a clickable link).
+
+---
+
+## ✅ Expected Result
+
+The user should be able to either click a magic link or enter the OTP code shown in the email, and successfully authenticate.
+
+---
+
+## 🔍 Root Cause
+
+**Category:** Code Error
+
+---
+
+## 🧫 Evidence
+
+See attached screenshot `01-login-blocked-no-otp-field.png` — the "Check your inbox" screen with zero `<input>` elements found via `document.querySelectorAll('input')`.
 
 ---
 

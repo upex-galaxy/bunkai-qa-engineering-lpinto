@@ -3,9 +3,10 @@
 **Jira Key:** [BK-42](https://jira.upexgalaxy.com/browse/BK-42)
 **Epic:** [BK-31](https://jira.upexgalaxy.com/browse/BK-31) (Bugs & Defect Heatmap)
 **Type:** Story
-**Status:** Ready For QA
+**Status:** QA Approved
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 3
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -71,22 +72,35 @@ Full local package: .context/PBI/epics/EPIC-BK-31-bugs-defect-heatmap/stories/ST
 
 > Each rich-text field is a separate file in this folder.
 
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
 - [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
 
 ## Traceability
 
+### Test Execution (1)
+
+- [BK-350](https://jira.upexgalaxy.com/browse/BK-350): [ATR] BK-42 — TMS-Defect Heatmap | View count and week-over-week trend per module _(Close)_
+
 ### Story (1)
 
-- [BK-40](https://jira.upexgalaxy.com/browse/BK-40): TMS-Defect Filing | File a defect from a failing run step _(Ready For QA)_
+- [BK-40](https://jira.upexgalaxy.com/browse/BK-40): TMS-Defect Filing | File a defect from a failing run step _(QA Approved)_
+
+### Test Plan (1)
+
+- [BK-349](https://jira.upexgalaxy.com/browse/BK-349): [ATP] BK-42 — TMS-Defect Heatmap | View count and week-over-week trend per module _(READY)_
 
 ---
 
 ## Metadata
 
 - **Created:** 28/5/2026
-- **Updated:** 2/8/2026
+- **Updated:** 11/8/2026
 - **Reporter:** Ely
 - **Assignee:** jesusgpythondev
 - **Labels:** shift-left-2026-06-27, shift-left-reviewed

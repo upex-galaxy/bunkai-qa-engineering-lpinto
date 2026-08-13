@@ -26,6 +26,16 @@ Renders into `home.jsx` (master-design-plan.md §4.2), the "Recent activity" sec
 
 ---
 
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+
+---
+
 ## Traceability
 
 ### Story (1)

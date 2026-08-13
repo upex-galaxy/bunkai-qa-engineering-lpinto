@@ -5,7 +5,7 @@
 **Type:** Story
 **Status:** Ready For Release
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 1
 
 ---
 
@@ -33,6 +33,15 @@ Delivered:
 ## Design reference
 
 Renders into the ***Projects**** screen — master-design-plan §4.3, mockup `screens/project.jsx`. The accordion / collapse-resize / Create-ATC additions are ratified in §5 as divergence ****D8*** (additive UI, zero schema/API change).
+
+---
+
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Acceptance Test Results (QA)](./acceptance-test-results.md)
 
 ---
 

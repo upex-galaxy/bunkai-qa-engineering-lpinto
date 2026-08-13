@@ -4,7 +4,10 @@
 **Priority:** Medium
 **Status:** Closed
 **Components:** None
-**Severity:** Siempre
+**Severity:** Moderada
+**Error Type:** Integration
+**Test Environment:** Staging
+**Fix Type:** Bugfix
 
 ---
 
@@ -32,6 +35,24 @@ POST /api/v1/tests returns 500 Internal Server Error when Idempotency-Key header
 - UI double-click protection and agent retry broken
 
 Idempotency middleware at lib/api/idempotency.ts fails on insert into idempotency_keys table. Likely DB constraint or missing migration.
+
+---
+
+## 🐞 Actual Result
+
+POST /api/v1/tests returns 500: Idempotency insert failed
+
+---
+
+## ✅ Expected Result
+
+201 Created
+
+---
+
+## 🔍 Root Cause
+
+**Category:** Code Error
 
 ---
 

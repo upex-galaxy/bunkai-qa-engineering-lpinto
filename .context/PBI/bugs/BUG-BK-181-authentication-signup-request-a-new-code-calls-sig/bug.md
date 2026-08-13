@@ -4,6 +4,10 @@
 **Priority:** High
 **Status:** Closed
 **Components:** Tenancy & Identity
+**Severity:** Mayor
+**Error Type:** Functional
+**Test Environment:** Staging
+**Fix Type:** Bugfix
 
 ---
 
@@ -44,6 +48,43 @@ On the email-verification screen of BK-166's signup flow, the "Request a new cod
 **RELATED STORIES**
 
 - Related: [https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166](https://jira.upexgalaxy.com/browse/BK-166#icft=BK-166)
+
+---
+
+## 🐞 Actual Result
+
+Clicking "Request a new code" calls `POST /api/v1/auth/signup` and returns HTTP 422 with a raw backend validation message rendered in the UI alert.
+
+---
+
+## ✅ Expected Result
+
+Clicking "Request a new code" should call a resend-verification-code endpoint and show a user-friendly confirmation (e.g. "A new code has been sent to your email"), not re-trigger signup.
+
+---
+
+## 🔍 Root Cause
+
+**Category:** Code Error
+
+---
+
+## 🚩 Workaround
+
+Use the original code from the first signup email before it expires; if expired, restart the signup flow from scratch with the same email.
+
+---
+
+## 🧫 Evidence
+
+Network log captured 2026-06-25 during the [https://jira.upexgalaxy.com/browse/BK-23#icft=BK-23](https://jira.upexgalaxy.com/browse/BK-23#icft=BK-23) staging probe:
+
+```
+POST /api/v1/auth/signup -> 422
+{"error":{"code":"validation_failed","details":[{"path":["password"],"message":"Invalid input"}],"message":"Request body failed validation."}}
+```
+
+No UI screenshot captured for this specific finding.
 
 ---
 

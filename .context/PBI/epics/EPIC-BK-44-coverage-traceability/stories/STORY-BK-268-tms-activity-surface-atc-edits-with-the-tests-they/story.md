@@ -5,7 +5,7 @@
 **Type:** Story
 **Status:** Backlog
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 1
 
 ---
 
@@ -35,10 +35,23 @@
 
 ---
 
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Workflow](./workflow.md)
+- [Mockup](./mockup.md)
+
+---
+
 ## Metadata
 
 - **Created:** 5/8/2026
-- **Updated:** 5/8/2026
+- **Updated:** 12/8/2026
 - **Reporter:** Ely
 - **Assignee:** Unassigned
 

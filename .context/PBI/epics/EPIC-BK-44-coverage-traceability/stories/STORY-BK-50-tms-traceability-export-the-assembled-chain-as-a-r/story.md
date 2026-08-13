@@ -5,7 +5,8 @@
 **Type:** Story
 **Status:** QA Approved
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 5
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -21,7 +22,12 @@ As a QA Lead, I want to export a user story's assembled evidence chain as a shar
 
 > Each rich-text field is a separate file in this folder.
 
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Implementation Plan (Dev)](./implementation-plan.md)
 - [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
+- [Acceptance Test Results (QA)](./acceptance-test-results.md)
 
 ---
 
@@ -38,7 +44,7 @@ As a QA Lead, I want to export a user story's assembled evidence chain as a shar
 
 ### Defect (1)
 
-- [BK-329](https://jira.upexgalaxy.com/browse/BK-329): Coverage & Traceability API: traceability route ignores the {projectId} path segment — any well-formed UUID returns the story chain _(Open)_
+- [BK-329](https://jira.upexgalaxy.com/browse/BK-329): Coverage & Traceability API: traceability route ignores the {projectId} path segment — any well-formed UUID returns the story chain _(Closed)_
 
 ### Story (1)
 
@@ -46,7 +52,7 @@ As a QA Lead, I want to export a user story's assembled evidence chain as a shar
 
 ### Improvement (1)
 
-- [BK-330](https://jira.upexgalaxy.com/browse/BK-330): Traceability export: snapshot filename is minute-granular, so same-minute exports of one story collide _(Open)_
+- [BK-330](https://jira.upexgalaxy.com/browse/BK-330): Traceability export: snapshot filename is minute-granular, so same-minute exports of one story collide _(Closed)_
 
 ---
 

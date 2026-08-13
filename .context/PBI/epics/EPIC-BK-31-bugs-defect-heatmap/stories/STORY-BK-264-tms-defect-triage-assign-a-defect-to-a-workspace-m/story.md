@@ -43,6 +43,18 @@ Bugs already exist in Bunkai with a status of open, in progress, resolved, or cl
 
 ---
 
+## Fields
+
+> Each rich-text field is a separate file in this folder.
+
+- [Acceptance Criteria](./acceptance-criteria.md)
+- [Business Rules](./business-rules.md)
+- [Scope](./scope.md)
+- [Out Of Scope](./out-of-scope.md)
+- [Implementation Plan (Dev)](./implementation-plan.md)
+
+---
+
 ## Traceability
 
 ### Story (1)
