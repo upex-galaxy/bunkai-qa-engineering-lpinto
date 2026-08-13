@@ -1,9 +1,9 @@
 # Business Data Map — Bunkai (QA Lens)
 
 > Generated: 2026-08-09 (v2 — synced to `upex-bunkai-tms` staging branch, tip `5e0134c`; refreshed 2026-08-13)
-> Sources: `../upex-bunkai-tms/supabase/migrations/` (0001–0068), `../upex-bunkai-tms/app/api/v1/`, `../upex-bunkai-tms/lib/`, `../upex-bunkai-tms/.context/business/events.md`
+> Sources: `../upex-bunkai-tms/supabase/migrations/` (0001–0069), `../upex-bunkai-tms/app/api/v1/`, `../upex-bunkai-tms/lib/`, `../upex-bunkai-tms/.context/business/events.md`
 > Cross-refs: `.context/business/business-feature-map.md`, `.context/business/business-api-map.md`, `.context/business/domain-glossary.md`
-> Delta vs v1 (2026-08-09, main branch): runs/tests/bugs/environments/imports/milestones/notifications/activity/coverage NOW REAL (were "planned"). Schema grew 0012 → 0068 migrations.
+> Delta vs v1 (2026-08-09, main branch): runs/tests/bugs/environments/imports/milestones/notifications/activity/coverage NOW REAL (were "planned"). Schema grew 0012 → 0069 migrations.
 
 ---
 

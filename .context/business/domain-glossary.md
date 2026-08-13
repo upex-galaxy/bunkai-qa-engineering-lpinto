@@ -7,6 +7,9 @@
 > Canonical upstream: the `agentic-qa-boilerplate` skills (`test-automation`, `test-documentation`, `sprint-testing`). Bunkai (the product) is the TMS materialization of that methodology.
 >
 > Maintained alongside: `business-data-map.md` (data model), `business-api-map.md` (API narrative).
+>
+> **BK-48 additions**: `TraceabilityModule`, `TraceabilityFilterState`, `StoryChainViewState`
+> **BK-400 additions**: `verifyOtp` (stateless), `VERIFIABLE_OTP_TYPES`
 
 ---
 
@@ -107,6 +110,11 @@ Post-MVP entities (epics BK-201 / BK-208 / BK-210 / BK-221 / BK-224), added 2026
 | **Invoice** | Billing document for one charge period, downloadable. |
 | **status_dot** | Design/mockup term for the coloured dot that renders a row's Execution Status (§2) in tree, list, and autocomplete surfaces. Its values are the execution set `pass \| fail \| blocked \| skipped \| running \| unrun`. It is a presentation affordance, not a data field: it names a dot, not a lifecycle, and it does not appear as an API field name — APIs expose the underlying value as `status`. No documentation-maturity lifecycle exists on `atcs` or `tests`. Recorded 2026-08-06 with the BK-187 decision. |
 | **Run-status grain split** | Three distinct run-status enumerations coexist at three different grains, and none of them is wrong — the defect was that the split was never labelled. **Run grain** (`runs.status`, the whole execution): `running \| passed \| failed \| aborted`. **Position grain** (`run_atcs.status`, one chain step within a run): `pending \| passed \| failed \| blocked \| skipped`. **Derived traceability state** (the chain-view's rendered chip, combining both): `in_flight \| aborted \| passed \| failed \| blocked \| skipped`. Invariant: `aborted` is a **run-grain terminal outcome only** — it names the whole execution's anomalous termination and never appears at the position grain (a step is `skipped`, never `aborted`). §2's "Execution Status (Run)" and this table's `status_dot` row each describe one grain correctly on their own terms; neither is a typo needing to converge with the other. Do not attempt to harmonise the KATA/IQL methodology vocabulary (`tms-conventions.md`'s `TODO \| EXECUTING \| PASS \| FAIL \| ABORTED \| BLOCKED`) with this product-schema split — that is a separate, larger question, out of scope here. Recorded 2026-08-08 with the BK-317 decision (root cause of BK-45 AC-01 shipping an incomplete run-status list). |
+| **TraceabilityModule** | (BK-48, 0069) The module identity attached to each ATC row in the traceability chain. Shape: `{id: UUID, name: string}`. `id` is the filterable identity; `name` is display-only. Always present: every ATC has a non-nullable `module_id`. No `MOD-XXX` code column exists in the real schema — the mockup's `data-module="MOD-001"` is fixture-only. |
+| **TraceabilityFilterState** | (BK-48) Client-side filter state for the traceability chain. Fields: `verdict` (RunChipTone \| null), `moduleId` (UUID \| null), `dateFrom` (string \| null), `dateTo` (string \| null). `isFilteringActive()` returns true when any field is non-null. `atcMatchesFilters()` checks an ATC against the active filters. |
+| **StoryChainViewState** | (BK-48) The render state of the traceability chain at the story level. Three values: `zero-ac` (no acceptance criteria defined), `zero-coverage` (ACs exist but no ATCs bound), `has-chain` (at least one AC has an ATC). AC-03/AC-07 ratify these as never collapsing into one message. |
+| **verifyOtp** | (BK-400) Supabase GoTrue method for stateless OTP verification. Posts the hash straight to GoTrue and gets a session back, so nothing has to be remembered in the requesting browser. This is what makes the emailed magic link work on a phone when it was requested on a laptop. |
+| **VERIFIABLE_OTP_TYPES** | (BK-400) Allow-list of OTP types the magic-link callback will verify: `magiclink` and `email` only. Deliberately excludes `signup`, `invite`, and `recovery` — those would route around security gates (verification-first, password-reset, etc.). |
 
 ---
 

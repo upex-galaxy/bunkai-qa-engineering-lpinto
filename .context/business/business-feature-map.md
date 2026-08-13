@@ -46,12 +46,14 @@
 | **Endpoints** | `POST /api/v1/auth/magic-link` |
 | **UI** | `MagicLinkForm` (email input + submit) |
 | **Dependencies** | Supabase GoTrue (OTP) |
-| **Evidence** | `app/(auth)/login/magic-link-form.tsx`, `app/api/v1/auth/magic-link/route.ts` |
+| **Evidence** | `app/(auth)/login/magic-link-form.tsx`, `app/api/v1/auth/magic-link/route.ts`, `lib/auth/login-errors.ts` |
 
 - [x] Enter email → receive magic link
 - [x] Click link → OTP exchange → session cookie set
 - [x] Redirect to `/projects` or custom `next` path
 - [x] Open-redirect guard on callback
+- [x] Cross-device support (BK-400): stateless `verifyOtp` works on any device
+- [x] Login error toasts (`lib/auth/login-errors.ts`) for expired/invalid links
 - [ ] Custom SMTP via Resend (configured but not wired)
 
 #### Feature: Session-based auth (browser)
@@ -672,9 +674,16 @@
 | Aspect | Value |
 |--------|-------|
 | **ID** | FEAT-COV-002 |
-| **Status** | **New — Stable** (BK-44/45/50) |
+| **Status** | **New — Stable** (BK-44/45/48/50) |
 | **Endpoints** | `GET /api/v1/projects/{id}/traceability` → `bunkai_report_story_traceability` (0068) |
 | **UI** | `/projects/[slug]/traceability` — full US→AC→ATC→Test→Run→Bug evidence chain + HTML export (BK-50) |
+| **Dependencies** | `TraceabilityModule` interface (0069), `TraceabilityFilterState` (BK-48), `StoryChainViewState` |
+
+- [x] Full bidirectional chain (US→AC→ATC→Test→Run→Bug)
+- [x] Module identity per ATC (`module: {id, name}`) — 0069 migration
+- [x] Client-side filtering by verdict/module/date-range (BK-48)
+- [x] Empty-state distinction: zero-ac vs zero-coverage (AC-03/AC-07)
+- [x] HTML export (BK-50)
 
 #### Feature: Recovery cycles
 

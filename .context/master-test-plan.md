@@ -1,7 +1,7 @@
 # Master Test Plan — Bunkai TMS
 
 > What to test in this system, and why.
-> Regenerated: 2026-08-13 (synced to staging branch, tip `5e0134c`)
+> Regenerated: 2026-08-13 (synced to staging branch, tip `b9f3fc6`)
 
 ---
 
@@ -9,7 +9,7 @@
 
 Bunkai's API surface has grown to **64 route files / 82 handlers** covering a full test lifecycle: ATC authoring, test chains, run execution, native bug triage, coverage reporting, notifications, and async Jira import. The auth model was rebuilt around a **unified Principal** (ADR-0001) where cookie and bearer callers resolve to identical rows, and **scopes are now enforced** via `requires:`. Verification-first signup (BK-166) means unconfirmed accounts can do nothing.
 
-The deepest risk today is **tenant isolation (RLS)** — a single missing policy on any table leaks data across workspaces with zero UI feedback, and the dual-path auth (cookie vs PAT→`mintUserJwt`) must produce identical RLS outcomes on every route. Second is **run execution integrity** — the state machine spans four tables (`runs`, `run_atcs`, `run_steps`, triggers) with cascading recomputation; a trigger failure leaves inconsistent run status. Third is **idempotency correctness** — now functional on runs/tests/atcs/imports, but the 24h `start_token` window vs HTTP key interplay is untested at boundaries.
+The deepest risk today is **tenant isolation (RLS)** — a single missing policy on any table leaks data across workspaces with zero UI feedback, and the dual-path auth (cookie vs PAT→`mintUserJwt`) must produce identical RLS outcomes on every route. Second is **run execution integrity** — the state machine spans four tables (`runs`, `run_atcs`, `run_steps`, triggers) with cascading recomputation; a trigger failure leaves inconsistent run status. Third is **idempotency correctness** — now functional on runs/tests/atcs/imports, but the 24h `start_token` window vs HTTP key interplay is untested at boundaries. Fourth is **traceability chain filter correctness** (BK-48) — module identity (0069) + client-side filtering must stay synchronized with the chain content. Fifth is **magic-link cross-device** (BK-400) — stateless verification via `verifyOtp` works on any device, but the legacy PKCE flow still coexists.
 
 | Priority | Flow | Why it matters | Depends on / Affects | Testable Today? |
 |----------|------|----------------|----------------------|-----------------|
@@ -22,6 +22,8 @@ The deepest risk today is **tenant isolation (RLS)** — a single missing policy
 | HIGH | ATC save + edit propagation (FEAT-ATC-001, FEAT-ATC-005) | Atomic RPC bundles header+steps+assertions+AC bindings; propagation to chained tests | Tests, coverage traceability | ✅ Yes (API) |
 | HIGH | Coverage roll-up invariant (FEAT-COV-001) | `sum(ac_bound)/sum(ac_total)` — never mean-of-percentages; Home page and API share code | Home dashboard, project metrics | ✅ Yes (API) |
 | HIGH | Idempotency correctness (FEAT-API-003) | Runs/tests/atcs/imports have replay store; 24h `start_token` window interplay with HTTP key | Run creation, concurrent agents | ✅ Yes (API) |
+| HIGH | Traceability chain filters (BK-48) | Module identity (0069) + client-side filtering must stay synchronized; filter state diverging from chain = stale data | Traceability UI, export, coverage | ✅ Yes (API + UI) |
+| HIGH | Magic-link cross-device (BK-400) | Stateless `verifyOtp` works on any device, but legacy PKCE flow still coexists; test both rails | Auth, session management | ✅ Yes (API) |
 | MEDIUM | Async Jira import (FEAT-IMPORT-001..002) | One active per project; worker crash leaves `running` forever | Import lifecycle, story/AC data | ✅ Yes (API) |
 | MEDIUM | Cross-workspace notifications (FEAT-NOTIF-001..004) | `entity_available` per-row RLS; member must never see notifications for hidden entities | Inbox, read-all races | ✅ Yes (API) |
 | MEDIUM | Activity feed integrity (FEAT-ACT-001) | Cursor pagination; `run.aborted.reason` redacted from feed; empty = 200 never 404 | Activity UI, audit trail | ✅ Yes (API) |
@@ -167,6 +169,42 @@ The deepest risk today is **tenant isolation (RLS)** — a single missing policy
 - POST /runs with `start_token` → 201; same token within 24h → idempotent replay; same token after 24h → new run
 - Concurrent POST /runs with same key → exactly one succeeds, others get stored result
 - POST /tests, /atcs, /imports with key → same idempotent behavior
+
+### HIGH: Traceability chain filters (BK-48)
+
+**Why it matters.** The traceability chain now carries module identity (`module: {id, name}`) per ATC row (0069 migration). Client-side filter functions (`atcMatchesFilters`, `distinctModules`, `isFilteringActive`) enable filtering by verdict/module/date-range. `StoryChainViewState` distinguishes zero-ac vs zero-coverage empty states. If filter state diverges from chain content, users see stale or incorrect data.
+
+**What commonly breaks.** Module identity missing or stale after ATC edit, filter state not resetting on story change, date-range inversion not caught, distinctModules returning archived modules, zero-ac vs zero-coverage empty states collapsing into one message.
+
+**Dependencies.** `TraceabilityModule` interface (0069), `TraceabilityFilterState`, `StoryChainViewState`, `atcMatchesFilters`, `distinctModules`.
+
+**What an experienced QA would check:**
+- Load traceability chain → verify each ATC has `module: {id, name}`
+- Edit ATC module → chain reflects new module identity on next load
+- Filter by module → only ATCs from that module shown
+- Filter by verdict → only ATCs with matching run status shown
+- Filter by date-range → only ATCs with runs in that range shown
+- Invert date-range (from > to) → expect validation error or auto-correction
+- Story with zero ACs → expect "zero-ac" empty state (not "zero-coverage")
+- Story with ACs but zero ATCs → expect "zero-coverage" empty state
+- Archived module → not in distinctModules list
+
+### HIGH: Magic-link cross-device (BK-400)
+
+**Why it matters.** Magic-link authentication now uses stateless `verifyOtp` instead of PKCE `exchangeCodeForSession`, so emailed links work on any device. The legacy PKCE flow still coexists for links already in flight. Both rails must be tested, and login error toasts (`lib/auth/login-errors.ts`) must render correctly.
+
+**What commonly breaks.** PKCE link opened on different device → fails silently (old behavior), token_hash verification fails with wrong error code, expired link shows wrong toast message, OAuth error codes leaking into magic-link rail.
+
+**Dependencies.** `app/auth/callback/route.ts`, `lib/auth/login-errors.ts`, Supabase GoTrue OTP, `VERIFIABLE_OTP_TYPES` allow-list.
+
+**What an experienced QA would check:**
+- Request magic link on desktop → open on phone → session created (cross-device works)
+- Request magic link → click expired link → toast "That sign-in link no longer works"
+- Request magic link → click already-used link → same toast (indistinguishable from expired)
+- OAuth consent denied → toast shows "oauth_denied" (not magic-link error)
+- Magic link with invalid token_hash → toast "magic_link_invalid"
+- Magic link with missing code → toast "missing_code"
+- Verify `VERIFIABLE_OTP_TYPES` only allows `magiclink` and `email` (not `signup`, `invite`, `recovery`)
 
 ---
 

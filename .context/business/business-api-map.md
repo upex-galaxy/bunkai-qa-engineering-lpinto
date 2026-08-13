@@ -1,7 +1,7 @@
 # Business API Map — Bunkai (QA Lens)
 
 > Generated: 2026-08-09 (refreshed 2026-08-13)
-> Sources: `../upex-bunkai-tms/public/openapi.json`, `../upex-bunkai-tms/app/api/v1/` (64 route files, 82 handlers), `../upex-bunkai-tms/lib/api/handler.ts`, `../upex-bunkai-tms/lib/api/principal.ts`, `../upex-bunkai-tms/lib/api/middleware/bearer.ts`, `../upex-bunkai-tms/middleware.ts`, `../upex-bunkai-tms/supabase/migrations/0001..0068`
+> Sources: `../upex-bunkai-tms/public/openapi.json`, `../upex-bunkai-tms/app/api/v1/` (64 route files, 82 handlers), `../upex-bunkai-tms/lib/api/handler.ts`, `../upex-bunkai-tms/lib/api/principal.ts`, `../upex-bunkai-tms/lib/api/middleware/bearer.ts`, `../upex-bunkai-tms/middleware.ts`, `../upex-bunkai-tms/supabase/migrations/0001..0069`
 > Last verified against OpenAPI on 2026-08-13
 
 ---
@@ -281,9 +281,10 @@ Consumer             API                                      DB (report RPCs)
 **Numbered narrative**:
 1. **Coverage invariant (QA-critical)**: roll-ups are `sum(ac_bound)/sum(ac_total)`, never a mean of percentages — Home page and API share `lib/home/coverage.ts` (incl. workspace scope), so both must return identical numbers.
 2. Traceability export (BK-50) materializes the full bidirectional chain — regression of links (orphan ACs, broken ATC↔AC joins) shows up here first.
-3. Recovery-cycle metric derives from bug timestamps (open → resolved) — depends on upstream bug lifecycle correctness.
+3. **Traceability chain filters (BK-48)**: ATCs now carry `module: {id, name}` identity (0069 migration). Client-side filter functions (`atcMatchesFilters`, `distinctModules`, `isFilteringActive`) enable filtering by verdict/module/date-range. `StoryChainViewState` distinguishes zero-ac vs zero-coverage empty states.
+4. Recovery-cycle metric derives from bug timestamps (open → resolved) — depends on upstream bug lifecycle correctness.
 
-**What breaks if the API hangs here**: Home/API coverage divergence (sum/sum vs mean bug), stale traceability after ATC repoint, recovery metrics feeding minutes off a wrong bug state.
+**What breaks if the API hangs here**: Home/API coverage divergence (sum/sum vs mean bug), stale traceability after ATC repoint, recovery metrics feeding minutes off a wrong bug state, filter state diverging from chain content (module identity missing or stale).
 
 ---
 
@@ -471,7 +472,7 @@ User            API                                          DB
 | OpenAPI spec vs 64 routes drift | MEDIUM | Not every route file may be documented in `public/openapi.json`; contract tests should diff route inventory against the spec (9 of 64+ endpoints verified by grep only). |
 | Abort-reason redaction | MEDIUM | Run abort writes a reason that must be redacted from activity feed (0067). Untested cross-surface consistency (run detail vs feed). |
 | Idempotency window semantics | MEDIUM | HTTP key vs 24h `start_token` interplay on `POST /runs`: hard-replay detection is functional now — test key reuse across/concurrent calls, and expiry at the 24h boundary. |
-| Magic-link legacy coexistence | MEDIUM | `POST /auth/magic-link` coexists with verification-first confirm; canonical path unknown. Both must be tested, and the 409-no-echo invariant verified on both. |
+| Magic-link legacy coexistence | MEDIUM | `POST /auth/magic-link` coexists with verification-first confirm; canonical path unknown. Both must be tested, and the 409-no-echo invariant verified on both. BK-400 added stateless verification via `verifyOtp` (works cross-device) — test both PKCE (legacy) and implicit (new) flows. |
 | Jira import resilience | MEDIUM | No retry/backoff evidence in `import-runner`; crash leaves `running` forever; concurrent-import 409 is the only guard. Worker-failure simulation needed. |
 | Notifications cross-workspace leak | MEDIUM | `entity_available` per-row RLS: verify a member never receives notifications for entities outside their workspaces, and read-all races. |
 | Rate limiting | LOW | No application-layer rate limiting; 429s come from Supabase only. |

@@ -47,13 +47,15 @@
     <div class="ts-stripe"></div>
     <div class="ts-chrome"><span class="ts-alert-tag amber">Mapa de Riesgos</span><span class="ts-page">03 / 14</span></div>
     <div class="ts-kicker">Resumen Ejecutivo</div>
-    <h2 class="ts-h2">Los 5 flujos <span class="ts-highlight-amber">ALTOS</span></h2>
+    <h2 class="ts-h2">Los 7 flujos <span class="ts-highlight-amber">ALTOS</span></h2>
     <div class="ts-grid-3">
       <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Ciclo Vida Bugs</h4><p>Solo-adelante enforced por trigger + RPC. Salto = 45310.</p></div>
       <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Enforcement Scopes</h4><p>`requires:` en every route. Cookie = todas caps. PAT = declaradas.</p></div>
       <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Save + Propagación ATC</h4><p>RPC atómico: header+steps+assertions+AC. Versión = optimistic lock.</p></div>
       <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Invariante Cobertura</h4><p>`sum/sum` nunca media-de-porcentajes. Home y API comparten código.</p></div>
       <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO</div><h4>Idempotency</h4><p>Funcional en runs/tests/atcs/imports. Ventana 24h `start_token` vs HTTP key.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO · BK-48</div><h4>Filtros Traceability</h4><p>Module identity (0069) + filtering client-side. Estado del filtro vs contenido de la cadena.</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">ALTO · BK-400</div><h4>Magic-Link Cross-Device</h4><p>`verifyOtp` stateless funciona en cualquier dispositivo. Legacy PKCE aún coexiste.</p></div>
     </div>
     <div class="ts-stripe-b"></div>
     <div class="ts-footer"><span>riesgos · high priority</span><span>03 / 14</span></div>
@@ -221,7 +223,7 @@
     <div class="ts-stripe"></div>
     <div class="ts-chrome"><span class="ts-alert-tag green">Checklist</span><span class="ts-page">13 / 14</span></div>
     <div class="ts-kicker">Pre-Lanzamiento</div>
-    <h2 class="ts-h2">15 verificaciones <span class="ts-highlight-green">priorizadas</span></h2>
+    <h2 class="ts-h2">17 verificaciones <span class="ts-highlight-green">priorizadas</span></h2>
     <div class="ts-checklist">
       <div class="ts-check"><div class="box">1</div><div class="txt"><b>CRÍTICO:</b> RLS en cada entidad con workspace_id → 403 o vacío desde otro workspace</div></div>
       <div class="ts-check"><div class="box">2</div><div class="txt"><b>CRÍTICO:</b> Paridad dual-path → cookie session = PAT bearer en mismas filas</div></div>
@@ -233,6 +235,8 @@
       <div class="ts-check ok"><div class="box">8</div><div class="txt"><b>ALTO:</b> ATC save → crear con steps+assertions+AC → editar → verificar versión + propagación</div></div>
       <div class="ts-check ok"><div class="box">9</div><div class="txt"><b>ALTO:</b> Cobertura → Home chip = GET /projects/{id}/coverage = GET /workspaces/{id}/coverage</div></div>
       <div class="ts-check ok"><div class="box">10</div><div class="txt"><b>ALTO:</b> Idempotency → POST /runs con key → 201; misma key → 200; misma key + body distinto → 409</div></div>
+      <div class="ts-check ok"><div class="box">11</div><div class="txt"><b>ALTO · BK-48:</b> Traceability filters → module identity (0069) + verdict/module/date-range filtering</div></div>
+      <div class="ts-check ok"><div class="box">12</div><div class="txt"><b>ALTO · BK-400:</b> Magic-link cross-device → request on desktop, open on phone → session created</div></div>
     </div>
     <div class="ts-stripe-b"></div>
     <div class="ts-footer"><span>checklist · pre-release</span><span>13 / 14</span></div>
@@ -243,14 +247,14 @@
     <div class="ts-stripe"></div>
     <div class="ts-chrome"><span class="ts-alert-tag amber">Gaps + Cierre</span><span class="ts-page">14 / 14</span></div>
     <div class="ts-kicker">Discovery Gaps</div>
-    <h2 class="ts-h2">12 gaps <span class="ts-highlight-amber">abiertos</span></h2>
+    <h2 class="ts-h2">14 gaps <span class="ts-highlight-amber">abiertos</span></h2>
     <div class="ts-grid-2">
       <div class="ts-card" style="border-top:4px solid var(--ts-red)"><div class="lbl">HIGH</div><h4>3 gaps críticos</h4><p>• Paridad dual-path RLS no testeada<br>• `workspace:admin` scope aceptado-rechazado<br>• Invariante cobertura sum/sum no verificado</p></div>
-      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">MEDIUM</div><h4>5 gaps medios</h4><p>• OpenAPI vs 64 rutas drift<br>• Abort-reason redaction<br>• Idempotency window semantics<br>• Jira import resilience<br>• Notifications cross-workspace leak</p></div>
+      <div class="ts-card" style="border-top:4px solid var(--ts-amber)"><div class="lbl">MEDIUM</div><h4>7 gaps medios</h4><p>• OpenAPI vs 64 rutas drift<br>• Abort-reason redaction<br>• Idempotency window semantics<br>• Magic-link legacy coexistence (BK-400)<br>• Jira import resilience<br>• Notifications cross-workspace leak<br>• Traceability filter sync (BK-48)</p></div>
     </div>
     <div class="ts-alert-box green" style="margin-top:24px">
       <h3>Próximos pasos</h3>
-      <p>• Ejecutar checklist pre-lanzamiento (§8)<br>• Priorizar suites de aislamiento dual-path<br>• Configurar DBHub para verificación directa de RLS<br>• Cubrir gaps de OpenAPI spec vs rutas reales</p>
+      <p>• Ejecutar checklist pre-lanzamiento (§8)<br>• Priorizar suites de aislamiento dual-path<br>• Configurar DBHub para verificación directa de RLS<br>• Cubrir gaps de OpenAPI spec vs rutas reales<br>• Testear magic-link cross-device (BK-400)<br>• Verificar traceability filters (BK-48)</p>
     </div>
     <div class="ts-stripe-b"></div>
     <div class="ts-footer"><span>BUNKAI · MASTER TEST PLAN · Q&A</span><span>14 / 14</span></div>

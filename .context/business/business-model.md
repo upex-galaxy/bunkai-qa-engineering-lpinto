@@ -3,7 +3,7 @@
 > Product: **Bunkai** (分解) — open-core Test Management System
 > Source: Discovered from target repo `../upex-bunkai-tms/.context/business/business-model.md` (verified 2026-08-09 against staging state; refreshed 2026-08-13) + source code analysis
 > Confidence: **High** — target has extensive documented business model
-> Status note (2026-08-09): target file states "vision locked. MVP scope cut." — post-MVP epics (BK-201/208/210/221/224: Test Plans, Milestones, Notifications, Chat, Billing) tracked in `.context/PBI/`, unreleased.
+> Status note (2026-08-13): target file states "vision locked. MVP scope cut." — post-MVP epics (BK-201/208/210/221/224: Test Plans, Milestones, Notifications, Chat, Billing) tracked in `.context/PBI/`, unreleased. BK-48 (traceability filters) and BK-400 (magic-link cross-device) shipped to staging.
 
 ## Problem Statement
 
