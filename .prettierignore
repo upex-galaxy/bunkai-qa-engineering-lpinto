@@ -68,6 +68,7 @@ docs/mcp/
 
 # ===========================================
 # Runtime session artifacts - generated, gitignored
+.session/
 # ===========================================
 # Saved auth state and Playwright session output are regenerated every QA run
 # and are already gitignored. Prettier honors only .prettierignore (not
