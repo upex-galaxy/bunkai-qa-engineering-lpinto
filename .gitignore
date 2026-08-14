@@ -149,3 +149,4 @@ dbhub.local.toml
 
 # ----- 2026-08-03 (sync) -----
 .template/upstream-sha/
+.session/
