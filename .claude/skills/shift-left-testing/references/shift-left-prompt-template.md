@@ -331,6 +331,34 @@ bun .claude/skills/acli/scripts/md-to-adf.ts input.md output.adf.json
 
 ---
 
+## FASE 16 — Comparación con Mejores Prácticas del Mercado (OPTIONAL — preguntar siempre)
+
+> Ejecutar SOLO después de FASE 15 (handoff completo: Description + ATP DRAFT sincronizados). **NUNCA automática** — preguntar primero:
+
+**Pregunta al usuario (texto sugerido):**
+> "¿Querés que haga una búsqueda exhaustiva en internet sobre qué debería tener una user story luego de un shift-left testing, para comparar los resultados con la story que estamos refinando?"
+
+**Si el usuario acepta:**
+1. **Investigar** con `[WEB_SEARCH_TOOL]` (Tavily, search_depth advanced, 3-5 resultados por query):
+   - user story best practices after shift-left testing refinement
+   - acceptance criteria structure INVEST 3Cs user story
+   - non-functional requirements in user stories performance accessibility
+   - user story dependencies scope out-of-scope definition of ready
+   - test plan coverage traceability user story refinement QA
+   - queries específicas del dominio de la story (2-3)
+2. **Construir tabla de gaps**: `Dimensión del mercado | ¿Está en la story? (✅/⚠️/❌) | Dónde (campo/sección) | Gap / propuesta | Fuente`
+3. **Presentar opciones por gap** (p.ej. A: ACs formales · B: outlines propuestos + NEEDS PO/DEV CONFIRMATION — default, preserva clasificación Defect/Improvement · C: dejar como está) y **ESPERAR decisión del usuario**
+4. **Cambios aprobados** → aplicar a Jira con protocolo de FASE 15 (backup → PUT → verificar GET, separación WHAT/HOW, tablas con `tableHeader`, consistencia numérica)
+5. **Persistir** investigación en `.session/shift-left-testing/<batch-id>/market-comparison.md`
+
+**Reglas:**
+- NUNCA modificar Jira sin aprobación explícita del usuario
+- Veredicto ✅/⚠️/❌ por dimensión (sin muros de prosa)
+- Citar fuente por fila (URL o publicación)
+- Procedimiento completo: `references/market-comparison.md`
+
+---
+
 ## NOTAS IMPORTANTES
 
 1. **NO pushear sin aprobación explícita del usuario**

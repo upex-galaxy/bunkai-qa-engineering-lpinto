@@ -34,7 +34,7 @@ any `/sdd-` mention outside this section. See:
 
 # Shift-Left Testing — Pre-Sprint AC Refinement on a Backlog Batch
 
-Drive Stage 0 — the pre-sprint Shift-Left loop — on a set of backlog Stories. Three phases, always in this order: **Phase 1 Selection -> Phase 2 Refinement -> Phase 3 Handoff**. Hand off afterwards to `/sprint-testing` once each Story reaches `Ready For QA`.
+Drive Stage 0 — the pre-sprint Shift-Left loop — on a set of backlog Stories. Three core phases, always in this order: **Phase 1 Selection -> Phase 2 Refinement -> Phase 3 Handoff**, plus an optional **Phase 4 — Market Best-Practices Comparison** (user opt-in after handoff: exhaustive web research on what a post-shift-left user story should contain, compared against the refined Story). Hand off afterwards to `/sprint-testing` once each Story reaches `Ready For QA`.
 
 The skill is **batch-by-design**: one session refines N Stories from the backlog so PO + Dev lead can run a single grooming pass with the team. There is no single-ticket mode — for a one-off urgent refinement, pass a list of length 1; the cadence stays the same.
 
@@ -84,6 +84,7 @@ Requires `agentic-qa-core`. Loads on demand:
 - **NFR numerical consistency (MANDATORY)**: Coverage row + Total bump + Traceability rows + Exit Criteria count + Prioritization + Risks row must all agree; "All N outlines executed" in Exit Criteria MUST equal the Coverage Total.
 - On taking a Story into refinement (first QA pickup), set `qa_assignee` to self — read-before-write, never overwrite an existing owner (`agentic-qa-core/references/defect-management-doctrine.md` Part 2). This skill files NO Bug/Defect/Improvement; only the QA-Assignee hook applies.
 - On completion: add label `shift-left-reviewed`; transition Backlog → Shift-Left QA → Estimation.
+- **Phase 4 (opt-in, after handoff)**: ALWAYS ask the user whether to run exhaustive web research on post-shift-left user-story best practices and compare against the refined Story. NEVER auto-run, NEVER apply Jira changes without explicit approval (`references/market-comparison.md`).
 
 **Formatting rules (MANDATORY — from prompt template):**
 
@@ -112,6 +113,7 @@ This skill is compliant with the doctrine in `CLAUDE.md` §"Orchestration Mode (
 | Phase 2 — Refinement (per Story) | Sequential — looped per Story | Refinement subagent: load `acceptance-test-planning.md` Phases 1-3 + outline-only Phase 4, write `shift-left-refinement.md`, append PO/Dev questions, return summary block. ONE subagent per Story. NEVER parallel across Stories (each subagent writes a different PBI file but the orchestrator must present each summary to the user sequentially before the next dispatch) |
 | Phase 3 — Handoff (per Story) | Sequential — looped per Story | Handoff subagent: update Jira description + custom field (or Test Plan in Modality jira-xray) + comment mirror + labels + transition `backlog -> shift_left_qa -> estimation`. Returns transition log + trace verification |
 | Phase 3 — Batch report | Single | Batch Report subagent: aggregate per-Story summaries into `.session/shift-left-testing/<batch-id>/batch-report.md` + post to parent epic if Stories share one |
+| Phase 4 — Market comparison (optional) | Single (per accepted Story) | Market Comparison subagent: exhaustive web research via `[WEB_SEARCH_TOOL]` on post-shift-left user-story best practices, build gap table vs the refined Story, present options and WAIT for user decision. Loads `references/market-comparison.md`. |
 
 > **Sequential by design**. Phase 2 refinement looks parallelizable (each Story is independent in Jira), but the orchestrator must present each Story's refinement summary to the user before moving on. This keeps the user in the loop, lets them veto a Story mid-batch, and matches the team-grooming cadence the skill is designed for. Parallelism would burn the user's attention budget.
 
@@ -119,7 +121,7 @@ This skill is compliant with the doctrine in `CLAUDE.md` §"Orchestration Mode (
 
 ---
 
-## Workflow — one pipeline, three phases
+## Workflow — one pipeline, three core phases (+ optional Phase 4)
 
 ```
 Phase 0 — Session resume check + Session Init (always first)
@@ -155,6 +157,18 @@ Phase 3 — Handoff
          - Verify trace
     -> Batch report posted to .session/shift-left-testing/<batch-id>/batch-report.md
        + posted as comment on parent epic if Stories share one
+
+Phase 4 — Market Best-Practices Comparison (OPTIONAL — ask user, never auto-run)
+    -> After Phase 3 handoff: ASK the user whether to run exhaustive web research
+       on what a post-shift-left user story should contain
+    -> If accepted (per Story, sequentially): research via [WEB_SEARCH_TOOL] (Tavily),
+       build gap table (market dimension | in Story? | where | proposal | source),
+       present options -> WAIT for user decision
+    -> Approved changes: apply to Jira (backup -> PUT -> verify GET, content separation,
+       tableHeader tables, numerical consistency) — NEVER without explicit approval
+    -> Persist research at .session/shift-left-testing/<batch-id>/market-comparison.md
+    -> Full procedure: references/market-comparison.md
+
     -> Archive: orchestrator moves .session/shift-left-testing/<batch-id>/ to
        .session/.archive/<YYYY-MM-DD>-shift-left-testing-<batch-id>/
        per agentic-qa-core/references/session-management.md §8
@@ -482,6 +496,7 @@ All references are self-contained. Load one at a time.
 | `references/refinement-questions.md` | Phase 2 — catalog of typical PO / Dev / Design gap-spotting questions, grouped by AC archetype (auth, money, search, state machine, etc.). Use as a checklist when the Story is sparse. |
 | `references/handoff-protocol.md` | Phase 3 — exact Jira mutation sequence per Story, label + transition rules, batch report template + epic-comment posting rules. |
 | `references/nfr-proposal-procedure.md` | Phase 2 — Story silent on NFRs (performance/accessibility/scalability): propose NFR outlines + E-scenarios with `NEEDS PO/DEV CONFIRMATION` (never formal ACs), numerical consistency across ATP sections, ADF sync gotchas. |
+| `references/market-comparison.md` | Phase 4 (optional) — after Phase 3 handoff: ask the user for exhaustive web research on post-shift-left user-story best practices, gap table vs the refined Story, present options and wait for approval before any Jira change. |
 | `../agentic-qa-core/references/session-management.md` | Phase 0 + Phase 4 — resume contract, plan.md/progress.md schemas, archive policy, Engram per-phase checkpoint. This skill is a producer of `session/shift-left-testing/<batch-id>/...` topic keys. |
 
 ---
