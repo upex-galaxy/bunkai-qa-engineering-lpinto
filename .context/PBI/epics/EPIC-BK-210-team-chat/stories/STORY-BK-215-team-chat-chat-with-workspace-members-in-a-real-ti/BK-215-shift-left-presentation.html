@@ -592,167 +592,338 @@
 
         <section>
             <h2>Critical Questions for PO</h2>
-            <p><em>These BLOCK sprint planning until answered.</em></p>
+            <p><em>These BLOCK sprint planning until answered. — <strong>STATUS: RESOLVED</strong></em></p>
             
             <div class="question-block">
                 <strong>1. Should the general channel be a special case of a channels table or a separate concept?</strong>
                 <p>Context: The story assumes a general channel exists per workspace, but no DB schema exists.<br>
-                Impact: Dev cannot estimate the data model; QA cannot design data-layer tests.<br>
-                Suggested: Treat it as a row in a channels table with <code>type: 'general'</code>.</p>
+                Decision: Treat it as a row in a unified <code>channels</code> table with <code>type: 'general'</code> and <code>is_default: true</code>, scoped to <code>workspace_id</code>. This allows future project and topic channels to reuse the same table and RLS policies.<br>
+                Impact: Dev can estimate a single model; QA designs data-layer tests around a unified table.</p>
             </div>
 
             <div class="question-block">
                 <strong>2. What is the message ordering guarantee when multiple users send simultaneously?</strong>
                 <p>Context: Business Rules say "order they were sent" but mechanism is not defined.<br>
-                Impact: QA cannot write deterministic ordering assertions.<br>
-                Suggested: Server-assigned timestamps with microsecond precision; tie-break by sender ID.</p>
+                Decision: Server-assigned timestamps (<code>created_at</code> with microsecond precision via <code>clock_timestamp()</code>); tie-break by message <code>id ASC</code> for true simultaneity.<br>
+                Impact: QA can write deterministic ordering assertions.</p>
             </div>
 
             <div class="question-block">
                 <strong>3. What is the pagination strategy and page size for message history?</strong>
                 <p>Context: AC2 says "scrolls up" but mechanism is undefined.<br>
-                Impact: QA cannot test pagination boundaries.<br>
-                Suggested: Cursor-based using last message ID; page size = 50.</p>
+                Decision: Keyset cursor-based pagination using the last loaded message ID and timestamp, with a page size of <strong>50 messages</strong>.<br>
+                Impact: QA tests pagination boundaries on <code>GET /messages?limit=50&before=&lt;cursor&gt;</code>.</p>
             </div>
 
             <div class="question-block">
                 <strong>4. Is message validation client-side only, server-side only, or both?</strong>
                 <p>Context: AC5 mentions length bounds but not where validation occurs.<br>
-                Impact: QA cannot determine testing layers.<br>
-                Suggested: Both — client-side for UX, server-side for security.</p>
+                Decision: Both — client-side for UX (trimmed length 1-4000 characters; disable send button when empty or exceeding 4000), server-side for security (PostgreSQL check constraint + API schema validation returning <code>422</code>).<br>
+                Impact: QA tests client-side button state and API 422 responses.</p>
             </div>
 
             <div class="question-block">
                 <strong>5. What is the maximum disconnection window before requiring manual refresh?</strong>
                 <p>Context: AC5 mentions "2 minutes" but no maximum is defined.<br>
-                Impact: QA cannot test reconnection catch-up boundary.<br>
-                Suggested: 5 minutes; beyond that, prompt refresh.</p>
+                Decision: <strong>5 minutes</strong>. Drops &lt; 5 min auto-reconcile missed messages via Realtime re-subscription and an incremental gap-fetch. Drops &gt; 5 min trigger background history resync or a prompt.<br>
+                Impact: QA tests the reconnection catch-up boundary at &lt;5 min vs &gt;5 min.</p>
             </div>
 
             <div class="question-block">
                 <strong>6. How should the empty channel state be worded?</strong>
                 <p>Context: Business Rules mention "friendly prompt" but no copy is defined.<br>
-                Impact: QA cannot assert exact UI text.<br>
-                Suggested: "No messages yet. Start the conversation!"</p>
+                Decision: Headline: <em>"Welcome to the workspace general channel!"</em>, Body: <em>"No messages yet. Start the conversation with your team!"</em>. Include interactive prompt chips for Members.<br>
+                Impact: QA asserts exact text on initial workspace setup.</p>
             </div>
 
             <div class="question-block">
                 <strong>7. Should presence dots reflect real-time status or last-seen timestamp?</strong>
                 <p>Context: AC3 mentions "currently online" but implementation is undefined.<br>
-                Impact: QA cannot test presence accuracy.<br>
-                Suggested: Supabase Presence for real-time; last-seen fallback.</p>
+                Decision: Use <strong>Supabase Presence</strong> (WebSocket heartbeats) for real-time online/offline indicators, backed by a <code>last_seen_at</code> DB timestamp.<br>
+                Impact: QA verifies indicator transitions on connect (&lt;2s) and disconnect (&lt;10s).</p>
             </div>
 
             <div class="question-block">
                 <strong>8. What happens when a user's role changes from member to viewer while channel is open?</strong>
                 <p>Context: Edge case not covered by ACs but affects viewer scenario.<br>
-                Impact: QA cannot test real-time role propagation.<br>
-                Suggested: Composer disabled in real-time + toast notification.</p>
+                Decision: Real-time propagation via Supabase Realtime broadcast. The composer input disables instantly with read-only copy, a toast notification is shown, and any pending write API request is rejected with <code>403</code> by RLS.<br>
+                Impact: QA tests real-time session transition and API RBAC.</p>
             </div>
 
             <div class="question-block">
                 <strong>9. Should messages be queued when user is disconnected or should failure be notified?</strong>
                 <p>Context: Edge case not covered by ACs but affects reconnection scenario.<br>
-                Impact: QA cannot test offline behavior.<br>
-                Suggested: Queue for delivery on reconnect; show sending indicator.</p>
+                Decision: Optimistic rendering in the message feed at 50% opacity. If sending fails or times out (&gt;10s), display a red error indicator with retry/delete options.<br>
+                Impact: QA tests UI state machine transitions (<code>sending</code> -&gt; <code>sent</code> / <code>failed</code>).</p>
             </div>
         </section>
 
         <section>
             <h2>Technical Questions for Dev</h2>
-            <p><em>These do not block PO but block implementation.</em></p>
+            <p><em>These do not block PO but block implementation. — <strong>STATUS: RESOLVED</strong></em></p>
             <ol>
-                <li><strong>What DB schema will be used for channels, messages, and channel_members?</strong> — Columns, types, constraints, indexes, foreign keys. Blocks all data-layer testing.</li>
-                <li><strong>What API endpoints will power the chat?</strong> — Paths, methods, auth, request/response shapes. Blocks API contract testing.</li>
-                <li><strong>How will Supabase Realtime be wired for chat delivery?</strong> — Channel naming, event types, payload shape. Blocks Realtime subscription testing.</li>
-                <li><strong>How will presence tracking be implemented?</strong> — Supabase Presence vs custom solution. Blocks roster online/offline testing.</li>
-                <li><strong>What is the message ordering mechanism?</strong> — Server timestamp, sequence number, or hybrid. Blocks ordering assertions.</li>
-                <li><strong>What cursor format and page size for history pagination?</strong> — Blocks pagination boundary testing.</li>
-                <li><strong>How will RLS policies be implemented for channel access?</strong> — Blocks security-RBAC testing.</li>
-                <li><strong>What error codes and shapes will the API return?</strong> — Auth failures, validation errors, server errors. Blocks error-state testing.</li>
-                <li><strong>Will there be a typing indicator or delivery confirmation?</strong> — If yes, blocks additional test scenarios.</li>
-                <li><strong>What performance SLAs apply to message delivery and history loading?</strong> — Blocks NFR performance outlines (NFR1, NFR2).</li>
-                <li><strong>Will the chat panel meet WCAG 2.1 AA accessibility (keyboard navigation, screen reader)?</strong> — Blocks NFR accessibility outlines (NFR3, NFR4).</li>
+                <li><strong>What DB schema will be used for channels, messages, and channel_members?</strong>
+                    <br><em>Architectural Solution</em>: Three tables. <code>channels</code> (workspace_id, name, slug, type ['general','project','topic']), <code>channel_members</code> (channel_id, user_id, last_read_at), and <code>messages</code> (id, channel_id, sender_id, content [1-4000 chars], metadata, created_at). Includes a covered index <code>idx_messages_channel_pagination</code> on <code>(channel_id, created_at DESC, id DESC) WHERE deleted_at IS NULL</code> for fast keyset pagination.
+                </li>
+                <li><strong>What API endpoints will power the chat (message send, history load, roster, presence)?</strong>
+                    <br><em>Architectural Solution</em>: REST endpoints under <code>/api/v1/workspaces/{workspaceId}/channels/...</code>: <code>POST /messages</code> (returns 201 + serialized message + client_nonce), <code>GET /messages?limit=50&cursor=...</code> (returns 200 + messages + next_cursor), and <code>GET /roster</code> (returns 200 + members with roles).
+                </li>
+                <li><strong>How will Supabase Realtime be wired for chat message delivery?</strong>
+                    <br><em>Architectural Solution</em>: Wire <code>postgres_changes</code> listener on table <code>messages</code> for <code>INSERT</code> event filtered by <code>channel_id</code>. Ephemeral actions use Realtime Broadcast Channel: <code>chat:ws_&lt;workspaceId&gt;:ch_&lt;channelId&gt;</code>.
+                </li>
+                <li><strong>How will presence tracking be implemented?</strong>
+                    <br><em>Architectural Solution</em>: Using <strong>Supabase Realtime Presence</strong> (WebSocket heartbeats) for low-latency in-memory state tracking (sync, join, leave), backed by DB <code>last_seen_at</code> on the join table.
+                </li>
+                <li><strong>What is the message ordering mechanism?</strong>
+                    <br><em>Architectural Solution</em>: Server-assigned <code>created_at</code> timestamp with microsecond precision (<code>timestamptz(6)</code> generated via <code>clock_timestamp()</code>). Tie-breaker on simultaneous inserts is message <code>id ASC</code>.
+                </li>
+                <li><strong>What cursor format and page size will be used for history pagination?</strong>
+                    <br><em>Architectural Solution</em>: Opaque Base64 URL cursor wrapping JSON: <code>{ t: "created_at_timestamp", id: "message_uuid" }</code>. Query implements a keyset fetch: <code>WHERE (m.created_at &lt; cursor_t OR (m.created_at = cursor_t AND m.id &lt; cursor_id))</code>. Page size: <strong>50 messages</strong>.
+                </li>
+                <li><strong>How will RLS policies be implemented for channel access?</strong>
+                    <br><em>Architectural Solution</em>: <code>channels</code>/<code>channel_members</code> allow SELECT based on <code>bunkai_is_workspace_member()</code>. <code>messages</code> allow SELECT for workspace members, and INSERT with <code>WITH CHECK</code> on <code>bunkai_can_write_workspace()</code>, rejecting <code>viewer</code> role at the DB layer.
+                </li>
+                <li><strong>What error codes and shapes will the API return for auth failures, validation errors, and server errors?</strong>
+                    <br><em>Architectural Solution</em>: Standard envelope <code>{ "error": { "code", "message", "details" } }</code>. Codes: <code>CHAT_UNAUTHORIZED</code> (401), <code>CHAT_FORBIDDEN_VIEWER_READONLY</code> (403), <code>CHAT_CHANNEL_NOT_FOUND</code> (404), <code>CHAT_MESSAGE_EMPTY</code> / <code>CHAT_MESSAGE_TOO_LONG</code> (422), <code>CHAT_RATE_LIMITED</code> (429).
+                </li>
+                <li><strong>Will there be a typing indicator or message delivery confirmation?</strong>
+                    <br><em>Architectural Solution</em>: Typing indicator is IN SCOPE for v1 via ephemeral broadcast (typing:start/stop WebSocket events). Read receipts are OUT OF SCOPE v1 (unread state tracked at channel-level with <code>last_read_at</code>).
+                </li>
+                <li><strong>What performance SLAs apply to message delivery and history loading?</strong>
+                    <br><em>Architectural Solution</em>: Latency &lt; 200ms (P95) for real-time delivery; initial history load &lt; 500ms (P95); subsequent paginations &lt; 200ms (P95). Enabled by the covered partial index.
+                </li>
+                <li><strong>Will the chat panel meet WCAG 2.1 AA accessibility (keyboard navigation, screen reader)?</strong>
+                    <br><em>Architectural Solution</em>: Yes. Messages container uses <code>role="log" aria-live="polite" aria-atomic="false"</code>. Focus traps implemented, <code>Escape</code> key dismisses panel, and roster uses explicit non-color text labels for online status.
+                </li>
             </ol>
         </section>
 
         <section>
             <h2>Design Questions</h2>
+            <p><em>From the BRIEF.md and mockup — design-specific gaps that affect testing. — <strong>STATUS: RESOLVED</strong></em></p>
             <ol>
-                <li><strong>What exact copy does the viewer read-only hint show?</strong> — Mockup says "disabled composer with a read-only hint" but no text provided.</li>
-                <li><strong>How should the empty channel state be visually represented?</strong> — Business Rules say "friendly prompt" but no design provided.</li>
-                <li><strong>Should the roster be a flyout overlay or persistent sidebar?</strong> — Mockup says "roster flyout" but behavior not defined.</li>
-                <li><strong>How should the unread separator line be styled?</strong> — Business Rules mention it but no visual spec exists.</li>
-                <li><strong>Should the panel remember open/closed state across navigations?</strong> — Not defined in ACs or mockup.</li>
-                <li><strong>How should the panel behave on narrow viewports?</strong> — BRIEF.md says "desktop-first 1440px" but no responsive behavior defined.</li>
+                <li><strong>What exact copy does the viewer read-only hint show?</strong>
+                    <br><em>Design Specification</em>: Input deshabilitado con lock icon <code>Lock</code>. Copy: <em>"You have read-only access to this channel."</em> Tooltip explicativo al hacer hover/focus: <em>"Only Workspace Members, Admins, and Owners can post messages. Contact your administrator to request posting privileges."</em> Los botones de adjuntos y de enviar se ocultan.
+                </li>
+                <li><strong>How should the empty channel state be visually represented?</strong>
+                    <br><em>Design Specification</em>: Card centrado con bordes punteados (<code>border-dashed bg-card/30</code>). Icono <code>Hash</code> en círculo violeta/azul. Título: <em>"Welcome to #general!"</em>, Cuerpo: <em>"This is the start of your workspace channel..."</em>. Se incluyen <strong>Quick Prompt Chips</strong> interactivos para miembros: <code>👋 Say hello to the team</code> / <code>🚀 Share a project update</code> para auto-poblar el composer al hacer clic.
+                </li>
+                <li><strong>Should the roster be a flyout overlay or a persistent sidebar?</strong>
+                    <br><em>Design Specification</em>: <strong>Slide-in Flyout Panel</strong> deslizante desde la derecha del propio panel de chat (<code>w-full absolute inset-y-0 right-0 bg-background/95 backdrop-blur-md z-20</code>). Evita comprimir el feed de mensajes a un ancho ilegible (~190px). Encabezados de grupo: <code>ONLINE — 8</code>, <code>OFFLINE — 4</code> con badges de rol correspondientes.
+                </li>
+                <li><strong>How should the unread separator line be styled and positioned?</strong>
+                    <br><em>Design Specification</em>: Divisor horizontal rojo/rosado de alto contraste (<code>border-t-2 border-rose-500/80</code>) con badge central <code>NEW MESSAGES</code>. Se ubica antes del primer mensaje no leído. Al abrir el panel, se ejecuta un auto-scroll suave hacia esta posición. Expira a los 3s.
+                </li>
+                <li><strong>Should the panel remember its open/closed state across page navigations?</strong>
+                    <br><em>Design Specification</em>: Sí, guardado en <code>localStorage</code> bajo la clave <code>bunkai_chat_panel_state</code>. Mantiene el panel abierto/cerrado mientras se navega entre módulos (ej. de Test Runs a ATCs). Atajo global: <code>Cmd+Shift+C</code> (Mac) / <code>Ctrl+Shift+C</code> (Windows/Linux). Badge rojo pulsante en el disparador si hay no leídos con el panel cerrado.
+                </li>
+                <li><strong>How should the panel behave on narrow viewports?</strong>
+                    <br><em>Design Specification</em>: Breakpoint-tiered strategy:
+                    <ul>
+                        <li><strong>Wide Desktop ($\ge 1440\text{px}$):</strong> Persistent acoplado de <code>380px</code> (side-by-side).</li>
+                        <li><strong>Laptop / Desktop ($1024\text{px} - 1439\text{px}$):</strong> Overlay slide-sheet de <code>380px</code> con backdrop tenue (<code>bg-black/20</code>).</li>
+                        <li><strong>Tablet ($768\text{px} - 1023\text{px}$):</strong> Drawer de <code>400px</code> con swipe gestual para cerrar.</li>
+                        <li><strong>Mobile ($&lt; 768\text{px}$):</strong> Full-screen sheet (<code>100vw</code>, <code>100dvh</code>) con botón <code>← Back to Workspace</code>. Form composer se desplaza dinámicamente con <code>dvh</code> sobre el teclado virtual.</li>
+                    </ul>
+                </li>
             </ol>
         </section>
 
         <section>
             <h2>Open Questions — Proposed Answers</h2>
+            <p><em>Complete register of the 26 resolved questions across Product, Tech, and Design.</em></p>
             <table>
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Question</th>
-                        <th>Proposed Answer</th>
-                        <th>Source</th>
+                        <th>Category</th>
+                        <th>Question / Area</th>
+                        <th>Decision / Resolved Answer</th>
+                        <th>Product / Tech Rationale</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>1</td>
-                        <td>General channel: special case or separate table?</td>
-                        <td>Row in channels table with <code>type: 'general'</code></td>
-                        <td>Consistency with future project channels (BK-216)</td>
+                        <td><strong>PO - Product</strong></td>
+                        <td>General channel: special case or table row?</td>
+                        <td>Row in <code>channels</code> table with <code>type: 'general'</code>, <code>is_default: true</code></td>
+                        <td>Reusable for project channels (BK-216); single RLS</td>
                     </tr>
                     <tr>
                         <td>2</td>
+                        <td><strong>PO - Product</strong></td>
                         <td>Message ordering guarantee</td>
-                        <td>Server timestamps with microsecond precision; tie-break by sender ID</td>
-                        <td>Industry standard for chat systems</td>
+                        <td>Server <code>created_at</code> timestamp with microsecond precision + <code>id ASC</code></td>
+                        <td>Prevents client clock drift; deterministic ordering</td>
                     </tr>
                     <tr>
                         <td>3</td>
-                        <td>Pagination strategy</td>
-                        <td>Cursor-based using last message ID; page size = 50</td>
-                        <td>Standard for real-time feeds</td>
+                        <td><strong>PO - Product</strong></td>
+                        <td>Pagination strategy & page size</td>
+                        <td>Keyset cursor-based pagination; page size = <strong>50 messages</strong></td>
+                        <td>$O(1)$ index lookup; stable history scroll</td>
                     </tr>
                     <tr>
                         <td>4</td>
+                        <td><strong>PO - Product</strong></td>
                         <td>Validation layers</td>
-                        <td>Both client-side (UX) and server-side (security)</td>
-                        <td>Security best practice</td>
+                        <td>Both client-side (UX limits 1-4000 chars) and server-side (DB check constraint)</td>
+                        <td>UX feedback + direct API security</td>
                     </tr>
                     <tr>
                         <td>5</td>
+                        <td><strong>PO - Product</strong></td>
                         <td>Max disconnection window</td>
-                        <td>5 minutes; beyond that, prompt refresh</td>
-                        <td>Reasonable for QA tool context</td>
+                        <td><strong>5 minutes</strong> limit; &lt;5m auto-reconciliation, &gt;5m resync / prompt</td>
+                        <td>Seamless auto-healing for normal network drops</td>
                     </tr>
                     <tr>
                         <td>6</td>
+                        <td><strong>PO - Product</strong></td>
                         <td>Empty state copy</td>
-                        <td>"No messages yet. Start the conversation!"</td>
-                        <td>Friendly, action-oriented</td>
+                        <td>Title: <em>"Welcome to #general!"</em>, Body: <em>"No messages yet..."</em></td>
+                        <td>Welcoming, action-oriented Bunkai tone</td>
                     </tr>
                     <tr>
                         <td>7</td>
+                        <td><strong>PO - Product</strong></td>
                         <td>Presence implementation</td>
-                        <td>Supabase Presence for real-time; last-seen fallback</td>
-                        <td>Leverages existing Supabase infrastructure</td>
+                        <td>Supabase Presence (WS heartbeats) for active; <code>last_seen_at</code> fallback</td>
+                        <td>Real-time low latency; no DB write heartbeat overhead</td>
                     </tr>
                     <tr>
                         <td>8</td>
-                        <td>Role change propagation</td>
-                        <td>Real-time composer disable + toast notification</td>
-                        <td>Consistent with real-time chat UX</td>
+                        <td><strong>PO - Product</strong></td>
+                        <td>Role demotion while open</td>
+                        <td>Real-time composer disable + toast; RLS rejects pending writes (<code>403</code>)</td>
+                        <td>Session security integrity without page reload</td>
                     </tr>
                     <tr>
                         <td>9</td>
+                        <td><strong>PO - Product</strong></td>
                         <td>Offline message behavior</td>
-                        <td>Queue for delivery on reconnect; show sending indicator</td>
-                        <td>Standard chat pattern</td>
+                        <td>Optimistic render (50% opacity); retry and failure state after 10s</td>
+                        <td>Clear user feedback; client persistence out-of-scope v1</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td><strong>Dev - Tech</strong></td>
+                        <td>Database Schema</td>
+                        <td>Tables <code>channels</code>, <code>channel_members</code>, <code>messages</code> with FKs and covered index</td>
+                        <td>Optimizes performance for heavy pagination</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td><strong>Dev - Tech</strong></td>
+                        <td>API Endpoints</td>
+                        <td><code>POST /messages</code> (201), <code>GET /messages</code> (200, cursor), <code>GET /roster</code> (200)</td>
+                        <td>REST compliance; standardized Next.js v15 handler</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td><strong>Dev - Tech</strong></td>
+                        <td>Realtime broadcast wiring</td>
+                        <td><code>postgres_changes</code> on <code>messages</code> table + Broadcast channel</td>
+                        <td>Realtime message delivery & typing events</td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td><strong>Dev - Tech</strong></td>
+                        <td>Presence technically</td>
+                        <td>Supabase Presence tracker with client-side status maps</td>
+                        <td>Low-overhead join/leave state management</td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td><strong>Dev - Tech</strong></td>
+                        <td>Sub-second simultaneity</td>
+                        <td><code>clock_timestamp()</code> for microsecond precision + message UUID</td>
+                        <td>True database execution time vs transaction time</td>
+                    </tr>
+                    <tr>
+                        <td>15</td>
+                        <td><strong>Dev - Tech</strong></td>
+                        <td>Cursor structure</td>
+                        <td>Base64 URL cursor representing <code>{ t: created_at, id: message_uuid }</code></td>
+                        <td>Keyset pagination mechanics</td>
+                    </tr>
+                    <tr>
+                        <td>16</td>
+                        <td><strong>Dev - Tech</strong></td>
+                        <td>Security & RLS</td>
+                        <td><code>bunkai_is_workspace_member()</code> for SELECT; <code>bunkai_can_write_workspace()</code> for INSERT</td>
+                        <td>Strict role enforcement; <code>viewer</code> role rejected at DB</td>
+                    </tr>
+                    <tr>
+                        <td>17</td>
+                        <td><strong>Dev - Tech</strong></td>
+                        <td>Error payloads</td>
+                        <td>Standard Bunkai envelope with error code <code>CHAT_FORBIDDEN_VIEWER_READONLY</code></td>
+                        <td>Error observability</td>
+                    </tr>
+                    <tr>
+                        <td>18</td>
+                        <td><strong>Dev - Tech</strong></td>
+                        <td>Typing indicators</td>
+                        <td>IN SCOPE for v1 via Broadcast WebSocket; read receipts OUT OF SCOPE v1</td>
+                        <td>Performance balance (no DB locks for read arrays)</td>
+                    </tr>
+                    <tr>
+                        <td>19</td>
+                        <td><strong>Dev - Tech</strong></td>
+                        <td>Performance SLAs</td>
+                        <td>Message delivery &lt; 200ms; initial load &lt; 500ms; pagination &lt; 200ms</td>
+                        <td>High quality standards</td>
+                    </tr>
+                    <tr>
+                        <td>20</td>
+                        <td><strong>Dev - Tech</strong></td>
+                        <td>Accessibility implementation</td>
+                        <td><code>role="log" aria-live="polite"</code>, full keyboard trap & Esc panel close</td>
+                        <td>WCAG 2.1 AA compliant</td>
+                    </tr>
+                    <tr>
+                        <td>21</td>
+                        <td><strong>Design - UI/UX</strong></td>
+                        <td>Viewer composer banner</td>
+                        <td>Disabled banner <code>bg-muted/40</code> + lock icon + contact admin tooltip</td>
+                        <td>Prevents layout shift; clear RBAC communication</td>
+                    </tr>
+                    <tr>
+                        <td>22</td>
+                        <td><strong>Design - UI/UX</strong></td>
+                        <td>Empty channel UI</td>
+                        <td>Centered card, Hash icon badge, microcopy, Quick Prompt Chips</td>
+                        <td>Clean layout; prompts increase engagement</td>
+                    </tr>
+                    <tr>
+                        <td>23</td>
+                        <td><strong>Design - UI/UX</strong></td>
+                        <td>Roster behaviour</td>
+                        <td>Slide-in Collapsible Flyout Overlay covering feed</td>
+                        <td>Prevents double-column compression on narrow layouts</td>
+                    </tr>
+                    <tr>
+                        <td>24</td>
+                        <td><strong>Design - UI/UX</strong></td>
+                        <td>Unread separator styling</td>
+                        <td>Horizontal red line <code>border-rose-500</code> + badge <code>NEW MESSAGES</code></td>
+                        <td>Clean visual contrast; auto-scrolls to position</td>
+                    </tr>
+                    <tr>
+                        <td>25</td>
+                        <td><strong>Design - UI/UX</strong></td>
+                        <td>Panel state persistence</td>
+                        <td><code>localStorage</code> <code>bunkai_chat_panel_state</code>; Ctrl+Shift+C toggle</td>
+                        <td>Fluid module navigation</td>
+                    </tr>
+                    <tr>
+                        <td>26</td>
+                        <td><strong>Design - UI/UX</strong></td>
+                        <td>Breakpoint tier layout</td>
+                        <td>Desktop acoplado; laptop overlay sheet; tablet drawer; mobile full-screen</td>
+                        <td>Desktop-first with full responsive support</td>
                     </tr>
                 </tbody>
             </table>
@@ -813,12 +984,13 @@
         <section>
             <h2>Next Steps</h2>
             <ul>
-                <li>PO answers Critical Questions before sprint planning</li>
-                <li>Dev answers Technical Questions before estimation</li>
-                <li>DB schema design is confirmed and implemented</li>
-                <li>API endpoint contracts are confirmed and implemented</li>
-                <li>Supabase Realtime wiring for chat is confirmed</li>
-                <li>Story enters sprint at status Ready For Dev once estimated</li>
+                <li>✅ <strong>Critical PO Questions Resolved</strong> — Auth, pagination, and UX behaviors clarified.</li>
+                <li>✅ <strong>Technical DB Schema & API Contracts Specified</strong> — Covered index pagination, DDL, and endpoints defined.</li>
+                <li>✅ <strong>UX/UI Layout Breakpoints and Microcopy Designed</strong> — Responsive tiers and read-only states spec'd.</li>
+                <li>Implement DB schema and RLS policies in the next migration.</li>
+                <li>Develop Next.js API endpoints following the Zod schemas and error specifications.</li>
+                <li>Implement Supabase Realtime broadcast and Presence on the front-end.</li>
+                <li>Story can now be accurately estimated and is ready to transition to <strong>Ready for Dev</strong>.</li>
             </ul>
         </section>
 
