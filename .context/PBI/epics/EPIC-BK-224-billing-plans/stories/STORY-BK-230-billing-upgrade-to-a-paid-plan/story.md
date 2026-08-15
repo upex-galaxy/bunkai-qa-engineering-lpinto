@@ -3,9 +3,10 @@
 **Jira Key:** [BK-230](https://jira.upexgalaxy.com/browse/BK-230)
 **Epic:** [BK-224](https://jira.upexgalaxy.com/browse/BK-224) (Billing & Plans)
 **Type:** Story
-**Status:** Backlog
+**Status:** Shift-Left QA
 **Priority:** Medium
 **Story Points:** -
+**Web Link:** https://staging-upexbunkai.vercel.app/settings/account
 
 ---
 
@@ -39,7 +40,7 @@ The self-serve conversion path for Bunkai Cloud. From the Billing section (or fr
 ### Storys (3)
 
 - [BK-231](https://jira.upexgalaxy.com/browse/BK-231): Billing | Manage billing details and download invoices _(Backlog)_
-- [BK-229](https://jira.upexgalaxy.com/browse/BK-229): Billing | View my workspace plan, seats, and usage _(Shift-Left QA)_
+- [BK-229](https://jira.upexgalaxy.com/browse/BK-229): Billing | View my workspace plan, seats, and usage _(Ready For Dev)_
 - [BK-233](https://jira.upexgalaxy.com/browse/BK-233): Billing | Downgrade or cancel the subscription _(Backlog)_
 
 ---
@@ -47,9 +48,9 @@ The self-serve conversion path for Bunkai Cloud. From the Billing section (or fr
 ## Metadata
 
 - **Created:** 11/7/2026
-- **Updated:** 30/7/2026
+- **Updated:** 14/8/2026
 - **Reporter:** Ely
-- **Assignee:** Unassigned
+- **Assignee:** pinto.lucas.nahuel
 
 ---
 
