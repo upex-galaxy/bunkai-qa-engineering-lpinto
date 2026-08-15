@@ -33,15 +33,16 @@ Produce a **gap table** mapping each market dimension to the refined Story:
 | INVEST-shaped story | ✅ / ⚠️ / ❌ | Description — User Story | ... | [source] |
 | Measurable Gherkin ACs | ✅ | Description — Refined ACs | — | |
 | NFRs (perf/accessibility/scalability) | ⚠️ (proposed only) | ATP DRAFT — Non-Functional | Needs PO/Dev confirmation | |
-| Explicit scope / out-of-scope | ❌ | — | Propose section | |
-| Explicit dependencies | ❌ | — | Propose section | |
+| Explicit scope / out-of-scope | ✅ si field nativo poblado | Field `Scope` / `Out Of Scope` (sync `scope.md` / `out-of-scope.md`) | — (duplicar en Description/ATP es redundante — Jira es la fuente de verdad) | |
+| Explicit dependencies | ✅ si field nativo existe y está poblado · ❌ si no existe | Field nativo o Description | Proponer sección SOLO si el proyecto no tiene field nativo; nunca duplicar | |
 | Entry/exit criteria | ✅ | ATP DRAFT | — | |
 | ... (add rows per finding) | | | | |
 
 Rules:
 - **✅ / ⚠️ / ❌ verdict per dimension** — no prose walls.
 - Cite the source per row (URL or publication).
-- NEVER invent content as already-present; read the actual synced Story fields (description + ATP DRAFT) before judging.
+- **Native Jira fields count as covered.** A dimension backed by a populated native field (Scope, Out Of Scope, Dependencies, etc.) is ✅ — do NOT duplicate it in Description/ATP DRAFT (Jira is the source of truth; duplication violates anti-pattern L7). Only propose a new section when the project has no native field for it.
+- NEVER invent content as already-present; read the actual synced Story fields (description + ATP DRAFT + native fields like `scope.md` / `out-of-scope.md`) before judging.
 
 ## 4. Present + wait (NO changes without approval)
 
