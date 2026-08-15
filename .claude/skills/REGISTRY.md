@@ -1,6 +1,6 @@
 # Skill Registry (auto-generated)
 
-> Generated: `2026-08-15T13:26:59.832Z`
+> Generated: `2026-08-15T13:53:24.442Z`
 > Generator: `bun scripts/build-skill-registry.ts`
 > Protocol: `.claude/skills/agentic-qa-core/references/skill-resolver.md`
 
@@ -379,14 +379,15 @@ Skills indexed: 18
 - Stories ONLY (no bugs — nothing to refine upstream). Entry status Backlog / Shift-Left QA / Estimation / Ready For Dev.
 - Output = refined ACs + gap/ambiguity questions + ATP DRAFT (outline NAMES + coverage estimate, no test code, no execution).
 - The heart of the skill (Phase 2) = edge cases not in story + ambiguities + gaps — feed them to PO/Dev as questions AND as derived outlines.
+- **NFR gaps → NEVER formal ACs** (performance/accessibility/scalability silent in the Story): propose NFRs as outlines (NFR1-NFR4) + edge scenarios (E4-E7) marked `NEEDS PO/DEV CONFIRMATION` + blocking Technical Questions. PO/Dev confirmation upgrades them to contract → failures become Defect; before confirmation they are Improvement (`agentic-qa-core/references/defect-management-doctrine.md`). Full procedure: `references/nfr-proposal-procedure.md`.
+- **NFR numerical consistency (MANDATORY)**: Coverage row + Total bump + Traceability rows + Exit Criteria count + Prioritization + Risks row must all agree; "All N outlines executed" in Exit Criteria MUST equal the Coverage Total.
 - On taking a Story into refinement (first QA pickup), set `qa_assignee` to self — read-before-write, never overwrite an existing owner (`agentic-qa-core/references/defect-management-doctrine.md` Part 2). This skill files NO Bug/Defect/Improvement; only the QA-Assignee hook applies.
 - On completion: add label `shift-left-reviewed`; transition Backlog → Shift-Left QA → Estimation.
 - **Code block for ACs**: Use ` ```gherkin ` for syntax highlighting of refined acceptance criteria.
 - **No colons in Gherkin**: `Given` (no `Given:`), `When` (no `When:`), `Then` (no `Then:`).
 - **Content separation**: Description = WHAT (User Story + Context + Critical Analysis + Refined ACs + Questions). ATP DRAFT = HOW (Coverage Estimate + Test Outlines + Traceability Map + Risks & mitigation).
 - **Tables with headers**: Always include column headers for tables.
-- **Backup before modifying**: Save current Jira JSON before PUT operations.
-- **Verify after PUT**: Confirm HTTP 204 and read back content.
+- (truncated — read full SKILL.md for the rest)
 
 **Read full SKILL.md when**: running the batch grooming pipeline, writing the per-Story `shift-left-refinement.md`, or handling the PO/Dev handoff.
 

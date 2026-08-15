@@ -82,6 +82,7 @@ AC[N]: [Título del AC]
 - Colapsar a 1 solo con justificación `trivially atomic`
 - Prioridades: Critical / High / Medium / Low
 - Agregar escenarios de edge cases al final (Scenario E1, E2, E3...)
+- **NFR gaps (si aplica)**: agregar escenarios propuestos E4-E7 (Performance + Accessibility) al final, cada uno terminando en `NEEDS PO/DEV CONFIRMATION.` — NUNCA como ACs formales. Formato y numeración en `references/nfr-proposal-procedure.md` §3.1
 
 ---
 
@@ -212,6 +213,16 @@ Generar el ATP DRAFT con esta estructura:
 |---|---------|---------------|-----------------|
 | T1 | [nombre] | [precondición] | [resultado esperado] |
 
+#### Non-Functional (si aplica — NEEDS PO/DEV CONFIRMATION)
+| # | Outline | Preconditions | Expected Result |
+|---|---------|---------------|-----------------|
+| NFR1 | [performance: latency bajo carga concurrente] | [precondición] | [resultado esperado] |
+| NFR2 | [performance: carga de historial grande] | [precondición] | [resultado esperado] |
+| NFR3 | [accesibilidad: navegación por teclado] | [precondición] | [resultado esperado] |
+| NFR4 | [accesibilidad: screen reader / live region] | [precondición] | [resultado esperado] |
+
+> **Consistencia numérica (MANDATORY)**: fila Non-Functional en Coverage Estimate + Total incrementado + filas E4-E7 en Traceability Map + "All N outlines executed" en Exit Criteria + NFRs en Risk-Based Prioritization + Risk row adicional — TODO debe coincidir. Ver `references/nfr-proposal-procedure.md` §4.
+
 ### Traceability Map
 
 | AC Original | Escenarios Refinados | Outlines |
@@ -329,3 +340,6 @@ bun .claude/skills/acli/scripts/md-to-adf.ts input.md output.adf.json
 5. **Code block con lenguaje**: `gherkin` para syntax highlighting
 6. **Backup antes de modificar**: Guardar JSON actual antes de PUT
 7. **Verificar después de cada PUT**: Confirmar HTTP 204 y contenido
+8. **Tablas ADF exigen `tableHeader`** en filas de cabecera (NO `tableCell` + marks strong → HTTP 400 `INVALID_INPUT`); replicar la estructura de una tabla existente del mismo campo
+9. **Tras `splice()` en el array ADF, los índices posteriores se desplazan** — re-mapear anchors antes de más ediciones (o editar de abajo hacia arriba)
+10. **NFR consistency**: "All N outlines executed" en Exit Criteria DEBE igualar el Total del Coverage Estimate

@@ -80,6 +80,8 @@ Requires `agentic-qa-core`. Loads on demand:
 - Stories ONLY (no bugs — nothing to refine upstream). Entry status Backlog / Shift-Left QA / Estimation / Ready For Dev.
 - Output = refined ACs + gap/ambiguity questions + ATP DRAFT (outline NAMES + coverage estimate, no test code, no execution).
 - The heart of the skill (Phase 2) = edge cases not in story + ambiguities + gaps — feed them to PO/Dev as questions AND as derived outlines.
+- **NFR gaps → NEVER formal ACs** (performance/accessibility/scalability silent in the Story): propose NFRs as outlines (NFR1-NFR4) + edge scenarios (E4-E7) marked `NEEDS PO/DEV CONFIRMATION` + blocking Technical Questions. PO/Dev confirmation upgrades them to contract → failures become Defect; before confirmation they are Improvement (`agentic-qa-core/references/defect-management-doctrine.md`). Full procedure: `references/nfr-proposal-procedure.md`.
+- **NFR numerical consistency (MANDATORY)**: Coverage row + Total bump + Traceability rows + Exit Criteria count + Prioritization + Risks row must all agree; "All N outlines executed" in Exit Criteria MUST equal the Coverage Total.
 - On taking a Story into refinement (first QA pickup), set `qa_assignee` to self — read-before-write, never overwrite an existing owner (`agentic-qa-core/references/defect-management-doctrine.md` Part 2). This skill files NO Bug/Defect/Improvement; only the QA-Assignee hook applies.
 - On completion: add label `shift-left-reviewed`; transition Backlog → Shift-Left QA → Estimation.
 
@@ -266,7 +268,7 @@ For each accepted Story, dispatch ONE Refinement subagent. The subagent loads th
 | Phase 0 — Triage | Already done in this skill's Phase 1. Skip. |
 | Phase 1 — Critical Analysis | Run as-is. Light code exploration only (feasibility check, not reproduction). |
 | Phase 2 — Story Quality Analysis | Run as-is. **This is the heart of shift-left** — ambiguities + gaps + edge cases not in story + testability validation. |
-| Phase 3 — Refined ACs | Run as-is — Given/When/Then with specific data. Mark inferred scenarios with **NEEDS PO/DEV CONFIRMATION**. |
+| Phase 3 — Refined ACs | Run as-is — Given/When/Then with specific data. Mark inferred scenarios with **NEEDS PO/DEV CONFIRMATION**. NFR gaps (performance/accessibility/scalability) → propose E-scenarios + NFR outlines per `references/nfr-proposal-procedure.md` (NEVER formal ACs). |
 | Phase 4 — Test Design (outlines) | **OUTLINE NAMES ONLY**. No parametrization tables. No exhaustive per-outline test-data JSON. Coverage estimate (Positive / Negative / Boundary / Integration counts) IS included — it informs PO estimation. |
 | Phase 5 — Edge case + Test-data summary | **Edge-case names + criticality only**. No data generation strategy, no Faker recipes — feature does not exist yet. |
 | Phase 6 — Traceability + Ticket updates | Phase 3 of THIS skill owns this. Refinement subagent only WRITES the local file; Handoff subagent does Jira mutations. |
@@ -479,6 +481,7 @@ All references are self-contained. Load one at a time.
 | `references/atp-draft-template.md` | Phase 2 — body skeleton for `shift-left-refinement.md` (the ATP DRAFT). Different from sprint-testing's full ATP body. |
 | `references/refinement-questions.md` | Phase 2 — catalog of typical PO / Dev / Design gap-spotting questions, grouped by AC archetype (auth, money, search, state machine, etc.). Use as a checklist when the Story is sparse. |
 | `references/handoff-protocol.md` | Phase 3 — exact Jira mutation sequence per Story, label + transition rules, batch report template + epic-comment posting rules. |
+| `references/nfr-proposal-procedure.md` | Phase 2 — Story silent on NFRs (performance/accessibility/scalability): propose NFR outlines + E-scenarios with `NEEDS PO/DEV CONFIRMATION` (never formal ACs), numerical consistency across ATP sections, ADF sync gotchas. |
 | `../agentic-qa-core/references/session-management.md` | Phase 0 + Phase 4 — resume contract, plan.md/progress.md schemas, archive policy, Engram per-phase checkpoint. This skill is a producer of `session/shift-left-testing/<batch-id>/...` topic keys. |
 
 ---
