@@ -596,17 +596,24 @@ Issues blocking full testability:
 
 ## Handoff Notes for Phase 3
 
-> Jira sync completed on 2026-08-15.
+> Jira sync completed on 2026-08-15 (full content synced).
 
 ### Jira mutations executed
 
-1. **Updated Jira description** with "QA Refinements (Shift-Left Analysis)" section containing:
+1. **Updated Jira description** with complete "QA Refinements (Shift-Left Analysis)" section containing:
+   - Story Quality Assessment
    - Refined Acceptance Criteria (20 scenarios with Given/When/Then)
    - Critical Findings
    - Clarified Business Rules
-   - Open Questions for PO / Dev
-   - Suggested Story Improvements
-   - Edge Cases Identified
+   - Critical Questions for PO (9 questions with context, impact, suggested answer)
+   - Technical Questions for Dev (9 questions)
+   - Design Questions (6 questions)
+   - Open Questions — Proposed Answers (table)
+   - Suggested Story Improvements (8 improvements)
+   - Edge Cases Identified (10 edge cases)
+   - Risks & Mitigation (8 risks)
+   - Traceability Map
+   - Next Steps
 
 2. **Populated ATP DRAFT field** (`customfield_10067`) with the full shift-left-refinement.md body.
 
@@ -618,7 +625,7 @@ Issues blocking full testability:
 
 6. **Transitioned**: `shift_left_qa → estimation` (BK-215 now in Estimation status).
 
-7. **Verified trace**: Description updated with refined ACs, ATP DRAFT field populated, comment mirror present.
+7. **Verified trace**: Description contains all sections from HTML preview, ATP DRAFT field populated, comment mirror present.
 
 ---
 
