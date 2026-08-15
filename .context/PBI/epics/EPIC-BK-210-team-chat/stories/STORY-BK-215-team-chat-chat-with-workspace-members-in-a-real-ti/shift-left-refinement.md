@@ -596,32 +596,29 @@ Issues blocking full testability:
 
 ## Handoff Notes for Phase 3
 
-> These notes document what WOULD happen in a normal shift-left workflow (Jira sync). Since this session is local-only, they serve as a reference for future sessions.
+> Jira sync completed on 2026-08-15.
 
-### Jira mutations (not executed this session)
+### Jira mutations executed
 
-1. **Update Jira description** with "QA Refinements (Shift-Left Analysis)" section containing:
-   - Edge Cases Identified
+1. **Updated Jira description** with "QA Refinements (Shift-Left Analysis)" section containing:
+   - Refined Acceptance Criteria (20 scenarios with Given/When/Then)
+   - Critical Findings
    - Clarified Business Rules
    - Open Questions for PO / Dev
+   - Suggested Story Improvements
+   - Edge Cases Identified
 
-2. **Populate ATP DRAFT field** (`customfield_10067`) with the full shift-left-refinement.md body.
+2. **Populated ATP DRAFT field** (`customfield_10067`) with the full shift-left-refinement.md body.
 
-3. **Add comment mirror** pointing to the ATP DRAFT field.
+3. **Added comment mirror** pointing to the ATP DRAFT field.
 
-4. **Add labels**: `shift-left-reviewed`, `shift-left-2026-08-15`.
+4. **Added labels**: `shift-left-reviewed`, `shift-left-2026-08-15`.
 
-5. **Set QA Assignee** to the authenticated session user (read-before-write).
+5. **Set QA Assignee** to `pinto.lucas.nahuel@gmail.com`.
 
-6. **Transition**: `backlog → shift_left_qa → estimation` (stops at estimation).
+6. **Transitioned**: `shift_left_qa → estimation` (BK-215 now in Estimation status).
 
-7. **Verify trace**: Confirm ATP DRAFT field is populated and comment mirror is present.
-
-### Why these are skipped
-
-- User instructed: "NO Jira sync after finishing"
-- User instructed: "NO git commit"
-- This is a local-only refinement session for review purposes
+7. **Verified trace**: Description updated with refined ACs, ATP DRAFT field populated, comment mirror present.
 
 ---
 
