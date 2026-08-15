@@ -32,6 +32,7 @@ Crucially, the same Run produces the same data whether a human, an AI Test Agent
 | [BK-38](https://jira.upexgalaxy.com/browse/BK-38) | TMS-Run Reporting | Filter project runs with pass/fail totals | 3 | Medium | QA Approved |
 | [BK-39](https://jira.upexgalaxy.com/browse/BK-39) | TMS-Run Execution | Finish a run with a final verdict | 5 | Medium | Ready For Release |
 | [BK-269](https://jira.upexgalaxy.com/browse/BK-269) | TMS-Run Execution | Automatically abort abandoned runs after inactivity | 1 | Medium | Backlog |
+| [BK-442](https://jira.upexgalaxy.com/browse/BK-442) | TMS-Run History | Compare a run against the previous run of the same test | - | Medium | Backlog |
 
 ---
 

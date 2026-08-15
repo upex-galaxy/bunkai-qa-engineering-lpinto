@@ -38,7 +38,7 @@ A message in a busy channel is easy to miss; a mention is a direct tap on the sh
 
 ### Storys (2)
 
-- [BK-215](https://jira.upexgalaxy.com/browse/BK-215): Team Chat | Chat with workspace members in a real-time channel _(Backlog)_
+- [BK-215](https://jira.upexgalaxy.com/browse/BK-215): Team Chat | Chat with workspace members in a real-time channel _(Shift-Left QA)_
 - [BK-209](https://jira.upexgalaxy.com/browse/BK-209): Notifications | View an inbox of workspace events _(Ready For QA)_
 
 ---

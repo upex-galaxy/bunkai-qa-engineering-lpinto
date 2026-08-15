@@ -3,7 +3,7 @@
 **Jira Key:** [BK-1](https://jira.upexgalaxy.com/browse/BK-1)
 **Priority:** Medium
 **Status:** Planning
-**Total Story Points:** 31
+**Total Story Points:** 52
 
 ---
 
@@ -113,6 +113,7 @@ Per-story acceptance criteria live in Gherkin form on each child story. Edge cas
 | [BK-5](https://jira.upexgalaxy.com/browse/BK-5) | TMS-Workspace | Invite a teammate with a role | 13 | Medium | Ready For Release |
 | [BK-6](https://jira.upexgalaxy.com/browse/BK-6) | TMS-Workspace | Switch between workspaces | 5 | Medium | Ready For Release |
 | [BK-166](https://jira.upexgalaxy.com/browse/BK-166) | Authentication | Sign up and sign in with email and password | - | Medium | Ready For Release |
+| [BK-262](https://jira.upexgalaxy.com/browse/BK-262) | PAT | Enforce capability scopes on every non-ATC route | 21 | Medium | Ready For Dev |
 
 ---
 

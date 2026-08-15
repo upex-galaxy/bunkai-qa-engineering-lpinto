@@ -76,7 +76,7 @@ Refined Acceptance Criteria live in the Acceptance Criteria field. Full ATP DRAF
 ### Storys (2)
 
 - [BK-209](https://jira.upexgalaxy.com/browse/BK-209): Notifications | View an inbox of workspace events _(Ready For QA)_
-- [BK-264](https://jira.upexgalaxy.com/browse/BK-264): TMS-Defect Triage | Assign a defect to a workspace member and update its status _(Ready For QA)_
+- [BK-264](https://jira.upexgalaxy.com/browse/BK-264): TMS-Defect Triage | Assign a defect to a workspace member and update its status _(QA Approved)_
 
 ### Epic (1)
 
@@ -87,7 +87,7 @@ Refined Acceptance Criteria live in the Acceptance Criteria field. Full ATP DRAF
 ## Metadata
 
 - **Created:** 11/7/2026
-- **Updated:** 3/8/2026
+- **Updated:** 14/8/2026
 - **Reporter:** Ely
 - **Assignee:** yxsinell acosta zambrano
 - **Labels:** new-feature, post-mvp, shift-left-2026-07-19, shift-left-reviewed

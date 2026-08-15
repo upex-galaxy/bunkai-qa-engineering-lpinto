@@ -3,7 +3,7 @@
 **Jira Key:** [BK-224](https://jira.upexgalaxy.com/browse/BK-224)
 **Priority:** Medium
 **Status:** Planning
-**Total Story Points:** 0
+**Total Story Points:** 8
 
 ---
 
@@ -50,8 +50,8 @@ Monetize Bunkai Cloud. Workspace owners understand which plan their workspace is
 
 | Key | Story | Points | Priority | Status |
 | --- | ----- | ------ | -------- | ------ |
-| [BK-229](https://jira.upexgalaxy.com/browse/BK-229) | Billing | View my workspace plan, seats, and usage | - | Medium | Shift-Left QA |
-| [BK-230](https://jira.upexgalaxy.com/browse/BK-230) | Billing | Upgrade to a paid plan | - | Medium | Backlog |
+| [BK-229](https://jira.upexgalaxy.com/browse/BK-229) | Billing | View my workspace plan, seats, and usage | 8 | High | Ready For Dev |
+| [BK-230](https://jira.upexgalaxy.com/browse/BK-230) | Billing | Upgrade to a paid plan | - | Medium | Shift-Left QA |
 | [BK-231](https://jira.upexgalaxy.com/browse/BK-231) | Billing | Manage billing details and download invoices | - | Medium | Backlog |
 | [BK-232](https://jira.upexgalaxy.com/browse/BK-232) | Billing | See plan-limit warnings with an upgrade path | - | Medium | Backlog |
 | [BK-233](https://jira.upexgalaxy.com/browse/BK-233) | Billing | Downgrade or cancel the subscription | - | Medium | Backlog |

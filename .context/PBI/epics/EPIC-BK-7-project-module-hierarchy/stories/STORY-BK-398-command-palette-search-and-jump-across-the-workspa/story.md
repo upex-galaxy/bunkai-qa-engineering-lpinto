@@ -3,9 +3,9 @@
 **Jira Key:** [BK-398](https://jira.upexgalaxy.com/browse/BK-398)
 **Epic:** [BK-7](https://jira.upexgalaxy.com/browse/BK-7) (Project & Module Hierarchy)
 **Type:** Story
-**Status:** Shift-Left QA
+**Status:** Ready For Dev
 **Priority:** Medium
-**Story Points:** 1
+**Story Points:** 5
 
 ---
 
@@ -38,6 +38,56 @@
 
 ---
 
+## QA Refinements (Shift-Left Analysis) — Added 2026-08-14
+
+> Refined Acceptance Criteria live in the `acceptance_criteria` field.
+
+### Edge Cases Identified
+
+| # | Edge case | In original Story? | Criticality | Action |
+| --- | --- | --- | --- | --- |
+| 1 | Below-threshold query | No | High | Add to AC after threshold confirmation. ***NEEDS PO/DEV CONFIRMATION*** |
+| 2 | Exact threshold query | No | High | Add BVA outline and confirm inclusive behavior. ***NEEDS PO/DEV CONFIRMATION*** |
+| 3 | Whitespace/case/Unicode query normalization | No | Medium | Confirm matching contract; retain as boundary coverage. ***NEEDS PO/DEV CONFIRMATION*** |
+| 4 | Empty group among non-empty groups | No | Medium | Confirm whether empty groups are omitted. ***NEEDS PO/DEV CONFIRMATION*** |
+| 5 | Loading state for a slow query | No | High | Add async-state AC. ***NEEDS PO/DEV CONFIRMATION*** |
+| 6 | Backend timeout/error | No | High | Add distinct recoverable error state. ***NEEDS PO/DEV CONFIRMATION*** |
+| 7 | Out-of-order query responses | No | Critical | Add latest-query-wins integration coverage. ***NEEDS PO/DEV CONFIRMATION*** |
+| 8 | Workspace switch during search | No | Critical | Add active-workspace re-scope coverage. ***NEEDS PO/DEV CONFIRMATION*** |
+| 9 | Permission revocation before selection | No | High | Confirm safe failure behavior. ***NEEDS PO/DEV CONFIRMATION*** |
+| 10 | Unsaved modal/form under palette | Partially stated in business rules | High | Add preservation and focus restoration scenario. ***NEEDS PO/DEV CONFIRMATION*** |
+| 11 | Duplicate result names | “Enough context” only | Medium | Add explicit context requirement. ***NEEDS PO/DEV CONFIRMATION*** |
+| 12 | Result cap overflow | No | Medium | Confirm cap/order and add BVA coverage. ***NEEDS PO/DEV CONFIRMATION*** |
+
+### Clarified Business Rules
+
+1. Search is scoped to the active workspace at query time (active-workspace selection), and project membership may further narrow results.
+2. A minimum query length gates search requests; behavior for empty and below-threshold queries is a defined guidance state.
+3. Search is debounced; the interval is not yet defined and may be implementation-only.
+4. Keyboard traversal highlights only selectable results; group headings are never focused. Wrapping behavior is not yet defined.
+5. Focus restoration after dismissal depends on the entry point (Cmd/Ctrl+K, sidebar, topbar); underlying modal/form state must be preserved.
+6. Async search must distinguish loading, no-results, and recoverable failure states; a stale response must never overwrite the latest query.
+
+### Critical Questions for PO
+
+1. ***What are the exact matching semantics and minimum query threshold?***
+2. ***What exact destination and identifying context must be used for each of the six entity types?***
+3. ***What is the expected grouped-result policy?***
+4. ***What must the user see while a qualifying search is loading or when the search source fails?***
+
+### Technical Questions for Dev
+
+1. ***Will BK-398 introduce a dedicated union-search API/RPC, or aggregate entity-specific sources?*** The current code exposes separate entity routes and direct server-component queries; the choice controls contract, latency, auth, and test isolation.
+2. ***What is the authoritative active-workspace and permission filter for the search request?*** Confirm server-side enforcement, especially for users belonging to multiple workspaces and projects they cannot access.
+3. ***How will stale requests, debounce, loading, timeout, and cancellation be handled?*** The latest query must not be overwritten by an older response.
+4. ***How will result selection map to exact routes, particularly Modules and Runs?*** Provide route builders or a stable typed destination field in the response.
+5. ***What fixture/seed path will provide all six entity types, two workspaces, and restricted visibility?*** Without it, critical data-isolation coverage is not repeatable.
+6. ***How will focus restoration work across the two existing palette mounts and underlying modals/forms?*** The current shell opens the input but does not define opener refs or focus-return behavior.
+
+> Full refinement (Phases 1-5, outline DRAFT, risk + data feasibility) lives in the ATP DRAFT custom field.
+
+---
+
 ## Fields
 
 > Each rich-text field is a separate file in this folder.
@@ -61,10 +111,10 @@
 ## Metadata
 
 - **Created:** 12/8/2026
-- **Updated:** 12/8/2026
+- **Updated:** 14/8/2026
 - **Reporter:** Ely
-- **Assignee:** Unassigned
-- **Labels:** app-shell, command-palette, navigation
+- **Assignee:** Ely
+- **Labels:** app-shell, command-palette, navigation, shift-left-2026-08-14, shift-left-reviewed
 
 ---
 

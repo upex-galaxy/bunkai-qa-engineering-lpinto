@@ -77,7 +77,7 @@ Implements ***FR-004***.
 
 ### Defect (1)
 
-- [BK-316](https://jira.upexgalaxy.com/browse/BK-316): WorkspaceSwitch: API: active-workspace switch not reflected in Bearer/PAT-authenticated GET /me _(Ready For QA)_
+- [BK-316](https://jira.upexgalaxy.com/browse/BK-316): WorkspaceSwitch: API: active-workspace switch not reflected in Bearer/PAT-authenticated GET /me _(Closed)_
 
 ### Bug (1)
 

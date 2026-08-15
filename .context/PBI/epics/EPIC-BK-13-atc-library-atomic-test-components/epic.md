@@ -3,7 +3,7 @@
 **Jira Key:** [BK-13](https://jira.upexgalaxy.com/browse/BK-13)
 **Priority:** Medium
 **Status:** Planning
-**Total Story Points:** 41
+**Total Story Points:** 42
 
 ---
 
@@ -78,6 +78,7 @@ Maps PRD EPIC-BK-004 (US 4.1..4.6) and SRS FR-010..FR-014.
 | [BK-439](https://jira.upexgalaxy.com/browse/BK-439) | TMS-ATC Library | Browse every ATC in the workspace from one index | 5 | Medium | Backlog |
 | [BK-440](https://jira.upexgalaxy.com/browse/BK-440) | TMS-ATC Library | Find an ATC by name as you type | 3 | Medium | Backlog |
 | [BK-441](https://jira.upexgalaxy.com/browse/BK-441) | TMS-ATC Library | Narrow the index by Project, Module, layer and anchor | 3 | Medium | Backlog |
+| [BK-467](https://jira.upexgalaxy.com/browse/BK-467) | 🚀 TMS-ATC Library | Export a Project's ATCs to CSV | 1 | Medium | Ready For QA |
 
 ---
 

@@ -6,7 +6,6 @@
 **Status:** Shift-Left QA
 **Priority:** Medium
 **Story Points:** -
-**Web Link:** https://staging-upexbunkai.vercel.app/settings/account
 
 ---
 
@@ -48,9 +47,9 @@ The self-serve conversion path for Bunkai Cloud. From the Billing section (or fr
 ## Metadata
 
 - **Created:** 11/7/2026
-- **Updated:** 14/8/2026
+- **Updated:** 15/8/2026
 - **Reporter:** Ely
-- **Assignee:** pinto.lucas.nahuel
+- **Assignee:** Unassigned
 
 ---
 

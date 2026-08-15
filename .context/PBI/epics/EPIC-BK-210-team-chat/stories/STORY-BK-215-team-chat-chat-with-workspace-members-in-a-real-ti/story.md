@@ -3,9 +3,10 @@
 **Jira Key:** [BK-215](https://jira.upexgalaxy.com/browse/BK-215)
 **Epic:** [BK-210](https://jira.upexgalaxy.com/browse/BK-210) (Team Chat)
 **Type:** Story
-**Status:** Backlog
+**Status:** Shift-Left QA
 **Priority:** Medium
 **Story Points:** -
+**Web Link:** https://staging-upexbunkai.vercel.app/
 
 ---
 
@@ -40,7 +41,7 @@ This is the foundation story of the Team Chat epic. Every Workspace gets a gener
 
 - [BK-216](https://jira.upexgalaxy.com/browse/BK-216): Team Chat | Chat in a dedicated per-project channel _(Backlog)_
 - [BK-220](https://jira.upexgalaxy.com/browse/BK-220): Team Chat | Search the message history _(Backlog)_
-- [BK-219](https://jira.upexgalaxy.com/browse/BK-219): Team Chat | Edit and delete my own messages _(Estimation)_
+- [BK-219](https://jira.upexgalaxy.com/browse/BK-219): Team Chat | Edit and delete my own messages _(Ready For Dev)_
 - [BK-217](https://jira.upexgalaxy.com/browse/BK-217): Team Chat | Mention a teammate to get their attention _(Backlog)_
 - [BK-218](https://jira.upexgalaxy.com/browse/BK-218): Team Chat | Share an ATC, test, or run as a rich link _(Backlog)_
 
@@ -53,9 +54,9 @@ This is the foundation story of the Team Chat epic. Every Workspace gets a gener
 ## Metadata
 
 - **Created:** 11/7/2026
-- **Updated:** 30/7/2026
+- **Updated:** 15/8/2026
 - **Reporter:** Ely
-- **Assignee:** Unassigned
+- **Assignee:** pinto.lucas.nahuel
 
 ---
 

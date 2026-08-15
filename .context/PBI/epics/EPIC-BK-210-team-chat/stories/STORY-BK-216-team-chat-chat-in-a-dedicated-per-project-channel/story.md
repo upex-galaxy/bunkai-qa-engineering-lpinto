@@ -38,7 +38,7 @@ The workspace general channel is great for broad questions, but project work nee
 
 ### Story (1)
 
-- [BK-215](https://jira.upexgalaxy.com/browse/BK-215): Team Chat | Chat with workspace members in a real-time channel _(Backlog)_
+- [BK-215](https://jira.upexgalaxy.com/browse/BK-215): Team Chat | Chat with workspace members in a real-time channel _(Shift-Left QA)_
 
 ### Epic (1)
 

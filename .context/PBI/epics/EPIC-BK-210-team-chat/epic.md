@@ -3,7 +3,7 @@
 **Jira Key:** [BK-210](https://jira.upexgalaxy.com/browse/BK-210)
 **Priority:** Medium
 **Status:** Planning
-**Total Story Points:** 0
+**Total Story Points:** 5
 
 ---
 
@@ -40,11 +40,11 @@ Builds on Workspace membership (epic [https://jira.upexgalaxy.com/browse/BK-1#ic
 
 | Key | Story | Points | Priority | Status |
 | --- | ----- | ------ | -------- | ------ |
-| [BK-215](https://jira.upexgalaxy.com/browse/BK-215) | Team Chat | Chat with workspace members in a real-time channel | - | Medium | Backlog |
+| [BK-215](https://jira.upexgalaxy.com/browse/BK-215) | Team Chat | Chat with workspace members in a real-time channel | - | Medium | Shift-Left QA |
 | [BK-216](https://jira.upexgalaxy.com/browse/BK-216) | Team Chat | Chat in a dedicated per-project channel | - | Medium | Backlog |
 | [BK-217](https://jira.upexgalaxy.com/browse/BK-217) | Team Chat | Mention a teammate to get their attention | - | Medium | Backlog |
 | [BK-218](https://jira.upexgalaxy.com/browse/BK-218) | Team Chat | Share an ATC, test, or run as a rich link | - | Medium | Backlog |
-| [BK-219](https://jira.upexgalaxy.com/browse/BK-219) | Team Chat | Edit and delete my own messages | - | Medium | Estimation |
+| [BK-219](https://jira.upexgalaxy.com/browse/BK-219) | Team Chat | Edit and delete my own messages | 5 | Medium | Ready For Dev |
 | [BK-220](https://jira.upexgalaxy.com/browse/BK-220) | Team Chat | Search the message history | - | Medium | Backlog |
 
 ---

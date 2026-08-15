@@ -3,9 +3,9 @@
 **Jira Key:** [BK-219](https://jira.upexgalaxy.com/browse/BK-219)
 **Epic:** [BK-210](https://jira.upexgalaxy.com/browse/BK-210) (Team Chat)
 **Type:** Story
-**Status:** Estimation
+**Status:** Ready For Dev
 **Priority:** Medium
-**Story Points:** -
+**Story Points:** 5
 
 ---
 
@@ -38,14 +38,14 @@ Real conversations include wrong URLs, typos, and messages sent to the wrong cha
 
 ### Story (1)
 
-- [BK-215](https://jira.upexgalaxy.com/browse/BK-215): Team Chat | Chat with workspace members in a real-time channel _(Backlog)_
+- [BK-215](https://jira.upexgalaxy.com/browse/BK-215): Team Chat | Chat with workspace members in a real-time channel _(Shift-Left QA)_
 
 ---
 
 ## Metadata
 
 - **Created:** 11/7/2026
-- **Updated:** 30/7/2026
+- **Updated:** 14/8/2026
 - **Reporter:** Ely
 - **Assignee:** Janetzi Jackiewicz
 - **Labels:** shift-left-2026-07-16, shift-left-reviewed

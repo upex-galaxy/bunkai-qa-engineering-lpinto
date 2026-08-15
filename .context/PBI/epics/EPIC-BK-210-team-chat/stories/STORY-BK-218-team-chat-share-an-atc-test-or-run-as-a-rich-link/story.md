@@ -38,7 +38,7 @@ Chat about QA work constantly references the work itself: "this ATC is flaky", "
 
 ### Story (1)
 
-- [BK-215](https://jira.upexgalaxy.com/browse/BK-215): Team Chat | Chat with workspace members in a real-time channel _(Backlog)_
+- [BK-215](https://jira.upexgalaxy.com/browse/BK-215): Team Chat | Chat with workspace members in a real-time channel _(Shift-Left QA)_
 
 ### Epics (3)
 
