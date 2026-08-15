@@ -1,9 +1,10 @@
 # Business Data Map — Bunkai (QA Lens)
 
 > Generated: 2026-08-09 (v2 — synced to `upex-bunkai-tms` staging branch, tip `5e0134c`; refreshed 2026-08-13)
+> Refreshed: 2026-08-15 (v3 — verified against `upex-bunkai-tms` branch `qa-sync-staging`, tip `b9f3fc6`)
 > Sources: `../upex-bunkai-tms/supabase/migrations/` (0001–0069), `../upex-bunkai-tms/app/api/v1/`, `../upex-bunkai-tms/lib/`, `../upex-bunkai-tms/.context/business/events.md`
 > Cross-refs: `.context/business/business-feature-map.md`, `.context/business/business-api-map.md`, `.context/business/domain-glossary.md`
-> Delta vs v1 (2026-08-09, main branch): runs/tests/bugs/environments/imports/milestones/notifications/activity/coverage NOW REAL (were "planned"). Schema grew 0012 → 0069 migrations.
+> Delta vs v2 (2026-08-13): OAuth GitHub/Google live (app/auth/oauth + oauth-buttons.tsx), magic-link anti-silent-signup (BK-175 `shouldCreateUser: false`), migrations 0067 (DEFINER rewrites) + 0058 (ATC title CHECK) NOT applied, feature_flags scope global/workspace.
 
 ---
 
@@ -14,7 +15,7 @@
 | 1 | `workspaces` | Tenant | `POST /api/v1/workspaces` (wraps `bunkai_bootstrap_workspace` RPC) | — |
 | 2 | `workspace_members` | RBAC | Invite accept (`POST /api/v1/invites/accept`), leave via `DELETE /api/v1/workspaces/{id}/membership` | workspace_id, user_id, role enum |
 | 3 | `workspace_invites` | RBAC | `POST /api/v1/workspaces/{id}/invites` → token returned once | workspace_id, email, status |
-| 4 | `access_tokens` | Auth | `POST /api/v1/tokens`, or auto-mint on `signin` / `confirm` | workspace_id (nullable), user_id, scopes text[] |
+| 4 | `access_tokens` | Auth | `POST /api/v1/tokens`, or auto-mint on `signin` / `confirm` / OAuth signup | workspace_id (nullable), user_id, scopes text[] |
 | 5 | `access_token_secrets` | Auth (secret) | Split from `access_tokens` (migration 0011) — hash isolated; called `sibling secret table` | token_id |
 | 6 | `projects` | Taxonomy | `POST /api/v1/workspaces/{id}/projects` | workspace_id |
 | 7 | `modules` | Taxonomy | `POST /api/v1/projects/{id}/modules`; tree ops `PATCH/DELETE /api/v1/modules/{id}` | project_id, parent_id (self) |
@@ -37,14 +38,16 @@
 | 24 | `notification_preferences` | Notify | `GET/PATCH /api/v1/notification-preferences` | user_id, event_type |
 | 25 | `activity_log` | Audit | Written ONLY via SECURITY DEFINER RPCs (no client INSERT policy); read `GET /api/v1/activity` | workspace_id, actor_user_id, entity_type, action |
 | 26 | `idempotency_keys` | Safety | `POST /api/v1/runs`, `/tests`, `/atcs`, `/imports` (Idempotency-Key reconstruction NOW functional) | key (hash), workspace_id |
-| 27 | `feature_flags` | Config | PostgREST/RPC only (no API) | workspace_id |
+| 27 | `feature_flags` | Config | PostgREST/RPC only (no API) | workspace_id (nullable → global when null) |
 | 28 | `user_view_state` | Config | PostgREST, owner-only (auth.uid() = user_id) | user_id |
 | 29 | `magic_link_tokens` | Auth | Supabase GoTrue OTP tracking | user_id/email |
 | 30 | `magic_link_token_secrets` | Auth (secret) | Split from `magic_link_tokens` (0011) | token_id |
 | 31 | `workspace_invite_secrets` | Auth (secret) | Split from `workspace_invites` (0011) | token_id |
 | 32 | `integrations` | Config | **NOT PRESENT** — greenfield schema never shipped; Jira import uses `import_jobs` (0019) + `lib/jira/import-runner.ts` instead | — |
 
-> NOTE: v1's entity #9 `integrations` (Jira webhook config) does NOT exist in any migration (0001–0068). Jira connectivity is real but implemented as async `import_jobs` + `lib/jira/import-runner.ts`, not a config table. The v1 "idempotency skeleton" is also outdated — idempotent writes (replay store) are now functional on runs/tests/atcs/imports.
+> NOTE: v1's entity #9 `integrations` (Jira webhook config) does NOT exist in any migration (0001–0069). Jira connectivity is real but implemented as async `import_jobs` + `lib/jira/import-runner.ts`, not a config table. The v1 "idempotency skeleton" is also outdated — idempotent writes (replay store) are now functional on runs/tests/atcs/imports.
+
+> **Migration application status (2026-08-15)**: 69 migrations exist in `supabase/migrations/` (0001–0069). **0067 (run finish/abort `via`, SECURITY DEFINER rewrites) and 0058 (ATC title length CHECK) are NOT applied** — present in the tree, pending human approval. QA must not assume either constraint exists at runtime.
 
 ---
 
@@ -57,11 +60,13 @@ POST /auth/signup {email, pwd} → 202 {status: pending_confirmation} (NO sessio
   → email OTP (6-8 digits)
 POST /auth/confirm {email, token} → mints session + PAT atomically (this is where credentials first exist)
   → workspace → project (POST /workspaces/{id}/projects) → module tree → US + AC → ATC
+OAuth path (GitHub/Google): server-initiated /auth/oauth/init → provider → /auth/oauth/callback
+  → user JWT session (supabase-ssr); PAT minted separately via /tokens (no auto-mint on OAuth)
 ```
 
 **Test data chain**: 1 auth user → confirm mints 1 PAT → 1 workspace → 1 project → 3 modules → 1 US → 2 ACs → 1 ATC
 
-**Key deltas vs v1**: `signup` returns 202 with NO credentials; the auto-confirm backdoor is closed. Sign-in keeps `min(6)` password (legacy), signup/confirm enforce `min(8)`.
+**Key deltas vs v2**: OAuth signup bypasses email-OTP (GoTrue provider session); magic-link anti-silent-signup (`shouldCreateUser: false`, BK-175) — a magic link for an unknown email returns the same response as a known one (no account-existence oracle). Signup/confirm enforce `min(8)`; legacy signin keeps `min(6)`.
 
 ### Flow B: ATC Reuse (Edit Propagation, BK-21)
 
@@ -79,8 +84,10 @@ ATC created → chained in Test A + Test B (test_steps) → edit ATC → bunkai_
 POST /runs {test_id, environment_id} (Idempotency-Key REQUIRED, 24h start_token window)
   → bunkai_create_run snapshots chain (run_atcs + run_steps) + module snapshot
 POST /runs/{id}/steps/{stepId}/mark {status} → bunkai_mark_run_step → position status computed
-POST /runs/{id}/finish {verdict} | POST /runs/{id}/abort {reason} → terminal states + events
+POST /runs/{id}/finish {verdict, via?} | POST /runs/{id}/abort {reason, via?} → terminal states + events
 ```
+
+**Executor mode (cookie vs bearer)**: a cookie-session caller is forced to `executor_mode='human'`; a Bearer caller may declare `agent` / `ci`. `via` on finish/abort records the executor (migration 0067 — **DEFINER rewrites NOT applied**; the RPC paths work through the current security model).
 
 **Test data chain**: 1 project env (Staging) → 1 test (3 ATCs) → 1 run → 3 run_atcs → N run_steps
 
@@ -194,6 +201,7 @@ For each entity with `workspace_id` FK (direct or via project):
 | Milestones | 0064 | create/update + events (no status, no delete) |
 | Import jobs REAL | 0019, 0020 | async Jira import + one-active-per-project |
 | Auth verification-first | 0033, 0034, BK-166 | signup 202 pending_confirmation; confirm mints session+PAT; admin scope never global (ADR-0005) |
+| OAuth GitHub/Google | — | live `app/auth/oauth/*`; provider session via GoTrue; magic-link anti-silent-signup (BK-175) |
 | Versioned API expanded | — | 19 → 64 route files; ~82 handlers; idempotency functional; scopes enforced via `requires:` |
 | Module/US/AC CRUD via API | 0013–0018, 0021–0023 | soft-delete, move, description, ordering, ready-to-test gate, activity events |
 

@@ -1,8 +1,9 @@
 # Business API Map — Bunkai (QA Lens)
 
 > Generated: 2026-08-09 (refreshed 2026-08-13)
+> Refreshed: 2026-08-15 (v3 — verified against `upex-bunkai-tms` branch `qa-sync-staging`, tip `b9f3fc6`)
 > Sources: `../upex-bunkai-tms/public/openapi.json`, `../upex-bunkai-tms/app/api/v1/` (64 route files, 82 handlers), `../upex-bunkai-tms/lib/api/handler.ts`, `../upex-bunkai-tms/lib/api/principal.ts`, `../upex-bunkai-tms/lib/api/middleware/bearer.ts`, `../upex-bunkai-tms/middleware.ts`, `../upex-bunkai-tms/supabase/migrations/0001..0069`
-> Last verified against OpenAPI on 2026-08-13
+> Last verified against OpenAPI on 2026-08-13 (re-verified route inventory 2026-08-15)
 
 ---
 
@@ -10,7 +11,7 @@
 
 Bunkai's API lets two distinct operator types drive the same test-management data model: **human QA engineers** through a session-cookie browser app, and **AI agents / CI pipelines** through bearer PATs. Since June 2026 the `/api/v1` surface grew roughly **3× — from 19 endpoints to 64 route files / 82 handlers** — and the product moved from "auth + tenancy skeleton" to a working test lifecycle: test chains, run execution, native bugs with triage, coverage reporting, notifications, and async Jira import all now have versioned endpoints over RPCs and RLS.
 
-The auth model was rebuilt around a **unified Principal** (ADR-0001): `withApiHandler()` + `resolveIdentity()` collapse cookie and Bearer callers into one identity, and `requires:` scope gates are now **enforced** (previously `requireScope()` existed but no route called it). Signup is **verification-first** (BK-166): an unconfirmed account can do nothing — only email confirmation mints the session and first PAT. A password sign-in mints a PAT in the same call, so headless/agent flows never touch a browser.
+The auth model was rebuilt around a **unified Principal** (ADR-0001): `withApiHandler()` + `resolveIdentity()` collapse cookie and Bearer callers into one identity, and `requires:` scope gates are now **enforced** (previously `requireScope()` existed but no route called it). Signup is **verification-first** (BK-166): an unconfirmed account can do nothing — only email confirmation mints the session and first PAT. A password sign-in mints a PAT in the same call, so headless/agent flows never touch a browser. **OAuth (GitHub + Google) is live** via server-initiated GoTrue OAuth (CSRF state cookie); an OAuth session carries all cookie capabilities but does NOT auto-mint a PAT — headless callers issue one via `/tokens`.
 
 Four product surfaces dominate the staging API: **run execution** (start → step-marking → finish/abort with state machines + triggers), **bug management** (provenance from run steps, forward-only triage), **coverage/traceability** (per-project and workspace roll-ups, export chain), and **async Jira import** (202 + worker + poll). Core authoring data (projects, modules, stories, ACs, ATCs) still flows mostly through Supabase PostgREST and `bunkai_*` RPCs, all RLS-gated.
 
@@ -23,7 +24,7 @@ Four product surfaces dominate the staging API: **run execution** (start → ste
 | Tier | Who it applies to | How to acquire | Where enforced (code path) |
 |------|-------------------|----------------|---------------------------|
 | Public | Unauthenticated callers | None — no credential required | `middleware.ts` allows `/api/v1/health`, `/api/v1/auth/*` (signup/signin/confirm/resend/check-email/magic-link), `/api/v1` banner |
-| Session-authenticated | Browser users (human QAs) | Signup → confirm OTP (or legacy magic link) → Supabase session cookie | `middleware.ts` `getUser()` + `lib/api/handler.ts` `auth: 'required'` |
+| Session-authenticated | Browser users (human QAs) | Signup → confirm OTP, **OAuth (GitHub/Google server-initiated, PKCE + CSRF state cookie)**, or legacy magic link → Supabase session cookie | `middleware.ts` `getUser()` + `lib/api/handler.ts` `auth: 'required'` |
 | Bearer PAT | AI agents, CI/CD, scripts | Minted atomically by `POST /auth/signin` and `POST /auth/confirm`; managed via `/tokens` | `lib/api/middleware/bearer.ts` — prefix lookup, SHA-256 compare, `revoked_at`/`expires_at`, uniform 401 `"Invalid token."` |
 | Principal (unified) | Any authenticated caller | Either flavor above; `resolveIdentity()` normalizes | `lib/api/principal.ts` — session JWT **or** PAT-JWT (`mintUserJwt`) → one `Principal { userId, kind: session\|pat, scopes }`; PAT path uses an **RLS-scoped client AS user, never service role** |
 | Scope-gated (requires:) | PAT holders | Scopes fixed at mint: `atc:read`, `atc:write`, `run:execute`, `workspace:admin` (the latter **rejected at runtime**, ADR-0005) | `lib/api/handler.ts` `requires: ['atc:read', ...]` — enforced on every decorated route; cookie callers are treated as holding all capabilities |
@@ -67,6 +68,17 @@ Agent/CLI → POST /api/v1/auth/signin { email, password }
   → Supabase signInWithPassword (legacy min(6))
   → response: { user, session, pat: { token, scopes, expires_at } }
   → subsequent calls: Authorization: Bearer bk_pat_<prefix>.<secret>
+```
+
+### Token flow — OAuth (GitHub / Google) — server-initiated, SHIPPED
+
+```
+Browser → GET /api/v1/auth/oauth/init?provider=github|google&next=...
+  → server sets CSRF state cookie → redirect to provider
+Provider callback → /api/v1/auth/oauth/callback (state validated)
+  → GoTrue exchanges code → user session cookie (supabase-ssr)
+  → full cookie capabilities (all scopes); NO PAT auto-minted
+  → headless follow-up: POST /api/v1/tokens to issue a bearer PAT
 ```
 
 ### Token flow — PAT verification (any subsequent call)
@@ -114,7 +126,7 @@ User            Browser            API            GoTrue Auth
  │  POST /auth/check-email         │  pre-submit check (public)
 ```
 
-**Endpoints**: `POST /api/v1/auth/signup`, `POST /api/v1/auth/confirm`, `POST /api/v1/auth/resend`, `POST /api/v1/auth/check-email` (all public). Legacy: `POST /api/v1/auth/magic-link` still exists.
+**Endpoints**: `POST /api/v1/auth/signup`, `POST /api/v1/auth/confirm`, `POST /api/v1/auth/resend`, `POST /api/v1/auth/check-email`, `GET /api/v1/auth/oauth/init`, `GET /api/v1/auth/oauth/callback` (all public). Legacy: `POST /api/v1/auth/magic-link` still exists.
 
 **Entities touched**: `auth.users` (`access_tokens`, `access_token_secrets` minted at confirm).
 
@@ -473,6 +485,7 @@ User            API                                          DB
 | Abort-reason redaction | MEDIUM | Run abort writes a reason that must be redacted from activity feed (0067). Untested cross-surface consistency (run detail vs feed). |
 | Idempotency window semantics | MEDIUM | HTTP key vs 24h `start_token` interplay on `POST /runs`: hard-replay detection is functional now — test key reuse across/concurrent calls, and expiry at the 24h boundary. |
 | Magic-link legacy coexistence | MEDIUM | `POST /auth/magic-link` coexists with verification-first confirm; canonical path unknown. Both must be tested, and the 409-no-echo invariant verified on both. BK-400 added stateless verification via `verifyOtp` (works cross-device) — test both PKCE (legacy) and implicit (new) flows. |
+| OAuth session surface | MEDIUM | OAuth path bypasses email-OTP and auto-mint: verify a fresh OAuth user can reach all session-capability surfaces, and that `/tokens` issues a correct-scope PAT for a user who only has an OAuth session. |
 | Jira import resilience | MEDIUM | No retry/backoff evidence in `import-runner`; crash leaves `running` forever; concurrent-import 409 is the only guard. Worker-failure simulation needed. |
 | Notifications cross-workspace leak | MEDIUM | `entity_available` per-row RLS: verify a member never receives notifications for entities outside their workspaces, and read-all races. |
 | Rate limiting | LOW | No application-layer rate limiting; 429s come from Supabase only. |

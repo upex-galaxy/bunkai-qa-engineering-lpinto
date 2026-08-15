@@ -1,9 +1,10 @@
 # Business Feature Map — Bunkai (QA Lens)
 
 > Generated: 2026-08-09 (v2 — synced to `upex-bunkai-tms` staging branch, tip `5e0134c`; refreshed 2026-08-13)
-> Sources: `../upex-bunkai-tms/app/` (31 pages), `../upex-bunkai-tms/app/api/v1/` (64 route files), `../upex-bunkai-tms/supabase/migrations/` (0001–0068), `../upex-bunkai-tms/lib/`
+> Refreshed: 2026-08-15 (v3 — verified against `upex-bunkai-tms` branch `qa-sync-staging`, tip `b9f3fc6`)
+> Sources: `../upex-bunkai-tms/app/` (31 pages), `../upex-bunkai-tms/app/api/v1/` (64 route files), `../upex-bunkai-tms/supabase/migrations/` (0001–0069), `../upex-bunkai-tms/lib/`
 > Cross-refs: `.context/business/business-data-map.md`, `.context/business/business-api-map.md`
-> Delta vs v1 (main, 2026-08-09): runs/tests/bugs/imports/milestones/notifications/activity/coverage moved from Planned → Stable. Versioned API 19 → 64 routes.
+> Delta vs v2 (2026-08-13): **FEAT-AUTH-003 OAuth GitHub/Google SHIPPED** (was Planned — `app/auth/oauth/*`, `oauth-buttons.tsx`); FEAT-AUTH-001 magic-link anti-silent-signup (BK-175); FEAT-AUTH-007 check-email enumeration tradeoff (ADR-0007); FEAT-UI-007 Settings suite + `/settings/account` identity card live.
 
 ---
 
@@ -11,7 +12,7 @@
 
 | Category | Features | Status |
 |----------|----------|--------|
-| Auth & identity | 7 | Stable (4) + Planned (3) |
+| Auth & identity | 7 | **Stable (6)** + Planned (1) |
 | Workspace & tenancy | 6 | Stable |
 | Project & module tree | 6 | Stable (CRUD now via API) |
 | ATC authoring | 7 | Stable (create/update/duplicate/usage/search) |
@@ -53,6 +54,7 @@
 - [x] Redirect to `/projects` or custom `next` path
 - [x] Open-redirect guard on callback
 - [x] Cross-device support (BK-400): stateless `verifyOtp` works on any device
+- [x] **Anti-silent-signup (BK-175)**: `shouldCreateUser: false` — a magic link for an unknown email returns the same response as a known one (no account-existence oracle)
 - [x] Login error toasts (`lib/auth/login-errors.ts`) for expired/invalid links
 - [ ] Custom SMTP via Resend (configured but not wired)
 
@@ -76,11 +78,15 @@
 | Aspect | Value |
 |--------|-------|
 | **ID** | FEAT-AUTH-003 |
-| **Status** | Planned ("next sprint") |
-| **UI** | Disabled buttons on login page |
+| **Status** | **Stable — SHIPPED (was Planned)** |
+| **Routes** | `/api/v1/auth/oauth/init` (server-initiated, provider redirect + CSRF state cookie), `/api/v1/auth/oauth/callback` |
+| **UI** | `OAuthButtons` on login page (`app/(auth)/login/oauth-buttons.tsx`) — GitHub + Google enabled |
+| **Dependencies** | Supabase GoTrue OAuth (PKCE, server-initiated), `app/auth/oauth/` |
 
-- [ ] GitHub OAuth button (disabled, "soon" label)
-- [ ] Google OAuth button (disabled, "soon" label)
+- [x] GitHub OAuth sign-in/signup (enabled)
+- [x] Google OAuth sign-in/signup (enabled)
+- [x] CSRF state cookie on server-initiated flow
+- [x] OAuth session via GoTrue (no email-OTP in this path); PAT minted separately via `/tokens`
 
 #### Feature: SSO login
 
@@ -133,6 +139,7 @@
 | **Status** | **New — Stable** |
 | **Endpoints** | `POST /api/v1/auth/check-email` → `auth_email_status` RPC (0034) |
 | **Users** | Login page — resolves "sign up" vs "sign in" copy |
+| **Detail** | Enumeration tradeoff ratified in ADR-0007: the probe deliberately answers "does this email exist" only through a SECURITY DEFINER RPC (never raw table reads) and collapses unknown/error to a uniform response |
 
 ---
 
@@ -900,7 +907,7 @@
 
 | Service | Purpose | Status | Features using it |
 |---------|---------|--------|-------------------|
-| Supabase Auth (GoTrue) | OTP magic-link, password, sessions | **Active** | AUTH-001/002/006 |
+| Supabase Auth (GoTrue) | OTP magic-link, password, sessions, **OAuth (GitHub/Google)** | **Active** | AUTH-001/002/003/006 |
 | Supabase PostgREST | Auto-generated REST | **Active** | UI reads, RLS |
 | Supabase PostgreSQL | Primary DB (31 tables) | **Active** | All |
 | Supabase Realtime | Run row broadcast (0043) | **Active (runs)** | RUN-001 |
@@ -916,13 +923,15 @@
 
 | Feature | Evidence | Status |
 |---------|----------|--------|
-| OAuth providers | Disabled buttons with "soon" labels | Planned next sprint |
+| ~~OAuth providers~~ | **SHIPPED** — `app/auth/oauth/*` + login `OAuthButtons` | ~~Planned next sprint~~ → **Stable** |
+| Magic-link anti-silent-signup | `shouldCreateUser: false` (BK-175) | Stable |
 | Workspace slug rotation | PATCH only allows name | Post-MVP |
 | Member role change | Invite-time role only | Not scheduled |
 | ATC/Test delete or archive UI | Not exposed | Not scheduled |
 | Bug→Jira sync | import one-way only | Phase 3 |
 | Resend email integration | `RESEND_API_KEY` in env, no SDK | Phase 2 |
 | ATC version history | Bump only, no history UI | Not scheduled |
+| Migrations 0058/0067 | In tree, NOT applied (pending approval) | Pending |
 
 ---
 

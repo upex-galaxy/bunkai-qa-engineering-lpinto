@@ -4,6 +4,7 @@
 > Source: Discovered from target repo `../upex-bunkai-tms/.context/business/business-model.md` (verified 2026-08-09 against staging state; refreshed 2026-08-13) + source code analysis
 > Confidence: **High** — target has extensive documented business model
 > Status note (2026-08-13): target file states "vision locked. MVP scope cut." — post-MVP epics (BK-201/208/210/221/224: Test Plans, Milestones, Notifications, Chat, Billing) tracked in `.context/PBI/`, unreleased. BK-48 (traceability filters) and BK-400 (magic-link cross-device) shipped to staging.
+> Status note v3 (2026-08-15): OAuth GitHub/Google shipped (`app/auth/oauth/*`); magic-link anti-silent-signup (BK-175); billing epic BK-224 now in Shift-Left QA (BK-229 ready-for-dev, BK-230 under shift-left review).
 
 ## Problem Statement
 
