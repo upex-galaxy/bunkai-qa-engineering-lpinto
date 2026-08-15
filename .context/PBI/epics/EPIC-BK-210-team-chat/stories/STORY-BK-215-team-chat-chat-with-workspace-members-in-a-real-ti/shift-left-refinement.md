@@ -596,26 +596,30 @@ Issues blocking full testability:
 
 ## Handoff Notes for Phase 3
 
-> Jira sync completed on 2026-08-15 (full content synced).
+> Jira sync completed on 2026-08-15 (content separated by purpose).
 
 ### Jira mutations executed
 
-1. **Updated Jira description** with complete "QA Refinements (Shift-Left Analysis)" section containing:
+1. **Updated Jira description** with "QA Refinements (Shift-Left Analysis)" section containing:
    - Story Quality Assessment
    - Refined Acceptance Criteria (20 scenarios with Given/When/Then)
-   - Critical Findings
+   - Critical Findings (summary)
    - Clarified Business Rules
-   - Critical Questions for PO (9 questions with context, impact, suggested answer)
+   - Critical Questions for PO (9 questions)
    - Technical Questions for Dev (9 questions)
    - Design Questions (6 questions)
    - Open Questions — Proposed Answers (table)
-   - Suggested Story Improvements (8 improvements)
-   - Edge Cases Identified (10 edge cases)
-   - Risks & Mitigation (8 risks)
-   - Traceability Map
+   - Suggested Story Improvements
    - Next Steps
 
-2. **Populated ATP DRAFT field** (`customfield_10067`) with the full shift-left-refinement.md body.
+2. **Populated ATP DRAFT field** (`customfield_10067`) with test plan content:
+   - Coverage Estimate (26 outlines)
+   - Test Outlines (Positive, Negative, Boundary, Integration, Security-RBAC, State-Transition)
+   - Traceability Map
+   - Test Data Requirements
+   - Test Environment Requirements
+   - Entry/Exit Criteria
+   - Risk-Based Prioritization
 
 3. **Added comment mirror** pointing to the ATP DRAFT field.
 
@@ -625,7 +629,12 @@ Issues blocking full testability:
 
 6. **Transitioned**: `shift_left_qa → estimation` (BK-215 now in Estimation status).
 
-7. **Verified trace**: Description contains all sections from HTML preview, ATP DRAFT field populated, comment mirror present.
+7. **Verified trace**: Description has ACs + questions, ATP DRAFT has test plan, comment mirror present.
+
+### Content separation rationale
+
+- **Description**: WHAT to build (ACs, findings, questions for PO/Dev)
+- **ATP DRAFT**: HOW to test (outlines, coverage, test data, environment, criteria)
 
 ---
 
