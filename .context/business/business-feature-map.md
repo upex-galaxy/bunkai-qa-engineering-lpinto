@@ -1,10 +1,10 @@
 # Business Feature Map — Bunkai (QA Lens)
 
 > Generated: 2026-08-09 (v2 — synced to `upex-bunkai-tms` staging branch, tip `5e0134c`; refreshed 2026-08-13)
-> Refreshed: 2026-08-15 (v3 — verified against `upex-bunkai-tms` branch `qa-sync-staging`, tip `b9f3fc6`)
-> Sources: `../upex-bunkai-tms/app/` (31 pages), `../upex-bunkai-tms/app/api/v1/` (64 route files), `../upex-bunkai-tms/supabase/migrations/` (0001–0069), `../upex-bunkai-tms/lib/`
+> Refreshed: 2026-08-15 (v4 — verified against `upex-bunkai-tms` branch `staging`, tip `de670c4`)
+> Sources: `../upex-bunkai-tms/app/` (31 pages), `../upex-bunkai-tms/app/api/v1/` (65 route files), `../upex-bunkai-tms/supabase/migrations/` (0001–0070), `../upex-bunkai-tms/lib/`
 > Cross-refs: `.context/business/business-data-map.md`, `.context/business/business-api-map.md`
-> Delta vs v2 (2026-08-13): **FEAT-AUTH-003 OAuth GitHub/Google SHIPPED** (was Planned — `app/auth/oauth/*`, `oauth-buttons.tsx`); FEAT-AUTH-001 magic-link anti-silent-signup (BK-175); FEAT-AUTH-007 check-email enumeration tradeoff (ADR-0007); FEAT-UI-007 Settings suite + `/settings/account` identity card live.
+> Delta vs v3 (2026-08-13): **FEAT-BUG-006 Defect detail read SHIPPED** (BK-337: GET /api/v1/bugs/{id}, BugDetailSchema with origin + module.archived_at); BK-466 evidence-link scheme guard (http/https only); 0070 bug detail composer RPC widening.
 
 ---
 
@@ -18,7 +18,7 @@
 | ATC authoring | 7 | Stable (create/update/duplicate/usage/search) |
 | Tests (chains) | 5 | **Stable (was Planned)** |
 | Runs execution | 6 | **Stable (was Planned)** |
-| Bugs / defects | 5 | **Stable (was Planned)** |
+| Bugs / defects | 6 | **Stable (was Planned)** |
 | Environments | 2 | **Stable (was Planned)** |
 | Imports (Jira) | 2 | **Stable (was Planned)** |
 | Milestones | 2 | **New — Stable** |
@@ -30,7 +30,7 @@
 | Search & discovery | 2 | Partial / WIP |
 | Integrations | 2 | Planned |
 | UI / experience | 9 | Mixed |
-| **Total** | **~80** | |
+| **Total** | **~81** | |
 
 ---
 
@@ -561,6 +561,22 @@
 | **Endpoints** | `GET /api/v1/projects/{id}/bugs/heatmap` → `bunkai_report_project_defect_heatmap` (0052) |
 | **UI** | `/projects/[slug]/bugs` heatmap view |
 
+#### Feature: Defect detail read (NEW)
+
+| Aspect | Value |
+|--------|-------|
+| **ID** | FEAT-BUG-006 |
+| **Status** | **New — Stable (BK-337)** |
+| **Endpoints** | `GET /api/v1/bugs/{id}` → `bunkai_bug_json` (widened by 0070_bug_detail_composer.sql) |
+| **UI** | `/projects/[slug]/bugs/[bugId]` (read-only defect detail page) |
+
+- [x] Full composed record: title, severity, status, evidence, provenance (origin), module (with `archived_at`)
+- [x] `origin` object: `run_id`, `run_step_position` (0-based), `atc_id`, `atc_title`, `atc_layer` — null for standalone defects (filed manually)
+- [x] Archived-module bugs render with `module.archived_at` set (PO ruling: tag, never 404)
+- [x] SECURITY INVOKER: `bunkai_bug_json` runs under caller's RLS; missing/foreign bug → generic 404 (non-disclosing)
+- [x] POST /bugs, POST /bugs/{id}/assign, POST /bugs/{id}/status also return `BugDetailSchema` (not plain `BugSchema`)
+- [x] Evidence-link scheme guard (BK-466): `evidence_urls` restricted to http/https at filing (Zod) and render time (`isHttpUrl`)
+
 ---
 
 ### 2.8 Environments / imports / milestones / notifications / activity / coverage
@@ -742,7 +758,7 @@
 |--------|-------|
 | **ID** | FEAT-API-004 |
 | **Status** | Stable |
-| **Detail** | Zod schemas → OpenAPI 3.1; tags for auth/tenancy/identity + 64 route files; bearer + cookie schemes; Scalar UI at `/api/docs` |
+| **Detail** | Zod schemas → OpenAPI 3.1; tags for auth/tenancy/identity + 65 route files; bearer + cookie schemes; Scalar UI at `/api/docs` |
 
 #### Feature: API health probe
 
@@ -774,6 +790,7 @@
 | **ID** | FEAT-API-008 |
 | **Status** | Stable + **expanded** |
 | **Endpoints** | workspaces CRUD + invites + membership (leave) + recent-projects + projects + open-bugs + active-runs + notifications + coverage |
+| **Detail** | 65 route files, ~84+ handlers |
 
 ---
 
@@ -811,7 +828,7 @@
 | `atcs` | ✅ POST /atcs | ✅ + search | ✅ PATCH (opt-lock) | ❌ (archive TBD) | 0021, 0027–0029, 0065 |
 | `tests` | ✅ POST /tests | ✅ GET/{id} + tag filter | ✅ reorder + tags | ❌ | 0024–0026, 0030 |
 | `runs` | ✅ POST /runs | ✅ GET/{id} + history + report | ⚠️ steps mark/finish/abort | ❌ | 0031–0043 |
-| `bugs` | ✅ POST /bugs | ✅ list + project + heatmap | ✅ assign + status | ❌ (lifecycle) | 0046, 0051, 0052, 0054 |
+| `bugs` | ✅ POST /bugs | ✅ list + project + heatmap + detail read (BK-337) | ✅ assign + status | ❌ (lifecycle) | 0046, 0051, 0052, 0054, 0070 |
 | `import_jobs` | ✅ POST /imports | ✅ GET/{id} | ❌ | ❌ | 0019/0020 |
 | `milestones` | ✅ POST | ✅ GET | ✅ PATCH | ❌ (no delete RPC) | 0064 |
 | `notifications` | ⚠️ DB-trigger only | ✅ list | ✅ mark read/read-all | ❌ | 0053, 0057, 0066 |
@@ -825,7 +842,7 @@
 
 ---
 
-## 4. API endpoint inventory (64 route files, ~82 handlers)
+## 4. API endpoint inventory (65 route files, ~84+ handlers)
 
 ### Versioned REST (`/api/v1`) — by domain
 
@@ -886,6 +903,7 @@
 | `POST` | `/api/v1/runs/{id}/abort` | Abort run (reason) | Session or Bearer (`run:execute`) |
 | `GET` | `/api/v1/projects/{id}/runs/report` | Project run report | Session or Bearer |
 | `POST` | `/api/v1/bugs` | File bug | Session or Bearer (`atc:write`) |
+| `GET` | `/api/v1/bugs/{id}` | Read single defect (BK-337) | Session or Bearer |
 | `GET` | `/api/v1/bugs` | List + filter (severity/status, cursor) | Session or Bearer |
 | `GET` | `/api/v1/projects/{id}/bugs` | Project bug list | Session or Bearer |
 | `GET` | `/api/v1/projects/{id}/bugs/heatmap` | Defect heatmap | Session or Bearer |
@@ -944,7 +962,7 @@
 | FEAT-AUTH-006 | Verification-first signup/confirm | — | ✅ API contract (202 no-creds → confirm mints) | ✅ Login page | **HIGH — new behavior** |
 | FEAT-API-006 | Unified Principal + scope enforcement | ✅ RLS + JWT | ✅ `requires:` now enforced | — | **HIGH — security** |
 | FEAT-RUN-001..006 | Runs engine | ✅ RPCs + state machines | ✅ 8 run endpoints | ⚠️ Runner UI | **HIGH — was untestable, now real** |
-| FEAT-BUG-001..005 | Bugs + triage | ✅ triggers + adjacency | ✅ 6 bug endpoints | ⚠️ Bugs UI | **HIGH — was untestable** |
+| FEAT-BUG-001..006 | Bugs + triage + detail | ✅ triggers + adjacency | ✅ 7 bug endpoints | ⚠️ Bugs UI | **HIGH — was untestable** |
 | FEAT-TEST-001..005 | Tests/chains | ✅ RPCs | ✅ 6 test endpoints | ⚠️ Tests UI | **HIGH — was untestable** |
 | FEAT-COV-001..004 | Coverage/traceability | ✅ 5 report RPCs | ✅ 5 endpoints | ⚠️ Metrics/Traceability UI | **HIGH — audit-facing** |
 | FEAT-NOTIF-001..004 | Notifications | ✅ triggers | ✅ 4 endpoints | ✅ Settings UI | **HIGH — cross-entity** |
@@ -973,7 +991,7 @@
 | Activity feed allowlist | MEDIUM | Verify BK-49's allowlist excludes `run_step.marked` and `run.aborted.reason` never renders |
 | Notifications entity-visibility | MEDIUM | RLS projection respects entity visibility — member must never see notifications for hidden entities |
 | Import worker timing | MEDIUM | `after()` async — test 202 → poll until succeeded; one-active 409 |
-| OpenAPI spec vs 64 routes | MEDIUM | Spec coverage of new domains (runs/bugs/imports/milestones) must match shipped handlers |
+| OpenAPI spec vs 65 routes | MEDIUM | Spec coverage of new domains (runs/bugs/imports/milestones) must match shipped handlers |
 | No workspace delete/slug rotation | LOW | Multi-tenant lifecycle incomplete |
 | Resend/Jira-sync absent | LOW | Email still GoTrue; bug sync future |
 

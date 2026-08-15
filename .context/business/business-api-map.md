@@ -1,15 +1,15 @@
 # Business API Map — Bunkai (QA Lens)
 
 > Generated: 2026-08-09 (refreshed 2026-08-13)
-> Refreshed: 2026-08-15 (v3 — verified against `upex-bunkai-tms` branch `qa-sync-staging`, tip `b9f3fc6`)
-> Sources: `../upex-bunkai-tms/public/openapi.json`, `../upex-bunkai-tms/app/api/v1/` (64 route files, 82 handlers), `../upex-bunkai-tms/lib/api/handler.ts`, `../upex-bunkai-tms/lib/api/principal.ts`, `../upex-bunkai-tms/lib/api/middleware/bearer.ts`, `../upex-bunkai-tms/middleware.ts`, `../upex-bunkai-tms/supabase/migrations/0001..0069`
+> Refreshed: 2026-08-15 (v4 — verified against `upex-bunkai-tms` branch `staging`, tip `de670c4`)
+> Sources: `../upex-bunkai-tms/public/openapi.json`, `../upex-bunkai-tms/app/api/v1/` (65 route files, 84+ handlers), `../upex-bunkai-tms/lib/api/handler.ts`, `../upex-bunkai-tms/lib/api/principal.ts`, `../upex-bunkai-tms/lib/api/middleware/bearer.ts`, `../upex-bunkai-tms/middleware.ts`, `../upex-bunkai-tms/supabase/migrations/0001..0070`
 > Last verified against OpenAPI on 2026-08-13 (re-verified route inventory 2026-08-15)
 
 ---
 
 ## 1. Executive summary
 
-Bunkai's API lets two distinct operator types drive the same test-management data model: **human QA engineers** through a session-cookie browser app, and **AI agents / CI pipelines** through bearer PATs. Since June 2026 the `/api/v1` surface grew roughly **3× — from 19 endpoints to 64 route files / 82 handlers** — and the product moved from "auth + tenancy skeleton" to a working test lifecycle: test chains, run execution, native bugs with triage, coverage reporting, notifications, and async Jira import all now have versioned endpoints over RPCs and RLS.
+Bunkai's API lets two distinct operator types drive the same test-management data model: **human QA engineers** through a session-cookie browser app, and **AI agents / CI pipelines** through bearer PATs. Since June 2026 the `/api/v1` surface grew roughly **3× — from 19 endpoints to 65 route files / 84+ handlers** — and the product moved from "auth + tenancy skeleton" to a working test lifecycle: test chains, run execution, native bugs with triage, coverage reporting, notifications, and async Jira import all now have versioned endpoints over RPCs and RLS.
 
 The auth model was rebuilt around a **unified Principal** (ADR-0001): `withApiHandler()` + `resolveIdentity()` collapse cookie and Bearer callers into one identity, and `requires:` scope gates are now **enforced** (previously `requireScope()` existed but no route called it). Signup is **verification-first** (BK-166): an unconfirmed account can do nothing — only email confirmation mints the session and first PAT. A password sign-in mints a PAT in the same call, so headless/agent flows never touch a browser. **OAuth (GitHub + Google) is live** via server-initiated GoTrue OAuth (CSRF state cookie); an OAuth session carries all cookie capabilities but does NOT auto-mint a PAT — headless callers issue one via `/tokens`.
 
@@ -226,7 +226,7 @@ Agent/CI              API                                DB (RPCs + triggers)
 
 ### Journey 4: Native bug reporting & triage
 
-**Business purpose**: A QA files a bug anchored to a module, ATC and run **inside the test cycle** — no Jira hand-off — and triages it through a forward-only lifecycle.
+**Business purpose**: A QA files a bug anchored to a module, ATC and run **inside the test cycle** — no Jira hand-off — and triages it through a forward-only lifecycle. BK-337 adds a single-defect detail read with full provenance and archived-module tagging.
 
 ```
 QA                  API                                 DB (trigger + RPC backstop)
@@ -235,6 +235,9 @@ QA                  API                                 DB (trigger + RPC backst
  │                                                          │  from run_step_id; module ∈ project
  │                                                          │  re-validated (45300)
  │  ← 200 { bug_id, status: open }                          │
+ │  GET /bugs/{id}                                           │
+ │ ────────────────────────────────────────────────────────►│  bunkai_bug_json (0070 widened)
+ │  ← 200 { bug: { ...origin, module.archived_at } }        │  SECURITY INVOKER, RLS-scoped
  │  POST /bugs/{id}/assign { user_id }                      │
  │ ────────────────────────────────────────────────────────►│  assignee must be member (45312)
  │                                                          │  viewer cannot be assigned (45313)
@@ -243,10 +246,10 @@ QA                  API                                 DB (trigger + RPC backst
  │                                                          │  open→in_progress→resolved→closed
  │                                                          │  (45310 skip, 45311 backward)
  │  GET /projects/{id}/bugs  ·  GET /projects/{id}/bugs/heatmap
- │  GET /workspaces/{id}/open-bugs                          │
+ │  GET /workspaces/{id}/open-bugs
 ```
 
-**Endpoints**: `POST /api/v1/bugs`, `GET /api/v1/workspaces/{id}/open-bugs`, `POST /api/v1/bugs/{id}/assign`, `POST /api/v1/bugs/{id}/status`, `GET /api/v1/projects/{id}/bugs`, `GET /api/v1/projects/{id}/bugs/heatmap`.
+**Endpoints**: `POST /api/v1/bugs`, `GET /api/v1/bugs/{id}` (BK-337), `GET /api/v1/workspaces/{id}/open-bugs`, `POST /api/v1/bugs/{id}/assign`, `POST /api/v1/bugs/{id}/status`, `GET /api/v1/projects/{id}/bugs`, `GET /api/v1/projects/{id}/bugs/heatmap`.
 
 **Entities touched**: `bugs`, `run_steps`, `modules`, `workspace_members`.
 
@@ -257,6 +260,8 @@ QA                  API                                 DB (trigger + RPC backst
 2. Lifecycle is **forward-only**, enforced twice: DB trigger (`bunkai_bugs_check_consistency`) + RPC; SQLSTATEs 45310/45311 reject skips/backwards.
 3. Assignee eligibility is checked (workspace member, not viewer) — 45312/45313.
 4. Heatmap aggregates by module — feeds defect trends without needing Jira.
+5. **BK-337 single-defect read** (`GET /api/v1/bugs/{id}`): `bunkai_bug_json` RPC (widened by migration 0070) returns full composed record with `origin` (provenance: run_id, step position, ATC title/layer) and `module.archived_at`. SECURITY INVOKER — runs under caller's own RLS; missing/foreign bug collapses to generic 404 (non-disclosing). Archived-module bugs still render (PO ruling: tag, never 404). POST /bugs, POST /bugs/{id}/assign, POST /bugs/{id}/status also return `BugDetailSchema` (not the plain `BugSchema`).
+6. **BK-466 evidence-link scheme guard**: `evidence_url` and `evidence_urls` now reject non-http(s) schemes (`javascript:`, `data:`, etc.) at both filing time (Zod `z.url({ protocol: z.regexes.httpProtocol })`) and render time (`isHttpUrl` helper).
 
 **What breaks if the API hangs here**: trigger/RPC double layer disagreeing on a transition; assignment to a viewer silently accepted; heatmap totals diverging from `bugs` rows.
 
@@ -378,7 +383,7 @@ User            API                                          DB
 │   public prefixes: /login /auth* /invites /api/v1/auth* /api/v1/health│
 └───────────────────────────┬──────────────────────────────────────────┘
 ┌───────────────────────────▼──────────────────────────────────────────┐
-│  ROUTE HANDLER LAYER (Next.js 15 App Router, 64 route files)         │
+│  ROUTE HANDLER LAYER (Next.js 15 App Router, 65 route files)         │
 │   withApiHandler({ auth, requires }) → Principal (resolveIdentity)   │
 │    ├─ cookie session (supabase-ssr) ──┐  ┌─ bearer.ts (PAT verify)   │
 │    └──────┬────────────────────┬──────┘  └──► mintUserJwt (AS user)  │
@@ -411,8 +416,8 @@ User            API                                          DB
 | `principal.ts` | Unified identity | Session JWT or `mintUserJwt` (PAT → RLS client AS user) | **The dual-path pivot** — cookie vs Bearer must resolve identical rows on every route |
 | `bearer.ts` | PAT validation | `access_tokens` + `access_token_secrets` | Immediate revocation (DB read per request); uniform 401 contract |
 | `workspace-cookie.ts` | Active-workspace context | `bk_active_ws` httpOnly cookie | Membership validated on every write; stale cookie = wrong tenant |
-| Versioned REST (`/api/v1`) | Public API surface | Supabase Auth + RPCs + PostgREST reads | Thin wrapper — role gates in handlers, RLS underneath; 82 handlers to keep in contract tests |
-| `bunkai_*` RPCs (~91) | Mutation/report layer | SECURITY DEFINER functions, SQLSTATEs (45200.., 45300.., 45500..) | RPC + trigger double layers must agree; SQLSTATE mapping to HTTP codes is a contract |
+| Versioned REST (`/api/v1`) | Public API surface | Supabase Auth + RPCs + PostgREST reads | Thin wrapper — role gates in handlers, RLS underneath; 84+ handlers to keep in contract tests |
+| `bunkai_*` RPCs (~92) | Mutation/report layer | SECURITY DEFINER functions, SQLSTATEs (45200.., 45300.., 45500..) | RPC + trigger double layers must agree; SQLSTATE mapping to HTTP codes is a contract |
 | PostgREST | Auto-generated REST | All 31 tables with RLS | Default UI read path — RLS bug = data leak |
 | DB triggers | Recomputation + consistency | `run_atcs.status`, `bunkai_bugs_check_consistency`, `activity_log` sink, realtime (0043) | Cascade failures produce inconsistent run/bug states |
 | Vercel `after()` workers | Async work | `import_jobs` (Jira import) | Worker crash leaves `running` forever — poll UX contract |
@@ -447,7 +452,7 @@ User            API                                          DB
 | `tests` / `test_steps` | `/api/v1/tests*` (incl. reorder, tags with `X-If-Match`) | `business-data-map.md` §1 tests cluster |
 | `project_environments` | `/api/v1/environments*`, `/api/v1/projects/{id}/environments` | `business-data-map.md` §1 environments |
 | `runs` / `run_atcs` / `run_steps` | `/api/v1/runs*` (+ `tests/{id}/runs`) | `business-data-map.md` §1 runs cluster |
-| `bugs` | `/api/v1/bugs*` (+ status, assign, heatmap, open-bugs) | `business-data-map.md` §1 bugs cluster |
+| `bugs` | `/api/v1/bugs*` (+ detail read BK-337, status, assign, heatmap, open-bugs) | `business-data-map.md` §1 bugs cluster |
 | `atcs` + children | `/api/v1/atcs*` (+ search, usage, duplicate) | `business-data-map.md` §1 atcs cluster |
 | `modules` / `user_stories` / `acceptance_criteria` | `/api/v1/modules*`, `/user-stories*`, `/acceptance-criteria*` + PostgREST | `business-data-map.md` §1 authoring cluster |
 | `milestones` | `/api/v1/milestones*`, `/projects/{id}/milestones` | `business-data-map.md` §1 milestones |
@@ -461,7 +466,7 @@ User            API                                          DB
 | Verification-first signup (J1) | FEAT-AUTH-001..007, FEAT-API-006 |
 | Workspace & member onboarding (J2) | FEAT-WS-001..006, FEAT-API-008 |
 | Run execution (J3) | FEAT-RUN-001..006, FEAT-TEST-001..005, FEAT-ENV-001..002, FEAT-API-003 |
-| Bugs + triage (J4) | FEAT-BUG-001..005 |
+| Bugs + triage (J4) | FEAT-BUG-001..006 |
 | Coverage / traceability (J5) | FEAT-COV-001..004, FEAT-ATC-001..007 |
 | Jira import (J6) | FEAT-IMPORT-001..002 |
 | Activity / notifications (J7) | FEAT-ACT-001, FEAT-NOTIF-001..004, FEAT-WS-006 |
@@ -481,7 +486,7 @@ User            API                                          DB
 | Dual-path RLS parity untested | HIGH | Every route resolving cookie vs Bearer to the same rows (`mintUserJwt` + RLS AS user) needs a consent QA suite; PAT impersonation of a session user is the top auth risk. |
 | `workspace:admin` scope accepted-but-rejected | HIGH | ADR-0005: minted PATs may carry `workspace:admin`, but `requires:` rejects it at runtime. Verify the rejection is consistent across all routes and that creating such a PAT doesn't advertise a capability that never works. |
 | Coverage roll-up invariant unverified | HIGH | `sum/sum` (never mean-of-percentages) shared Home/API `lib/home/coverage.ts` — parity test between Home page and both coverage endpoints required (FEAT-COV-001). |
-| OpenAPI spec vs 64 routes drift | MEDIUM | Not every route file may be documented in `public/openapi.json`; contract tests should diff route inventory against the spec (9 of 64+ endpoints verified by grep only). |
+| OpenAPI spec vs 65 routes drift | MEDIUM | Not every route file may be documented in `public/openapi.json`; contract tests should diff route inventory against the spec (10 of 65+ endpoints verified by grep only). |
 | Abort-reason redaction | MEDIUM | Run abort writes a reason that must be redacted from activity feed (0067). Untested cross-surface consistency (run detail vs feed). |
 | Idempotency window semantics | MEDIUM | HTTP key vs 24h `start_token` interplay on `POST /runs`: hard-replay detection is functional now — test key reuse across/concurrent calls, and expiry at the 24h boundary. |
 | Magic-link legacy coexistence | MEDIUM | `POST /auth/magic-link` coexists with verification-first confirm; canonical path unknown. Both must be tested, and the 409-no-echo invariant verified on both. BK-400 added stateless verification via `verifyOtp` (works cross-device) — test both PKCE (legacy) and implicit (new) flows. |
@@ -489,6 +494,8 @@ User            API                                          DB
 | Jira import resilience | MEDIUM | No retry/backoff evidence in `import-runner`; crash leaves `running` forever; concurrent-import 409 is the only guard. Worker-failure simulation needed. |
 | Notifications cross-workspace leak | MEDIUM | `entity_available` per-row RLS: verify a member never receives notifications for entities outside their workspaces, and read-all races. |
 | Rate limiting | LOW | No application-layer rate limiting; 429s come from Supabase only. |
+| BugDetailSchema vs BugSchema drift | MEDIUM | BK-337: POST /bugs, POST /bugs/{id}/assign, POST /bugs/{id}/status now return `BugDetailSchema` (origin + module.archived_at); list endpoints still return `BugSchema` (no origin, no archived_at). Verify no route accidentally uses the wrong schema. |
+| Evidence-link scheme guard | LOW | BK-466: `evidence_url` restricted to http/https at API edge (Zod) and render time (`isHttpUrl`). Verify consistent rejection of `javascript:`/`data:` across filing, marking, and rendering surfaces. |
 | Run timeout sweeper | LOW | Auto-abort of abandoned runs (15-min cron) is DB-level; no API endpoint exposes its state — QA must test via DB, not API. |
 
 ---

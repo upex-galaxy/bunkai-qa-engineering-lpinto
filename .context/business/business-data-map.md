@@ -1,10 +1,10 @@
 # Business Data Map — Bunkai (QA Lens)
 
 > Generated: 2026-08-09 (v2 — synced to `upex-bunkai-tms` staging branch, tip `5e0134c`; refreshed 2026-08-13)
-> Refreshed: 2026-08-15 (v3 — verified against `upex-bunkai-tms` branch `qa-sync-staging`, tip `b9f3fc6`)
-> Sources: `../upex-bunkai-tms/supabase/migrations/` (0001–0069), `../upex-bunkai-tms/app/api/v1/`, `../upex-bunkai-tms/lib/`, `../upex-bunkai-tms/.context/business/events.md`
+> Refreshed: 2026-08-15 (v4 — verified against `upex-bunkai-tms` branch `staging`, tip `de670c4`)
+> Sources: `../upex-bunkai-tms/supabase/migrations/` (0001–0070), `../upex-bunkai-tms/app/api/v1/`, `../upex-bunkai-tms/lib/`, `../upex-bunkai-tms/.context/business/events.md`
 > Cross-refs: `.context/business/business-feature-map.md`, `.context/business/business-api-map.md`, `.context/business/domain-glossary.md`
-> Delta vs v2 (2026-08-13): OAuth GitHub/Google live (app/auth/oauth + oauth-buttons.tsx), magic-link anti-silent-signup (BK-175 `shouldCreateUser: false`), migrations 0067 (DEFINER rewrites) + 0058 (ATC title CHECK) NOT applied, feature_flags scope global/workspace.
+> Delta vs v3 (2026-08-13): BK-337 defect detail read (GET /api/v1/bugs/{id}), BugDetailSchema with `origin` + `module.archived_at`, `bunkai_bug_json` RPC widened (0070), BK-466 evidence-link scheme guard (http/https only).
 
 ---
 
@@ -31,7 +31,7 @@
 | 17 | `runs` | Execution | `POST /api/v1/runs` → `bunkai_create_run` RPC (env snapshot) | test_id, project_environment_id, executor_id |
 | 18 | `run_atcs` | Execution | Auto-snapshot inside `bunkai_create_run` (chain positions) | run_id, atc_id |
 | 19 | `run_steps` | Execution | Auto-snapshot inside `bunkai_create_run`; results via `POST /api/v1/runs/{id}/steps/{stepId}/mark` → `bunkai_mark_run_step` | run_atc_id |
-| 20 | `bugs` | Defect | `POST /api/v1/bugs` → `bunkai_create_bug` RPC; assign `POST /api/v1/bugs/{id}/assign`; triage `POST /api/v1/bugs/{id}/status` | run_id/run_step_id/atc_id (nullable provenance), module_id, project_id, assignee_user_id |
+| 20 | `bugs` | Defect | `POST /api/v1/bugs` → `bunkai_create_bug` RPC; detail read `GET /api/v1/bugs/{id}` → `bunkai_bug_json` (0070); assign `POST /api/v1/bugs/{id}/assign`; triage `POST /api/v1/bugs/{id}/status` | run_id/run_step_id/atc_id (nullable provenance), module_id, project_id, assignee_user_id |
 | 21 | `import_jobs` | Async | `POST /api/v1/imports` (202, Vercel `after()` worker) — one active per project | workspace_id, project_id, status |
 | 22 | `milestones` | Planning | `POST /api/v1/projects/{id}/milestones`; `PATCH /api/v1/milestones/{id}` | project_id, name case-insensitive |
 | 23 | `notifications` | Notify | Written by DB triggers (`bunkai_notify_bug_event`, `bunkai_notify_run_event`); read via `GET /api/v1/workspaces/{id}/notifications` | workspace_id, entity_type, read_at |
@@ -47,7 +47,7 @@
 
 > NOTE: v1's entity #9 `integrations` (Jira webhook config) does NOT exist in any migration (0001–0069). Jira connectivity is real but implemented as async `import_jobs` + `lib/jira/import-runner.ts`, not a config table. The v1 "idempotency skeleton" is also outdated — idempotent writes (replay store) are now functional on runs/tests/atcs/imports.
 
-> **Migration application status (2026-08-15)**: 69 migrations exist in `supabase/migrations/` (0001–0069). **0067 (run finish/abort `via`, SECURITY DEFINER rewrites) and 0058 (ATC title length CHECK) are NOT applied** — present in the tree, pending human approval. QA must not assume either constraint exists at runtime.
+> **Migration application status (2026-08-15)**: 70 migrations exist in `supabase/migrations/` (0001–0070). **0067 (run finish/abort `via`, SECURITY DEFINER rewrites) and 0058 (ATC title length CHECK) are NOT applied** — present in the tree, pending human approval. QA must not assume either constraint exists at runtime.
 
 ---
 
@@ -91,11 +91,13 @@ POST /runs/{id}/finish {verdict, via?} | POST /runs/{id}/abort {reason, via?} �
 
 **Test data chain**: 1 project env (Staging) → 1 test (3 ATCs) → 1 run → 3 run_atcs → N run_steps
 
-### Flow D: Bug Filing + Triage (BK-40, BK-264)
+### Flow D: Bug Filing + Triage + Detail Read (BK-40, BK-264, BK-337)
 
 ```
 POST /bugs {project_id, title, severity, ...} (derives module/run/step/ATC server-side from run_step_id)
   → bunkai_create_bug re-validates module ∈ project (45300 defense in depth)
+GET /bugs/{id} → bunkai_bug_json (0070 widened: origin provenance + module.archived_at)
+  → SECURITY INVOKER, RLS-scoped; null = not found or hidden (non-disclosing 404)
 POST /bugs/{id}/assign {assignee_user_id} → status-adjacency + assignee-eligibility backstops (45312/45313)
 POST /bugs/{id}/status {status} → one-stage-at-a-time transitions (45310/45311)
 ```
@@ -202,8 +204,9 @@ For each entity with `workspace_id` FK (direct or via project):
 | Import jobs REAL | 0019, 0020 | async Jira import + one-active-per-project |
 | Auth verification-first | 0033, 0034, BK-166 | signup 202 pending_confirmation; confirm mints session+PAT; admin scope never global (ADR-0005) |
 | OAuth GitHub/Google | — | live `app/auth/oauth/*`; provider session via GoTrue; magic-link anti-silent-signup (BK-175) |
-| Versioned API expanded | — | 19 → 64 route files; ~82 handlers; idempotency functional; scopes enforced via `requires:` |
+| Versioned API expanded | — | 19 → 65 route files; ~84+ handlers; idempotency functional; scopes enforced via `requires:` |
 | Module/US/AC CRUD via API | 0013–0018, 0021–0023 | soft-delete, move, description, ordering, ready-to-test gate, activity events |
+| Bug detail read + BK-466 | 0070 | `bunkai_bug_json` widened with `origin` (provenance: run_id, step position, ATC title/layer) + `module.archived_at`; GET /api/v1/bugs/{id} returns BugDetailSchema; POST /bugs, /assign, /status also return BugDetailSchema; evidence_url/evidence_urls restricted to http/https (BK-466) |
 
 ---
 
