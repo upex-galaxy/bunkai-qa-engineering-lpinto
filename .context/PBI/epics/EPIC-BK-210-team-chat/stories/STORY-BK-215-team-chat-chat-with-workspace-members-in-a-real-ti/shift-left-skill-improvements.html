@@ -383,6 +383,8 @@
                 <span class="badge badge-new">Prompt Template</span>
                 <span class="badge badge-new">Content Separation</span>
                 <span class="badge badge-new">Formatting Rules</span>
+                <span class="badge badge-new">NFR Procedure</span>
+                <span class="badge badge-new">Market Comparison</span>
             </div>
         </header>
 
@@ -413,9 +415,19 @@
                             <td>Prompt reutilizable con 16 fases del análisis shift-left</td>
                         </tr>
                         <tr>
+                            <td><code>references/nfr-proposal-procedure.md</code></td>
+                            <td><span class="badge badge-new">NUEVO</span></td>
+                            <td>Procedimiento NFR: gaps → outlines propuestos + escenarios E4-E7 con NEEDS PO/DEV CONFIRMATION (nunca ACs formales), consistencia numérica, gotchas ADF</td>
+                        </tr>
+                        <tr>
+                            <td><code>references/market-comparison.md</code></td>
+                            <td><span class="badge badge-new">NUEVO</span></td>
+                            <td>Phase 4 opcional: búsqueda exhaustiva web sobre mejores prácticas post-shift-left + tabla de gaps vs la story refinada</td>
+                        </tr>
+                        <tr>
                             <td><code>SKILL.md</code></td>
                             <td><span class="badge badge-after">MEJORADO</span></td>
-                            <td>Referencias al prompt template + reglas de formato</td>
+                            <td>Referencias al prompt template + reglas de formato + Compact Rule NFR + Phase 4 en workflow y dispatch</td>
                         </tr>
                     </tbody>
                 </table>
@@ -445,7 +457,7 @@
                 <div class="comparison-box after">
                     <h3><span class="badge badge-after">DESPUÉS</span> Con Prompt Template</h3>
                     <ul class="feature-list">
-                        <li>Estructura fija de 15 fases</li>
+                        <li>Estructura fija de 16 fases</li>
                         <li>Salida idéntica en cada sesión</li>
                         <li>Separación clara: Description vs ATP</li>
                         <li>Reglas de formato documentadas</li>
@@ -491,7 +503,13 @@
                 <div class="phase-item new">
                     <span class="phase-number">FASE 15</span>
                     <strong>Sincronización Jira</strong>
-                    <p>Separación de contenido (Description vs ATP DRAFT) + Comandos de sincronización + Reglas de formato</p>
+                    <p>Separación de contenido (Description vs ATP DRAFT) + Comandos de sincronización + Reglas de formato + gotchas ADF (tableHeader, splice)</p>
+                </div>
+
+                <div class="phase-item new">
+                    <span class="phase-number">FASE 16</span>
+                    <strong>Comparación con el Mercado (OPTIONAL)</strong>
+                    <p>Preguntar al usuario si quiere búsqueda exhaustiva web de mejores prácticas post-shift-left + tabla de gaps + opciones (nunca modificar Jira sin aprobación)</p>
                 </div>
             </div>
         </section>
@@ -610,15 +628,17 @@ Entry/Exit Criteria...
                 <span class="flow-arrow">→</span>
                 <div class="flow-step">Skill carga prompt template</div>
                 <span class="flow-arrow">→</span>
-                <div class="flow-step highlight">Ejecuta 15 fases automáticamente</div>
+                <div class="flow-step highlight">Ejecuta 16 fases automáticamente</div>
                 <span class="flow-arrow">→</span>
                 <div class="flow-step">Genera shift-left-refinement.md</div>
                 <span class="flow-arrow">→</span>
                 <div class="flow-step highlight">Sincroniza con Jira (Description + ATP DRAFT)</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step highlight">Pregunta: ¿búsqueda exhaustiva web? (Phase 4 opcional)</div>
             </div>
 
             <div class="highlight-box">
-                <strong>Resultado:</strong> La skill ahora carga automáticamente el prompt template y ejecuta todas las 15 fases sin necesidad de que el usuario recuerde la estructura completa.
+                <strong>Resultado:</strong> La skill ahora carga automáticamente el prompt template y ejecuta todas las 16 fases sin necesidad de que el usuario recuerde la estructura completa. Al terminar, pregunta si quiere comparar la story contra las mejores prácticas del mercado (Phase 4).
             </div>
         </section>
 
@@ -670,6 +690,166 @@ The subagent loads the existing in-skill reference...
 <span class="diff-add">- **Verify after PUT**: Confirm HTTP 204 and read back content</span></pre>
                 </div>
             </div>
+
+            <div class="example-box">
+                <h4>Compact Rule — NFR Procedure (agregada)</h4>
+                <div class="code-block">
+                    <pre><span class="diff-add">- **NFR gaps → NEVER formal ACs** (performance/accessibility/</span>
+<span class="diff-add">  scalability silent in the Story): propose NFRs as outlines (NFR1-NFR4)</span>
+<span class="diff-add">  + edge scenarios (E4-E7) marked `NEEDS PO/DEV CONFIRMATION`</span>
+<span class="diff-add">  + blocking Technical Questions. PO/Dev confirmation upgrades them</span>
+<span class="diff-add">  to contract → failures become Defect; before confirmation they are</span>
+<span class="diff-add">  Improvement. Full procedure: `references/nfr-proposal-procedure.md`.</span></pre>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>Phase 4 — Market Comparison (agregada al workflow)</h4>
+                <div class="code-block">
+                    <pre><span class="diff-add">Phase 4 — Market Best-Practices Comparison (OPTIONAL — ask user, never auto-run)</span>
+<span class="diff-add">    -> After Phase 3 handoff: ASK the user whether to run exhaustive web research</span>
+<span class="diff-add">       on what a post-shift-left user story should contain</span>
+<span class="diff-add">    -> If accepted (per Story, sequentially): research via [WEB_SEARCH_TOOL] (Tavily),</span>
+<span class="diff-add">       build gap table (market dimension | in Story? | where | proposal | source),</span>
+<span class="diff-add">       present options -> WAIT for user decision</span>
+<span class="diff-add">    -> Approved changes: apply to Jira (backup -> PUT -> verify GET) — NEVER without</span>
+<span class="diff-add">       explicit approval. Full procedure: references/market-comparison.md</span></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- NFR Procedure -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="icon">⚡</span>
+                Procedimiento NFR — Gaps No Funcionales
+            </h2>
+
+            <div class="highlight-box">
+                <strong>Problema resuelto:</strong> Cuando el Story no menciona NFRs (performance, accesibilidad, escalabilidad), la skill antes no hacía nada o inventaba ACs formales. Ahora propone outlines + escenarios marcados <code>NEEDS PO/DEV CONFIRMATION</code> — la confirmación los convierte en contrato (fallas = Defect); sin confirmar, son Improvement.
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dimensión</th>
+                            <th>Detección</th>
+                            <th>Ejemplo de probe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td>Claims de volumen/latencia sin números ("real time", "large history")</td>
+                            <td>Latencia de delivery bajo carga concurrente; tiempo de carga de historial 10,000+ mensajes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Accessibility</strong></td>
+                            <td>Sin target WCAG; interacciones solo-teclado implícitas</td>
+                            <td>Navegación por teclado (focus visible); screen reader (live regions); presence no solo-color</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td>Concurrencia mencionada sin límites</td>
+                            <td>N miembros enviando simultáneamente</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="example-box">
+                <h4>Ejemplo aplicado (BK-215): escenarios propuestos E4-E7 en Description</h4>
+                <div class="code-block">
+                    <pre><span class="keyword">```gherkin</span>
+<span class="highlight">Scenario E4 (High):</span> Should meet delivery latency SLA under concurrent load (NFR - Performance)
+    <span class="keyword">Given</span> 10 members have the general channel open and send messages simultaneously.
+    <span class="keyword">When</span> All messages are delivered to all members.
+    <span class="keyword">Then</span> Message delivery latency stays within the agreed SLA (scenario 1.1: under 2 seconds). NEEDS PO/DEV CONFIRMATION.
+<span class="keyword">```</span></pre>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>Consistencia numérica (MANDATORY) — los 6 lugares deben coincidir</h4>
+                <div class="code-block">
+                    <pre>1. Coverage Estimate: fila `Non-Functional | 4`
+2. Coverage Total: bump 26 -> 30
+3. Traceability Map: filas E4-E7 -> NFR1-NFR4 (needs PO confirmation)
+4. Exit Criteria: "[ ] NFR verification executed"
+5. Risk-Based Prioritization: NFR1-NFR4 en P1 + rationale
+6. Risks: riesgo "NFRs undefined" -> NFR1-NFR4, Tech Questions #10-#11
+<span class="comment">// "All N outlines executed" en Exit Criteria DEBE igualar el Total</span></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 4 Market Comparison -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="icon">🌐</span>
+                Phase 4 — Comparación con Mejores Prácticas del Mercado
+            </h2>
+
+            <div class="highlight-box">
+                <strong>Problema resuelto:</strong> El proceso quedaba estático. Ahora, tras sincronizar Description + ATP DRAFT, la skill <strong>pregunta al usuario</strong> si quiere una búsqueda exhaustiva en internet sobre qué debería tener una user story post-shift-left, y compara los resultados con la story refinada — manteniendo el proceso actualizado con las mejores prácticas del mercado.
+            </div>
+
+            <ul class="feature-list">
+                <li><strong>Opt-in gate (MANDATORY)</strong> — nunca se ejecuta automáticamente: siempre pregunta tras el handoff</li>
+                <li><strong>Investigación exhaustiva</strong> — <code>[WEB_SEARCH_TOOL]</code> (Tavily, advanced): canon Agile/ISTQB + queries específicas del dominio</li>
+                <li><strong>Tabla de gaps</strong> — veredicto ✅/⚠️/❌ por dimensión + fuente citada por fila</li>
+                <li><strong>Presentar opciones y ESPERAR</strong> — nunca modificar Jira sin aprobación explícita (ej. A: ACs formales · B: outlines + NEEDS PO/DEV CONFIRMATION (default) · C: dejar como está)</li>
+                <li><strong>Bookkeeping</strong> — investigación persistida en <code>.session/.../market-comparison.md</code> + entrada en progress.md</li>
+            </ul>
+
+            <div class="example-box">
+                <h4>Ejemplo de tabla de gaps (resultado de la investigación)</h4>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dimensión del mercado</th>
+                                <th>¿En la story?</th>
+                                <th>Dónde</th>
+                                <th>Gap / propuesta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>INVEST-shaped story</td>
+                                <td>✅</td>
+                                <td>Description — User Story</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td>NFRs (perf/accessibility)</td>
+                                <td>⚠️ (propuesto)</td>
+                                <td>ATP DRAFT — Non-Functional</td>
+                                <td>Needs PO/Dev confirmation</td>
+                            </tr>
+                            <tr>
+                                <td>Explicit scope / out-of-scope</td>
+                                <td>❌</td>
+                                <td>—</td>
+                                <td>Proponer sección (Option B)</td>
+                            </tr>
+                            <tr>
+                                <td>Explicit dependencies</td>
+                                <td>❌</td>
+                                <td>—</td>
+                                <td>Proponer sección (Option B)</td>
+                            </tr>
+                            <tr>
+                                <td>Entry/exit criteria</td>
+                                <td>✅</td>
+                                <td>ATP DRAFT</td>
+                                <td>—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
         <!-- Beneficios -->
@@ -697,7 +877,7 @@ The subagent loads the existing in-skill reference...
                             <td>🟢 Alto</td>
                         </tr>
                         <tr>
-                            <td><strong>Eficiencia</strong> — No recordar 15 fases cada vez</td>
+                            <td><strong>Eficiencia</strong> — No recordar 16 fases cada vez</td>
                             <td>🟢 Alto</td>
                         </tr>
                         <tr>
@@ -712,14 +892,26 @@ The subagent loads the existing in-skill reference...
                             <td><strong>Documentación</strong> — Skill autoexplicativa</td>
                             <td>🟡 Medio</td>
                         </tr>
+                        <tr>
+                            <td><strong>Cobertura NFR</strong> — Gaps no funcionales detectados y propuestos con confirmación</td>
+                            <td>🟢 Alto</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Actualización continua</strong> — Comparación con mejores prácticas del mercado (Phase 4)</td>
+                            <td>🟢 Alto</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Clasificación Defect/Improvement</strong> — Confirmación PO/Dev = contrato; sin confirmar = Improvement</td>
+                            <td>🟢 Alto</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
         <footer>
-            <p>Shift-Left Testing Skill — Mejoras de Estructura</p>
-            <p style="margin-top: 0.5rem;">Generado el 2026-08-15</p>
+            <p>Shift-Left Testing Skill — Mejoras de Estructura + Procedimientos</p>
+            <p style="margin-top: 0.5rem;">Generado el 2026-08-15 · Actualizado: NFR Procedure, Phase 4 Market Comparison, rename template</p>
         </footer>
     </div>
 </body>
