@@ -1,0 +1,331 @@
+# Shift-Left Testing Prompt — Reusable Template
+
+Use this prompt when you want to run a shift-left QA analysis on a user story before sprint planning.
+
+---
+
+## PROMPT
+
+```
+Ejecutá shift-left testing para el ticket [TICKET-KEY]. Seguí esta estructura exacta:
+
+## FASE 1 — Análisis Crítico
+
+### Contexto Business
+- Persona primaria afectada
+- Personas secundarias
+- Propuesta de valor de negocio
+- KPIs influenciados
+- Posición en el user journey
+
+### Contexto Técnico
+- Frontend
+- Backend
+- Base de datos
+- Servicios externos
+- Puntos de integración específicos del Story
+
+### Hechos confirmados con evidencia
+- [Listar hechos verificados en el codebase]
+
+### Propuestas / decisiones pendientes
+- [Listar propuestas y pending decisions]
+
+### Complejidad del Story
+
+| Eje | Rating | Por qué |
+|-----|--------|---------|
+| Business logic | [Low/Medium/High] | [razón] |
+| Integración | [Low/Medium/High] | [razón] |
+| Data validation | [Low/Medium/High] | [razón] |
+| UI | [Low/Medium/High] | [razón] |
+
+**Esfuerzo estimado de testing**: [Low/Medium/High] — [razón]
+
+### Herencia del Epic
+- Riesgos restated a nivel de Story
+- Puntos de integración heredados
+- Respuestas de PO/Dev ya dadas a nivel de epic
+- Estrategia de testing heredada
+
+---
+
+## FASE 2 — Análisis de Calidad del Story
+
+### Veredicto
+**[Issues menores / Significant Issues / Blockers]**
+
+- [Hallazgos clave]
+
+---
+
+## FASE 3 — ACs Refinados
+
+Refinar cada AC original en escenarios con formato Gherkin:
+
+```
+AC[N]: [Título del AC]
+
+  Scenario [N].1 ([Prioridad]): [Descripción del escenario]
+    Given [precondición]
+    When [acción]
+    Then [resultado esperado]
+
+  Scenario [N].2 ([Prioridad]): [Descripción del escenario]
+    Given [precondición]
+    When [acción]
+    Then [resultado esperado]
+```
+
+**Reglas:**
+- Cada AC → mínimo 2-3 escenarios (1:N por defecto)
+- Colapsar a 1 solo con justificación `trivially atomic`
+- Prioridades: Critical / High / Medium / Low
+- Agregar escenarios de edge cases al final (Scenario E1, E2, E3...)
+
+---
+
+## FASE 4 — Hallazgos Críticos
+
+| # | Hallazgo | Impacto | Acción |
+|---|----------|---------|--------|
+| 1 | [qué falta] | [qué bloquea] | [qué hacer] |
+
+---
+
+## FASE 5 — Ambigüedades
+
+| # | Ubicación en Story | Pregunta para PO/Dev | Impacto en testing | Clarificación sugerida |
+|---|---------------------|----------------------|--------------------|------------------------|
+| 1 | [AC/Regla] | [pregunta] | [impacto] | [sugerencia] |
+
+---
+
+## FASE 6 — Gaps (info faltante)
+
+| # | Tipo | Por qué es crítico | Qué agregar | Riesgo si se omite |
+|---|------|---------------------|-------------|---------------------|
+| 1 | [DB/API/Realtime/etc] | [razón] | [qué falta] | [consecuencia] |
+
+---
+
+## FASE 7 — Business Rules Clarificadas
+
+| Regla | Clarificación |
+|-------|---------------|
+| [regla] | [aclaración] |
+
+---
+
+## FASE 8 — Preguntas Críticas para PO
+
+> Estas BLOQUEAN la planificación del sprint hasta que se respondan.
+
+**1. [Pregunta]**
+- Contexto: [por qué importa]
+- Impacto: [qué pasa si no se responde]
+- Sugerencia: [respuesta propuesta]
+
+---
+
+## FASE 9 — Preguntas Técnicas para Dev
+
+> Estas no bloquean al PO pero bloquean la implementación.
+
+1. **[Pregunta]** — [por qué bloquea el testing]
+
+---
+
+## FASE 10 — Preguntas de Diseño
+
+1. **[Pregunta]** — [por qué importa para testing]
+
+---
+
+## FASE 11 — Preguntas Abiertas — Respuestas Propuestas
+
+| # | Pregunta | Respuesta Propuesta | Fuente |
+|---|----------|---------------------|--------|
+| 1 | [pregunta] | [respuesta] | [fuente] |
+
+---
+
+## FASE 12 — Mejoras Sugeridas al Story
+
+| # | Estado actual | Cambio sugerido | Beneficio |
+|---|---------------|-----------------|-----------|
+| 1 | [actual] | [sugerencia] | [beneficio] |
+
+---
+
+## FASE 13 — Próximos Pasos
+
+- [ ] [ACCIONES Pendientes]
+
+---
+
+## FASE 14 — ATP DRAFT (Acceptance Test Plan)
+
+Generar el ATP DRAFT con esta estructura:
+
+### Coverage Estimate
+
+| Tipo | Count | Notas |
+|------|-------|-------|
+| Positive | [N] | [resumen] |
+| Negative | [N] | [resumen] |
+| Boundary | [N] | [resumen] |
+| Integration | [N] | [resumen] |
+| Security-RBAC | [N] | [resumen] |
+| State-Transition | [N] | [resumen] |
+| **Total** | **[N]** | **[resumen]** |
+
+### Test Outlines
+
+#### Positive
+| # | Outline | Preconditions | Expected Result |
+|---|---------|---------------|-----------------|
+| P1 | [nombre] | [precondición] | [resultado esperado] |
+
+#### Negative
+| # | Outline | Preconditions | Expected Result |
+|---|---------|---------------|-----------------|
+| N1 | [nombre] | [precondición] | [resultado esperado] |
+
+#### Boundary
+| # | Outline | Preconditions | Expected Result |
+|---|---------|---------------|-----------------|
+| B1 | [nombre] | [precondición] | [resultado esperado] |
+
+#### Integration
+| # | Outline | Preconditions | Expected Result |
+|---|---------|---------------|-----------------|
+| I1 | [nombre] | [precondición] | [resultado esperado] |
+
+#### Security-RBAC
+| # | Outline | Preconditions | Expected Result |
+|---|---------|---------------|-----------------|
+| S1 | [nombre] | [precondición] | [resultado esperado] |
+
+#### State-Transition
+| # | Outline | Preconditions | Expected Result |
+|---|---------|---------------|-----------------|
+| T1 | [nombre] | [precondición] | [resultado esperado] |
+
+### Traceability Map
+
+| AC Original | Escenarios Refinados | Outlines |
+|-------------|----------------------|----------|
+| AC1: [título] | 1.1, 1.2, 1.3 | P1, N1, B1 |
+
+### Test Data Requirements
+
+| Tipo de Dato | Requisito | Notas |
+|--------------|-----------|-------|
+| [tipo] | [requisito] | [notas] |
+
+### Test Environment Requirements
+
+| Componente | Requisito | Notas |
+|------------|-----------|-------|
+| [componente] | [requisito] | [notas] |
+
+### Entry Criteria
+- [ ] [criterio]
+
+### Exit Criteria
+- [ ] [criterio]
+
+### Risk-Based Prioritization
+
+| Prioridad | Test Outlines | Rationale |
+|-----------|---------------|-----------|
+| P0 — Must Have | [outlines] | [razón] |
+| P1 — Should Have | [outlines] | [razón] |
+| P2 — Nice to Have | [outlines] | [razón] |
+
+### Open Items for Sprint
+- [ ] [item]
+
+### Risks & mitigation
+
+| # | Risk | Likelihood | Impact | Mitigated by which outlines |
+|---|------|------------|--------|----------------------------|
+| 1 | [riesgo] | [Low/Medium/High] | [Low/Medium/High/Critical] | [outlines] |
+
+---
+
+## FASE 15 — Sincronización con Jira
+
+### Contenido por campo
+
+**Descripción (WHAT):**
+- User Story + Context
+- Critical Analysis
+- Story Complexity
+- Epic-level Inheritance
+- Story Quality Assessment
+- Refined Acceptance Criteria (code block con `gherkin`)
+- Critical Findings
+- Ambiguities
+- Gaps (missing info)
+- Clarified Business Rules
+- Critical Questions for PO
+- Technical Questions for Dev
+- Design Questions
+- Open Questions — Proposed Answers
+- Suggested Story Improvements
+- Next Steps
+
+**ATP DRAFT (HOW):**
+- Coverage Estimate
+- Test Outlines
+- Traceability Map
+- Test Data Requirements
+- Test Environment Requirements
+- Entry/Exit Criteria
+- Risk-Based Prioritization
+- Open Items for Sprint
+- Risks & mitigation
+
+### Reglas de formato
+
+1. **Code block para ACs**: Usar ` ```gherkin ` para syntax highlighting
+2. **Sin dos puntos en Gherkin**: `Given` (no `Given:`)
+3. **Una sección por campo**: Descripción ≠ ATP DRAFT
+4. **Tablas con headers**: Siempre incluir cabeceras
+
+### Comandos de sincronización
+
+```bash
+# 1. Generar markdown
+# 2. Convertir a ADF
+bun .claude/skills/acli/scripts/md-to-adf.ts input.md output.adf.json
+
+# 3. Actualizar descripción
+[ISSUE_TRACKER_TOOL] — PUT REST /rest/api/3/issue/{{PROJECT_KEY}}-<KEY> con {"fields":{"description":<ADF-content>}} (ver `/acli` references para auth y gotchas)
+
+# 4. Actualizar ATP DRAFT ({{jira.acceptance_test_plan}})
+[ISSUE_TRACKER_TOOL] — PUT REST /rest/api/3/issue/{{PROJECT_KEY}}-<KEY> con {"fields":{"{{jira.acceptance_test_plan}}":<ADF-content>}}
+
+# 5. Agregar comment mirror
+[ISSUE_TRACKER_TOOL] — crear comentario "## Shift-Left QA Summary..." en {{PROJECT_KEY}}-<KEY>
+
+# 6. Agregar labels
+[ISSUE_TRACKER_TOOL] — agregar labels `shift-left-reviewed` + fecha (ver `/acli`)
+
+# 7. Transicionar (si aplica)
+[ISSUE_TRACKER_TOOL] — transition a Estimation (ver {{jira.transition.*}})
+```
+
+---
+
+## NOTAS IMPORTANTES
+
+1. **NO pushear sin aprobación explícita del usuario**
+2. **Commits locales primero**, push después
+3. **Contenido separado por propósito**: Descripción = WHAT, ATP = HOW
+4. **Gherkin keywords sin dos puntos**: `Given`, `When`, `Then`
+5. **Code block con lenguaje**: `gherkin` para syntax highlighting
+6. **Backup antes de modificar**: Guardar JSON actual antes de PUT
+7. **Verificar después de cada PUT**: Confirmar HTTP 204 y contenido

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shift-Left Testing Skill — Mejoras</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-orange: #d29922;
+            --accent-red: #f85149;
+            --accent-purple: #bc8cff;
+            --border-color: #30363d;
+            --code-bg: #1a1e24;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-blue);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title .icon {
+            font-size: 1.5rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .comparison-box {
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .comparison-box.before {
+            background-color: rgba(248, 81, 73, 0.1);
+            border-color: var(--accent-red);
+        }
+
+        .comparison-box.after {
+            background-color: rgba(63, 185, 80, 0.1);
+            border-color: var(--accent-green);
+        }
+
+        .comparison-box h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .comparison-box.before h3 {
+            color: var(--accent-red);
+        }
+
+        .comparison-box.after h3 {
+            color: var(--accent-green);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-before {
+            background-color: rgba(248, 81, 73, 0.2);
+            color: var(--accent-red);
+        }
+
+        .badge-after {
+            background-color: rgba(63, 185, 80, 0.2);
+            color: var(--accent-green);
+        }
+
+        .badge-new {
+            background-color: rgba(188, 140, 255, 0.2);
+            color: var(--accent-purple);
+        }
+
+        .code-block {
+            background-color: var(--code-bg);
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .code-block .comment {
+            color: var(--text-muted);
+        }
+
+        .code-block .keyword {
+            color: var(--accent-purple);
+        }
+
+        .code-block .string {
+            color: var(--accent-green);
+        }
+
+        .code-block .highlight {
+            color: var(--accent-orange);
+            font-weight: bold;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--bg-tertiary);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .feature-list li strong {
+            color: var(--accent-blue);
+        }
+
+        .phase-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .phase-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent-blue), var(--accent-purple));
+        }
+
+        .phase-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .phase-item::before {
+            content: '';
+            position: absolute;
+            left: -2.35rem;
+            top: 1.25rem;
+            width: 12px;
+            height: 12px;
+            background-color: var(--accent-blue);
+            border-radius: 50%;
+            border: 2px solid var(--bg-primary);
+        }
+
+        .phase-item.new {
+            border-left-color: var(--accent-green);
+        }
+
+        .phase-item.new::before {
+            background-color: var(--accent-green);
+        }
+
+        .phase-number {
+            font-weight: bold;
+            color: var(--accent-blue);
+            margin-right: 0.5rem;
+        }
+
+        .phase-item.new .phase-number {
+            color: var(--accent-green);
+        }
+
+        .example-box {
+            background-color: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .example-box h4 {
+            color: var(--accent-orange);
+            margin-bottom: 1rem;
+        }
+
+        .diff-add {
+            background-color: rgba(63, 185, 80, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            color: var(--accent-green);
+        }
+
+        .diff-remove {
+            background-color: rgba(248, 81, 73, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            color: var(--accent-red);
+            text-decoration: line-through;
+        }
+
+        .highlight-box {
+            background-color: rgba(88, 166, 255, 0.1);
+            border: 1px solid var(--accent-blue);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .highlight-box strong {
+            color: var(--accent-blue);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .arrow {
+            display: inline-block;
+            margin: 0 0.5rem;
+            color: var(--accent-purple);
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .flow-step {
+            padding: 0.75rem 1.25rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .flow-step.highlight {
+            border-color: var(--accent-green);
+            background-color: rgba(63, 185, 80, 0.1);
+        }
+
+        .flow-arrow {
+            color: var(--accent-purple);
+            font-size: 1.2rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .section-title {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Shift-Left Testing Skill</h1>
+            <p class="subtitle">Mejoras estructurales para consistencia y reusabilidad</p>
+            <div style="margin-top: 1rem;">
+                <span class="badge badge-new">Prompt Template</span>
+                <span class="badge badge-new">Content Separation</span>
+                <span class="badge badge-new">Formatting Rules</span>
+            </div>
+        </header>
+
+        <!-- Resumen de Cambios -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="icon">📋</span>
+                Resumen de Cambios
+            </h2>
+            
+            <div class="highlight-box">
+                <strong>Objetivo:</strong> Estandarizar la estructura de salida del shift-left testing para garantizar consistencia entre sesiones y facilitar la sincronización con Jira.
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Archivo</th>
+                            <th>Tipo de Cambio</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>references/shift-left-prompt-template.md</code></td>
+                            <td><span class="badge badge-new">NUEVO</span></td>
+                            <td>Prompt reutilizable con 15 fases del análisis shift-left</td>
+                        </tr>
+                        <tr>
+                            <td><code>SKILL.md</code></td>
+                            <td><span class="badge badge-after">MEJORADO</span></td>
+                            <td>Referencias al prompt template + reglas de formato</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Comparación Antes/Después -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="icon">⚖️</span>
+                Comparación: Sin Cambios vs Con Cambios
+            </h2>
+
+            <div class="comparison-grid">
+                <div class="comparison-box before">
+                    <h3><span class="badge badge-before">ANTES</span> Sin Prompt Template</h3>
+                    <ul class="feature-list">
+                        <li>Estructura variable según la sesión</li>
+                        <li>Cada QA genera contenido diferente</li>
+                        <li>Posible mezcla de Description y ATP DRAFT</li>
+                        <li>Sin reglas de formato para Gherkin</li>
+                        <li>Requiere knowledge transfer manual</li>
+                        <li>Hardcodear estructura en cada sesión</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-box after">
+                    <h3><span class="badge badge-after">DESPUÉS</span> Con Prompt Template</h3>
+                    <ul class="feature-list">
+                        <li>Estructura fija de 15 fases</li>
+                        <li>Salida idéntica en cada sesión</li>
+                        <li>Separación clara: Description vs ATP</li>
+                        <li>Reglas de formato documentadas</li>
+                        <li>Template reutilizable inmediatamente</li>
+                        <li>Carga automática desde la skill</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Estructura del Prompt Template -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="icon">📝</span>
+                Estructura del Prompt Template
+            </h2>
+
+            <div class="phase-timeline">
+                <div class="phase-item">
+                    <span class="phase-number">FASE 1-4</span>
+                    <strong>Análisis Crítico</strong>
+                    <p>Contexto Business + Técnico + Hechos confirmados + Complejidad del Story + Herencia del Epic</p>
+                </div>
+
+                <div class="phase-item">
+                    <span class="phase-number">FASE 5-7</span>
+                    <strong>Calidad del Story</strong>
+                    <p>ACs Refinados (Gherkin) + Hallazgos Críticos + Ambigüedades</p>
+                </div>
+
+                <div class="phase-item">
+                    <span class="phase-number">FASE 8-12</span>
+                    <strong>Gaps y Preguntas</strong>
+                    <p>Gaps (info faltante) + Business Rules + Preguntas PO/Dev/Diseño + Respuestas Propuestas + Mejoras</p>
+                </div>
+
+                <div class="phase-item new">
+                    <span class="phase-number">FASE 13-14</span>
+                    <strong>ATP DRAFT</strong>
+                    <p>Coverage Estimate + Test Outlines + Traceability Map + Test Data/Environment + Entry/Exit Criteria + Risk-Based Prioritization + Open Items + Risks & mitigation</p>
+                </div>
+
+                <div class="phase-item new">
+                    <span class="phase-number">FASE 15</span>
+                    <strong>Sincronización Jira</strong>
+                    <p>Separación de contenido (Description vs ATP DRAFT) + Comandos de sincronización + Reglas de formato</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ejemplo Comparativo -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="icon">🔍</span>
+                Ejemplo Comparativo: Generación de ACs
+            </h2>
+
+            <div class="comparison-grid">
+                <div class="comparison-box before">
+                    <h3><span class="badge badge-before">ANTES</span> Sin Template</h3>
+                    <div class="code-block">
+                        <pre><span class="comment">## Acceptance Criteria</span>
+
+<span class="string">1. Users can send messages in real-time</span>
+<span class="string">2. Message history is persisted</span>
+<span class="string">3. Viewers can read but not send</span></pre>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                        ❌ Sin formato Gherkin<br>
+                        ❌ Sin escenarios 1:N<br>
+                        ❌ Sin prioridades<br>
+                        ❌ Sin edge cases
+                    </p>
+                </div>
+
+                <div class="comparison-box after">
+                    <h3><span class="badge badge-after">DESPUÉS</span> Con Template</h3>
+                    <div class="code-block">
+                        <pre><span class="keyword">```gherkin</span>
+<span class="string">AC1: Real-time message delivery</span>
+
+  <span class="highlight">Scenario 1.1 (Critical):</span> Two members receive message
+    <span class="keyword">Given</span> Two members have the channel open
+    <span class="keyword">When</span> One member sends a message
+    <span class="keyword">Then</span> Message appears for both without refresh
+
+  <span class="highlight">Scenario 1.2 (High):</span> Cross-workspace isolation
+    <span class="keyword">Given</span> User belongs to a different workspace
+    <span class="keyword">When</span> Foreign message is sent
+    <span class="keyword">Then</span> Foreign messages do not appear
+<span class="keyword">```</span></pre>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                        ✅ Formato Gherkin con syntax highlighting<br>
+                        ✅ Escenarios 1:N (1.1, 1.2, 1.3...)<br>
+                        ✅ Prioridades (Critical, High, Medium)<br>
+                        ✅ Edge cases (Scenario E1, E2...)
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Separación de Contenido -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="icon">📊</span>
+                Separación de Contenido: Description vs ATP DRAFT
+            </h2>
+
+            <div class="comparison-grid">
+                <div class="comparison-box before">
+                    <h3><span class="badge badge-before">ANTES</span> Todo junto</h3>
+                    <div class="code-block">
+                        <pre><span class="comment">## Description (Jira field)</span>
+
+User Story + Context + ACs + 
+Test Outlines + Risks + 
+Traceability Map + 
+Entry/Exit Criteria...
+<span class="comment">// Todo mezclado en un solo campo</span></pre>
+                    </div>
+                </div>
+
+                <div class="comparison-box after">
+                    <h3><span class="badge badge-after">DESPUÉS</span> Separado por propósito</h3>
+                    <div class="code-block">
+                        <pre><span class="highlight">Description (WHAT)</span>:
+  - User Story
+  - Context (Business + Technical)
+  - Critical Analysis
+  - Story Complexity
+  - Epic-level Inheritance
+  - Refined ACs (gherkin code block)
+  - Critical Findings
+  - Ambiguities + Gaps
+  - Questions (PO/Dev/Design)
+  - Next Steps
+
+<span class="string">ATP DRAFT (HOW)</span>:
+  - Coverage Estimate
+  - Test Outlines (Positive, Negative, etc.)
+  - Traceability Map
+  - Test Data/Environment Requirements
+  - Entry/Exit Criteria
+  - Risk-Based Prioritization
+  - Open Items
+  - Risks & mitigation</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flujo de Uso -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="icon">🔄</span>
+                Flujo de Uso con la Skill Mejorada
+            </h2>
+
+            <div class="flow-diagram">
+                <div class="flow-step">Usuario: "shift-left testing para BK-215"</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step">Skill carga prompt template</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step highlight">Ejecuta 15 fases automáticamente</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step">Genera shift-left-refinement.md</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step highlight">Sincroniza con Jira (Description + ATP DRAFT)</div>
+            </div>
+
+            <div class="highlight-box">
+                <strong>Resultado:</strong> La skill ahora carga automáticamente el prompt template y ejecuta todas las 15 fases sin necesidad de que el usuario recuerde la estructura completa.
+            </div>
+        </section>
+
+        <!-- Ejemplo de Codigo Modificado -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="icon">💻</span>
+                Cambios en SKILL.md
+            </h2>
+
+            <div class="example-box">
+                <h4>Fase 2 — Refinement (antes)</h4>
+                <div class="code-block">
+                    <pre><span class="comment">## Phase 2 — Refinement (per Story)</span>
+
+For each accepted Story, dispatch ONE Refinement subagent.
+The subagent loads the existing in-skill reference...</pre>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>Fase 2 — Refinement (después)</h4>
+                <div class="code-block">
+                    <pre><span class="comment">## Phase 2 — Refinement (per Story)</span>
+
+For each accepted Story, dispatch ONE Refinement subagent.
+The subagent loads the existing in-skill reference...
+
+<span class="diff-add">**Prompt template (MANDATORY)**: the subagent MUST load </span>
+<span class="diff-add">and follow `.claude/skills/shift-left-testing/references/</span>
+<span class="diff-add">shift-left-prompt-template.md` for the complete output </span>
+<span class="diff-add">structure. This ensures consistent formatting across all </span>
+<span class="diff-add">shift-left sessions (15 phases, content separation between </span>
+<span class="diff-add">Description and ATP DRAFT, Gherkin syntax rules, Jira sync </span>
+<span class="diff-add">commands).</span></pre>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>Reglas de Formato (agregadas)</h4>
+                <div class="code-block">
+                    <pre><span class="diff-add">**Formatting rules (MANDATORY — from prompt template):**</span>
+
+<span class="diff-add">- **Code block for ACs**: Use ` ```gherkin ` for syntax highlighting</span>
+<span class="diff-add">- **No colons in Gherkin**: `Given` (no `Given:`)</span>
+<span class="diff-add">- **Content separation**: Description = WHAT, ATP DRAFT = HOW</span>
+<span class="diff-add">- **Tables with headers**: Always include column headers</span>
+<span class="diff-add">- **Backup before modifying**: Save current Jira JSON before PUT</span>
+<span class="diff-add">- **Verify after PUT**: Confirm HTTP 204 and read back content</span></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Beneficios -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="icon">✨</span>
+                Beneficios de los Cambios
+            </h2>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Beneficio</th>
+                            <th>Impacto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Consistencia</strong> — Misma estructura en cada sesión</td>
+                            <td>🟢 Alto</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Reusabilidad</strong> — Template copiable y personalizable</td>
+                            <td>🟢 Alto</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Eficiencia</strong> — No recordar 15 fases cada vez</td>
+                            <td>🟢 Alto</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Calidad</strong> — Reglas de formato documentadas</td>
+                            <td>🟡 Medio</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mantenibilidad</strong> — Cambios en un solo lugar</td>
+                            <td>🟡 Medio</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Documentación</strong> — Skill autoexplicativa</td>
+                            <td>🟡 Medio</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer>
+            <p>Shift-Left Testing Skill — Mejoras de Estructura</p>
+            <p style="margin-top: 0.5rem;">Generado el 2026-08-15</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BK-215 Team Chat - Shift-Left Analysis</title>
+    <style>
+        :root {
+            --bg-primary: #1a1b26;
+            --bg-secondary: #24283b;
+            --bg-tertiary: #2f3349;
+            --text-primary: #c0caf5;
+            --text-secondary: #a9b1d6;
+            --text-muted: #565f89;
+            --accent-blue: #7aa2f7;
+            --accent-cyan: #7dcfff;
+            --accent-green: #9ece6a;
+            --accent-yellow: #e0af68;
+            --accent-orange: #ff9e64;
+            --accent-red: #f7768e;
+            --accent-purple: #bb9af7;
+            --border-color: #3b4261;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .meta {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--accent-cyan);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-cyan);
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            color: var(--accent-purple);
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            color: var(--accent-yellow);
+            margin: 1rem 0 0.5rem 0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--bg-tertiary);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-critical {
+            background-color: var(--accent-red);
+            color: var(--bg-primary);
+        }
+
+        .badge-high {
+            background-color: var(--accent-orange);
+            color: var(--bg-primary);
+        }
+
+        .badge-medium {
+            background-color: var(--accent-yellow);
+            color: var(--bg-primary);
+        }
+
+        .badge-low {
+            background-color: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        .question-block {
+            background-color: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--accent-yellow);
+        }
+
+        .question-block strong {
+            color: var(--accent-yellow);
+        }
+
+        .verdict {
+            background-color: var(--bg-tertiary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-red);
+            margin-bottom: 1rem;
+        }
+
+        .verdict strong {
+            color: var(--accent-red);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .card h4 {
+            margin-top: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BK-215: Team Chat</h1>
+            <p class="subtitle">Chat with workspace members in a real-time channel</p>
+            <div class="meta">
+                <span>Epic: BK-210 Team Chat</span>
+                <span>Status: Refined - Awaiting PO Estimation</span>
+                <span>Mode: Shift-Left (pre-sprint)</span>
+                <span>Refined: 2026-08-15</span>
+            </div>
+        </header>
+
+        <section>
+            <h2>Story Quality Assessment</h2>
+            <div class="verdict">
+                <strong>Verdict: Significant Issues</strong>
+            </div>
+            <ul>
+                <li>Clear user value and well-defined ACs, but underlying infrastructure does not exist.</li>
+                <li>Integration points are undefined — high feasibility risk.</li>
+                <li>Critical details missing: ordering guarantee, pagination strategy, error/loading states, empty state copy.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Critical Analysis</h2>
+            
+            <h3>Business Context</h3>
+            <ul>
+                <li><strong>Primary persona:</strong> Elena Vargas, Senior QA Engineer</li>
+                <li><strong>Secondary personas:</strong> QA engineers, workspace members who need real-time operational conversation</li>
+                <li><strong>Business value:</strong> Operational questions like "is staging down?" get answered where the QA work lives instead of scattering into external tools</li>
+                <li><strong>KPIs influenced:</strong> Time-to-answer for operational questions, context retention, reduced tool-switching friction</li>
+                <li><strong>User journey position:</strong> Foundation story of the Team Chat epic</li>
+            </ul>
+
+            <h3>Technical Context</h3>
+            <ul>
+                <li><strong>Frontend:</strong> Right-side collapsible panel in App Shell (consistent with BK-147 patterns)</li>
+                <li><strong>Backend:</strong> No confirmed chat API endpoints exist in baseline</li>
+                <li><strong>Database:</strong> New tables needed (channels, messages, channel_members) - no schema exists yet</li>
+                <li><strong>External services:</strong> Supabase Auth/Postgres/RLS for channel visibility; Supabase Realtime for message delivery</li>
+                <li><strong>Integration points:</strong> Workspace membership (BK-1), App Shell (BK-147), Supabase Realtime</li>
+            </ul>
+
+            <h3>Evidence-confirmed Facts</h3>
+            <ul>
+                <li>Supabase Realtime is configured in migration 0043 for broadcast channels</li>
+                <li>Chat features are marked as post-MVP in business-model.md</li>
+                <li>Workspace membership model (BK-1) exists with RBAC ladder (viewer, member, admin, owner)</li>
+                <li>App Shell with tabbed explorer patterns (BK-147) exists and can host a right-side panel</li>
+                <li>No confirmed chat API endpoints, message delivery pipeline, or Realtime chat subscription exists</li>
+            </ul>
+
+            <h3>Proposals / Pending Decisions</h3>
+            <ul>
+                <li><strong>Proposal:</strong> MVP should use Supabase Realtime broadcast for message delivery</li>
+                <li><strong>Pending:</strong> Whether to use Supabase Realtime broadcast or Presence for online status tracking</li>
+                <li><strong>Pending:</strong> Message delivery confirmation semantics (delivered vs read vs seen)</li>
+                <li><strong>Pending:</strong> Message ordering guarantees when multiple users send simultaneously</li>
+                <li><strong>Pending:</strong> Whether general channel is special case of channels table or separate concept</li>
+                <li><strong>Pending:</strong> Pagination strategy for message history (cursor-based vs offset-based)</li>
+                <li><strong>Pending:</strong> Whether presence dots reflect real-time online status or last-seen timestamp</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Story Complexity</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Axis</th>
+                        <th>Rating</th>
+                        <th>Why</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Business logic</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                        <td>Clear user value but new domain (chat) with undefined API contracts and DB schema</td>
+                    </tr>
+                    <tr>
+                        <td>Integration</td>
+                        <td><span class="badge badge-high">High</span></td>
+                        <td>Depends on workspace membership, App Shell, Supabase Realtime, and new DB tables</td>
+                    </tr>
+                    <tr>
+                        <td>Data validation</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                        <td>Message length bounds (1-4000 chars), empty/whitespace rejection, ordering guarantees</td>
+                    </tr>
+                    <tr>
+                        <td>UI</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                        <td>Panel layout designed but interaction states (typing, presence, unread, reconnect) need definition</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><strong>Estimated test effort:</strong> High for refinement because the acceptance criteria are clear but the underlying infrastructure (DB schema, API endpoints, Realtime wiring) does not exist yet. Feasibility risk is high.</p>
+        </section>
+
+        <section>
+            <h2>Epic-level Inheritance</h2>
+            <ul>
+                <li><strong>Risks restated at Story level:</strong> Chat is a new domain for this codebase — no existing chat infrastructure</li>
+                <li><strong>Integration points inherited:</strong> Workspace membership (BK-1) → channel access; App Shell (BK-147) → panel hosting; Supabase Realtime → message delivery</li>
+                <li><strong>PO/Dev answers already given at epic level:</strong> Chat is post-MVP in business-model.md; new DB tables are expected</li>
+                <li><strong>Test strategy inherited:</strong> Treat workspace membership as upstream dependency; do not final-design message delivery assertions until API contract and Realtime subscription are confirmed</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Critical Findings</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Finding</th>
+                        <th>Impact</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>No DB schema exists for channels, messages, or channel_members</td>
+                        <td><span class="badge badge-critical">Blocks all data-layer testing</span></td>
+                        <td>Confirm schema design before sprint estimation</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>No chat API endpoints exist in the baseline</td>
+                        <td><span class="badge badge-critical">Blocks API contract testing</span></td>
+                        <td>Confirm endpoint paths, auth, response shapes</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Supabase Realtime is configured for broadcast, not chat</td>
+                        <td><span class="badge badge-high">May need different Realtime subscription pattern</span></td>
+                        <td>Confirm Realtime usage for chat vs broadcast</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Presence tracking system does not exist</td>
+                        <td><span class="badge badge-high">Roster online/offline status is untestable</span></td>
+                        <td>Confirm presence implementation approach</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Message ordering under concurrent sends is undefined</td>
+                        <td><span class="badge badge-high">Ordering assertions are unstable</span></td>
+                        <td>Confirm ordering guarantees (server timestamp vs client)</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Pagination strategy for history is not defined</td>
+                        <td><span class="badge badge-high">Scroll-up-to-load behavior is untestable</span></td>
+                        <td>Confirm cursor format and page size</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Ambiguities</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Location in Story</th>
+                        <th>Question for PO/Dev</th>
+                        <th>Impact on testing</th>
+                        <th>Suggested clarification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>AC1 "without refreshing the page"</td>
+                        <td>Does this mean WebSocket/Server-Sent Events, or polling?</td>
+                        <td>Cannot decide whether to test automatic updates vs manual refresh</td>
+                        <td>Confirm delivery mechanism (Supabase Realtime broadcast)</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>AC2 "oldest messages load as she scrolls up"</td>
+                        <td>Is this infinite scroll, pagination, or lazy loading? What is the page size?</td>
+                        <td>Cannot test pagination boundaries</td>
+                        <td>Confirm pagination strategy and page size</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>AC3 "currently online"</td>
+                        <td>Is online status real-time via Supabase Presence, or last-seen timestamp?</td>
+                        <td>Cannot test presence accuracy</td>
+                        <td>Confirm presence implementation</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>AC4 "composer is disabled with a hint"</td>
+                        <td>What exact copy does the hint show? Where is it positioned?</td>
+                        <td>Cannot assert exact UI text</td>
+                        <td>Define hint copy and placement</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>AC5 "connection drops for 2 minutes"</td>
+                        <td>How is connection drop simulated in testing? What is the reconnection window?</td>
+                        <td>Cannot design reconnection test</td>
+                        <td>Define reconnection semantics and timeout</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>AC5 "Elena does not need to refresh"</td>
+                        <td>Does the client automatically reconnect and fetch missed messages?</td>
+                        <td>Cannot test catch-up behavior</td>
+                        <td>Confirm auto-reconnect and catch-up mechanism</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Business Rules "Messages display in the order they were sent"</td>
+                        <td>Is this server-assigned timestamp, client timestamp, or sequence number?</td>
+                        <td>Ordering assertions depend on this</td>
+                        <td>Confirm ordering mechanism</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Business Rules "history is retained for the life of the Workspace"</td>
+                        <td>Is there a maximum message count or storage limit?</td>
+                        <td>Cannot test large-history scenarios</td>
+                        <td>Confirm retention policy details</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Mockup "send on Enter, newline on Shift+Enter"</td>
+                        <td>Is this confirmed behavior or design intent?</td>
+                        <td>Cannot test keyboard shortcuts</td>
+                        <td>Confirm keyboard interaction model</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Gaps (missing info)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Type</th>
+                        <th>Why critical</th>
+                        <th>What to add</th>
+                        <th>Risk if omitted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>DB schema</td>
+                        <td>No tables exist for channels, messages, channel_members</td>
+                        <td>Schema design with columns, types, constraints, indexes</td>
+                        <td>Implementation and QA invent different data models</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>API contract</td>
+                        <td>No chat endpoints exist</td>
+                        <td>Endpoint paths, methods, auth, request/response shapes</td>
+                        <td>Implementation and QA invent different contracts</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Realtime subscription</td>
+                        <td>Supabase Realtime is configured for broadcast, not chat</td>
+                        <td>Confirm Realtime channel naming, event types, payload shape</td>
+                        <td>Message delivery may not work as expected</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Presence system</td>
+                        <td>No online/offline tracking exists</td>
+                        <td>Presence implementation approach (Supabase Presence vs custom)</td>
+                        <td>Roster online status is untestable</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Message ordering</td>
+                        <td>Ordering guarantee is not defined</td>
+                        <td>Confirm server timestamp vs sequence number vs client timestamp</td>
+                        <td>Ordering assertions become subjective</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Pagination</td>
+                        <td>Scroll-up behavior is not defined</td>
+                        <td>Cursor format, page size, loading states</td>
+                        <td>History loading cannot be tested</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Error states</td>
+                        <td>No error handling is defined</td>
+                        <td>Network error, auth failure, message send failure, Realtime disconnect</td>
+                        <td>User may see broken UI on failure</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Loading states</td>
+                        <td>No loading indicators are defined</td>
+                        <td>Message loading, history loading, send-in-progress</td>
+                        <td>UX may feel broken during loads</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Empty state copy</td>
+                        <td>"friendly prompt" is vague</td>
+                        <td>Exact copy for empty channel</td>
+                        <td>Cannot assert exact UI text</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Clarified Business Rules</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rule</th>
+                        <th>Clarification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Viewer access</td>
+                        <td>Viewers are read-only; cannot send messages (enforced at API level)</td>
+                    </tr>
+                    <tr>
+                        <td>Message length</td>
+                        <td>1-4000 characters after trimming; empty/whitespace-only messages rejected</td>
+                    </tr>
+                    <tr>
+                        <td>History retention</td>
+                        <td>Retained indefinitely in v1 (no auto-purge)</td>
+                    </tr>
+                    <tr>
+                        <td>Send behavior</td>
+                        <td>Send on Enter, newline on Shift+Enter (confirmed in mockup)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Critical Questions for PO</h2>
+            <p><em>These BLOCK sprint planning until answered.</em></p>
+            
+            <div class="question-block">
+                <strong>1. Should the general channel be a special case of a channels table or a separate concept?</strong>
+                <p>Context: The story assumes a general channel exists per workspace, but no DB schema exists.<br>
+                Impact: Dev cannot estimate the data model; QA cannot design data-layer tests.<br>
+                Suggested: Treat it as a row in a channels table with <code>type: 'general'</code>.</p>
+            </div>
+
+            <div class="question-block">
+                <strong>2. What is the message ordering guarantee when multiple users send simultaneously?</strong>
+                <p>Context: Business Rules say "order they were sent" but mechanism is not defined.<br>
+                Impact: QA cannot write deterministic ordering assertions.<br>
+                Suggested: Server-assigned timestamps with microsecond precision; tie-break by sender ID.</p>
+            </div>
+
+            <div class="question-block">
+                <strong>3. What is the pagination strategy and page size for message history?</strong>
+                <p>Context: AC2 says "scrolls up" but mechanism is undefined.<br>
+                Impact: QA cannot test pagination boundaries.<br>
+                Suggested: Cursor-based using last message ID; page size = 50.</p>
+            </div>
+
+            <div class="question-block">
+                <strong>4. Is message validation client-side only, server-side only, or both?</strong>
+                <p>Context: AC5 mentions length bounds but not where validation occurs.<br>
+                Impact: QA cannot determine testing layers.<br>
+                Suggested: Both — client-side for UX, server-side for security.</p>
+            </div>
+
+            <div class="question-block">
+                <strong>5. What is the maximum disconnection window before requiring manual refresh?</strong>
+                <p>Context: AC5 mentions "2 minutes" but no maximum is defined.<br>
+                Impact: QA cannot test reconnection catch-up boundary.<br>
+                Suggested: 5 minutes; beyond that, prompt refresh.</p>
+            </div>
+
+            <div class="question-block">
+                <strong>6. How should the empty channel state be worded?</strong>
+                <p>Context: Business Rules mention "friendly prompt" but no copy is defined.<br>
+                Impact: QA cannot assert exact UI text.<br>
+                Suggested: "No messages yet. Start the conversation!"</p>
+            </div>
+
+            <div class="question-block">
+                <strong>7. Should presence dots reflect real-time status or last-seen timestamp?</strong>
+                <p>Context: AC3 mentions "currently online" but implementation is undefined.<br>
+                Impact: QA cannot test presence accuracy.<br>
+                Suggested: Supabase Presence for real-time; last-seen fallback.</p>
+            </div>
+
+            <div class="question-block">
+                <strong>8. What happens when a user's role changes from member to viewer while channel is open?</strong>
+                <p>Context: Edge case not covered by ACs but affects viewer scenario.<br>
+                Impact: QA cannot test real-time role propagation.<br>
+                Suggested: Composer disabled in real-time + toast notification.</p>
+            </div>
+
+            <div class="question-block">
+                <strong>9. Should messages be queued when user is disconnected or should failure be notified?</strong>
+                <p>Context: Edge case not covered by ACs but affects reconnection scenario.<br>
+                Impact: QA cannot test offline behavior.<br>
+                Suggested: Queue for delivery on reconnect; show sending indicator.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Technical Questions for Dev</h2>
+            <p><em>These do not block PO but block implementation.</em></p>
+            <ol>
+                <li><strong>What DB schema will be used for channels, messages, and channel_members?</strong> — Columns, types, constraints, indexes, foreign keys. Blocks all data-layer testing.</li>
+                <li><strong>What API endpoints will power the chat?</strong> — Paths, methods, auth, request/response shapes. Blocks API contract testing.</li>
+                <li><strong>How will Supabase Realtime be wired for chat delivery?</strong> — Channel naming, event types, payload shape. Blocks Realtime subscription testing.</li>
+                <li><strong>How will presence tracking be implemented?</strong> — Supabase Presence vs custom solution. Blocks roster online/offline testing.</li>
+                <li><strong>What is the message ordering mechanism?</strong> — Server timestamp, sequence number, or hybrid. Blocks ordering assertions.</li>
+                <li><strong>What cursor format and page size for history pagination?</strong> — Blocks pagination boundary testing.</li>
+                <li><strong>How will RLS policies be implemented for channel access?</strong> — Blocks security-RBAC testing.</li>
+                <li><strong>What error codes and shapes will the API return?</strong> — Auth failures, validation errors, server errors. Blocks error-state testing.</li>
+                <li><strong>Will there be a typing indicator or delivery confirmation?</strong> — If yes, blocks additional test scenarios.</li>
+                <li><strong>What performance SLAs apply to message delivery and history loading?</strong> — Blocks NFR performance outlines (NFR1, NFR2).</li>
+                <li><strong>Will the chat panel meet WCAG 2.1 AA accessibility (keyboard navigation, screen reader)?</strong> — Blocks NFR accessibility outlines (NFR3, NFR4).</li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>Design Questions</h2>
+            <ol>
+                <li><strong>What exact copy does the viewer read-only hint show?</strong> — Mockup says "disabled composer with a read-only hint" but no text provided.</li>
+                <li><strong>How should the empty channel state be visually represented?</strong> — Business Rules say "friendly prompt" but no design provided.</li>
+                <li><strong>Should the roster be a flyout overlay or persistent sidebar?</strong> — Mockup says "roster flyout" but behavior not defined.</li>
+                <li><strong>How should the unread separator line be styled?</strong> — Business Rules mention it but no visual spec exists.</li>
+                <li><strong>Should the panel remember open/closed state across navigations?</strong> — Not defined in ACs or mockup.</li>
+                <li><strong>How should the panel behave on narrow viewports?</strong> — BRIEF.md says "desktop-first 1440px" but no responsive behavior defined.</li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>Open Questions — Proposed Answers</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Question</th>
+                        <th>Proposed Answer</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>General channel: special case or separate table?</td>
+                        <td>Row in channels table with <code>type: 'general'</code></td>
+                        <td>Consistency with future project channels (BK-216)</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Message ordering guarantee</td>
+                        <td>Server timestamps with microsecond precision; tie-break by sender ID</td>
+                        <td>Industry standard for chat systems</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Pagination strategy</td>
+                        <td>Cursor-based using last message ID; page size = 50</td>
+                        <td>Standard for real-time feeds</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Validation layers</td>
+                        <td>Both client-side (UX) and server-side (security)</td>
+                        <td>Security best practice</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Max disconnection window</td>
+                        <td>5 minutes; beyond that, prompt refresh</td>
+                        <td>Reasonable for QA tool context</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Empty state copy</td>
+                        <td>"No messages yet. Start the conversation!"</td>
+                        <td>Friendly, action-oriented</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Presence implementation</td>
+                        <td>Supabase Presence for real-time; last-seen fallback</td>
+                        <td>Leverages existing Supabase infrastructure</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Role change propagation</td>
+                        <td>Real-time composer disable + toast notification</td>
+                        <td>Consistent with real-time chat UX</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Offline message behavior</td>
+                        <td>Queue for delivery on reconnect; show sending indicator</td>
+                        <td>Standard chat pattern</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Suggested Story Improvements</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Current state</th>
+                        <th>Suggested change</th>
+                        <th>Benefit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>"real-time channel"</td>
+                        <td>Define delivery mechanism (Supabase Realtime broadcast)</td>
+                        <td>Removes ambiguity</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>"without refreshing"</td>
+                        <td>Define reconnection mechanism and catch-up window</td>
+                        <td>Makes AC5 testable</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>"currently online"</td>
+                        <td>Define presence implementation</td>
+                        <td>Makes AC3 testable</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>"scrolls up"</td>
+                        <td>Define pagination strategy and page size</td>
+                        <td>Makes AC2 testable</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>"friendly prompt"</td>
+                        <td>Provide exact copy</td>
+                        <td>Makes empty state assertable</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>"order they were sent"</td>
+                        <td>Define ordering mechanism</td>
+                        <td>Makes assertions objective</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Next Steps</h2>
+            <ul>
+                <li>PO answers Critical Questions before sprint planning</li>
+                <li>Dev answers Technical Questions before estimation</li>
+                <li>DB schema design is confirmed and implemented</li>
+                <li>API endpoint contracts are confirmed and implemented</li>
+                <li>Supabase Realtime wiring for chat is confirmed</li>
+                <li>Story enters sprint at status Ready For Dev once estimated</li>
+            </ul>
+        </section>
+
+        <section style="border: 2px solid var(--accent-purple); background-color: var(--bg-secondary);">
+            <h2 style="color: var(--accent-purple); border-bottom-color: var(--accent-purple);">Acceptance Test Plan (ATP) — BK-215</h2>
+            
+            <div class="meta" style="justify-content: flex-start; margin-bottom: 1.5rem;">
+                <span>Story: Team Chat | Chat with workspace members in a real-time channel</span>
+                <span>Epic: BK-210 Team Chat</span>
+                <span>Status: DRAFT — Awaiting PO Estimation</span>
+                <span>Created: 2026-08-15</span>
+                <span>Mode: Shift-Left (pre-sprint)</span>
+            </div>
+
+            <h3>Coverage Estimate</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Count</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Positive</td>
+                        <td>7</td>
+                        <td>Core message delivery, history, roster, viewer access, reconnection</td>
+                    </tr>
+                    <tr>
+                        <td>Negative</td>
+                        <td>4</td>
+                        <td>Cross-workspace isolation, viewer send prevention, empty message rejection, concurrent ordering</td>
+                    </tr>
+                    <tr>
+                        <td>Boundary</td>
+                        <td>5</td>
+                        <td>Message length 0/1/4000/4001, history pagination, disconnection window</td>
+                    </tr>
+                    <tr>
+                        <td>Integration</td>
+                        <td>4</td>
+                        <td>Workspace membership, App Shell panel, Supabase Realtime, DB persistence</td>
+                    </tr>
+                    <tr>
+                        <td>Security-RBAC</td>
+                        <td>3</td>
+                        <td>Viewer read-only, cross-workspace isolation, server-side role enforcement</td>
+                    </tr>
+                    <tr>
+                        <td>State-Transition</td>
+                        <td>3</td>
+                        <td>Connected/disconnected, member/viewer role change, empty/non-empty channel</td>
+                    </tr>
+                    <tr>
+                        <td>Non-Functional</td>
+                        <td>4</td>
+                        <td>Performance (delivery latency, history load time) + Accessibility (keyboard, screen reader)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td><strong>30</strong></td>
+                        <td><strong>High count driven by new domain, missing infrastructure, and RBAC risk</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><strong>Rationale:</strong> BK-215 is the foundation story for a new domain (chat) with no existing infrastructure. The ACs are clear but the underlying DB schema, API endpoints, Realtime wiring, and presence system do not exist. This drives high integration and security-RBAC outline counts.</p>
+
+            <h3>Test Outlines</h3>
+            
+            <h4>Positive (7)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Outline</th>
+                        <th>Preconditions</th>
+                        <th>Expected Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Should deliver a new message to all channel members in real time</td>
+                        <td>Two members have the channel open</td>
+                        <td>New message appears for both without refresh</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Should display sender name and timestamp on each message</td>
+                        <td>A message exists in the channel</td>
+                        <td>Message shows sender display name and formatted timestamp</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Should load full message history when user opens the channel</td>
+                        <td>Channel has 20+ messages</td>
+                        <td>All messages visible in chronological order</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Should load older messages when user scrolls up</td>
+                        <td>Channel has more messages than fit on screen</td>
+                        <td>Older messages load progressively on scroll-up</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Should display all workspace members with roles in the roster</td>
+                        <td>Workspace has 3 members with different roles</td>
+                        <td>Roster shows all members with role badges</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Should allow viewers to read full message history</td>
+                        <td>Viewer opens the channel</td>
+                        <td>Full history is readable</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Should show missed messages after reconnection</td>
+                        <td>Connection drops while messages arrive</td>
+                        <td>Missed messages appear in correct order on reconnect</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Negative (4)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Outline</th>
+                        <th>Preconditions</th>
+                        <th>Expected Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Should not deliver messages to non-members of the workspace</td>
+                        <td>User belongs to a different workspace</td>
+                        <td>Foreign messages do not appear</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Should prevent viewers from sending messages</td>
+                        <td>Viewer attempts to send</td>
+                        <td>Send is rejected at server level</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Should reject empty or whitespace-only messages</td>
+                        <td>User types only spaces</td>
+                        <td>Message is not sent, error is shown</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Should not show messages from other workspaces</td>
+                        <td>User has access to multiple workspaces</td>
+                        <td>Channel shows only current workspace messages</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Boundary (5)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Outline</th>
+                        <th>Preconditions</th>
+                        <th>Expected Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Should accept message at exactly 1 character</td>
+                        <td>User types a single character</td>
+                        <td>Message is sent successfully</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Should accept message at exactly 4000 characters</td>
+                        <td>User types 4000 characters</td>
+                        <td>Message is sent successfully</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Should reject message at 4001 characters</td>
+                        <td>User types 4001 characters</td>
+                        <td>Message is rejected with error</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Should handle message with leading/trailing whitespace correctly</td>
+                        <td>User types " Hello "</td>
+                        <td>Message is trimmed and sent as "Hello"</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Should handle disconnection window boundary</td>
+                        <td>Connection drops for exactly the catch-up window</td>
+                        <td>Messages load or refresh is prompted</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Integration (4)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Outline</th>
+                        <th>Preconditions</th>
+                        <th>Expected Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Should enforce channel access through workspace membership</td>
+                        <td>User is/is not a workspace member</td>
+                        <td>Channel access granted/denied based on membership</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Should render the chat panel within the App Shell</td>
+                        <td>User opens the panel</td>
+                        <td>Panel appears as right-side dock consistent with BK-147 patterns</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Should persist messages to the database</td>
+                        <td>Message is sent</td>
+                        <td>Message is stored in the messages table with correct foreign keys</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Should subscribe to Supabase Realtime for message delivery</td>
+                        <td>Channel is open</td>
+                        <td>Realtime subscription is active and receives new messages</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Security-RBAC (3)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Outline</th>
+                        <th>Preconditions</th>
+                        <th>Expected Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Should enforce viewer read-only access at the API level</td>
+                        <td>Viewer sends message via API</td>
+                        <td>403 Forbidden returned</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Should isolate workspace channels from each other</td>
+                        <td>User accesses channels from different workspaces</td>
+                        <td>No cross-workspace message leakage</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Should enforce role-based access on channel operations</td>
+                        <td>User with different roles attempts operations</td>
+                        <td>Operations permitted/denied per RBAC rules</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>State-Transition (3)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Outline</th>
+                        <th>Preconditions</th>
+                        <th>Expected Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Should handle connected-to-disconnected state transition</td>
+                        <td>User is connected then loses connection</td>
+                        <td>UI reflects disconnection state, reconnects automatically</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Should handle member-to-viewer role transition</td>
+                        <td>Member's role changes to viewer</td>
+                        <td>Composer becomes disabled in real-time</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Should handle empty-to-populated channel transition</td>
+                        <td>Channel has 0 messages, then a message is sent</td>
+                        <td>Empty state disappears, message appears</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Non-Functional (4) — NEEDS PO/DEV CONFIRMATION</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Outline</th>
+                        <th>Preconditions</th>
+                        <th>Expected Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>NFR1</td>
+                        <td>Should deliver messages within the latency SLA under concurrent load</td>
+                        <td>10 members send simultaneously</td>
+                        <td>All messages delivered within the agreed SLA (2 seconds)</td>
+                    </tr>
+                    <tr>
+                        <td>NFR2</td>
+                        <td>Should load large message history within a defined time</td>
+                        <td>Channel has 10,000+ messages</td>
+                        <td>History loads within the agreed time budget (e.g., 3 seconds)</td>
+                    </tr>
+                    <tr>
+                        <td>NFR3</td>
+                        <td>Should support keyboard-only navigation of the channel panel</td>
+                        <td>User navigates with keyboard only</td>
+                        <td>All interactions keyboard-accessible with visible focus (WCAG 2.1 AA)</td>
+                    </tr>
+                    <tr>
+                        <td>NFR4</td>
+                        <td>Should announce new messages to screen readers</td>
+                        <td>Screen reader user has channel open</td>
+                        <td>New messages announced via live region; presence not color-only (WCAG 2.1 AA)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Traceability Map</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Original AC</th>
+                        <th>Refined Scenarios</th>
+                        <th>Outlines</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>AC1: Real-time message delivery</td>
+                        <td>1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7</td>
+                        <td>Positive #1, #2; Negative #1, #3; Boundary #1, #2, #3</td>
+                    </tr>
+                    <tr>
+                        <td>AC2: Message history persistence</td>
+                        <td>2.1, 2.2, 2.3</td>
+                        <td>Positive #3, #4; Boundary #4</td>
+                    </tr>
+                    <tr>
+                        <td>AC3: Workspace roster</td>
+                        <td>3.1, 3.2</td>
+                        <td>Positive #5; State-Transition #3</td>
+                    </tr>
+                    <tr>
+                        <td>AC4: Viewer read-only access</td>
+                        <td>4.1, 4.2, 4.3</td>
+                        <td>Positive #6; Negative #2; Security-RBAC #1</td>
+                    </tr>
+                    <tr>
+                        <td>AC5: Reconnection catch-up</td>
+                        <td>5.1, 5.2</td>
+                        <td>Positive #7; Boundary #5; State-Transition #1</td>
+                    </tr>
+                    <tr>
+                        <td>E1: Offline message queue</td>
+                        <td>E1</td>
+                        <td>Edge #2</td>
+                    </tr>
+                    <tr>
+                        <td>E2: Role change propagation</td>
+                        <td>E2</td>
+                        <td>State-Transition #2; Edge #3</td>
+                    </tr>
+<tr>
+                        <td>E3: Validation layers</td>
+                        <td>E3</td>
+                        <td>Boundary #3; Edge #9</td>
+                    </tr>
+                    <tr>
+                        <td>E4: NFR - Performance delivery latency</td>
+                        <td>E4</td>
+                        <td>NFR1; needs PO confirmation</td>
+                    </tr>
+                    <tr>
+                        <td>E5: NFR - Performance history load</td>
+                        <td>E5</td>
+                        <td>NFR2; needs PO confirmation</td>
+                    </tr>
+                    <tr>
+                        <td>E6: NFR - Accessibility keyboard</td>
+                        <td>E6</td>
+                        <td>NFR3; needs PO confirmation</td>
+                    </tr>
+                    <tr>
+                        <td>E7: NFR - Accessibility screen reader</td>
+                        <td>E7</td>
+                        <td>NFR4; needs PO confirmation</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Test Data Requirements</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data Type</th>
+                        <th>Requirement</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Workspace</td>
+                        <td>At least 2 workspaces (Bunkai QA + another)</td>
+                        <td>For cross-workspace isolation testing</td>
+                    </tr>
+                    <tr>
+                        <td>Members</td>
+                        <td>At least 3 members per workspace with different roles</td>
+                        <td>Elena (Admin), Sara (Member), Mateo (Viewer)</td>
+                    </tr>
+                    <tr>
+                        <td>Messages</td>
+                        <td>Pre-seeded messages for history testing (20+ messages)</td>
+                        <td>For pagination and history load testing</td>
+                    </tr>
+                    <tr>
+                        <td>Channel</td>
+                        <td>General channel per workspace</td>
+                        <td>Foundation for all tests</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Test Environment Requirements</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Requirement</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Database</td>
+                        <td>Supabase PostgreSQL with channels, messages, channel_members tables</td>
+                        <td>New tables required</td>
+                    </tr>
+                    <tr>
+                        <td>API</td>
+                        <td>Chat API endpoints (send, history, roster, presence)</td>
+                        <td>New endpoints required</td>
+                    </tr>
+                    <tr>
+                        <td>Realtime</td>
+                        <td>Supabase Realtime configured for chat delivery</td>
+                        <td>Different from broadcast config</td>
+                    </tr>
+                    <tr>
+                        <td>Auth</td>
+                        <td>Supabase Auth with workspace membership</td>
+                        <td>Existing (BK-1)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Entry Criteria</h3>
+            <ul>
+                <li>DB schema for channels, messages, channel_members is implemented</li>
+                <li>Chat API endpoints are implemented and documented</li>
+                <li>Supabase Realtime is wired for chat delivery</li>
+                <li>Presence tracking is implemented (if applicable)</li>
+                <li>Test data is seeded</li>
+            </ul>
+
+            <h3>Exit Criteria</h3>
+            <ul>
+                <li>All 30 test outlines executed</li>
+                <li>All Critical and High priority defects resolved</li>
+                <li>RBAC enforcement verified at API level</li>
+                <li>Realtime delivery verified across members</li>
+                <li>NFR verification executed (performance latency/load, accessibility keyboard/screen reader)</li>
+            </ul>
+
+            <h3>Risk-Based Prioritization</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Priority</th>
+                        <th>Test Outlines</th>
+                        <th>Rationale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-critical">P0 — Must Have</span></td>
+                        <td>P1, N1, N2, S1, S2</td>
+                        <td>Core message delivery + security</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-high">P1 — Should Have</span></td>
+                        <td>P2, P3, P5, P6, P7, N3, B1, B2, B3, I1, I3, I4, T1, NFR1, NFR2, NFR3, NFR4</td>
+                        <td>Happy paths + critical boundaries + NFR verification</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-medium">P2 — Nice to Have</span></td>
+                        <td>P4, B4, B5, I2, T2, T3, N4, S3</td>
+                        <td>Edge cases + integration details</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Open Items for Sprint</h3>
+            <ul>
+                <li>Confirm DB schema design with Dev</li>
+                <li>Confirm API endpoint contracts with Dev</li>
+                <li>Confirm Realtime wiring approach with Dev</li>
+                <li>Confirm presence implementation approach with Dev</li>
+                <li>Seed test data for all scenarios</li>
+            </ul>
+
+            <h3>Risks & mitigation</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Risk</th>
+                        <th>Likelihood</th>
+                        <th>Impact</th>
+                        <th>Mitigated by which outlines</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>DB schema does not exist — blocks all testing</td>
+                        <td><span class="badge badge-high">High</span></td>
+                        <td><span class="badge badge-critical">Critical</span></td>
+                        <td>Integration #3, Security-RBAC #1</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>API contracts undefined — QA and Dev invent different interfaces</td>
+                        <td><span class="badge badge-high">High</span></td>
+                        <td><span class="badge badge-critical">Critical</span></td>
+                        <td>Integration #4, Technical Questions #2</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Realtime wiring misconfigured — messages do not deliver</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                        <td><span class="badge badge-critical">Critical</span></td>
+                        <td>Integration #4, Positive #1</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Presence tracking inaccurate — roster shows wrong online status</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                        <td><span class="badge badge-high">High</span></td>
+                        <td>Positive #6, Technical Questions #4</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Message ordering inconsistent under concurrent sends</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                        <td><span class="badge badge-high">High</span></td>
+                        <td>Positive #7, Edge #1</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Viewer can bypass client-side restrictions via API</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                        <td><span class="badge badge-critical">Critical</span></td>
+                        <td>Security-RBAC #1, Negative #2</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Pagination breaks on large histories</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                        <td><span class="badge badge-high">High</span></td>
+                        <td>Boundary #4, Edge #3</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Role changes not propagated in real-time</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                        <td><span class="badge badge-high">High</span></td>
+                        <td>State-Transition #2, Edge #6</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>NFRs undefined (performance SLA, accessibility) — QA cannot assert non-functional acceptance</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                        <td>NFR1-NFR4, Technical Questions #10, #11</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <footer>
+            <p>BK-215 Team Chat — Shift-Left Analysis | Generated 2026-08-15</p>
+        </footer>
+    </div>
+</body>
+</html>

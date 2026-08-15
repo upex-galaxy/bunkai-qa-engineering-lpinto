@@ -83,6 +83,15 @@ Requires `agentic-qa-core`. Loads on demand:
 - On taking a Story into refinement (first QA pickup), set `qa_assignee` to self — read-before-write, never overwrite an existing owner (`agentic-qa-core/references/defect-management-doctrine.md` Part 2). This skill files NO Bug/Defect/Improvement; only the QA-Assignee hook applies.
 - On completion: add label `shift-left-reviewed`; transition Backlog → Shift-Left QA → Estimation.
 
+**Formatting rules (MANDATORY — from prompt template):**
+
+- **Code block for ACs**: Use ` ```gherkin ` for syntax highlighting of refined acceptance criteria.
+- **No colons in Gherkin**: `Given` (no `Given:`), `When` (no `When:`), `Then` (no `Then:`).
+- **Content separation**: Description = WHAT (User Story + Context + Critical Analysis + Refined ACs + Questions). ATP DRAFT = HOW (Coverage Estimate + Test Outlines + Traceability Map + Risks & mitigation).
+- **Tables with headers**: Always include column headers for tables.
+- **Backup before modifying**: Save current Jira JSON before PUT operations.
+- **Verify after PUT**: Confirm HTTP 204 and read back content.
+
 **Read full SKILL.md when**: running the batch grooming pipeline, writing the per-Story `shift-left-refinement.md`, or handling the PO/Dev handoff.
 
 ---
@@ -248,6 +257,8 @@ Persist the accepted list into `plan.md` §Inputs so a resumed session reads the
 
 For each accepted Story, dispatch ONE Refinement subagent. The subagent loads the existing in-skill reference and applies a shift-left-mode delta.
 
+**Prompt template (MANDATORY)**: the subagent MUST load and follow `.claude/skills/shift-left-testing/references/shift-left-prompt-template.md` for the complete output structure. This ensures consistent formatting across all shift-left sessions (15 phases, content separation between Description and ATP DRAFT, Gherkin syntax rules, Jira sync commands).
+
 **Reuse contract**: the subagent reads `.claude/skills/sprint-testing/references/acceptance-test-planning.md` §Phases 1-3 + Phase 4 (outline names only). The delta for shift-left mode:
 
 | acceptance-test-planning.md Phase | Shift-Left adaptation |
@@ -286,6 +297,8 @@ For each refined Story, dispatch a Handoff subagent. Sequential, one Story at a 
 ### Per-Story handoff sequence
 
 > **Prerequisite**: Phase 0.2 already loaded `/acli` (and `/xray-cli` in Modality jira-xray if Test Plan creation is opted in). Pseudocode below uses `[ISSUE_TRACKER_TOOL]` and `[TMS_TOOL]`.
+
+> **Content separation (MANDATORY)**: Follow the prompt template at `.claude/skills/shift-left-testing/references/shift-left-prompt-template.md` FASE 15 for the exact content split between Description (WHAT) and ATP DRAFT (HOW). Description contains: User Story + Context + Critical Analysis + Story Complexity + Epic Inheritance + Refined ACs + Critical Findings + Ambiguities + Gaps + Clarified Business Rules + Questions + Next Steps. ATP DRAFT contains: Coverage Estimate + Test Outlines + Traceability Map + Test Data/Environment Requirements + Entry/Exit Criteria + Risk-Based Prioritization + Open Items + Risks & mitigation.
 
 ```
 1. Write the refined ACs to the Jira acceptance_criteria field, then mirror the

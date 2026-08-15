@@ -303,6 +303,34 @@ Issues blocking full testability:
 - ***When***: She attempts to send.
 - ***Then***: Validation prevents the send at the appropriate layer with a clear error.
 
+#### Scenario E4: Should meet delivery latency SLA under concurrent load (Type: NFR - Performance, Priority: High)
+
+- ***NEEDS PO/DEV CONFIRMATION***: Delivery latency SLA under load is not defined.
+- ***Given***: 10 members have the general channel open and send messages simultaneously.
+- ***When***: All messages are delivered to all members.
+- ***Then***: Message delivery latency stays within the agreed SLA (scenario 1.1: under 2 seconds).
+
+#### Scenario E5: Should load large message histories within a defined time (Type: NFR - Performance, Priority: Medium)
+
+- ***NEEDS PO/DEV CONFIRMATION***: History load time budget is not defined.
+- ***Given***: The general channel contains 10,000+ messages.
+- ***When***: A member opens the channel.
+- ***Then***: The history loads within a defined time budget (e.g., under 3 seconds).
+
+#### Scenario E6: Should support keyboard-only navigation (Type: NFR - Accessibility, Priority: High)
+
+- ***NEEDS PO/DEV CONFIRMATION***: WCAG 2.1 AA accessibility target is not confirmed.
+- ***Given***: A user navigates the channel panel with keyboard only.
+- ***When***: They interact with the message list, composer, and roster.
+- ***Then***: All interactions are keyboard-accessible with visible focus (send on Enter, newline on Shift+Enter).
+
+#### Scenario E7: Should announce new messages to screen readers (Type: NFR - Accessibility, Priority: Medium)
+
+- ***NEEDS PO/DEV CONFIRMATION***: Screen reader / live region behavior is not defined.
+- ***Given***: A screen reader user has the channel open.
+- ***When***: A new message arrives or presence changes.
+- ***Then***: New messages are announced via a live region and presence indicators are not color-only.
+
 ---
 
 ## Phase 4 — Test Outlines (DRAFT — outline names only)
@@ -317,7 +345,8 @@ Issues blocking full testability:
 | Integration | 4 | Workspace membership, App Shell panel, Supabase Realtime, DB persistence |
 | Security-RBAC | 3 | Viewer read-only, cross-workspace isolation, server-side role enforcement |
 | State-Transition | 3 | Connected/disconnected, member/viewer role change, empty/non-empty channel |
-| ***Total*** | ***26*** | High count driven by new domain, missing infrastructure, and RBAC risk |
+| Non-Functional | 4 | Performance (delivery latency, history load time) + Accessibility (keyboard, screen reader) |
+| ***Total*** | ***30*** | High count driven by new domain, missing infrastructure, and RBAC risk |
 
 ***Rationale***: BK-215 is the foundation story for a new domain (chat) with no existing infrastructure. The ACs are clear but the underlying DB schema, API endpoints, Realtime wiring, and presence system do not exist. This drives high integration and security-RBAC outline counts.
 
@@ -366,6 +395,13 @@ Issues blocking full testability:
 - ***Should handle connected-to-disconnected state transition*** — Pre: user is connected then loses connection. Expected: UI reflects disconnection state, reconnects automatically.
 - ***Should handle member-to-viewer role transition*** — Pre: member's role changes to viewer. Expected: composer becomes disabled in real-time.
 - ***Should handle empty-to-populated channel transition*** — Pre: channel has 0 messages, then a message is sent. Expected: empty state disappears, message appears.
+
+#### Non-Functional (4) — NFR outlines — NEEDS PO/DEV CONFIRMATION
+
+- ***Should deliver messages within the latency SLA under concurrent load*** — Pre: 10 members send simultaneously. Expected: all messages delivered within the agreed SLA (2 seconds).
+- ***Should load large message history within a defined time*** — Pre: channel has 10,000+ messages. Expected: history loads within the agreed time budget (e.g., 3 seconds).
+- ***Should support keyboard-only navigation of the channel panel*** — Pre: user navigates with keyboard only. Expected: all interactions keyboard-accessible with visible focus (WCAG 2.1 AA).
+- ***Should announce new messages to screen readers*** — Pre: screen reader user has channel open. Expected: new messages announced via live region; presence not color-only (WCAG 2.1 AA).
 
 ---
 
@@ -462,6 +498,8 @@ Issues blocking full testability:
 7. **How will RLS policies be implemented for channel access?** — Blocks security-RBAC testing.
 8. **What error codes and shapes will the API return for auth failures, validation errors, and server errors?** — Blocks error-state testing.
 9. **Will there be a typing indicator or message delivery confirmation?** — If yes, blocks additional test scenarios.
+10. **What performance SLAs apply to message delivery and history loading?** — Blocks NFR performance outlines (NFR1, NFR2).
+11. **Will the chat panel meet WCAG 2.1 AA accessibility (keyboard navigation, screen reader)?** — Blocks NFR accessibility outlines (NFR3, NFR4).
 
 ---
 
@@ -574,8 +612,9 @@ Issues blocking full testability:
 | 4 | Presence tracking inaccurate — roster shows wrong online status | Medium | High | Positive #6, Technical Questions #4 |
 | 5 | Message ordering inconsistent under concurrent sends | Medium | High | Positive #7, Edge #1 |
 | 6 | Viewer can bypass client-side restrictions via API | Medium | Critical | Security-RBAC #1, Negative #2 |
-| 7 | Pagination breaks on large histories | Medium | High | Boundary #4, Edge #8 |
-| 8 | Role changes not propagated in real-time | Medium | High | State-Transition #2, Edge #3 |
+| 7 | Pagination breaks on large histories | Medium | High | Boundary #4, Edge #3 |
+| 8 | Role changes not propagated in real-time | Medium | High | State-Transition #2, Edge #6 |
+| 9 | NFRs undefined (performance SLA, accessibility) — QA cannot assert non-functional acceptance | Medium | Medium | NFR1-NFR4, Technical Questions #10, #11 |
 
 ---
 
@@ -589,8 +628,12 @@ Issues blocking full testability:
 | AC4: Viewer read-only access | 4.1, 4.2, 4.3 | Positive #6; Negative #2; Security-RBAC #1 |
 | AC5: Reconnection catch-up | 5.1, 5.2 | Positive #7; Boundary #5; State-Transition #1 |
 | E1: Offline message queue | E1 | Edge #2 |
-| E2: Role change propagation | E2 | State-Transition #2; Edge #3 |
-| E3: Validation layers | E3 | Boundary #3; Edge #10 |
+| E2: Role change propagation | E2 | State-Transition #2; Edge #6 |
+| E3: Validation layers | E3 | Boundary #3; Edge #9 |
+| E4: NFR - Performance delivery latency | E4 | NFR1; needs PO confirmation |
+| E5: NFR - Performance history load | E5 | NFR2; needs PO confirmation |
+| E6: NFR - Accessibility keyboard | E6 | NFR3; needs PO confirmation |
+| E7: NFR - Accessibility screen reader | E7 | NFR4; needs PO confirmation |
 
 ---
 
@@ -602,24 +645,24 @@ Issues blocking full testability:
 
 1. **Updated Jira description** with "QA Refinements (Shift-Left Analysis)" section containing:
    - Story Quality Assessment
-   - Refined Acceptance Criteria (20 scenarios with Given/When/Then)
+   - Refined Acceptance Criteria (24 scenarios with Given/When/Then — 20 core + E4-E7 NFR proposals)
    - Critical Findings (summary)
    - Clarified Business Rules
    - Critical Questions for PO (9 questions)
-   - Technical Questions for Dev (9 questions)
+   - Technical Questions for Dev (11 questions)
    - Design Questions (6 questions)
    - Open Questions — Proposed Answers (table)
    - Suggested Story Improvements
    - Next Steps
 
 2. **Populated ATP DRAFT field** (`customfield_10067`) with test plan content:
-   - Coverage Estimate (26 outlines)
-   - Test Outlines (Positive, Negative, Boundary, Integration, Security-RBAC, State-Transition)
-   - Traceability Map
+   - Coverage Estimate (30 outlines)
+   - Test Outlines (Positive, Negative, Boundary, Integration, Security-RBAC, State-Transition, Non-Functional)
+   - Traceability Map (incl. E4-E7 → NFR1-NFR4)
    - Test Data Requirements
    - Test Environment Requirements
    - Entry/Exit Criteria
-   - Risk-Based Prioritization
+   - Risk-Based Prioritization (P1 incl. NFR1-NFR4)
 
 3. **Added comment mirror** pointing to the ATP DRAFT field.
 
@@ -631,6 +674,8 @@ Issues blocking full testability:
 
 7. **Verified trace**: Description has ACs + questions, ATP DRAFT has test plan, comment mirror present.
 
+8. **Added NFR proposals (Option B, 2026-08-15)**: Description gains E4-E7 NFR scenarios (NEEDS PO/DEV CONFIRMATION) + Technical Questions #10-#11; ATP DRAFT gains Non-Functional outlines NFR1-NFR4, Coverage Total 26→30, Risk #9, Exit Criteria NFR line, Prioritization P1 + NFR1-NFR4. PO/Dev confirmation upgrades NFRs to contract → future failures = Defect (per defect-management doctrine).
+
 ### Content separation rationale
 
 - **Description**: WHAT to build (ACs, findings, questions for PO/Dev)
@@ -641,6 +686,7 @@ Issues blocking full testability:
 ## Next steps
 
 - [ ] PO answers Critical Questions before sprint planning
+- [ ] PO/Dev confirm NFR proposals (E4-E7, NFR1-NFR4): performance SLA + WCAG 2.1 AA target — confirmation upgrades them to contract
 - [ ] Dev answers Technical Questions before estimation
 - [ ] DB schema design is confirmed and implemented
 - [ ] API endpoint contracts are confirmed and implemented
