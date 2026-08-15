@@ -273,7 +273,7 @@ Persist the accepted list into `plan.md` §Inputs so a resumed session reads the
 
 For each accepted Story, dispatch ONE Refinement subagent. The subagent loads the existing in-skill reference and applies a shift-left-mode delta.
 
-**Prompt template (MANDATORY)**: the subagent MUST load and follow `.claude/skills/shift-left-testing/references/shift-left-prompt-template.md` for the complete output structure. This ensures consistent formatting across all shift-left sessions (15 phases, content separation between Description and ATP DRAFT, Gherkin syntax rules, Jira sync commands).
+**Prompt template (MANDATORY)**: the subagent MUST load and follow `.claude/skills/shift-left-testing/references/shift-left-template.md` for the complete output structure. This ensures consistent formatting across all shift-left sessions (16 phases, content separation between Description and ATP DRAFT, Gherkin syntax rules, Jira sync commands).
 
 **Reuse contract**: the subagent reads `.claude/skills/sprint-testing/references/acceptance-test-planning.md` §Phases 1-3 + Phase 4 (outline names only). The delta for shift-left mode:
 
@@ -314,7 +314,7 @@ For each refined Story, dispatch a Handoff subagent. Sequential, one Story at a 
 
 > **Prerequisite**: Phase 0.2 already loaded `/acli` (and `/xray-cli` in Modality jira-xray if Test Plan creation is opted in). Pseudocode below uses `[ISSUE_TRACKER_TOOL]` and `[TMS_TOOL]`.
 
-> **Content separation (MANDATORY)**: Follow the prompt template at `.claude/skills/shift-left-testing/references/shift-left-prompt-template.md` FASE 15 for the exact content split between Description (WHAT) and ATP DRAFT (HOW). Description contains: User Story + Context + Critical Analysis + Story Complexity + Epic Inheritance + Refined ACs + Critical Findings + Ambiguities + Gaps + Clarified Business Rules + Questions + Next Steps. ATP DRAFT contains: Coverage Estimate + Test Outlines + Traceability Map + Test Data/Environment Requirements + Entry/Exit Criteria + Risk-Based Prioritization + Open Items + Risks & mitigation.
+> **Content separation (MANDATORY)**: Follow the prompt template at `.claude/skills/shift-left-testing/references/shift-left-template.md` FASE 15 for the exact content split between Description (WHAT) and ATP DRAFT (HOW). Description contains: User Story + Context + Critical Analysis + Story Complexity + Epic Inheritance + Refined ACs + Critical Findings + Ambiguities + Gaps + Clarified Business Rules + Questions + Next Steps. ATP DRAFT contains: Coverage Estimate + Test Outlines + Traceability Map + Test Data/Environment Requirements + Entry/Exit Criteria + Risk-Based Prioritization + Open Items + Risks & mitigation.
 
 ```
 1. Write the refined ACs to the Jira acceptance_criteria field, then mirror the
