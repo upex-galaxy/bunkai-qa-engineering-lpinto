@@ -34,7 +34,7 @@ any `/sdd-` mention outside this section. See:
 
 # Shift-Left Testing — Pre-Sprint AC Refinement on a Backlog Batch
 
-Drive Stage 0 — the pre-sprint Shift-Left loop — on a set of backlog Stories. Three core phases, always in this order: **Phase 1 Selection -> Phase 2 Refinement -> Phase 3 Handoff**, plus an optional **Phase 4 — Market Best-Practices Comparison** (user opt-in after handoff: exhaustive web research on what a post-shift-left user story should contain, compared against the refined Story). Hand off afterwards to `/sprint-testing` once each Story reaches `Ready For QA`.
+Drive Stage 0 — the pre-sprint Shift-Left loop — on a set of backlog Stories. Three core phases, always in this order: **Phase 1 Selection -> Phase 2 Refinement -> Phase 3 Handoff**, plus an optional **Phase 4 — Market Best-Practices Comparison** (user opt-in after handoff: exhaustive web research on what a post-shift-left user story should contain, compared against the refined Story), and a final **Phase 5 — HTML Presentation** (mandatory, per Story: dark-mode HTML with ALL content added to the Story). Hand off afterwards to `/sprint-testing` once each Story reaches `Ready For QA`.
 
 The skill is **batch-by-design**: one session refines N Stories from the backlog so PO + Dev lead can run a single grooming pass with the team. There is no single-ticket mode — for a one-off urgent refinement, pass a list of length 1; the cadence stays the same.
 
@@ -85,6 +85,7 @@ Requires `agentic-qa-core`. Loads on demand:
 - On taking a Story into refinement (first QA pickup), set `qa_assignee` to self — read-before-write, never overwrite an existing owner (`agentic-qa-core/references/defect-management-doctrine.md` Part 2). This skill files NO Bug/Defect/Improvement; only the QA-Assignee hook applies.
 - On completion: add label `shift-left-reviewed`; transition Backlog → Shift-Left QA → Estimation.
 - **Phase 4 (opt-in, after handoff)**: ALWAYS ask the user whether to run exhaustive web research on post-shift-left user-story best practices and compare against the refined Story. NEVER auto-run, NEVER apply Jira changes without explicit approval (`references/market-comparison.md`).
+- **Phase 5 (final, MANDATORY)**: after ALL phases complete, generate `{STORY_KEY}-shift-left-presentation.html` per Story — dark mode (Tokyo Night), single self-contained file, ALL content added to the Story (full refinement body + Description + ATP DRAFT + Phase 4 output if it ran). Walk the section checklist — NOTHING may be omitted. NON-Jira artifact: no commit, no Jira write (`references/presentation-template.md`).
 
 **Formatting rules (MANDATORY — from prompt template):**
 
@@ -114,6 +115,7 @@ This skill is compliant with the doctrine in `CLAUDE.md` §"Orchestration Mode (
 | Phase 3 — Handoff (per Story) | Sequential — looped per Story | Handoff subagent: update Jira description + custom field (or Test Plan in Modality jira-xray) + comment mirror + labels + transition `backlog -> shift_left_qa -> estimation`. Returns transition log + trace verification |
 | Phase 3 — Batch report | Single | Batch Report subagent: aggregate per-Story summaries into `.session/shift-left-testing/<batch-id>/batch-report.md` + post to parent epic if Stories share one |
 | Phase 4 — Market comparison (optional) | Single (per accepted Story) | Market Comparison subagent: exhaustive web research via `[WEB_SEARCH_TOOL]` on post-shift-left user-story best practices, build gap table vs the refined Story, present options and WAIT for user decision. Loads `references/market-comparison.md`. |
+| Phase 5 — HTML Presentation (final) | Single (per refined Story) | Presentation subagent: generate `{STORY_KEY}-shift-left-presentation.html` (dark mode, Tokyo Night) with EVERY piece of content added to the Story — full refinement body + Jira Description + ATP DRAFT + Phase 4 output if it ran. Loads `references/presentation-template.md` (section checklist — NOTHING may be omitted). |
 
 > **Sequential by design**. Phase 2 refinement looks parallelizable (each Story is independent in Jira), but the orchestrator must present each Story's refinement summary to the user before moving on. This keeps the user in the loop, lets them veto a Story mid-batch, and matches the team-grooming cadence the skill is designed for. Parallelism would burn the user's attention budget.
 
@@ -121,7 +123,7 @@ This skill is compliant with the doctrine in `CLAUDE.md` §"Orchestration Mode (
 
 ---
 
-## Workflow — one pipeline, three core phases (+ optional Phase 4)
+## Workflow — one pipeline, three core phases (+ optional Phase 4 + final Phase 5)
 
 ```
 Phase 0 — Session resume check + Session Init (always first)
@@ -168,6 +170,18 @@ Phase 4 — Market Best-Practices Comparison (OPTIONAL — ask user, never auto-
        tableHeader tables, numerical consistency) — NEVER without explicit approval
     -> Persist research at .session/shift-left-testing/<batch-id>/market-comparison.md
     -> Full procedure: references/market-comparison.md
+
+    Phase 5 — HTML Presentation (MANDATORY, per refined Story)
+    -> After Phase 3 handoff (+ Phase 4 output if it ran), dispatch ONE Presentation
+       subagent per Story: generate {STORY_KEY}-shift-left-presentation.html
+    -> Dark mode (Tokyo Night palette), single self-contained file, English
+    -> Section checklist per references/presentation-template.md — NO detail may be
+       omitted: full shift-left-refinement.md body + Jira Description + ATP DRAFT
+       (Coverage/Outlines/Traceability/Criteria/Prioritization/Risks) + Phase 4 gap
+       table if applicable + handoff status
+    -> Verify: walk the checklist vs the synced fields, cross-check numbers
+       (Coverage Total == outlines == Exit Criteria count), open in browser
+    -> File lives in the Story's PBI folder (NON-Jira artifact, no commit, no Jira write)
 
     -> Archive: orchestrator moves .session/shift-left-testing/<batch-id>/ to
        .session/.archive/<YYYY-MM-DD>-shift-left-testing-<batch-id>/
@@ -273,7 +287,7 @@ Persist the accepted list into `plan.md` §Inputs so a resumed session reads the
 
 For each accepted Story, dispatch ONE Refinement subagent. The subagent loads the existing in-skill reference and applies a shift-left-mode delta.
 
-**Prompt template (MANDATORY)**: the subagent MUST load and follow `.claude/skills/shift-left-testing/references/shift-left-template.md` for the complete output structure. This ensures consistent formatting across all shift-left sessions (16 phases, content separation between Description and ATP DRAFT, Gherkin syntax rules, Jira sync commands).
+**Prompt template (MANDATORY)**: the subagent MUST load and follow `.claude/skills/shift-left-testing/references/shift-left-template.md` for the complete output structure. This ensures consistent formatting across all shift-left sessions (17 phases, content separation between Description and ATP DRAFT, Gherkin syntax rules, Jira sync commands).
 
 **Reuse contract**: the subagent reads `.claude/skills/sprint-testing/references/acceptance-test-planning.md` §Phases 1-3 + Phase 4 (outline names only). The delta for shift-left mode:
 
@@ -413,7 +427,30 @@ Contents (see `references/handoff-protocol.md` §Batch report template):
 
 If all Stories in the batch share a single parent epic, ALSO post the batch report as a comment on that epic. Otherwise, deliver inline to the user as the session-closing message.
 
-After the batch report lands, append the final progress entry `## Phase 3 — Handoff + Batch report — <ts>` with `status: completed`, `next: stop`, then run **Archive** per `agentic-qa-core/references/session-management.md` §8: move `.session/shift-left-testing/<batch-id>/` to `.session/.archive/<YYYY-MM-DD>-shift-left-testing-<batch-id>/` (two-file dir preserved) and call `mem_session_summary` with the session template + archive path.
+After the batch report lands, append the progress entry `## Phase 3 — Handoff + Batch report — <ts>` with `status: completed`, `next: Phase 4 (if opted in) | Phase 5 — HTML Presentation`, then continue to Phase 5 below (the Archive step moves to the very end, after Phase 5).
+
+---
+
+## Phase 5 — HTML Presentation (MANDATORY, per refined Story)
+
+> Runs AFTER all other phases complete (Phase 3 handoff + Phase 4 market comparison if opted in). Generates the visible deliverable of the shift-left pass: a dark-mode HTML presentation containing EVERY piece of content added to the Story. Full procedure + section checklist: `references/presentation-template.md`. NEVER skip this phase.
+
+For each refined Story, dispatch ONE Presentation subagent (`Single` pattern):
+
+1. **Read the complete input set**: the Story's `shift-left-refinement.md` + the synced Jira fields (description + ATP DRAFT — read back via `bun run jira:sync-issues get <STORY_KEY> --include-comments`) + the Phase 4 gap table + decisions if market comparison ran.
+2. **Generate** `{STORY_KEY}-shift-left-presentation.html` in the Story's PBI folder (`.context/PBI/epics/EPIC-<EPIC_KEY>-<slug>/stories/STORY-<STORY_KEY>-<slug>/`):
+   - Dark mode ONLY — Tokyo Night palette (inline `<style>`, single self-contained file, no external assets).
+   - English content (artifact rule).
+   - Sections per the checklist in `references/presentation-template.md` §3 — Story meta + analysis, quality + gaps, EVERY refined scenario (AC groups + E-scenarios with `NEEDS PO/DEV CONFIRMATION` badges), questions + improvements, complete ATP DRAFT (coverage + ALL outline groups + traceability + data/env requirements + entry/exit criteria + prioritization + open items + risks), Phase 4 output if it ran, handoff status.
+   - **NOTHING may be omitted** — walk the checklist item by item against the source files.
+3. **Verify**:
+   - Numerical cross-check: Coverage Total == number of outlines listed == Exit Criteria count == Traceability rows (NFR row present iff NFR outlines exist).
+   - Open the file in a browser (or capture via `/playwright-cli`) to confirm dark-mode render + no broken markup.
+4. **Report**: return the repo-relative file path + checklist result to the orchestrator for the session footer.
+
+The Presentation subagent returns per Story: `{story: KEY, file: <repo-relative path>, checklist: ok|items_missing: [...], numeric_check: ok|mismatch}`.
+
+After Phase 5 finishes for the whole batch, append the final progress entry `## Phase 5 — HTML Presentation — <ts>` with `status: completed`, `next: stop`, then run **Archive** per `agentic-qa-core/references/session-management.md` §8: move `.session/shift-left-testing/<batch-id>/` to `.session/.archive/<YYYY-MM-DD>-shift-left-testing-<batch-id>/` (two-file dir preserved) and call `mem_session_summary` with the session template + archive path. The presentation files live in each Story's PBI folder and move with the Story, NOT with the session archive.
 
 ---
 
@@ -497,6 +534,7 @@ All references are self-contained. Load one at a time.
 | `references/handoff-protocol.md` | Phase 3 — exact Jira mutation sequence per Story, label + transition rules, batch report template + epic-comment posting rules. |
 | `references/nfr-proposal-procedure.md` | Phase 2 — Story silent on NFRs (performance/accessibility/scalability): propose NFR outlines + E-scenarios with `NEEDS PO/DEV CONFIRMATION` (never formal ACs), numerical consistency across ATP sections, ADF sync gotchas. |
 | `references/market-comparison.md` | Phase 4 (optional) — after Phase 3 handoff: ask the user for exhaustive web research on post-shift-left user-story best practices, gap table vs the refined Story, present options and wait for approval before any Jira change. |
+| `references/presentation-template.md` | Phase 5 (final, mandatory) — after all phases complete: generate `{STORY_KEY}-shift-left-presentation.html` (dark mode, Tokyo Night) with ALL content added to the Story. Section checklist — nothing may be omitted. |
 | `../agentic-qa-core/references/session-management.md` | Phase 0 + Phase 4 — resume contract, plan.md/progress.md schemas, archive policy, Engram per-phase checkpoint. This skill is a producer of `session/shift-left-testing/<batch-id>/...` topic keys. |
 
 ---
@@ -515,6 +553,7 @@ All references are self-contained. Load one at a time.
 - [ ] Phase 3 handoff applied per Story: Jira description + ATP DRAFT field + comment mirror + labels + transition (stops at `estimation`)
 - [ ] Trace verified per Story (Modality jira-xray: Test Plan link; Modality jira-native: field+comment mirror)
 - [ ] Batch report written + posted to parent epic (if applicable)
+- [ ] Phase 5 (per Story): `{STORY_KEY}-shift-left-presentation.html` generated — dark mode, full section checklist walked vs synced fields, numbers cross-checked (Coverage Total == outlines == Exit Criteria count), file verified in browser
 - [ ] Archive: `.session/shift-left-testing/<batch-id>/` moved to `.session/.archive/<YYYY-MM-DD>-shift-left-testing-<batch-id>/` and `mem_session_summary` called
 - [ ] No git commit (Jira is canonical for this skill)
 - [ ] User informed: when each Story reaches `Ready For QA`, run `/sprint-testing` (will short-circuit thanks to `shift-left-reviewed`)

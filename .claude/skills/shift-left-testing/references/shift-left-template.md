@@ -359,6 +359,27 @@ bun .claude/skills/acli/scripts/md-to-adf.ts input.md output.adf.json
 
 ---
 
+## FASE 17 — Presentación HTML (OBLIGATORIA — última fase)
+
+> Después de TODAS las fases (handoff FASE 15 + market comparison FASE 16 si aplicó). Generar la presentación visible del shift-left pass. **NUNCA omitir.** Procedimiento + checklist completo: `references/presentation-template.md`.
+
+1. **Leer el input completo**: `shift-left-refinement.md` + campos Jira sincronizados (description + ATP DRAFT vía `bun run jira:sync-issues get <STORY_KEY> --include-comments`) + tabla de gaps Phase 4 si se ejecutó
+2. **Generar** `{STORY_KEY}-shift-left-presentation.html` en la carpeta PBI del Story:
+   - **Modo oscuro SOLO** — paleta Tokyo Night (CSS inline, archivo único autocontenido, sin assets externos)
+   - Contenido en inglés
+   - Secciones según checklist `references/presentation-template.md` §3: análisis completo, calidad + gaps, TODOS los escenarios refinados (grupos AC + E-scenarios con badge `NEEDS PO/DEV CONFIRMATION`), preguntas + mejoras, ATP DRAFT completo (coverage + TODOS los grupos de outlines + traceability + data/env + entry/exit criteria + priorización + open items + risks), output Phase 4 si aplica, estado del handoff
+   - **No omitir NINGÚN detalle** — recorrer el checklist ítem por ítem contra las fuentes
+3. **Verificar**:
+   - Cruce numérico: Coverage Total == outlines listados == Exit Criteria count == filas de Traceability
+   - Abrir el archivo en browser (o capturar con `/playwright-cli`) para confirmar render oscuro + markup sin romper
+4. **Reportar**: ruta repo-relativa + resultado del checklist para el session footer
+
+**Reglas:**
+- Archivo NO-Jira: vive en `.context/PBI/**` (gitignored), NO commit, NO escritura a Jira
+- NO mover con el archive de sesión — vive con el Story
+
+---
+
 ## NOTAS IMPORTANTES
 
 1. **NO pushear sin aprobación explícita del usuario**
