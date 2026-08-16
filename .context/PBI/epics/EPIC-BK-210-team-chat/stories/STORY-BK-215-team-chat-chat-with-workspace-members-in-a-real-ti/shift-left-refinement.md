@@ -460,13 +460,13 @@ Issues blocking full testability:
 
 5. **What is the maximum disconnection window before requiring a manual refresh?**
    - **Context**: AC5 mentions "connection drops for 2 minutes" but no maximum window is defined.
-   - **Decision**: **5 minutes**. Drops < 5 min auto-reconcile missed messages via Realtime re-subscription and an incremental gap-fetch. Drops > 5 min trigger background history resync or a prompt.
-   - **Impact**: QA tests the reconnection catch-up boundary at <5 min vs >5 min.
+   - **Decision**: **5 minutes**. Drops < 5 min auto-reconcile missed messages via Realtime re-subscription and an incremental gap-fetch. Drops > 5 min trigger a subtle "reconnecting…" banner with silent background history resync — **no modal prompt**; the UI self-heals silently.
+   - **Impact**: QA tests the reconnection catch-up boundary at <5 min (auto-heal) vs >5 min (background resync).
 
 6. **How should the empty channel state be worded?**
    - **Context**: Business Rules mention "a friendly prompt inviting the first message" but no exact copy is defined.
-   - **Decision**: Headline: *"Welcome to the workspace general channel!"*, Body: *"No messages yet. Start the conversation with your team!"*. Include interactive prompt chips for Members.
-   - **Impact**: QA asserts exact text on initial workspace setup.
+   - **Decision**: Headline: *"Welcome to #general!"*, Body: *"No messages yet — start the conversation."* Interactive **Quick Prompt Chips** for Members/Admins only: `👋 Say hello to the team` / `🚀 Share an update`. **Viewers** see read-only variant: *"Messages from your team will appear here."* (no chips).
+   - **Impact**: QA asserts exact text on initial workspace setup; Viewer state verified separately.
 
 7. **Should presence dots reflect real-time online status via Supabase Presence or a last-seen timestamp?**
    - **Context**: AC3 mentions "currently online" but the implementation is undefined.
@@ -490,37 +490,81 @@ Issues blocking full testability:
 > These do not block PO but block implementation. — **STATUS: RESOLVED**
 
 1. **What DB schema will be used for channels, messages, and channel_members?**
-   - **Architectural Solution**: Three tables. `channels` (id, workspace_id, name, slug, type ['general','project','topic'], is_archived), `channel_members` (channel_id, user_id, joined_at, last_read_at), and `messages` (id, channel_id, sender_id, content [1-4000 chars], metadata, created_at, updated_at, deleted_at). Includes a covered index `idx_messages_channel_pagination` on `(channel_id, created_at DESC, id DESC) WHERE deleted_at IS NULL`.
+   - **Architectural Solution**: Three tables with production-grade constraints.
+     - **`channels`**: `id`, `workspace_id` (FK), `name`, `slug` (unique per workspace), `type` CHECK (`'general'|'project'|'topic'`), `is_default` (partial unique index `WHERE is_default`), `is_archived`, timestamps.
+     - **`channel_members`**: composite PK (`channel_id`, `user_id`), `joined_at`, `last_read_at`.
+     - **`messages`**: `content` CHECK (`char_length(trim(content)) BETWEEN 1 AND 4000`), `metadata jsonb`, `created_at` (`clock_timestamp()`), `updated_at` (nullable = never edited), `deleted_at` (soft delete).
+     - **Índice cubierto**: `idx_messages_channel_pagination` on `(channel_id, created_at DESC, id DESC) WHERE deleted_at IS NULL`.
+     - **Trigger**: `bunkai_set_updated_at()` reutilizado en `channels` y `messages`.
 
 2. **What API endpoints will power the chat (message send, history load, roster, presence)?**
-   - **Architectural Solution**: REST endpoints under `/api/v1/workspaces/{workspaceId}/channels/...`. `POST /messages` (returns 201 + serialized message + client_nonce), `GET /messages?limit=50&cursor=...` (returns 200 + messages list + next_cursor), and `GET /roster` (returns 200 + members list with roles).
+   - **Architectural Solution**: Channel-scoped REST endpoints under `/api/v1/workspaces/{workspaceId}/channels/{channelId}/...`.
+     - `POST /messages` — Body: `{ content, client_nonce }` (idempotency). Returns `201` + `MessageSchema` + `client_nonce`.
+     - `GET /messages?limit=50&cursor=<base64>` — Returns `200` + `{ messages: MessageSchema[], next_cursor }`.
+     - `GET /roster` — Returns `200` + `{ members: RosterMemberSchema[] }` con `presence` + `role`.
+     - Patrones Bunkai: `withApiHandler({ auth: 'required' })`, `assertWorkspaceContext()`, idempotencia vía `client_nonce`, envelope `{ data, meta }`.
 
 3. **How will Supabase Realtime be wired for chat message delivery?**
-   - **Architectural Solution**: Wire `postgres_changes` listener on table `messages` for `INSERT` event filtered by `channel_id`. Ephemeral client actions use a Realtime Broadcast Channel: `chat:ws_<workspaceId>:ch_<channelId>`.
+   - **Architectural Solution**: Dual-channel approach.
+     - **Durable messages**: `postgres_changes` listener on `messages` table for `INSERT` filtered by `channel_id=eq.<channelId>`.
+     - **Ephemeral events**: Broadcast channel `chat:ws_<workspaceId>:ch_<channelId>` for `typing:start/stop`, optimistic messages, presence.
+     - **⚠️ CRÍTICO — Seguridad Realtime**: El cliente **DEBE** llamar `supabase.realtime.setAuth(userAccessToken)` antes de suscribirse. Sin esto, `postgres_changes` **ignora RLS** y expone mensajes de otros workspaces. La autenticación Realtime es obligatoria para que RLS se aplique a los eventos `postgres_changes`.
 
 4. **How will presence tracking be implemented?**
-   - **Architectural Solution**: Using **Supabase Realtime Presence** (WebSocket heartbeats) for low-latency in-memory state tracking (`online`/`away` sync, join, leave), backed by DB `last_seen_at` or `last_read_at` on the join table.
+   - **Architectural Solution**: **Supabase Realtime Presence** con estados granulares.
+     - Estados: `online` (activo <30s), `away` (inactivo >30s), `offline` (desconectado).
+     - Multi-tab: `presenceState()` retorna array por `user_id`; merge = `online` si CUALQUIER tab está online.
+     - Metadatos: `channel_id` en payload para filtrar roster por canal activo.
+     - Fallback DB: `channel_members.last_seen_at` actualizado en `join`/`leave` + cron nocturno.
+     - TTL auto-limpieza: Supabase Presence limpia en desconexión; fallback cron nocturno para sesiones huérfanas.
 
 5. **What is the message ordering mechanism?**
    - **Architectural Solution**: Strictly server-assigned `created_at` timestamp with microsecond precision (`timestamptz(6)` generated via `clock_timestamp()`). Tie-breaker on simultaneous inserts is message `id ASC`.
 
 6. **What cursor format and page size will be used for history pagination?**
-   - **Architectural Solution**: Opaque Base64 URL cursor wrapping JSON payload: `{ t: "created_at_timestamp", id: "message_uuid" }`. Query implements a keyset fetch: `WHERE (m.created_at < cursor_t OR (m.created_at = cursor_t AND m.id < cursor_id))`. Page size: **50 messages**.
+   - **Architectural Solution**: Cursor opaco Base64 URL con validación cross-workspace.
+     - Payload: `{ w: "workspace_id", c: "channel_id", t: "created_at_ISO", i: "message_uuid" }` codificado en Base64 URL-safe.
+     - Validación servidor: **rechazar cursor si `w !== workspaceId` o `c !== channelId`** (defensa cross-workspace).
+     - Query keyset: `WHERE (m.created_at < cursor.t OR (m.created_at = cursor.t AND m.id < cursor.i))`.
+     - Page size: **50 messages** (máx 100).
 
 7. **How will RLS policies be implemented for channel access?**
-   - **Architectural Solution**: Leverages Bunkai's security definer functions. `channels`/`channel_members` allow `SELECT` based on `bunkai_is_workspace_member()`. `messages` allow `SELECT` for workspace members, and `INSERT` with `WITH CHECK` on `bunkai_can_write_workspace()`, automatically rejecting `viewer` role at the DB layer.
+   - **Architectural Solution**: Políticas explícitas en las 3 tablas usando funciones SECURITY DEFINER de Bunkai.
+     - **`channels`**: `SELECT` si `bunkai_is_workspace_member(workspace_id)`; `INSERT/UPDATE` solo `admin/owner`.
+     - **`channel_members`**: `SELECT` vía subquery a `channels` + `bunkai_is_workspace_member()`.
+     - **`messages`**: `SELECT` con JOIN a `channel_members` + `channels` + `bunkai_is_workspace_member()`; `INSERT` con `WITH CHECK (sender_id = auth.uid() AND bunkai_can_write_workspace(workspace_id))` — **rechaza `viewer` a nivel BD**; `UPDATE` solo sender con mismo check.
+     - **Fuente única de verdad**: `bunkai_can_write_workspace()` para toda escritura (rechaza `viewer`).
 
 8. **What error codes and shapes will the API return for auth failures, validation errors, and server errors?**
-   - **Architectural Solution**: Standard envelope `{ "error": { "code", "message", "details" } }`. Codes: `CHAT_UNAUTHORIZED` (401), `CHAT_FORBIDDEN_VIEWER_READONLY` (403), `CHAT_CHANNEL_NOT_FOUND` (404), `CHAT_MESSAGE_EMPTY` / `CHAT_MESSAGE_TOO_LONG` (422), `CHAT_RATE_LIMITED` (429).
+   - **Architectural Solution**: Envelope estándar `{ "error": { "code", "message", "details" } }`.
+     - Códigos base: `CHAT_UNAUTHORIZED` (401), `CHAT_FORBIDDEN_VIEWER_READONLY` (403), `CHAT_CHANNEL_NOT_FOUND` (404), `CHAT_MESSAGE_EMPTY`/`CHAT_MESSAGE_TOO_LONG` (422), `CHAT_RATE_LIMITED` (429).
+     - **Nuevos códigos**: `CHAT_FORBIDDEN_NOT_CHANNEL_MEMBER` (403 — en workspace pero no en canal), `CHAT_INVALID_CURSOR` (400 — cursor malformado/cross-workspace), `CHAT_REALTIME_UNAVAILABLE` (503 — degradación graceful a polling), `CHAT_CONCURRENT_EDIT` (409 — futuro).
 
 9. **Will there be a typing indicator or message delivery confirmation?**
-   - **Architectural Solution**: Typing indicator is IN SCOPE for v1 via ephemeral broadcast (`typing:start` and `typing:stop` over WebSockets, zero DB writes). Message delivery confirmation is OPTIMISTIC in UI (sending -> sent); per-message read receipts are OUT OF SCOPE for v1 (unread state tracked at channel-level with `last_read_at`).
+   - **Architectural Solution**: Máquina de estados explícita + TTL auto-limpieza.
+     - **Typing**: Broadcast `typing:start` (debounce 500ms) + `typing:stop`. **TTL 3s** auto-expira si no llega `stop` (receiver limpia espejo +500ms buffer).
+     - **Delivery (optimista)**: Estados `sending` (50% opacity) → `sent` (201) / `failed` (>10s timeout → badge rojo + `[Retry] [Delete]`).
+     - **Read receipts**: OUT OF SCOPE v1. Unread a nivel canal con `channel_members.last_read_at`. Per-message read → v2 (`message_reads` table + broadcast).
 
 10. **What performance SLAs apply to message delivery and history loading?**
-    - **Architectural Solution**: Latency $< 200\text{ms}$ (P95) for real-time delivery; initial history load $< 500\text{ms}$ (P95); subsequent paginations $< 200\text{ms}$ (P95). Enabled by the covered partial index with query fetch under $5\text{ms}$.
+   - **Architectural Solution**: SLAs con P95/P99, condiciones de carga y metodología.
+     - **Message delivery**: P95 < 200ms, P99 < 500ms (client→client via Realtime).
+     - **Initial history load**: P95 < 500ms, P99 < 1000ms (frío, 1000 msgs).
+     - **Pagination**: P95 < 200ms, P99 < 400ms (cursor válido, 50 msgs).
+     - **Presence sync**: P95 < 1000ms, P99 < 2000ms (join → sync).
+     - **Reconnection catch-up**: P95 < 1500ms, P99 < 3000ms (WS reconnect + gap-fetch).
+     - **Índice**: `idx_messages_channel_pagination` fetch < 5ms (index-only scan).
+     - **Condiciones**: 10 miembros concurrentes, 500 chars/msg, misma región Supabase.
+     - **Medición**: k6/Artillery 10 users × 50 msg/min; timestamp `client_sent_at` en metadata para latencia real.
 
 11. **Will the chat panel meet WCAG 2.1 AA accessibility (keyboard navigation, screen reader)?**
-    - **Architectural Solution**: Yes. Messages container uses `role="log" aria-live="polite" aria-atomic="false"` for polite additions announcement. Focus traps implemented for panel modal states, `Escape` key dismisses panel, and roster uses explicit non-color text labels for online status.
+   - **Architectural Solution**: Implementación completa WCAG 2.1 AA.
+     - **Anuncios SR**: `#sr-announcer` dedicado `role="status" aria-live="polite" aria-atomic="true"` — garantiza cada mensaje anunciado (evita pérdidas con `aria-live="polite"` en log rápido).
+     - **Focus management**: Panel open → focus composer (Member) / primer mensaje (Viewer); `Escape` cierra panel y devuelve foco al trigger; roster flyout usa `FocusTrap` (Radix); click en separador "New messages" enfoca primer no leído.
+     - **Presence no-color**: Dot + label `sr-only` ("Online"/"Away"/"Offline") — pasa WCAG 1.4.1.
+     - **Reduced motion**: `@media (prefers-reduced-motion: reduce)` desactiva transiciones/animaciones.
+     - **Atajos**: `Cmd/Ctrl+Shift+K` (toggle panel), `Escape` (cerrar), `Enter` (enviar), `Shift+Enter` (nueva línea).
+     - **Log**: `role="log" aria-live="polite" aria-atomic="false" aria-relevant="additions text"` en feed.
 
 ---
 
@@ -529,26 +573,56 @@ Issues blocking full testability:
 > From the BRIEF.md and mockup — design-specific gaps that affect testing. — **STATUS: RESOLVED**
 
 1. **What exact copy does the viewer read-only hint show?**
-   - **Design Specification**: Input deshabilitado con lock icon `Lock`. Copy principal: *"You have read-only access to this channel."* Tooltip explicativo al hacer hover/focus: *"Only Workspace Members, Admins, and Owners can post messages. Contact your administrator to request posting privileges."* Los botones de adjuntos y de enviar se ocultan.
+   - **Design Specification**: **Banner inline focusable** (no tooltip en input deshabilitado).
+     - Contenedor: `bg-muted/40 border border-muted rounded-lg p-3` — mantiene layout estable (sin shift).
+     - Copy: *"You have read-only access to this channel"* + *"Only Members, Admins & Owners can post messages. [Contact Admin →]"*.
+     - Icono: `Lock` 16px `aria-hidden="true"`.
+     - Botones (Attach/Send): **VISIBLES pero `disabled`** (`opacity-40 cursor-not-allowed`) — evita layout shift.
+     - Accesibilidad: Banner `tabIndex={0} role="status" aria-live="polite"` — anuncia en cambio de rol.
 
 2. **How should the empty channel state be visually represented?**
-   - **Design Specification**: Card centrado con bordes punteados (`border-dashed bg-card/30`). Icono `Hash` en círculo violeta/azul. Título: *"Welcome to #general!"*, Cuerpo: *"This is the start of your workspace channel..."*. Se incluyen **Quick Prompt Chips** interactivos para miembros: `👋 Say hello to the team` / `🚀 Share a project update` para auto-poblar el composer al hacer clic.
+   - **Design Specification**: Card centrado `max-w-md p-8 border-dashed border-border/50`.
+     - Icono `Hash` 24px en `bg-primary/10 rounded-full` — contraste WCAG AA.
+     - Título: *"Welcome to the general channel!"*, Cuerpo: *"No messages yet — start the conversation."*
+     - **Quick Prompt Chips** (Members/Admins only): `👋 Say hello to the team` / `🚀 Share an update` — `focus-visible:outline-2`, click → popula composer + focus.
+     - **Viewer state**: Chips ocultos; cuerpo: *"Messages from your team will appear here."*
+     - Animación: `animate-fade-in-up` 300ms; chips stagger 50ms.
 
 3. **How should the roster behave? Should it be a flyout overlay or a persistent sidebar?**
-   - **Design Specification**: **Slide-in Flyout Panel** deslizante desde la derecha del propio panel de chat (`w-full absolute inset-y-0 right-0 bg-background/95 backdrop-blur-md z-20`). Evita comprimir el feed de mensajes a un ancho ilegible (~190px). Encabezados de grupo: `ONLINE — 8`, `OFFLINE — 4` con badges de rol correspondientes.
+   - **Design Specification**: **Slide-in Flyout Panel** accesible (`w-full absolute inset-y-0 right-0 bg-background/95 backdrop-blur-md z-20`).
+     - Trigger: `aria-expanded={isOpen} aria-controls="chat-roster" aria-label="Open workspace roster"`.
+     - Focus trap (Radix `FocusTrap`): foco inicial en botón cerrar `[×]`; `Escape` cierra y devuelve foco al trigger.
+     - Backdrop: `fixed inset-0 bg-black/20 z-40` — click cierra.
+     - Animación: `translateX(100%) ↔ translateX(0)` 200ms; `prefers-reduced-motion: duration-0`.
+     - Encabezados: `ONLINE — 3`, `OFFLINE — 1` (`text-xs font-semibold uppercase`).
+     - Filas: `tabIndex={0} role="option"` — presencia no-color (`sr-only` label "Online, Admin").
 
 4. **How should the unread separator line be styled and positioned?**
-   - **Design Specification**: Divisor horizontal rojo/rosado de alto contraste (`border-t-2 border-rose-500/80`) con badge central `NEW MESSAGES`. Se ubica antes del primer mensaje no leído. Al abrir el panel, se ejecuta un auto-scroll suave hacia esta posición. Expira a los 3s.
+   - **Design Specification**: Divisor semántico persistente hasta acción del usuario.
+     - Línea: `border-t-2 border-destructive` — token semántico (WCAG AA light/dark).
+     - Badge: `NEW MESSAGES` en `bg-destructive text-destructive-foreground rounded-full px-3 py-1`.
+     - Acción: Botón `[Mark read]` — `text-xs underline focus-visible:outline-2`.
+     - Posición: Antes del primer mensaje no leído; auto-scroll suave `block: 'center'` al abrir.
+     - **No expira automáticamente** — desaparece al: (a) scroll pasado, (b) click "Mark read", (c) nuevos mensajes la empujan.
+     - Accesibilidad: `tabIndex={0} role="separator" aria-label="New messages separator, 2 unread"`.
 
 5. **Should the panel remember its open/closed state across page navigations?**
-   - **Design Specification**: Sí, guardado en `localStorage` bajo la clave `bunkai_chat_panel_state`. Mantiene el panel abierto/cerrado mientras se navega entre módulos (ej. de Test Runs a ATCs). Atajo global: `Cmd+Shift+C` (Mac) / `Ctrl+Shift+C` (Windows/Linux). Badge rojo pulsante en el disparador si hay no leídos con el panel cerrado.
+   - **Design Specification**: Estado persistente versionado en `localStorage`.
+     - Clave: `bunkai:chat:panel:v1` — schema: `{ isOpen, scrollTop, lastActiveChannelId, version }`.
+     - Persiste: `isOpen`, `scrollTop` (posición scroll), `lastActiveChannelId` (restaura canal).
+     - Atajo global: `Ctrl+Shift+K` / `Cmd+Shift+K` — `K` = Chat (evita conflicto con Copy/Command Palette).
+     - Badge: `bg-destructive rounded-full animate-pulse` — `prefers-reduced-motion: animate-none`; `aria-label="3 unread messages"`.
+     - Limpieza: `scrollTop` reseteado en cambio de canal; todo limpio en sign out.
 
 6. **How should the panel behave on narrow viewports (<1440px)?**
-   - **Design Specification**: Breakpoint-tiered strategy:
-     - **Wide Desktop ($\ge 1440\text{px}$):** Persistent acoplado de `380px` (side-by-side).
-     - **Laptop / Desktop ($1024\text{px} - 1439\text{px}$):** Overlay slide-sheet de `380px` con backdrop tenue (`bg-black/20`).
-     - **Tablet ($768\text{px} - 1023\text{px}$):** Drawer de `400px` con swipe gestual para cerrar.
-     - **Mobile ($< 768\text{px}$):** Full-screen sheet (`100vw`, `100dvh`) con botón `← Back to Workspace`. Form composer se desplaza dinámicamente con `dvh` sobre el teclado virtual.
+   - **Design Specification**: Breakpoint-tiered con APIs nativas.
+     | Breakpoint | Modo | Especs Críticas |
+     |---|---|---|
+     | **≥1440px** | Persistent docked | `w-[380px] flex-shrink-0 border-l` — sin backdrop |
+     | **1024–1399px** | Overlay slide-sheet | `fixed inset-y-0 right-0 w-[380px] max-w-[90vw] z-50` + backdrop `fixed inset-0 bg-black/30 z-40` |
+     | **768–1023px** | Bottom drawer → side sheet | Default: bottom `h-[60vh] max-h-[80vh] rounded-t-2xl`; landscape: side `w-[400px]` |
+     | **<768px** | Full-screen modal | `fixed inset-0 z-50 flex flex-col` — **safe-area insets** (`env(safe-area-inset-top/bottom)`) |
+     - **Mobile críticos**: `visualViewport` API para teclado virtual (`padding-bottom = keyboardHeight`); swipe horizontal >100px OR velocity >0.5px/ms → close; `body overflow: hidden` lock; focus composer `preventScroll: true`; header sticky con `← Back to Workspace` + `safe-area-inset-top`.
 
 ---
 
@@ -560,28 +634,28 @@ Issues blocking full testability:
 | 2 | **PO - Product** | Message ordering guarantee | Server `created_at` timestamp with microsecond precision + `id ASC` | Prevents client clock drift; deterministic ordering |
 | 3 | **PO - Product** | Pagination strategy & page size | Keyset cursor-based pagination; page size = **50 messages** | $O(1)$ index lookup; stable history scroll |
 | 4 | **PO - Product** | Validation layers | Both client-side (UX limits 1-4000 chars) and server-side (DB check constraint) | UX feedback + direct API security |
-| 5 | **PO - Product** | Max disconnection window | **5 minutes** limit; <5m auto-reconciliation, >5m resync / prompt | Seamless auto-healing for normal network drops |
-| 6 | **PO - Product** | Empty state copy | Title: *"Welcome to #general!"*, Body: *"No messages yet..."* | Welcoming, action-oriented Bunkai tone |
+| 5 | **PO - Product** | Max disconnection window | **5 minutes** limit; <5m auto-reconciliation, >5m **silent background resync** (no prompt) | Seamless auto-healing; zero user friction |
+| 6 | **PO - Product** | Empty state copy | Title: *"Welcome to #general!"*, Body: *"No messages yet — start the conversation."* Chips solo Members/Admins; Viewer: texto estático | Microcopy nítida; estado Viewer explícito sin chips |
 | 7 | **PO - Product** | Presence implementation | **Supabase Presence** (WS heartbeats) for active; `last_seen_at` fallback | Real-time low latency; no DB write heartbeat overhead |
 | 8 | **PO - Product** | Role demotion while open | Real-time composer disable + toast; RLS rejects pending writes (`403`) | Session security integrity without page reload |
 | 9 | **PO - Product** | Offline message behavior | Optimistic render (50% opacity); retry and failure state after 10s | Clear user feedback; client persistence out-of-scope v1 |
-| 10 | **Dev - Tech** | Database Schema | Tables `channels`, `channel_members`, `messages` with FKs and covered index | Optimizes performance for heavy pagination |
-| 11 | **Dev - Tech** | API Endpoints | `POST /messages` (201), `GET /messages` (200, cursor), `GET /roster` (200) | REST compliance; standardized Next.js v15 handler |
-| 12 | **Dev - Tech** | Realtime broadcast wiring | `postgres_changes` on `messages` table + Broadcast channel | Realtime message delivery & typing events |
-| 13 | **Dev - Tech** | Presence technically | Supabase Presence tracker with client-side status maps | Low-overhead join/leave state management |
-| 14 | **Dev - Tech** | Sub-second simultaneity | `clock_timestamp()` for microsecond precision + message UUID | True database execution time vs transaction time |
-| 15 | **Dev - Tech** | Cursor structure | Base64 URL cursor representing `{ t: created_at, id: message_uuid }` | Keyset pagination mechanics |
-| 16 | **Dev - Tech** | Security & RLS | `bunkai_is_workspace_member()` for SELECT; `bunkai_can_write_workspace()` for INSERT | Strict role enforcement; `viewer` role rejected at DB |
-| 17 | **Dev - Tech** | Error payloads | Standard Bunkai envelope with error code `CHAT_FORBIDDEN_VIEWER_READONLY` | Error observability |
-| 18 | **Dev - Tech** | Typing indicators | IN SCOPE for v1 via Broadcast WebSocket; read receipts OUT OF SCOPE v1 | Performance balance (no DB locks for read arrays) |
-| 19 | **Dev - Tech** | Performance SLAs | Message delivery $< 200\text{ms}$; initial load $< 500\text{ms}$; pagination $< 200\text{ms}$ | High quality standards |
-| 20 | **Dev - Tech** | Accessibility implementation | `role="log" aria-live="polite"`, full keyboard trap & Esc panel close | WCAG 2.1 AA compliant |
-| 21 | **Design - UI/UX** | Viewer composer banner | Disabled banner `bg-muted/40` + lock icon + contact admin tooltip | Prevents layout shift; clear RBAC communication |
-| 22 | **Design - UI/UX** | Empty channel UI | Centered card, Hash icon badge, microcopy, Quick Prompt Chips | Clean layout; prompts increase engagement |
-| 23 | **Design - UI/UX** | Roster behaviour | Slide-in Collapsible Flyout Overlay covering feed | Prevents double-column compression on narrow layouts |
-| 24 | **Design - UI/UX** | Unread separator styling | Horizontal red line `border-rose-500` + badge `NEW MESSAGES` | Clean visual contrast; auto-scrolls to position |
-| 25 | **Design - UI/UX** | Panel state persistence | `localStorage` `bunkai_chat_panel_state`; Ctrl+Shift+C toggle | Fluid module navigation |
-| 26 | **Design - UI/UX** | Breakpoint tier layout | Desktop acoplado; laptop overlay sheet; tablet drawer; mobile full-screen | Desktop-first with full responsive support |
+| 10 | **Dev - Tech** | Database Schema | 3 tablas: `channels` (partial unique `is_default`, CHECK `type`), `channel_members`, `messages` (CHECK `trim(content) 1..4000`, `metadata jsonb`, `updated_at` trigger, soft delete) + índice cubierto | Robustez BD: partial unique, trim+length, metadata forward-compat, soft delete |
+| 11 | **Dev - Tech** | API Endpoints | Paths scoped: `POST /messages` (client_nonce), `GET /messages` (cursor), `GET /roster` (+presence) | RESTful + idempotencia; roster incluye presence |
+| 12 | **Dev - Tech** | Realtime broadcast wiring | `postgres_changes` INSERT + Broadcast channel + **`supabase.realtime.setAuth()` obligatorio para RLS** | Sin `setAuth()` RLS se salta en Realtime — crítico |
+| 13 | **Dev - Tech** | Presence technically | Estados `online/away/offline`; 30s away threshold; multi-tab merge; `channel_id` metadata | UX realista; multi-tab correcto |
+| 14 | **Dev - Tech** | Sub-second simultaneity | `clock_timestamp()` microsegundos + UUID | Tiempo real ejecución vs transacción |
+| 15 | **Dev - Tech** | Cursor structure | Base64 URL `{ w: workspace_id, c: channel_id, t, i }` + validación servidor cross-workspace | Defensa en profundidad; anti-leak |
+| 16 | **Dev - Tech** | Security & RLS | Policies explícitas 3 tablas; `bunkai_can_write_workspace()` en INSERT/UPDATE messages | Fuente única verdad; `viewer` rechazado en BD |
+| 17 | **Dev - Tech** | Error payloads | Envelope estándar + nuevos: `CHAT_FORBIDDEN_NOT_CHANNEL_MEMBER`, `CHAT_INVALID_CURSOR`, `CHAT_REALTIME_UNAVAILABLE` | Observabilidad granular; degradación graceful |
+| 18 | **Dev - Tech** | Typing indicators | Broadcast + **TTL 3s auto-limpieza**; máquina estados optimista `sending→sent/failed` (10s timeout) | Máquina estados robusta; sin leaks |
+| 19 | **Dev - Tech** | Performance SLAs | P95/P99 + condiciones: delivery 200/500ms, load 500/1000ms, pagination 200/400ms, presence 1s/2s, reconnect 1.5s/3s | Contratos medibles; metodología k6 |
+| 20 | **Dev - Tech** | Accessibility implementation | `#sr-announcer` atómico, focus management, reduced-motion, presence no-color, atajos `Ctrl+Shift+K` | WCAG 2.1 AA real; no solo declarativo |
+| 21 | **Design - UI/UX** | Viewer composer banner | Banner inline focusable `bg-muted/40` + lock icon + botones visibles disabled + `role="status" aria-live="polite"` | Accesible, sin layout shift, anuncia cambio rol |
+| 22 | **Design - UI/UX** | Empty channel UI | Card centrado, Hash icon AA, microcopy `#general`, chips keyboard-accessible, Viewer sin chips | Limpio, contrast-safe, estado Viewer explícito |
+| 23 | **Design - UI/UX** | Roster behaviour | Slide-in Flyout + **FocusTrap** + Escape/backdrop close + `aria-expanded` + reduced-motion | Accesible, focus trap, no trap leaks |
+| 24 | **Design - UI/UX** | Unread separator styling | Token `destructive` semántico, **persiste hasta acción** + botón `[Mark read]` + focusable | Control usuario; no expira; WCAG AA |
+| 25 | **Design - UI/UX** | Panel state persistence | `localStorage` versionado `v1` + `scrollTop` + `lastActiveChannelId` + shortcut `Ctrl+Shift+K` | Fluido, versionado, sin conflictos shortcut |
+| 26 | **Design - UI/UX** | Breakpoint tier layout | 4 tiers + `visualViewport` API + swipe thresholds + safe areas + body scroll lock | Desktop-first con mobile-first real |
 
 ---
 
