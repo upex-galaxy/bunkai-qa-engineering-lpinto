@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jira ATP DRAFT — BK-215 Team Chat</title>
+  <style>
+    :root {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-dim: #8b949e;
+      --accent: #7c3aed; --accent-bg: rgba(124,58,237,0.12);
+      --green: #3fb950; --green-bg: rgba(63,185,80,0.12);
+      --red: #f85149; --red-bg: rgba(248,81,73,0.12);
+      --yellow: #d29922; --yellow-bg: rgba(210,153,34,0.12);
+      --blue: #58a6ff; --blue-bg: rgba(88,166,255,0.12);
+      --cyan: #39d2c0; --cyan-bg: rgba(57,210,192,0.12);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+    .container { max-width:960px; margin:0 auto; padding:32px 24px; }
+
+    .header { border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:28px; }
+    .header h1 { font-size:22px; font-weight:700; margin-bottom:4px; }
+    .header .sub { font-size:13px; color:var(--text-dim); margin-bottom:10px; }
+    .meta { display:flex; gap:12px; flex-wrap:wrap; font-size:12px; color:var(--text-dim); }
+    .badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; }
+    .b-purple { background:var(--accent-bg); color:var(--accent); }
+    .b-green { background:var(--green-bg); color:var(--green); }
+    .b-blue { background:var(--blue-bg); color:var(--blue); }
+    .b-cyan { background:var(--cyan-bg); color:var(--cyan); }
+
+    .preview-banner { background:var(--yellow-bg); border:1px solid rgba(210,153,34,0.2); border-radius:6px; padding:10px 16px; font-size:12px; color:var(--yellow); margin-bottom:24px; }
+
+    .section { margin-bottom:28px; }
+    .section-title { font-size:14px; font-weight:700; margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:6px; }
+    .section-title .num { color:var(--accent); font-variant-numeric:tabular-nums; }
+
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:20px; }
+    .card h3 { font-size:13px; font-weight:600; margin:14px 0 6px; }
+    .card h3:first-child { margin-top:0; }
+    .card p, .card li { font-size:13px; line-height:1.7; }
+    .card ul { padding-left:18px; margin:4px 0 12px; }
+    .card li { margin-bottom:3px; }
+    .card strong { color:var(--text); }
+    .card code { background:rgba(110,118,129,0.2); padding:1px 5px; border-radius:4px; font-size:11px; font-family:'SF Mono',Consolas,monospace; }
+
+    .tbl { overflow-x:auto; margin:8px 0 14px; }
+    table { width:100%; border-collapse:collapse; font-size:12px; }
+    th { background:rgba(110,118,129,0.12); text-align:left; padding:7px 10px; font-weight:600; border-bottom:1px solid var(--border); white-space:nowrap; }
+    td { padding:7px 10px; border-bottom:1px solid rgba(48,54,61,0.4); vertical-align:top; }
+    tr:hover td { background:rgba(110,118,129,0.04); }
+    td code { background:rgba(110,118,129,0.2); padding:1px 4px; border-radius:3px; font-size:10px; }
+
+    .outline { margin:8px 0; padding:10px 14px; background:rgba(110,118,129,0.06); border-left:3px solid var(--accent); border-radius:0 6px 6px 0; }
+    .outline-title { font-size:12px; font-weight:600; margin-bottom:2px; }
+    .outline-meta { font-size:11px; color:var(--text-dim); }
+    .tag { font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; margin-right:4px; }
+    .t-pos { background:var(--green-bg); color:var(--green); }
+    .t-neg { background:var(--red-bg); color:var(--red); }
+    .t-bnd { background:var(--yellow-bg); color:var(--yellow); }
+    .t-int { background:var(--blue-bg); color:var(--blue); }
+    .t-sec { background:var(--red-bg); color:var(--red); }
+    .t-st { background:var(--cyan-bg); color:var(--cyan); }
+    .t-nfr { background:var(--cyan-bg); color:var(--cyan); }
+    .pending { background:rgba(210,153,34,0.08); border-left-color:var(--yellow); }
+
+    .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr)); gap:10px; margin:10px 0; }
+    .summary-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px; text-align:center; }
+    .summary-card .num { font-size:26px; font-weight:700; color:var(--accent); }
+    .summary-card .lbl { font-size:10px; color:var(--text-dim); margin-top:2px; }
+
+    .divider { height:1px; background:var(--border); margin:24px 0; }
+
+    .watermark { text-align:center; padding:20px; font-size:11px; color:var(--text-dim); border-top:1px solid var(--border); margin-top:28px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <span class="badge b-blue">BK-215</span>
+      <span style="font-size:11px;color:var(--text-dim);">EPIC BK-210 Team Chat</span>
+    </div>
+    <h1>Team Chat | Chat with workspace members in a real-time channel</h1>
+    <div class="sub">Jira field: <code>acceptance_test_plan</code> (customfield_10067) — HOW to test</div>
+    <div class="meta">
+      <span>Status: <span class="badge b-purple">Estimation</span></span>
+      <span>Sprint: Pre-sprint (Shift-Left QA)</span>
+      <span>Labels: <span class="badge b-green">shift-left-reviewed</span></span>
+      <span>QA Assignee: pinto.lucas.nahuel@gmail.com</span>
+    </div>
+  </div>
+
+  <div class="preview-banner">
+    <strong>PREVIEW</strong> — Simulation of the Jira <code>acceptance_test_plan</code> field. No sync executed.
+  </div>
+
+  <!-- ===== 1. COVERAGE ESTIMATE ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span> Coverage Estimate</div>
+    <div class="card">
+      <div class="summary-grid">
+        <div class="summary-card"><div class="num">30</div><div class="lbl">Total Outlines</div></div>
+        <div class="summary-card"><div class="num" style="color:var(--green);">7</div><div class="lbl">Positive</div></div>
+        <div class="summary-card"><div class="num" style="color:var(--red);">4</div><div class="lbl">Negative</div></div>
+        <div class="summary-card"><div class="num" style="color:var(--yellow);">5</div><div class="lbl">Boundary</div></div>
+        <div class="summary-card"><div class="num" style="color:var(--blue);">4</div><div class="lbl">Integration</div></div>
+        <div class="summary-card"><div class="num" style="color:var(--red);">3</div><div class="lbl">Security-RBAC</div></div>
+        <div class="summary-card"><div class="num" style="color:var(--cyan);">3</div><div class="lbl">State-Transition</div></div>
+        <div class="summary-card"><div class="num" style="color:var(--cyan);">4</div><div class="lbl">Non-Functional</div></div>
+      </div>
+      <p style="font-size:12px;color:var(--text-dim);margin-top:8px;"><strong>Rationale:</strong> BK-215 is the foundation story for a new domain (chat) with no existing infrastructure. High integration and security-RBAC counts driven by missing DB schema, API endpoints, Realtime wiring, and presence system.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 2. TEST OUTLINES ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span> Test Outlines (Names Only)</div>
+    <div class="card">
+
+      <h3>Positive (7)</h3>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-pos">Positive</span> P1: Should deliver a new message to all channel members in real time</div>
+        <div class="outline-meta">Pre: two members have channel open. Expected: new message appears for both without refresh.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-pos">Positive</span> P2: Should display sender name and timestamp on each message</div>
+        <div class="outline-meta">Pre: message exists. Expected: sender display name + formatted timestamp.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-pos">Positive</span> P3: Should load full history when user opens the channel</div>
+        <div class="outline-meta">Pre: channel has 20+ messages. Expected: all messages in chronological order.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-pos">Positive</span> P4: Should load older messages on scroll-up</div>
+        <div class="outline-meta">Pre: more messages than fit on screen. Expected: older messages load progressively.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-pos">Positive</span> P5: Should display all workspace members with roles in roster</div>
+        <div class="outline-meta">Pre: workspace has 3 members with different roles. Expected: roster shows all with role badges.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-pos">Positive</span> P6: Should allow viewers to read full message history</div>
+        <div class="outline-meta">Pre: viewer opens channel. Expected: full history readable.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-pos">Positive</span> P7: Should show missed messages after reconnection</div>
+        <div class="outline-meta">Pre: connection drops while messages arrive. Expected: missed messages in correct order on reconnect.</div>
+      </div>
+
+      <h3>Negative (4)</h3>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-neg">Negative</span> N1: Should not deliver messages to non-members of the workspace</div>
+        <div class="outline-meta">Pre: user belongs to different workspace. Expected: foreign messages do not appear.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-neg">Negative</span> N2: Should prevent viewers from sending messages</div>
+        <div class="outline-meta">Pre: viewer attempts to send. Expected: send rejected at server level.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-neg">Negative</span> N3: Should reject empty or whitespace-only messages</div>
+        <div class="outline-meta">Pre: user types only spaces. Expected: not sent, error shown.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-neg">Negative</span> N4: Should not show messages from other workspaces</div>
+        <div class="outline-meta">Pre: user has access to multiple workspaces. Expected: channel shows only current workspace messages.</div>
+      </div>
+
+      <h3>Boundary (5)</h3>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-bnd">Boundary</span> B1: Should accept message at exactly 1 character</div>
+        <div class="outline-meta">Pre: user types single character. Expected: sent successfully.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-bnd">Boundary</span> B2: Should accept message at exactly 4000 characters</div>
+        <div class="outline-meta">Pre: user types 4000 chars. Expected: sent successfully.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-bnd">Boundary</span> B3: Should reject message at 4001 characters</div>
+        <div class="outline-meta">Pre: user types 4001 chars. Expected: rejected with error.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-bnd">Boundary</span> B4: Should handle leading/trailing whitespace correctly</div>
+        <div class="outline-meta">Pre: user types " Hello ". Expected: trimmed and sent as "Hello".</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-bnd">Boundary</span> B5: Should handle disconnection window boundary</div>
+        <div class="outline-meta">Pre: connection drops for exactly the catch-up window. Expected: messages load or refresh prompted.</div>
+      </div>
+
+      <h3>Integration (4)</h3>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-int">Integration</span> I1: Should enforce channel access through workspace membership</div>
+        <div class="outline-meta">Pre: user is/is not a workspace member. Expected: access granted/denied based on membership.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-int">Integration</span> I2: Should render chat panel within App Shell</div>
+        <div class="outline-meta">Pre: user opens panel. Expected: right-side dock consistent with BK-147 patterns.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-int">Integration</span> I3: Should persist messages to the database</div>
+        <div class="outline-meta">Pre: message sent. Expected: stored in messages table with correct foreign keys.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-int">Integration</span> I4: Should subscribe to Realtime for message delivery</div>
+        <div class="outline-meta">Pre: channel open. Expected: Realtime subscription active, receives new messages.</div>
+      </div>
+
+      <h3>Security-RBAC (3)</h3>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-sec">Sec-RBAC</span> S1: Should enforce viewer read-only at the API level</div>
+        <div class="outline-meta">Pre: viewer sends via API. Expected: 403 Forbidden returned.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-sec">Sec-RBAC</span> S2: Should isolate workspace channels from each other</div>
+        <div class="outline-meta">Pre: user accesses channels from different workspaces. Expected: no cross-workspace leakage.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-sec">Sec-RBAC</span> S3: Should enforce role-based access on channel operations</div>
+        <div class="outline-meta">Pre: user with different roles attempts operations. Expected: permitted/denied per RBAC.</div>
+      </div>
+
+      <h3>State-Transition (3)</h3>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-st">State</span> ST1: Should handle connected→disconnected transition</div>
+        <div class="outline-meta">Pre: user connected then loses connection. Expected: UI reflects disconnection, reconnects automatically.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-st">State</span> ST2: Should handle member→viewer role transition</div>
+        <div class="outline-meta">Pre: member's role changes to viewer. Expected: composer disables in real-time.</div>
+      </div>
+
+      <div class="outline">
+        <div class="outline-title"><span class="tag t-st">State</span> ST3: Should handle empty→populated channel transition</div>
+        <div class="outline-meta">Pre: channel has 0 messages, then message sent. Expected: empty state disappears, message appears.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 3. NON-FUNCTIONAL OUTLINES (NFR) ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span> Non-Functional Outlines (4) — NEEDS PO/DEV CONFIRMATION</div>
+    <div class="card">
+
+      <div class="outline pending">
+        <div class="outline-title"><span class="tag t-nfr">NFR</span> NFR1: Should meet delivery latency SLA under concurrent load</div>
+        <div class="outline-meta">Pre: 10 members send simultaneously. Expected: all messages delivered within agreed SLA (P95 &lt;200ms, P99 &lt;500ms).</div>
+      </div>
+
+      <div class="outline pending">
+        <div class="outline-title"><span class="tag t-nfr">NFR</span> NFR2: Should load large history within defined time</div>
+        <div class="outline-meta">Pre: channel has 10,000+ messages. Expected: history loads within time budget (P95 &lt;500ms, P99 &lt;1000ms).</div>
+      </div>
+
+      <div class="outline pending">
+        <div class="outline-title"><span class="tag t-nfr">NFR</span> NFR3: Should support keyboard-only navigation</div>
+        <div class="outline-meta">Pre: user navigates with keyboard only. Expected: all interactions accessible with visible focus (WCAG 2.1 AA).</div>
+      </div>
+
+      <div class="outline pending">
+        <div class="outline-title"><span class="tag t-nfr">NFR</span> NFR4: Should announce new messages to screen readers</div>
+        <div class="outline-meta">Pre: SR user has channel open. Expected: messages announced via live region; presence not color-only (WCAG 2.1 AA).</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 4. TEST DATA REQUIREMENTS ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span> Test Data Requirements</div>
+    <div class="card">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Data</th><th>Quantity</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>Workspace members</td><td>10 concurrent (5 Members, 2 Admins, 1 Owner, 2 Viewers)</td><td>Covers all RBAC roles + concurrent load</td></tr>
+            <tr><td>Messages per channel</td><td>1000+ messages</td><td>Pagination + history load testing</td></tr>
+            <tr><td>Message lengths</td><td>1 char, 4000 chars, 4001 chars, whitespace-only</td><td>Boundary testing</td></tr>
+            <tr><td>Network profiles</td><td>3G, 4G, WiFi, offline</td><td>Reconnection + performance testing</td></tr>
+            <tr><td>Multi-tab sessions</td><td>2-3 tabs per user</td><td>Multi-tab merge + dedup testing</td></tr>
+            <tr><td>Concurrent senders</td><td>10 users × 50 msg/min</td><td>Load testing + ordering consistency</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 5. TEST ENVIRONMENT ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span> Test Environment Requirements</div>
+    <div class="card">
+      <ul>
+        <li><strong>Supabase project</strong> with Realtime enabled</li>
+        <li><strong>Postgres 15</strong> + RLS functions (<code>bunkai_is_workspace_member</code>, <code>bunkai_can_write_workspace</code>) deployed</li>
+        <li><strong>Next.js 15 app</strong> with <code>withApiHandler</code> middleware</li>
+        <li><strong>Browsers:</strong> Chrome / Firefox / Safari (latest 2 versions)</li>
+        <li><strong>Screen readers:</strong> NVDA (Windows), VoiceOver (macOS), TalkBack (Android)</li>
+        <li><strong>Load testing:</strong> k6 or Artillery for P95/P99 measurement</li>
+        <li><strong>Mobile devices:</strong> iOS Safari + Android Chrome (safe-area + virtual keyboard testing)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 6. ENTRY / EXIT CRITERIA ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span> Entry & Exit Criteria</div>
+    <div class="card">
+      <h3>Entry Criteria</h3>
+      <ul>
+        <li>DB schema migration deployed (channels, messages, channel_members)</li>
+        <li>API endpoints deployed with Zod validation</li>
+        <li>Realtime broadcast + Presence wired with <code>setAuth()</code></li>
+        <li>RLS policies active on all 3 tables</li>
+        <li>App Shell panel component functional</li>
+      </ul>
+      <h3>Exit Criteria</h3>
+      <ul>
+        <li>All 30 outlines executed (7+4+5+4+3+3+4)</li>
+        <li>P95/P99 SLAs met under load (k6: 10 users × 50 msg/min)</li>
+        <li>WCAG 2.1 AA verified (NVDA, VoiceOver, TalkBack)</li>
+        <li>Zero critical/security defects open</li>
+        <li>Zero data-leakage issues (cross-workspace isolation confirmed)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 7. RISK-BASED PRIORITIZATION ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">7</span> Risk-Based Prioritization</div>
+    <div class="card">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Priority</th><th>Outlines</th><th>Rationale</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="badge" style="background:var(--red-bg);color:var(--red);">P1 Critical</span></td>
+              <td>AC1–AC5 positive/negative, Security-RBAC, State-Transition, NFR1–NFR4</td>
+              <td>Blocks release — delivery, RBAC, real-time state, performance, accessibility</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:var(--yellow-bg);color:var(--yellow);">P2 High</span></td>
+              <td>Boundary, Integration, Positive optional flows</td>
+              <td>Impacts quality — pagination, DB persistence, Realtime wiring</td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:var(--blue-bg);color:var(--blue);">P3 Medium</span></td>
+              <td>Edge cases (E1–E7), integration edge cases</td>
+              <td>Nice to have — offline queue, role propagation, multi-tab</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 8. RECOMMENDED TESTING STRATEGY ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span> Recommended Testing Strategy</div>
+    <div class="card">
+      <h3>Pre-implementation</h3>
+      <ul>
+        <li>Confirm DB schema (channels, messages, channel_members) with Dev</li>
+        <li>Confirm API endpoint contracts (send, history, roster, presence) with Dev</li>
+        <li>Confirm Realtime wiring for chat delivery with Dev</li>
+        <li>Confirm presence implementation approach with Dev</li>
+        <li>Confirm message ordering mechanism and pagination strategy with Dev</li>
+      </ul>
+      <h3>During implementation</h3>
+      <ul>
+        <li>Pair chat API work with contract tests for send, history, roster, presence</li>
+        <li>Validate DB schema matches agreed design</li>
+        <li>Test Realtime subscription for message delivery</li>
+        <li>Test RBAC enforcement at API level</li>
+        <li>Verify <code>setAuth()</code> called before Realtime subscription (critical security gate)</li>
+      </ul>
+      <h3>Post-implementation (in-sprint by /sprint-testing)</h3>
+      <ul>
+        <li>UI tests: panel rendering, send/receive, history scroll, roster, viewer access</li>
+        <li>API tests: message CRUD, history pagination, roster, presence</li>
+        <li>Integration tests: Realtime delivery, reconnection catch-up, role change propagation</li>
+        <li>Security-RBAC tests: viewer read-only, cross-workspace isolation</li>
+        <li>Performance tests: k6 load test for P95/P99 SLAs</li>
+        <li>Accessibility tests: NVDA/VoiceOver/TalkBack + keyboard navigation</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 9. OPEN ITEMS FOR SPRINT ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">9</span> Open Items for Sprint</div>
+    <div class="card">
+      <ul>
+        <li>[ ] Implement DB migration with partial unique index + CHECK constraints</li>
+        <li>[ ] Implement API endpoints with <code>client_nonce</code> idempotency</li>
+        <li>[ ] Wire Realtime with <code>setAuth()</code> + Broadcast</li>
+        <li>[ ] Implement Presence with online/away/offline + multi-tab merge</li>
+        <li>[ ] Implement RLS policies on all 3 tables</li>
+        <li>[ ] Build UI with atomic SR announcer, focus mgmt, reduced-motion</li>
+        <li>[ ] Set up k6 load test for SLA measurement</li>
+        <li>[ ] Set up accessibility testing with NVDA/VoiceOver/TalkBack</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 10. RISKS & MITIGATION ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">10</span> Risks & Mitigation</div>
+    <div class="card">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>#</th><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Realtime auth missed → RLS bypass</td><td style="color:var(--yellow);">Medium</td><td style="color:var(--red);">Critical</td><td>Code review gate: <code>setAuth()</code> mandatory in PR checklist</td></tr>
+            <tr><td>2</td><td>Cursor cross-workspace leak</td><td style="color:var(--green);">Low</td><td style="color:var(--yellow);">High</td><td>Validation gate: cursor <code>w</code>/<code>c</code> validated in handler</td></tr>
+            <tr><td>3</td><td>Typing TTL leak → ghost indicators</td><td style="color:var(--yellow);">Medium</td><td style="color:var(--yellow);">Medium</td><td>TTL 3s + receiver mirror implemented</td></tr>
+            <tr><td>4</td><td>NFR SLAs not met under load</td><td style="color:var(--yellow);">Medium</td><td style="color:var(--yellow);">High</td><td>Load test gate: k6 script in CI</td></tr>
+            <tr><td>5</td><td>WCAG gaps in mobile modal</td><td style="color:var(--green);">Low</td><td style="color:var(--yellow);">Medium</td><td>SR testing: NVDA/VoiceOver/TalkBack mandatory</td></tr>
+            <tr><td>6</td><td>DB schema missing — blocks all testing</td><td style="color:var(--red);">High</td><td style="color:var(--red);">Critical</td><td>Schema confirmation before sprint estimation</td></tr>
+            <tr><td>7</td><td>API contracts undefined</td><td style="color:var(--red);">High</td><td style="color:var(--red);">Critical</td><td>Contract confirmation before estimation</td></tr>
+            <tr><td>8</td><td>Presence inaccurate</td><td style="color:var(--yellow);">Medium</td><td style="color:var(--yellow);">High</td><td>Multi-tab merge + <code>last_seen_at</code> fallback</td></tr>
+            <tr><td>9</td><td>Ordering inconsistent under load</td><td style="color:var(--yellow);">Medium</td><td style="color:var(--yellow);">High</td><td><code>clock_timestamp()</code> microsecond + UUID tie-breaker</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 11. NFR SLA DETAIL ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">11</span> Performance SLAs (NFR Detail)</div>
+    <div class="card">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Metric</th><th>P95</th><th>P99</th><th>Conditions</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Message delivery</strong> (client→client via Realtime)</td><td>&lt;200ms</td><td>&lt;500ms</td><td>10 concurrent members, 500 chars/msg, same Supabase region</td></tr>
+            <tr><td><strong>Initial history load</strong> (cold, 1000 msgs)</td><td>&lt;500ms</td><td>&lt;1000ms</td><td>Cursor at end, index-only scan</td></tr>
+            <tr><td><strong>Pagination</strong> (cursor, 50 msgs)</td><td>&lt;200ms</td><td>&lt;400ms</td><td>Valid cursor, covered index</td></tr>
+            <tr><td><strong>Presence sync</strong> (join→sync)</td><td>&lt;1000ms</td><td>&lt;2000ms</td><td>10 members, multi-tab</td></tr>
+            <tr><td><strong>Reconnection catch-up</strong> (WS reconnect + gap-fetch)</td><td>&lt;1500ms</td><td>&lt;3000ms</td><td>&lt;5 min gap</td></tr>
+            <tr><td><strong>Index fetch</strong> (<code>idx_messages_channel_pagination</code>)</td><td colspan="2">&lt;5ms</td><td>Index-only scan</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:12px;color:var(--text-dim);margin-top:8px;"><strong>Measurement:</strong> k6/Artillery 10 users × 50 msg/min. Timestamp <code>client_sent_at</code> in metadata for real latency measurement.</p>
+    </div>
+  </div>
+
+  <!-- ===== 12. ACCESSIBILITY CRITERIA ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">12</span> Accessibility Criteria (WCAG 2.1 AA)</div>
+    <div class="card">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Criterion</th><th>Implementation</th><th>Test</th></tr></thead>
+          <tbody>
+            <tr><td>Screen reader announcements</td><td><code>#sr-announcer</code> atomic <code>role="status" aria-live="polite" aria-atomic="true"</code></td><td>NVDA/VoiceOver: verify each message announced</td></tr>
+            <tr><td>Focus management</td><td>Panel open → focus composer (Member) / first message (Viewer); Escape closes + returns focus</td><td>Keyboard: Tab through all interactive elements</td></tr>
+            <tr><td>Reduced motion</td><td><code>@media (prefers-reduced-motion: reduce)</code> disables transitions</td><td>OS setting: verify no animations</td></tr>
+            <tr><td>Presence non-color</td><td>Dot + <code>sr-only</code> label ("Online"/"Away"/"Offline")</td><td>WCAG 1.4.1: verify text label present</td></tr>
+            <tr><td>Keyboard shortcuts</td><td><code>Ctrl+Shift+K</code> (toggle panel), <code>Escape</code> (close), <code>Enter</code> (send), <code>Shift+Enter</code> (newline)</td><td>Keyboard: all shortcuts functional</td></tr>
+            <tr><td>Log semantics</td><td><code>role="log" aria-live="polite" aria-atomic="false" aria-relevant="additions text"</code></td><td>NVDA/VoiceOver: verify log semantics</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="watermark">
+    Jira ATP DRAFT Preview — BK-215 — Shift-Left QA batch session 2026-08-15<br>
+    Local simulation only — no Jira sync executed
+  </div>
+
+</div>
+</body>
+</html>

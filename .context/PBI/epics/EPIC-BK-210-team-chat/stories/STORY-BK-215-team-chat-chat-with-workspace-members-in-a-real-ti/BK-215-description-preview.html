@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jira Description — BK-215 Team Chat</title>
+  <style>
+    :root {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-dim: #8b949e;
+      --accent: #7c3aed; --accent-bg: rgba(124,58,237,0.12);
+      --green: #3fb950; --green-bg: rgba(63,185,80,0.12);
+      --red: #f85149; --red-bg: rgba(248,81,73,0.12);
+      --yellow: #d29922; --yellow-bg: rgba(210,153,34,0.12);
+      --blue: #58a6ff; --blue-bg: rgba(88,166,255,0.12);
+      --cyan: #39d2c0; --cyan-bg: rgba(57,210,192,0.12);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+    .container { max-width:960px; margin:0 auto; padding:32px 24px; }
+
+    .header { border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:28px; }
+    .header h1 { font-size:22px; font-weight:700; margin-bottom:4px; }
+    .header .sub { font-size:13px; color:var(--text-dim); margin-bottom:10px; }
+    .meta { display:flex; gap:12px; flex-wrap:wrap; font-size:12px; color:var(--text-dim); }
+    .badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; }
+    .b-purple { background:var(--accent-bg); color:var(--accent); }
+    .b-green { background:var(--green-bg); color:var(--green); }
+    .b-blue { background:var(--blue-bg); color:var(--blue); }
+
+    .preview-banner { background:var(--blue-bg); border:1px solid rgba(88,166,255,0.2); border-radius:6px; padding:10px 16px; font-size:12px; color:var(--blue); margin-bottom:24px; }
+
+    .section { margin-bottom:28px; }
+    .section-title { font-size:14px; font-weight:700; margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:6px; }
+    .section-title .num { color:var(--accent); font-variant-numeric:tabular-nums; }
+
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:20px; }
+    .card h3 { font-size:13px; font-weight:600; margin:14px 0 6px; }
+    .card h3:first-child { margin-top:0; }
+    .card p, .card li { font-size:13px; line-height:1.7; }
+    .card ul { padding-left:18px; margin:4px 0 12px; }
+    .card li { margin-bottom:3px; }
+    .card strong { color:var(--text); }
+    .card code { background:rgba(110,118,129,0.2); padding:1px 5px; border-radius:4px; font-size:11px; font-family:'SF Mono',Consolas,monospace; }
+
+    .scenario { margin:10px 0; padding:10px 14px; background:rgba(110,118,129,0.06); border-left:3px solid var(--accent); border-radius:0 6px 6px 0; }
+    .scenario-title { font-size:12px; font-weight:600; margin-bottom:4px; }
+    .tag { font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; margin-right:4px; }
+    .t-pos { background:var(--green-bg); color:var(--green); }
+    .t-neg { background:var(--red-bg); color:var(--red); }
+    .t-bnd { background:var(--yellow-bg); color:var(--yellow); }
+    .t-edge { background:var(--blue-bg); color:var(--blue); }
+    .t-nfr { background:var(--cyan-bg); color:var(--cyan); }
+    .sc-body { font-size:11px; color:var(--text-dim); line-height:1.6; }
+    .sc-body p { margin:2px 0; }
+    .sc-body strong { color:var(--text); }
+    .pending { background:rgba(210,153,34,0.08); border-left-color:var(--yellow); }
+    .pending .scenario-title { color:var(--yellow); }
+
+    .tbl { overflow-x:auto; margin:8px 0 14px; }
+    table { width:100%; border-collapse:collapse; font-size:12px; }
+    th { background:rgba(110,118,129,0.12); text-align:left; padding:7px 10px; font-weight:600; border-bottom:1px solid var(--border); white-space:nowrap; }
+    td { padding:7px 10px; border-bottom:1px solid rgba(48,54,61,0.4); vertical-align:top; }
+    tr:hover td { background:rgba(110,118,129,0.04); }
+    td code { background:rgba(110,118,129,0.2); padding:1px 4px; border-radius:3px; font-size:10px; }
+    .r-find td:first-child { font-weight:700; color:var(--red); }
+    .r-amb td:first-child { font-weight:700; color:var(--yellow); }
+    .r-gap td:first-child { font-weight:700; color:var(--blue); }
+
+    .divider { height:1px; background:var(--border); margin:24px 0; }
+    .note { padding:10px 14px; background:rgba(210,153,34,0.1); border:1px solid rgba(210,153,34,0.2); border-radius:6px; font-size:12px; color:var(--yellow); margin:12px 0; }
+
+    .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin:10px 0; }
+    .summary-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px; text-align:center; }
+    .summary-card .num { font-size:26px; font-weight:700; color:var(--accent); }
+    .summary-card .lbl { font-size:10px; color:var(--text-dim); margin-top:2px; }
+
+    .watermark { text-align:center; padding:20px; font-size:11px; color:var(--text-dim); border-top:1px solid var(--border); margin-top:28px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <span class="badge b-blue">BK-215</span>
+      <span style="font-size:11px;color:var(--text-dim);">EPIC BK-210 Team Chat</span>
+    </div>
+    <h1>Team Chat | Chat with workspace members in a real-time channel</h1>
+    <div class="sub">Jira field: <code>description</code> — WHAT to build</div>
+    <div class="meta">
+      <span>Status: <span class="badge b-purple">Estimation</span></span>
+      <span>Sprint: Pre-sprint (Shift-Left QA)</span>
+      <span>Labels: <span class="badge b-green">shift-left-reviewed</span></span>
+      <span>QA Assignee: pinto.lucas.nahuel@gmail.com</span>
+    </div>
+  </div>
+
+  <div class="preview-banner">
+    <strong>PREVIEW</strong> — Simulation of the Jira <code>description</code> field. No sync executed.
+  </div>
+
+  <!-- ===== 1. USER STORY ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span> User Story</div>
+    <div class="card">
+      <p>As a <strong>workspace member</strong><br>
+      I want to <strong>chat with my team in a real-time general channel</strong><br>
+      So that <strong>we can collaborate without leaving Bunkai</strong></p>
+    </div>
+  </div>
+
+  <!-- ===== 2. CONTEXT ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span> Context</div>
+    <div class="card">
+      <ul>
+        <li><strong>Workspace:</strong> BK-210 Team Chat</li>
+        <li><strong>Sprint:</strong> Pre-sprint (Shift-Left QA)</li>
+        <li><strong>Parent Epic:</strong> EPIC-BK-210</li>
+        <li><strong>Primary Persona:</strong> Elena Vargas, Senior QA Engineer</li>
+        <li><strong>Secondary Personas:</strong> QA engineers, workspace members who need real-time operational conversation</li>
+        <li><strong>Business Value:</strong> Operational questions ("is staging down?") get answered where the QA work lives — no tool-switching.</li>
+        <li><strong>KPIs:</strong> Time-to-answer, context retention, reduced tool-switching friction</li>
+        <li><strong>Position:</strong> Foundation story — every subsequent story (BK-216 project channels, BK-217 threads) builds on this.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 3. CRITICAL ANALYSIS ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span> Critical Analysis</div>
+    <div class="card">
+      <h3>Technical Context</h3>
+      <ul>
+        <li><strong>Frontend:</strong> Right-side collapsible panel in App Shell (BK-147). Channel header + scrollable message list + composer pinned bottom. Presence dots. Unread separator.</li>
+        <li><strong>Backend:</strong> No confirmed chat API endpoints exist. New DB tables required: <code>channels</code>, <code>messages</code>, <code>channel_members</code>.</li>
+        <li><strong>Database:</strong> New tables needed — no schema exists yet. Workspace membership model (BK-1) is upstream dependency.</li>
+        <li><strong>External services:</strong> Supabase Auth/Postgres/RLS for channel visibility. Supabase Realtime (broadcast) configured but not wired for chat.</li>
+        <li><strong>Integration points:</strong> BK-1 (membership), BK-147 (App Shell), Supabase Realtime (delivery).</li>
+      </ul>
+
+      <h3>Evidence-Confirmed Facts</h3>
+      <ul>
+        <li>Supabase Realtime configured in migration 0043 for broadcast channels.</li>
+        <li>Chat marked as post-MVP in business-model.md — new DB tables not yet in migrations.</li>
+        <li>Workspace membership (BK-1) exists with RBAC ladder (viewer, member, admin, owner).</li>
+        <li>App Shell (BK-147) exists and can host a right-side panel.</li>
+        <li>No confirmed chat API, message delivery pipeline, Realtime subscription, or presence system exists.</li>
+      </ul>
+
+      <h3>Story Complexity</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Axis</th><th>Rating</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Business logic</strong></td><td>Medium</td><td>Clear user value but new domain with undefined API contracts and DB schema.</td></tr>
+            <tr><td><strong>Integration</strong></td><td>High</td><td>Depends on membership, App Shell, Realtime, new DB tables — all need wiring.</td></tr>
+            <tr><td><strong>Data validation</strong></td><td>Medium</td><td>Length bounds 1-4000, whitespace rejection, ordering, history retention.</td></tr>
+            <tr><td><strong>UI</strong></td><td>Medium</td><td>Layout designed, but interaction states (typing, presence, unread, reconnect) need definition.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Epic-Level Inheritance</h3>
+      <ul>
+        <li><strong>Risks:</strong> New domain — no chat infrastructure, no delivery pipeline, no presence system. All built from scratch.</li>
+        <li><strong>Integration:</strong> BK-1 → channel access; BK-147 → panel; Supabase Realtime → delivery.</li>
+        <li><strong>Test strategy:</strong> Treat BK-1 as upstream dependency; finalize delivery assertions after API contract + Realtime confirmed.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 4. REFINED ACCEPTANCE CRITERIA ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span> Refined Acceptance Criteria (24 Scenarios)</div>
+    <div class="card">
+
+      <h3>AC1 — Real-time message delivery</h3>
+
+      <div class="scenario">
+        <div class="scenario-title"><span class="tag t-pos">Positive</span> 1.1: Should deliver a message to all channel members in real time without page refresh</div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Elena and Sara are both members of "Bunkai QA" and have the general channel open.</p>
+          <p><strong>When</strong> Elena sends "Is staging down? My run just stalled".</p>
+          <p><strong>Then</strong> Sara sees the message appear within 2 seconds without refresh. Shows Elena's name and send time.</p>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title"><span class="tag t-pos">Positive</span> 1.2: Should display sender name and timestamp on each message</div>
+        <div class="sc-body">
+          <p><strong>Given</strong> A message has been sent by Elena.</p>
+          <p><strong>When</strong> The message renders.</p>
+          <p><strong>Then</strong> Displays Elena's display name and send time in consistent format.</p>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title"><span class="tag t-neg">Negative</span> 1.3: Should not deliver messages to non-channel members</div>
+        <div class="sc-body">
+          <p><strong>Given</strong> A user belongs to a different workspace, not a member of "Bunkai QA".</p>
+          <p><strong>When</strong> A message is sent in the general channel.</p>
+          <p><strong>Then</strong> The non-member does not receive or see the message.</p>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title"><span class="tag t-neg">Negative</span> 1.4: Should reject empty or whitespace-only messages</div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Elena has the channel open.</p>
+          <p><strong>When</strong> She attempts to send empty or whitespace-only.</p>
+          <p><strong>Then</strong> Message not sent; clear error shown.</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-bnd">Boundary</span> 1.5: Should reject messages exceeding 4000 chars <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Elena has the channel open.</p>
+          <p><strong>When</strong> She types 4001 characters.</p>
+          <p><strong>Then</strong> Send button disabled or error shown before/after sending.</p>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title"><span class="tag t-bnd">Boundary</span> 1.6: Should accept messages at exactly 1 character</div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Elena has the channel open.</p>
+          <p><strong>When</strong> She sends a single character.</p>
+          <p><strong>Then</strong> Message sent and appears in the channel.</p>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="scenario-title"><span class="tag t-bnd">Boundary</span> 1.7: Should accept messages at exactly 4000 characters</div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Elena has the channel open.</p>
+          <p><strong>When</strong> She sends exactly 4000 characters.</p>
+          <p><strong>Then</strong> Message sent and appears in the channel.</p>
+        </div>
+      </div>
+
+      <h3>AC2 — Message history persistence</h3>
+
+      <div class="scenario">
+        <div class="scenario-title"><span class="tag t-pos">Positive</span> 2.1: Should display history in chronological order across sessions</div>
+        <div class="sc-body">
+          <p><strong>Given</strong> General channel contains 20 messages.</p>
+          <p><strong>When</strong> Elena signs out, signs back in, opens the channel.</p>
+          <p><strong>Then</strong> She sees the same 20 messages in chronological order.</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-pos">Positive</span> 2.2: Should load older messages on scroll-up <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Channel has more messages than fit on screen.</p>
+          <p><strong>When</strong> Elena scrolls up.</p>
+          <p><strong>Then</strong> Older messages load progressively without losing scroll position.</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-edge">Edge</span> 2.3: Should maintain ordering under concurrent sends <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Elena and Sara send messages at nearly the same time.</p>
+          <p><strong>When</strong> Both messages appear.</p>
+          <p><strong>Then</strong> Deterministic order consistent across all members' views.</p>
+        </div>
+      </div>
+
+      <h3>AC3 — Workspace roster</h3>
+
+      <div class="scenario">
+        <div class="scenario-title"><span class="tag t-pos">Positive</span> 3.1: Should display all workspace members with their roles</div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Workspace has 3 members: Elena, Sara, Mateo.</p>
+          <p><strong>When</strong> Elena opens the roster.</p>
+          <p><strong>Then</strong> All 3 listed with roles (Admin, Member, Viewer).</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-pos">Positive</span> 3.2: Should show online/offline presence <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Elena opens the roster.</p>
+          <p><strong>When</strong> She views the member list.</p>
+          <p><strong>Then</strong> Each member shows presence (green online, gray offline).</p>
+        </div>
+      </div>
+
+      <h3>AC4 — Viewer read-only access</h3>
+
+      <div class="scenario">
+        <div class="scenario-title"><span class="tag t-pos">Positive</span> 4.1: Should allow viewers to read full history</div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Mateo has the viewer role.</p>
+          <p><strong>When</strong> He opens the general channel.</p>
+          <p><strong>Then</strong> Full history is readable without restrictions.</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-pos">Positive</span> 4.2: Should disable composer for viewers with read-only hint <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Mateo has the viewer role.</p>
+          <p><strong>When</strong> He looks at the composer.</p>
+          <p><strong>Then</strong> Composer disabled with hint indicating read-only access.</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-neg">Negative</span> 4.3: Should prevent viewers from sending via API <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Mateo has the viewer role.</p>
+          <p><strong>When</strong> He attempts to send (e.g. via API manipulation).</p>
+          <p><strong>Then</strong> Server rejects with 403 Forbidden.</p>
+        </div>
+      </div>
+
+      <h3>AC5 — Reconnection catch-up</h3>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-pos">Positive</span> 5.1: Should show missed messages after reconnection <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Elena's connection drops for 2 minutes. Sara sends 3 messages during gap.</p>
+          <p><strong>When</strong> Elena's connection returns.</p>
+          <p><strong>Then</strong> 3 missed messages appear in correct order without page refresh.</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-edge">Edge</span> 5.2: Should handle extended disconnection gracefully <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Elena's connection drops for 30 minutes.</p>
+          <p><strong>When</strong> Her connection returns.</p>
+          <p><strong>Then</strong> Missed messages appear or she is prompted to refresh if gap exceeds catch-up window.</p>
+        </div>
+      </div>
+
+      <h3>New scenarios from edge cases</h3>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-edge">Edge</span> E1: Should queue messages sent while disconnected <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Elena loses connection while composing.</p>
+          <p><strong>When</strong> She hits send while disconnected.</p>
+          <p><strong>Then</strong> Message queued for delivery on reconnect or user notified of failure.</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-edge">Edge</span> E2: Should reflect role changes in real-time <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Elena is a member with channel open.</p>
+          <p><strong>When</strong> Admin changes her role to viewer.</p>
+          <p><strong>Then</strong> Composer disables without page refresh.</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-edge">Edge</span> E3: Should validate messages client-side and server-side <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Elena types 4001+ characters.</p>
+          <p><strong>When</strong> She attempts to send.</p>
+          <p><strong>Then</strong> Validation prevents send at appropriate layer with clear error.</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-nfr">NFR</span> E4: Should meet delivery latency SLA <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> 10 members send simultaneously.</p>
+          <p><strong>When</strong> All messages delivered.</p>
+          <p><strong>Then</strong> Latency within agreed SLA (under 2 seconds).</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-nfr">NFR</span> E5: Should load large history within defined time <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Channel has 10,000+ messages.</p>
+          <p><strong>When</strong> Member opens the channel.</p>
+          <p><strong>Then</strong> History loads within defined time budget (e.g. under 3 seconds).</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-nfr">NFR</span> E6: Should support keyboard-only navigation <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> User navigates with keyboard only.</p>
+          <p><strong>When</strong> Interacting with message list, composer, roster.</p>
+          <p><strong>Then</strong> All interactions keyboard-accessible with visible focus (WCAG 2.1 AA).</p>
+        </div>
+      </div>
+
+      <div class="scenario pending">
+        <div class="scenario-title"><span class="tag t-nfr">NFR</span> E7: Should announce new messages to screen readers <span style="font-size:9px;">NEEDS CONFIRMATION</span></div>
+        <div class="sc-body">
+          <p><strong>Given</strong> Screen reader user has channel open.</p>
+          <p><strong>When</strong> New message arrives or presence changes.</p>
+          <p><strong>Then</strong> Messages announced via live region; presence not color-only (WCAG 2.1 AA).</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 5. CRITICAL FINDINGS ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span> Critical Findings</div>
+    <div class="card">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>#</th><th>Finding</th><th>Impact</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr class="r-find"><td>1</td><td>No DB schema exists for channels, messages, channel_members</td><td>Blocks all data-layer testing</td><td>Confirm schema design before estimation</td></tr>
+            <tr class="r-find"><td>2</td><td>No chat API endpoints exist</td><td>Blocks API contract testing</td><td>Confirm endpoints, auth, response shapes</td></tr>
+            <tr class="r-find"><td>3</td><td>Realtime configured for broadcast, not chat</td><td>May need different subscription pattern</td><td>Confirm Realtime usage for chat</td></tr>
+            <tr class="r-find"><td>4</td><td>Presence tracking does not exist</td><td>Roster online/offline untestable</td><td>Confirm presence approach</td></tr>
+            <tr class="r-find"><td>5</td><td>Message ordering under concurrent sends undefined</td><td>Ordering assertions unstable</td><td>Confirm ordering guarantees</td></tr>
+            <tr class="r-find"><td>6</td><td>Pagination strategy not defined</td><td>Scroll-up-to-load untestable</td><td>Confirm cursor format and page size</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 6. AMBIGUITIES ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span> Ambiguities (9)</div>
+    <div class="card">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>#</th><th>Location</th><th>Question</th><th>Impact</th><th>Suggested Clarification</th></tr></thead>
+          <tbody>
+            <tr class="r-amb"><td>1</td><td>AC1</td><td>WebSocket/SSE, or polling?</td><td>Cannot decide auto vs manual refresh testing</td><td>Confirm delivery mechanism (Realtime broadcast)</td></tr>
+            <tr class="r-amb"><td>2</td><td>AC2</td><td>Infinite scroll, pagination, lazy? Page size?</td><td>Cannot test pagination boundaries</td><td>Confirm strategy and page size</td></tr>
+            <tr class="r-amb"><td>3</td><td>AC3</td><td>Real-time Presence or last-seen timestamp?</td><td>Cannot test presence accuracy</td><td>Confirm implementation</td></tr>
+            <tr class="r-amb"><td>4</td><td>AC4</td><td>What exact copy? Where positioned?</td><td>Cannot assert UI text</td><td>Define hint copy and placement</td></tr>
+            <tr class="r-amb"><td>5</td><td>AC5</td><td>How simulate drop? Reconnection window?</td><td>Cannot design reconnection test</td><td>Define semantics and timeout</td></tr>
+            <tr class="r-amb"><td>6</td><td>AC5</td><td>Auto-reconnect and fetch missed?</td><td>Cannot test catch-up behavior</td><td>Confirm auto-reconnect mechanism</td></tr>
+            <tr class="r-amb"><td>7</td><td>BR</td><td>Server timestamp, client timestamp, or sequence?</td><td>Ordering assertions depend on this</td><td>Confirm mechanism</td></tr>
+            <tr class="r-amb"><td>8</td><td>BR</td><td>Max message count or storage limit?</td><td>Cannot test large-history scenarios</td><td>Confirm retention policy</td></tr>
+            <tr class="r-amb"><td>9</td><td>Mockup</td><td>Enter=send, Shift+Enter=newline confirmed?</td><td>Cannot test keyboard shortcuts</td><td>Confirm interaction model</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 7. GAPS ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">7</span> Gaps (9 — missing info)</div>
+    <div class="card">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>#</th><th>Type</th><th>Why critical</th><th>What to add</th><th>Risk if omitted</th></tr></thead>
+          <tbody>
+            <tr class="r-gap"><td>1</td><td>DB schema</td><td>No tables exist</td><td>Columns, types, constraints, indexes</td><td>Different data models</td></tr>
+            <tr class="r-gap"><td>2</td><td>API contract</td><td>No endpoints</td><td>Paths, methods, auth, shapes</td><td>Different contracts</td></tr>
+            <tr class="r-gap"><td>3</td><td>Realtime sub</td><td>For broadcast, not chat</td><td>Channel naming, events, payload</td><td>Delivery may fail</td></tr>
+            <tr class="r-gap"><td>4</td><td>Presence</td><td>No tracking exists</td><td>Implementation approach</td><td>Roster untestable</td></tr>
+            <tr class="r-gap"><td>5</td><td>Ordering</td><td>Not defined</td><td>Server timestamp vs sequence</td><td>Subjective assertions</td></tr>
+            <tr class="r-gap"><td>6</td><td>Pagination</td><td>Not defined</td><td>Cursor format, page size, states</td><td>History untestable</td></tr>
+            <tr class="r-gap"><td>7</td><td>Error states</td><td>Not defined</td><td>Network, auth, send, disconnect</td><td>Broken UI on failure</td></tr>
+            <tr class="r-gap"><td>8</td><td>Loading states</td><td>Not defined</td><td>Message, history, send-in-progress</td><td>UX gaps</td></tr>
+            <tr class="r-gap"><td>9</td><td>Empty copy</td><td>"friendly prompt" vague</td><td>Exact empty channel copy</td><td>Cannot assert text</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 8. EDGE CASES ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span> Edge Cases (10 — not in original Story)</div>
+    <div class="card">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>#</th><th>Scenario</th><th>Expected</th><th>Criticality</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Two users send at exact same millisecond</td><td>Deterministic order via server tie-breaker</td><td>High</td><td>PO/Dev confirmation</td></tr>
+            <tr><td>2</td><td>User sends while disconnected</td><td>Queued on reconnect or notified</td><td>High</td><td>PO/Dev confirmation</td></tr>
+            <tr><td>3</td><td>10,000+ messages in history</td><td>Progressive load without degradation</td><td>Medium</td><td>PO/Dev confirmation</td></tr>
+            <tr><td>4</td><td>Channel with 0 messages</td><td>Empty state with prompt</td><td>Medium</td><td>PO/Dev confirmation</td></tr>
+            <tr><td>5</td><td>Only member in workspace</td><td>1 member, no online indicators</td><td>Low</td><td>PO/Dev confirmation</td></tr>
+            <tr><td>6</td><td>Role changes member→viewer while open</td><td>Composer disables in real-time</td><td>High</td><td>PO/Dev confirmation</td></tr>
+            <tr><td>7</td><td>Workspace deleted while open</td><td>Redirect or error</td><td>Medium</td><td>PO/Dev confirmation</td></tr>
+            <tr><td>8</td><td>Same channel in two tabs</td><td>No duplication</td><td>Medium</td><td>PO/Dev confirmation</td></tr>
+            <tr><td>9</td><td>Message exceeds 4000 chars</td><td>Send disabled or error</td><td>Medium</td><td>PO/Dev confirmation</td></tr>
+            <tr><td>10</td><td>Whitespace-only message</td><td>Rejected with error</td><td>Medium</td><td>PO/Dev confirmation</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 9. CONTRADICTIONS ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">9</span> Contradictions</div>
+    <div class="card">
+      <ul>
+        <li>"Real-time channel" but business-model.md marks chat as post-MVP with no DB tables.</li>
+        <li>Mockup says "send on Enter, Shift+Enter=newline" — not confirmed in ACs or business rules.</li>
+        <li>"History retained for life of Workspace" but no storage limits or purge policy defined.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 10. TESTABILITY ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">10</span> Testability Validation</div>
+    <div class="card">
+      <p><strong>Verdict:</strong> <span style="color:var(--yellow);">Partial</span></p>
+      <p style="margin-top:6px;">Issues blocking full testability:</p>
+      <ul>
+        <li>No DB schema exists for channels, messages, channel_members.</li>
+        <li>No chat API endpoints exist in the baseline.</li>
+        <li>Realtime configured for broadcast, not chat — subscription undefined.</li>
+        <li>Presence tracking does not exist.</li>
+        <li>Message ordering guarantee undefined.</li>
+        <li>Pagination strategy and page size undefined.</li>
+        <li>Error and loading states undefined.</li>
+        <li>Empty state copy undefined.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 11. OPEN QUESTIONS (26 RESOLVED) ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">11</span> Open Questions — 26 Resolved</div>
+    <div class="card">
+      <div class="summary-grid">
+        <div class="summary-card"><div class="num">26</div><div class="lbl">Total Answered</div></div>
+        <div class="summary-card"><div class="num">9</div><div class="lbl">PO - Product</div></div>
+        <div class="summary-card"><div class="num">11</div><div class="lbl">Dev - Tech</div></div>
+        <div class="summary-card"><div class="num">6</div><div class="lbl">Design - UI/UX</div></div>
+      </div>
+
+      <h3>PO - Product (9)</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>#</th><th>Question</th><th>Decision</th><th>Rationale</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>General channel: special case or row?</td><td>Row in <code>channels</code> with <code>type:'general'</code>, <code>is_default:true</code></td><td>Reusable for project channels; single RLS</td></tr>
+            <tr><td>2</td><td>Message ordering</td><td>Server <code>created_at</code> microsecond + <code>id ASC</code></td><td>No client clock drift; deterministic</td></tr>
+            <tr><td>3</td><td>Pagination & page size</td><td>Keyset cursor; 50 messages</td><td>O(1) index; stable scroll</td></tr>
+            <tr><td>4</td><td>Validation layers</td><td>Both client (UX) and server (DB check)</td><td>UX feedback + security</td></tr>
+            <tr><td>5</td><td>Max disconnection</td><td>5 min; &lt;5m auto-reconcile, &gt;5m silent resync (no prompt)</td><td>Zero friction</td></tr>
+            <tr><td>6</td><td>Empty state copy</td><td>"Welcome to #general!" + chips for Members; Viewer: static</td><td>Explicit Viewer state</td></tr>
+            <tr><td>7</td><td>Presence</td><td>Supabase Presence (WS) + <code>last_seen_at</code> fallback</td><td>Real-time low latency</td></tr>
+            <tr><td>8</td><td>Role demotion</td><td>Real-time disable + toast; RLS 403</td><td>Security without reload</td></tr>
+            <tr><td>9</td><td>Offline behavior</td><td>Optimistic 50% opacity → retry/delete (&gt;10s)</td><td>Clear feedback; no persistence v1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Dev - Tech (11)</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>#</th><th>Question</th><th>Decision</th><th>Rationale</th></tr></thead>
+          <tbody>
+            <tr><td>10</td><td>DB Schema</td><td>3 tables: <code>channels</code> (partial unique, CHECK), <code>channel_members</code>, <code>messages</code> (CHECK trim, <code>metadata jsonb</code>, <code>updated_at</code>, soft delete) + index</td><td>Robust; forward-compat</td></tr>
+            <tr><td>11</td><td>API Endpoints</td><td><code>POST /messages</code> (nonce), <code>GET /messages</code> (cursor), <code>GET /roster</code> (+presence)</td><td>RESTful + idempotent</td></tr>
+            <tr><td>12</td><td>Realtime wiring</td><td><code>postgres_changes</code> + Broadcast + <strong><code>setAuth()</code> mandatory</strong></td><td>Without setAuth RLS bypassed</td></tr>
+            <tr><td>13</td><td>Presence</td><td><code>online/away/offline</code>; 30s threshold; multi-tab merge</td><td>Realistic UX</td></tr>
+            <tr><td>14</td><td>Sub-second ordering</td><td><code>clock_timestamp()</code> microseconds + UUID</td><td>Execution vs transaction time</td></tr>
+            <tr><td>15</td><td>Cursor</td><td>Base64 <code>{w,c,t,i}</code> + cross-workspace validation</td><td>Defense in depth</td></tr>
+            <tr><td>16</td><td>RLS</td><td>Explicit policies 3 tables; <code>bunkai_can_write_workspace()</code></td><td>Viewer rejected at DB</td></tr>
+            <tr><td>17</td><td>Error codes</td><td><code>CHAT_FORBIDDEN_VIEWER_READONLY</code>, <code>NOT_CHANNEL_MEMBER</code>, <code>INVALID_CURSOR</code>, <code>REALTIME_UNAVAILABLE</code></td><td>Granular observability</td></tr>
+            <tr><td>18</td><td>Typing</td><td>Broadcast + TTL 3s; optimistic <code>sending→sent/failed</code> (10s)</td><td>No leaks</td></tr>
+            <tr><td>19</td><td>SLAs</td><td>Delivery 200/500ms, load 500/1000ms, pagination 200/400ms, presence 1/2s, reconnect 1.5/3s</td><td>Measurable; k6</td></tr>
+            <tr><td>20</td><td>A11y</td><td><code>#sr-announcer</code> atomic, focus mgmt, reduced-motion, <code>Ctrl+Shift+K</code></td><td>Real WCAG 2.1 AA</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Design - UI/UX (6)</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>#</th><th>Question</th><th>Decision</th><th>Rationale</th></tr></thead>
+          <tbody>
+            <tr><td>21</td><td>Viewer banner</td><td>Inline focusable + lock icon + visible disabled buttons + <code>aria-live="polite"</code></td><td>Accessible; no layout shift</td></tr>
+            <tr><td>22</td><td>Empty channel</td><td>Centered card, Hash icon AA, keyboard chips, Viewer no-chips</td><td>Contrast-safe</td></tr>
+            <tr><td>23</td><td>Roster</td><td>Slide-in Flyout + FocusTrap + Escape/backdrop + <code>aria-expanded</code></td><td>Focus trap; no leaks</td></tr>
+            <tr><td>24</td><td>Unread separator</td><td><code>destructive</code> token, persists + <code>[Mark read]</code> + focusable</td><td>User control; WCAG AA</td></tr>
+            <tr><td>25</td><td>Panel persistence</td><td><code>localStorage v1</code> + scrollTop + channelId + <code>Ctrl+Shift+K</code></td><td>Fluid; versioned</td></tr>
+            <tr><td>26</td><td>Breakpoints</td><td>4 tiers + <code>visualViewport</code> + swipe + safe areas + body lock</td><td>Desktop-first, mobile-aware</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 12. SUGGESTED IMPROVEMENTS ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">12</span> Suggested Story Improvements</div>
+    <div class="card">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>#</th><th>Current</th><th>Suggested</th><th>Benefit</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>"real-time channel"</td><td>Define delivery mechanism (Realtime broadcast)</td><td>Removes ambiguity</td></tr>
+            <tr><td>2</td><td>"without refreshing"</td><td>Define reconnection + catch-up window</td><td>Makes AC5 testable</td></tr>
+            <tr><td>3</td><td>"currently online"</td><td>Define presence (Supabase Presence)</td><td>Makes AC3 testable</td></tr>
+            <tr><td>4</td><td>"scrolls up"</td><td>Define pagination strategy + page size</td><td>Makes AC2 testable</td></tr>
+            <tr><td>5</td><td>"friendly prompt"</td><td>Provide exact copy</td><td>Makes assertable</td></tr>
+            <tr><td>6</td><td>"order they were sent"</td><td>Define mechanism (server timestamp)</td><td>Objective assertions</td></tr>
+            <tr><td>7</td><td>No error states</td><td>Add AC for network/auth/send failure</td><td>Prevents broken UI</td></tr>
+            <tr><td>8</td><td>No loading states</td><td>Add AC for loading indicators</td><td>Prevents UX gaps</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 13. DATA FEASIBILITY FLAGS ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">13</span> Data Feasibility Flags</div>
+    <div class="card">
+      <ul>
+        <li><strong>Entity/fixture missing:</strong> No <code>channels</code>, <code>messages</code>, <code>channel_members</code> tables exist.</li>
+        <li><strong>API contract gap:</strong> No chat endpoints exist — send, history, roster, presence undefined.</li>
+        <li><strong>Required pre-work:</strong> Design DB schema; implement endpoints; wire Realtime; implement presence.</li>
+        <li><strong>Data risk:</strong> All data-layer testing blocked until schema and contracts defined.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 14. ASSUMPTIONS & BLOCKERS ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">14</span> Assumptions & Blockers</div>
+    <div class="card">
+      <h3>Assumptions</h3>
+      <ul>
+        <li>BK-1 (membership) complete with RBAC ladder.</li>
+        <li>BK-147 (App Shell) can host right-side panel.</li>
+        <li>Supabase Realtime (migration 0043) extendable for chat.</li>
+        <li>General channel created automatically with workspace.</li>
+        <li>History retained indefinitely in v1 (no auto-purge).</li>
+      </ul>
+      <h3>Blockers</h3>
+      <ul>
+        <li>DB schema design — blocks all data-layer testing.</li>
+        <li>API endpoint contracts — blocks contract testing.</li>
+        <li>Realtime wiring — blocks delivery testing.</li>
+        <li>Presence approach — blocks roster testing.</li>
+        <li>Message ordering — blocks ordering assertions.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 15. RISKS & MITIGATION ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">15</span> Risks & Mitigation</div>
+    <div class="card">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>#</th><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigated by</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>DB schema missing — blocks all testing</td><td style="color:var(--red);">High</td><td style="color:var(--red);">Critical</td><td>Integration, Security-RBAC</td></tr>
+            <tr><td>2</td><td>API contracts undefined</td><td style="color:var(--red);">High</td><td style="color:var(--red);">Critical</td><td>Integration, Tech Q#2</td></tr>
+            <tr><td>3</td><td>Realtime misconfigured</td><td style="color:var(--yellow);">Medium</td><td style="color:var(--red);">Critical</td><td>Integration, Positive #1</td></tr>
+            <tr><td>4</td><td>Presence inaccurate</td><td style="color:var(--yellow);">Medium</td><td style="color:var(--yellow);">High</td><td>Positive #6, Tech Q#4</td></tr>
+            <tr><td>5</td><td>Ordering inconsistent</td><td style="color:var(--yellow);">Medium</td><td style="color:var(--yellow);">High</td><td>Positive #7, Edge #1</td></tr>
+            <tr><td>6</td><td>Viewer bypass via API</td><td style="color:var(--yellow);">Medium</td><td style="color:var(--red);">Critical</td><td>Security-RBAC, Negative #2</td></tr>
+            <tr><td>7</td><td>Pagination breaks large histories</td><td style="color:var(--yellow);">Medium</td><td style="color:var(--yellow);">High</td><td>Boundary, Edge #3</td></tr>
+            <tr><td>8</td><td>Role changes not real-time</td><td style="color:var(--yellow);">Medium</td><td style="color:var(--yellow);">High</td><td>State-Transition #2</td></tr>
+            <tr><td>9</td><td>NFRs undefined</td><td style="color:var(--yellow);">Medium</td><td style="color:var(--yellow);">Medium</td><td>NFR1-4, Tech Q#10-11</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 16. TRACEABILITY MAP ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">16</span> Traceability Map</div>
+    <div class="card">
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Original AC</th><th>Refined Scenarios</th><th>Test Outlines</th></tr></thead>
+          <tbody>
+            <tr><td><strong>AC1</strong> Real-time delivery</td><td>1.1–1.7</td><td>Positive #1,#2; Negative #1,#3; Boundary #1–3</td></tr>
+            <tr><td><strong>AC2</strong> History persistence</td><td>2.1–2.3</td><td>Positive #3,#4; Boundary #4</td></tr>
+            <tr><td><strong>AC3</strong> Workspace roster</td><td>3.1–3.2</td><td>Positive #5; State-Transition #3</td></tr>
+            <tr><td><strong>AC4</strong> Viewer read-only</td><td>4.1–4.3</td><td>Positive #6; Negative #2; Security-RBAC #1</td></tr>
+            <tr><td><strong>AC5</strong> Reconnection</td><td>5.1–5.2</td><td>Positive #7; Boundary #5; State-Transition #1</td></tr>
+            <tr><td><strong>E1</strong> Offline queue</td><td>E1</td><td>Edge #2</td></tr>
+            <tr><td><strong>E2</strong> Role propagation</td><td>E2</td><td>State-Transition #2; Edge #6</td></tr>
+            <tr><td><strong>E3</strong> Validation layers</td><td>E3</td><td>Boundary #3; Edge #9</td></tr>
+            <tr><td><strong>E4</strong> NFR Performance</td><td>E4</td><td>NFR1</td></tr>
+            <tr><td><strong>E5</strong> NFR History load</td><td>E5</td><td>NFR2</td></tr>
+            <tr><td><strong>E6</strong> NFR Keyboard</td><td>E6</td><td>NFR3</td></tr>
+            <tr><td><strong>E7</strong> NFR Screen reader</td><td>E7</td><td>NFR4</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 17. NEXT STEPS ===== -->
+  <div class="section">
+    <div class="section-title"><span class="num">17</span> Next Steps</div>
+    <div class="card">
+      <ul>
+        <li>PO answers Critical Questions before sprint planning</li>
+        <li>PO/Dev confirm NFR proposals (E4-E7, NFR1-NFR4) — confirmation upgrades to contract</li>
+        <li>Dev answers Technical Questions before estimation</li>
+        <li>DB schema design confirmed and implemented</li>
+        <li>API endpoint contracts confirmed and implemented</li>
+        <li>Supabase Realtime wiring confirmed</li>
+        <li>Story enters sprint at <code>Ready For Dev</code> once estimated</li>
+        <li>At <code>Ready For QA</code>, <code>/sprint-testing</code> short-circuits refinement (label <code>shift-left-reviewed</code>)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="watermark">
+    Jira Description Preview — BK-215 — Shift-Left QA batch session 2026-08-15<br>
+    Local simulation only — no Jira sync executed
+  </div>
+
+</div>
+</body>
+</html>
