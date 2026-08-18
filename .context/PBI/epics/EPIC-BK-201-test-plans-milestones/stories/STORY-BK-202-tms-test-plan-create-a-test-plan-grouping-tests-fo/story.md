@@ -3,7 +3,7 @@
 **Jira Key:** [BK-202](https://jira.upexgalaxy.com/browse/BK-202)
 **Epic:** [BK-201](https://jira.upexgalaxy.com/browse/BK-201) (Test Plans & Milestones)
 **Type:** Story
-**Status:** Shift-Left QA
+**Status:** Estimation
 **Priority:** Medium
 **Story Points:** -
 
@@ -88,6 +88,7 @@ Bunkai teams already assemble Tests and execute them through manual Runs. A Test
 - [Out Of Scope](./out-of-scope.md)
 - [Workflow](./workflow.md)
 - [Mockup](./mockup.md)
+- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
 
@@ -110,7 +111,7 @@ Bunkai teams already assemble Tests and execute them through manual Runs. A Test
 - **Updated:** 15/8/2026
 - **Reporter:** Ely
 - **Assignee:** Alfonso Hernandez
-- **Labels:** new-feature, post-mvp
+- **Labels:** new-feature, post-mvp, shift-left-2026-08-14, shift-left-reviewed
 
 ---
 

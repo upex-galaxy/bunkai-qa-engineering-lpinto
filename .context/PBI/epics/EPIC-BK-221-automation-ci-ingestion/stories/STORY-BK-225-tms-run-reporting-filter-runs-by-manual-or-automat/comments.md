@@ -12,5 +12,13 @@ Mockup — Test Runs index — execution-mode badge/filter (CI extension). Sourc
 
 ---
 
+### Carlos C - 17/8/2026, 20:21:32
+
+## Sent back to Backlog — 2026-08-17
+
+Shift-Left refinement surfaced a real scope-overlap with BK-38 (already `QA Approved`, same `GET /projects/{id}/runs/report` endpoint, already ships a 3-value `executor` filter). Sending this Story back to Backlog until the team decides whether BK-225 extends BK-38's existing filter or needs its own design pass — estimating it as written risks a duplicate/competing filter UI shipping in the same view.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

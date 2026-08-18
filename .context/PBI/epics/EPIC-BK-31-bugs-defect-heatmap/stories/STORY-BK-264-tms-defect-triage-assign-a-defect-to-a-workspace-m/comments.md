@@ -52,5 +52,46 @@ This story was created mid-sprint as a prerequisite for BK-212 — no shift-left
 
 ---
 
+### Luis Eduardo Flores Villarroel - 14/8/2026, 8:58:06
+
+## QA Testing Complete - BK-264
+
+***Environment******:*** Staging
+***Result******:*** PASSED (19/19 executed, 1 deferred)
+
+### Test Data Used
+
+- Workspace: BK-264 QA Sandbox (`6646f244-a28c-441e-8486-9af33bdb5c11`)
+- 1 Member-role invitee, 1 Viewer-role invitee, staging owner reused as reassignment target
+- 17 fresh bugs filed to keep each scenario's evidence trail isolated
+
+### Verified Behaviors
+
+- AC1: QA Lead assigns an open defect to a workspace member (member and owner both eligible) - VERIFIED
+- AC2-4: open -> in progress -> resolved -> closed chain, including close by a non-assignee Member+ actor - VERIFIED
+- AC5: skipping a lifecycle stage is rejected (3 param rows) - VERIFIED
+- AC6: moving status backward is rejected (3 param rows) - VERIFIED
+- AC7: assigning outside the workspace is rejected - VERIFIED
+- AC8: assigning to a Viewer-only member is rejected - VERIFIED
+- AC9: reassigning to a different member - VERIFIED
+- AC10: unassigning a defect - VERIFIED
+
+Also covered beyond the AC floor: Viewer-actor write rejection, non-spoofable attribution across distinct actors, assignment/status independence, and the `notifications` row written by `activity*log*notify*bug*event` on assignment (cross-validated for BK-212, see separate comment there).
+
+### Clarifications
+
+- Same-status re-entrancy (requesting a bug's current status again) folds into the backward-rejection bucket (422, `status*transition*backward`) rather than a distinct code — documented behavior, not a defect.
+- Domain glossary has no "assignee" / "defect assignment" entry yet — documentation gap, non-blocking, flagged for a future glossary refresh.
+
+### Known Limitation (deferred, not a defect)
+
+Outline covering assignment to a former/inactive workspace member could not be executed this session — there's no API path to suspend a member in this environment, and direct DB writes were correctly blocked by the safety harness. Recommend a future pass once a "suspend member" test path exists (dedicated test-only endpoint or an approved seed script).
+
+Zero bugs found this session.
+
+Artifacts: ATP (customfield*10067), ATR (customfield*10124)
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

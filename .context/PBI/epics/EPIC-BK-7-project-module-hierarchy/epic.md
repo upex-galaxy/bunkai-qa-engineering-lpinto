@@ -113,7 +113,7 @@ See per-story `story.md` for Gherkin acceptance criteria.
 | [BK-147](https://jira.upexgalaxy.com/browse/BK-147) | App Shell | Open ATCs and Tests as tabs with a persistent explorer | 5 | Highest | Ready For Release |
 | [BK-148](https://jira.upexgalaxy.com/browse/BK-148) | TMS-Project Environments | List, add, rename and remove environments | 1 | Medium | Ready For Release |
 | [BK-266](https://jira.upexgalaxy.com/browse/BK-266) | TMS-Projects | Browse workspace projects in an index with a dedicated create route | - | High | Ready For QA |
-| [BK-398](https://jira.upexgalaxy.com/browse/BK-398) | Command Palette | Search and jump across the workspace | 5 | Medium | Ready For Dev |
+| [BK-398](https://jira.upexgalaxy.com/browse/BK-398) | Command Palette | Search and jump across the workspace | 5 | Medium | QA Approved |
 | [BK-443](https://jira.upexgalaxy.com/browse/BK-443) | App Shell | Save, name, and return to a filtered view | - | Medium | Backlog |
 
 ---

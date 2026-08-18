@@ -3,7 +3,7 @@
 **Jira Key:** [BK-398](https://jira.upexgalaxy.com/browse/BK-398)
 **Epic:** [BK-7](https://jira.upexgalaxy.com/browse/BK-7) (Project & Module Hierarchy)
 **Type:** Story
-**Status:** Ready For Dev
+**Status:** QA Approved
 **Priority:** Medium
 **Story Points:** 5
 
@@ -97,6 +97,9 @@
 - [Scope](./scope.md)
 - [Out Of Scope](./out-of-scope.md)
 - [Workflow](./workflow.md)
+- [Implementation Plan (Dev)](./implementation-plan.md)
+- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
+- [Acceptance Test Results (QA)](./acceptance-test-results.md)
 
 ---
 
@@ -111,7 +114,7 @@
 ## Metadata
 
 - **Created:** 12/8/2026
-- **Updated:** 14/8/2026
+- **Updated:** 16/8/2026
 - **Reporter:** Ely
 - **Assignee:** Ely
 - **Labels:** app-shell, command-palette, navigation, shift-left-2026-08-14, shift-left-reviewed

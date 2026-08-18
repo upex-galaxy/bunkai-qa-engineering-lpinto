@@ -22,5 +22,41 @@ Mockup — Team Chat — workspace channel. Source: .context/designs/bunkai-test
 
 ---
 
+### pinto.lucas.nahuel - 15/8/2026, 4:29:29
+
+QA Refinements (Shift-Left Analysis) have been added to this story.
+
+***Key Findings******:***
+
+- No DB schema exists for channels, messages, or channel_members
+- No chat API endpoints exist in the baseline
+- Supabase Realtime is configured for broadcast, not chat
+- Presence tracking system does not exist
+- Message ordering under concurrent sends is undefined
+- Pagination strategy for history is not defined
+
+***Open Questions for PO/Dev******:***
+
+1. General channel design (special case vs separate table)
+2. Message ordering guarantee mechanism
+3. Pagination strategy and page size
+4. Validation layers (client-side vs server-side)
+5. Maximum disconnection window
+6. Empty state copy
+7. Presence implementation approach
+8. Role change propagation
+9. Offline message behavior
+
+***Next Steps******:***
+
+- PO answers Critical Questions before sprint planning
+- Dev answers Technical Questions before estimation
+- DB schema design is confirmed and implemented
+- API endpoint contracts are confirmed and implemented
+
+See ATP DRAFT field for complete test outlines and traceability map.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

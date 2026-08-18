@@ -326,5 +326,39 @@ An earlier same-day pass mis-read TC11/TC10 as a regression (tested the `title` 
 
 ---
 
+### Benjamin Segovia - 10/8/2026, 8:53:46
+
+## QA note — the "blocked" signal on this story is stale link data, not an active blocker
+
+> ***INFO:*** Posting this so the analysis does not have to be redone the next time an automated sprint report flags BK-23 as blocked. Verified live on 2026-08-10 against `upexgalaxy71`.
+
+### Current state
+
+BK-23 is ***QA Approved*** (resolved 2026-08-07). Retest covered 17/17 applicable TCs, all PASS. Nothing on this story is waiting on QA.
+
+### Why reports still call it blocked
+
+Closing a defect does not remove its issue link — it only changes the status on the other end. BK-23 therefore still carries link records whose counterparts are all closed:
+
+| Link type | Counterpart | Counterpart status | Closed on |
+| --- | --- | --- | --- |
+| Blocks (outward) | BK-185 | Cerrada | 2026-08-03 |
+| Blocks (inward) | BK-175 | Cerrada | 2026-08-07 |
+| Problem/Incident (inward) | BK-184 | Cerrada | 2026-08-03 |
+| Problem/Incident (inward) | BK-185 | Cerrada | 2026-08-03 |
+| Dependencies (outward) | BK-18 | Ready For Release | — |
+
+Any check that walks `issuelinks` and counts blockers ***without*** filtering on `statusCategory != done` will read those records as active blockers. That is the false positive: it confirms the link exists, not that the blocker is open.
+
+### Evidence that nothing was reopened
+
+JQL `project = BK AND updated >= -2d` returns 34 work items. BK-23, BK-184 and BK-185 are ***absent*** from that result — their last modification remains 3 and 7 August respectively. There has been no reopen and no regression.
+
+### Recommendation
+
+Fix the reporting filter rather than the data. Adding `statusCategory != done` to the blocker walk resolves this permanently and keeps the `Problem/Incident` links intact, which are the only record tying defects BK-184 and BK-185 back to this story. The stale links are being left in place deliberately.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

@@ -38,7 +38,7 @@ Elena is not the payer — she is a member (or admin) doing TMS work: creating p
 
 ### Story (1)
 
-- [BK-229](https://jira.upexgalaxy.com/browse/BK-229): Billing | View my workspace plan, seats, and usage _(Ready For Dev)_
+- [BK-229](https://jira.upexgalaxy.com/browse/BK-229): Billing | View my workspace plan, seats, and usage _(Ready For QA)_
 
 ---
 

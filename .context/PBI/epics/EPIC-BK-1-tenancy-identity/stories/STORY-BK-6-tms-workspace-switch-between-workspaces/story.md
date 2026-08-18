@@ -73,7 +73,7 @@ Implements ***FR-004***.
 - [BK-251](https://jira.upexgalaxy.com/browse/BK-251): BK-6: TC2: should reject the switch with 403 given the user has no membership in the target workspace _(AUTOMATED)_
 - [BK-253](https://jira.upexgalaxy.com/browse/BK-253): BK-6: TC4: should display the newly active workspace in the header switcher after switch and page reload _(Candidate)_
 - [BK-252](https://jira.upexgalaxy.com/browse/BK-252): BK-6: TC3: should reject the switch with 403 given the user's membership in the target workspace is suspended _(AUTOMATED)_
-- [BK-250](https://jira.upexgalaxy.com/browse/BK-250): BK-6: TC1: should update active workspace context when switching to a workspace given the user is an active member _(Candidate)_
+- [BK-250](https://jira.upexgalaxy.com/browse/BK-250): BK-6: TC1: should update active workspace context when switching to a workspace given the user is an active member _(AUTOMATED)_
 
 ### Defect (1)
 

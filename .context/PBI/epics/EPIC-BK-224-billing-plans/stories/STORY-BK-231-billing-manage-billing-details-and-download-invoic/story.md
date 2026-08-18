@@ -38,7 +38,7 @@ Once a workspace pays, the billing relationship needs maintenance: company detai
 
 ### Story (1)
 
-- [BK-230](https://jira.upexgalaxy.com/browse/BK-230): Billing | Upgrade to a paid plan _(Shift-Left QA)_
+- [BK-230](https://jira.upexgalaxy.com/browse/BK-230): Billing | Upgrade to a paid plan _(Estimation)_
 
 ---
 

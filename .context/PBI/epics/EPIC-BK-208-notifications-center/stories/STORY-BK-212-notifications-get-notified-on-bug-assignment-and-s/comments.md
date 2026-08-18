@@ -147,5 +147,45 @@ Depends on BK-209 (inbox) and BK-264 (bug assignment/status) — both already on
 
 ---
 
+### Luis Eduardo Flores Villarroel - 14/8/2026, 8:58:57
+
+## Context from BK-264 testing (informational — not a BK-212 test result)
+
+BK-264 (TMS-Defect Triage | Assign a defect to a workspace member and update its status) is now QA Approved on Staging. It's the prerequisite this story consumes: the `activity*log*notify*bug*event` trigger writes a `notifications` row on every bug assignment and status change, and that's the event this story subscribes to.
+
+During BK-264 testing, I captured one concrete `notifications` row from a real assignment so whoever picks up BK-264 has the actual shape to build a test plan against, not a guess:
+
+```json
+{
+  "id": "aeb386a5-d5ee-493a-9ef7-8f53fa2a2470",
+  "workspace_id": "6646f244-a28c-441e-8486-9af33bdb5c11",
+  "recipient*user*id": "c6a2b665-c090-4b74-b3df-6abcdae40c89",
+  "event_type": "bug.assigned",
+  "entity_type": "bug",
+  "entity_id": "39d6834b-ae7b-4317-b6b7-5552928de6c3",
+  "payload": {
+    "title": "BK264 Primary happy-path chain defect",
+    "run_id": null,
+    "project_slug": "bk264-defect-triage",
+    "assignee*user*id": "c6a2b665-c090-4b74-b3df-6abcdae40c89",
+    "previous*assignee*user_id": null
+  },
+  "read_at": null,
+  "created_at": "2026-08-14T11:37:07.610Z",
+  "source*event*id": "a60cc106-d592-4e36-be3a-f632668f271c"
+}
+```
+
+A few things worth flagging for the future BK-264 tester based on this row:
+
+- `event*type` was `bug.assigned` for this capture — BK-264 also fires `bug.reassigned`, `bug.unassigned`, and `bug.status*changed` on the other actions, so expect the same shape with a different `event_type` and `payload` contents for those.
+- `payload.previous*assignee*user_id` is `null` here because this was a first-time assignment (not a reassignment) — worth a distinct test case for the reassignment case where it should be populated.
+- `recipient*user*id` is the newly assigned member, not the actor who performed the assignment — confirm who should actually receive the notification per this story's ACs.
+- `run_id` is `null` in this payload — not populated by the bug-assignment flow, in case this story's notification rendering expects it.
+
+This is purely context from BK-264's own testing pass, not a verdict on BK-212 itself.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

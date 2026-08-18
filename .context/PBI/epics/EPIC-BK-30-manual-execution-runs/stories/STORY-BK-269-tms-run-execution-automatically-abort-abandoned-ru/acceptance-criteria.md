@@ -2,81 +2,104 @@
 
 > Jira field: `customfield_10097` · [View in Jira](https://jira.upexgalaxy.com/browse/BK-269)
 
-```gherkin
-Scenario: An idle Run past the inactivity threshold is closed by the sweep
+## Refined Acceptance Criteria
 
-  Given a Run is in "running" status with no step activity recorded for longer than the configured inactivity threshold
-  When the scheduled sweep executes
-  Then the Run's status becomes "aborted"
-    And the Run's finish time is recorded as the moment the sweep closed it
-```
+### Original AC1 — An idle Run past the inactivity threshold is closed by the sweep
 
-```gherkin
-Scenario: A Run with recent step activity is left running by the sweep
+#### Scenario 1.1: Should abort a running run with no step activity beyond the inactivity threshold (Type: Positive, Priority: Critical)
 
-  Given a Run is in "running" status and one of its steps was recorded well within the configured inactivity threshold
-  When the scheduled sweep executes
-  Then the Run's status remains "running"
-    And no reason is added to the Run
-```
+- ***Given***: A Run in running status with last*step*activity_at older than the configured inactivity threshold
+- ***When***: The scheduled sweep executes
+- ***Then***: Run status becomes aborted, finish_time set to sweep timestamp, reason set to system-generated text
 
-```gherkin
-Scenario: A Run that already finished with a verdict is untouched by the sweep
+#### Scenario 1.2: Should NOT abort a running run with recent step activity within the threshold (Type: Negative, Priority: Critical)
 
-  Given a Run already finished with a "passed" or "failed" verdict before the sweep runs
-  When the scheduled sweep executes
-  Then the Run's status and finish time are unchanged
-```
+- ***Given***: A Run in running status with a step marked within the inactivity threshold
+- ***When***: The scheduled sweep executes
+- ***Then***: Run status remains running, no reason added, no finish_time set
 
-```gherkin
-Scenario: A Run a person already aborted is untouched by the sweep
+### Original AC2 — A Run that already finished with a verdict is untouched
 
-  Given a Run was already aborted by a person, carrying that person's typed reason
-  When the scheduled sweep executes
-  Then the Run's status, finish time, and reason remain exactly as the person left them
-```
+#### Scenario 2.1: Should skip a passed run (Type: Negative, Priority: High)
 
-```gherkin
-Scenario: A swept Run disappears from the Home active-runs list
+- ***Given***: A Run with status passed
+- ***When***: Sweep executes
+- ***Then***: Run status, finish_time, reason unchanged
 
-  Given a Run appears in the Home "active test runs" widget's list because it is "running"
-  When the scheduled sweep closes that Run for exceeding the inactivity threshold
-  Then the Run no longer appears in the Home "active test runs" widget's list on the next page load
-```
+#### Scenario 2.2: Should skip a failed run (Type: Negative, Priority: High)
 
-```gherkin
-Scenario: A swept Run no longer counts toward the Home active-runs count
+- ***Given***: A Run with status failed
+- ***When***: Sweep executes
+- ***Then***: Run status, finish_time, reason unchanged
 
-  Given the Home "active test runs" widget shows a count of running Runs in a Workspace, one of which is idle past the inactivity threshold
-  When the scheduled sweep closes that idle Run
-  Then the widget's count for that Workspace decreases by one on the next page load
-```
+### Original AC3 — A Run a person already aborted is untouched
 
-```gherkin
-Scenario: Running the sweep repeatedly against an already-closed Run has no further effect
+#### Scenario 3.1: Should skip a manually aborted run (Type: Negative, Priority: High)
 
-  Given a Run was closed by the sweep on its previous execution
-  When the scheduled sweep executes again
-  Then the Run's status, finish time, and reason are unchanged from the first sweep
-```
+- ***Given***: A Run with status aborted and a person-typed reason
+- ***When***: Sweep executes
+- ***Then***: Run status, finish_time, reason unchanged
 
-```gherkin
-Scenario: A swept Run's reason reads distinctly from a reason a person typed
+### Original AC4 — A swept Run disappears from Home active-runs list
 
-  Given a Run is closed by the sweep for exceeding the inactivity threshold
-  When a QA Lead opens that Run's detail
-  Then the reason shown identifies the closure as an automatic sweep, not free text a person composed
-    And that reason is visibly distinguishable from the reason on a Run a person aborted directly
-```
+#### Scenario 4.1: Should remove swept run from active-runs widget (Type: Positive, Priority: High)
 
-```gherkin
-Scenario: A sweep never closes a Run outside its own Workspace
+- ***Given***: A Run appears in Home active test runs widget (status running)
+- ***When***: Sweep closes that Run
+- ***Then***: On next page load, Run no longer appears in widget
 
-  Given Workspace A has one Run idle past the inactivity threshold and Workspace B has one Run that is well within the threshold
-  When the scheduled sweep executes
-  Then Workspace A's idle Run is closed as "aborted"
-    And Workspace B's Run remains "running", untouched by Workspace A's closure
-```
+#### Scenario 4.2: Should decrement active-runs count by one (Type: Positive, Priority: High)
+
+- ***Given***: Home widget shows count N of running Runs (one is idle past threshold)
+- ***When***: Sweep closes that idle Run
+- ***Then***: Widget count becomes N-1 on next page load
+
+### Original AC5 — Running sweep repeatedly has no further effect
+
+#### Scenario 5.1: Should be idempotent on already-swept run (Type: Boundary, Priority: High)
+
+- ***Given***: A Run was closed by sweep on previous execution
+- ***When***: Sweep executes again
+- ***Then***: Run status, finish_time, reason unchanged from first sweep
+
+### Original AC6 — Swept Run reason is distinguishable from person-aborted
+
+#### Scenario 6.1: Should show system-generated reason with sweep identifier (Type: Positive, Priority: Medium)
+
+- ***Given***: A Run closed by sweep
+- ***When***: QA Lead opens Run detail
+- ***Then***: Reason text contains automatic sweep identifier, visually distinguishable from free-text abort reason
+
+### Original AC7 — Sweep never closes a Run outside its Workspace
+
+#### Scenario 7.1: Should scope sweep to workspace boundaries (Type: Positive, Priority: Critical)
+
+- ***Given***: Workspace A has idle Run past threshold; Workspace B has active Run within threshold
+- ***When***: Sweep executes
+- ***Then***: Workspace A Run becomes aborted; Workspace B Run remains running
+
+### New scenarios — NEEDS PO/DEV CONFIRMATION
+
+#### Scenario E1: Should handle sweep-step mark race condition (Type: Edge, Priority: High)
+
+- NEEDS PO/DEV CONFIRMATION
+- ***Given***: Sweep is executing while a step is being marked on the same Run
+- ***When***: Both operations target the same Run simultaneously
+- ***Then***: Either step mark wins and sweep skips, or sweep wins and step mark rejected
+
+#### Scenario E2: Should close runs with 0 steps marked (Type: Edge, Priority: High)
+
+- NEEDS PO/DEV CONFIRMATION
+- ***Given***: A Run was created but no steps were ever marked
+- ***When***: Sweep executes after inactivity threshold
+- ***Then***: Run is closed as aborted
+
+#### Scenario E3: Should NOT close runs in pending or created status (Type: Negative, Priority: Medium)
+
+- NEEDS PO/DEV CONFIRMATION
+- ***Given***: A Run in pending or created status (not yet started)
+- ***When***: Sweep executes
+- ***Then***: Run untouched
 
 ---
 _Synced from Jira by sync-jira-issues_

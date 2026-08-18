@@ -516,5 +516,57 @@ Design-plan divergence D26 (filename `.html` vs. the mockup's `.json`) is logged
 
 ---
 
+### Benjamin Segovia - 9/8/2026, 11:35:11
+
+## QA Testing Complete — BK-50
+
+***Environment****: staging · ****Build****: PR #145, merge `7b16c0c` · ****Result****:  — 21/23 executed, ****0 FAILED***, 2 BLOCKED, 0 blocking defects
+
+The full ATR is in the Acceptance Test Results field. Highlights below.
+
+### Priority items — all clean
+
+| Check | Verdict |
+| --- | --- |
+| Snapshot survives a later change to the live chain (AC2.1, Critical) | ✅ verified by mutating the story between two exports and re-opening the first |
+| File is genuinely self-contained | ✅ renders fully with every non-`file:` request aborted — zero external requests |
+| Nonexistent story returns uniform non-disclosure | ✅ `404 · "User story not found."` |
+| Signed-out browser | ✅ `307` → `/login?next=…`, no data rendered first |
+| Unauthenticated API caller | ✅ `401 · "Authentication required."` |
+| No hosted artifact, public link or share control | ✅ scope guard holds |
+
+Every fidelity verdict was made by opening the downloaded document, not by observing that a download fired.
+
+### Your four suggested checks
+
+1. ***Populated chain, opened offline*** — ✅ all 5 ATC rows, both ACs, tests, runs and the 3 linked defects present.
+2. ***Zero-AC story**** — ✅ prose plus a dedicated stamp line: **"This story had no coverage as of Aug 9, 2026, 11***:****19."** Distinct from the zero-coverage banner, which is its own separate state.
+3. ***Export twice in a row**** — ✅ two independent files, ****but*** the "different timestamps in the name" part does not hold. See BK-330 below.
+4. ***Signed out*** — ✅ both paths, browser and API.
+
+### Findings — both non-blocking
+
+> ***INFO:*** Neither finding contradicts an acceptance criterion, and sign-off is not gated on either.
+
+- ***BK-329 (Defect · Menor)**** — the traceability route ignores its `{projectId}` path segment. Any well-formed UUID returns the requested story's chain with `200 OK`; only the UUID **shape* is validated. Not a proven leak — the story stays RLS-scoped to the caller and the DB-integration isolation suite covers the cross-workspace case — but the project segment currently enforces nothing, so a bug in the story-scoping layer would have no second gate behind it. The UI route is unaffected (a bogus slug correctly 404s). Originates in BK-45's route; surfaced here because the export reuses it verbatim.
+- ***BK-330 (Mejora · Trivial)*** — the filename is minute-granular, so two exports of one story inside the same clock minute collide and their contents are byte-identical. Your check #3 assumed second-level precision. Suggested fix is `YYYYMMDD-HHMMSS` — one line in `buildSnapshotFilename`, preserves everything D26 ratified.
+
+### Two blocked, neither a failure
+
+- ***TC-09*** (foreign-workspace story) — no second workspace can be constructed: Settings → Members still reads "Coming soon", so there is no invite mechanism. Same blocker BK-45 hit on its TC-15. Covered at DB-integration level by `story-traceability-isolation.test.ts` (11/11), so it is unverified end to end, not unverified. Re-attempt when Members ships.
+- ***TC-22*** (chain-assembly 500) — pre-declared BLOCKED at planning. The fetch is SSR, outside browser-context interception, and no fault-injection affordance exists. Identical to BK-45's TC-21. Tooling gap, not a product gap.
+
+### One thing worth your judgement, not filed
+
+The Defects column renders ***title and status but no defect ID**** — in the export **and* on the live screen. BK-50 is faithful to the screen, so this is not a BK-50 defect and I have not filed it. But BK-45's AC-01 says defects render with "their ID, title, and current status", and an auditor holding the exported file today cannot trace a defect back to Jira. Flagging it for BK-45's owner rather than re-opening a QA Approved story from here.
+
+### Test data
+
+Reused the BK-45 fixtures rather than re-seeding. TC-11 required a live mutation: the story title of `d57804e8-…` was amended via API, the second export taken, and the title ***restored to its exact original value*** in the same session. No run, ATC, Test or defect was touched — the fixtures are intact.
+
+***Recommending BK-50 for QA sign-off.***
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

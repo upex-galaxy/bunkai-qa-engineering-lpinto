@@ -242,5 +242,53 @@ All 3 originally open items are now resolved. Story is fully testable against re
 
 ---
 
+### Ely - 12/8/2026, 15:25:02
+
+## AI Tech Lead — Decision: what identifies a "module" for the exact-match filter (AC2.1/2.2)?
+
+***Question***: BK-48's shift-left refinement resolves AC2 as "exact-match on `data-module`" and the mockup fixture uses a `MOD-001`-style code. The real schema (`public.modules`) has no such code column (only `id`/`name`/`path`), and the shipped chain RPC (`bunkai*report*story_traceability`, 0068) does not expose module identity per ATC at all.
+
+***Candidates scored*** (product value / precedent consistency / implementation cost / reversibility):
+
+1. Invent a synthetic `MOD-XXX` code column on `modules` to match the mockup fixture verbatim. Product value: low (no user asked for a new code scheme). Precedent: none — no other screen in the app has ever needed one. Cost: new column + backfill + uniqueness constraint, a real schema change for a cosmetic match. Reversibility: poor (a shipped column is a migration to remove). ***Rejected.***
+2. Filter/display by `module.path` (already unique per project, hierarchical). Product value: medium. Precedent: none — no screen renders raw slash-paths to users today. Cost: low (path already exists). Reversibility: good. ***Rejected on product value*** — a path like `platform/auth/session` is not what a QA engineer scans for in a chip.
+3. ***Filter by ****`module.id`**** (UUID), display ****`module.name`****.**** Product value: high — this is exactly how the app already lets users pick a module everywhere else. Precedent: exact match to `0048*project*coverage*report.sql`'s `module*id`/`module*name` pair and `components/runs/ProjectRunsReportView.tsx`'s module `<select value={m.id}>{m.name}</select>`. Cost: one additive migration (0069) exposing `module: {id, name}` per ATC in the existing chain RPC — no new authorization surface, reuses the already-scoped `live*atc` join. Reversibility: excellent (drop two jsonb keys). ****Chosen.***
+
+***Winner***: option 3. The module filter's URL query param and `data-module` attribute carry the module UUID, never a fabricated code; the dropdown and active-filter chip display `module.name`. Recorded as `master-design-plan.md` §5 divergence D30 (data-shape departure from the mockup fixture, not architectural — no ADR: no schema change beyond one additive jsonb key, fully reversible).
+
+Migration: `supabase/migrations/0069*story*traceability*module.sql` — `bunkai*report*story*traceability` gains `module: {id, name}` per ATC row, sourced from the existing `live_atc` CTE's `modules` join (already project-scoped; no new table read, no new authorization surface).
+
+---
+
+### Automation for Jira - 12/8/2026, 15:25:13
+
+🔎 Pull Request created. Task is pending to ANALYZE and REVIEW by the team. Waiting for PR Approval.
+
+---
+
+### Automation for Jira - 12/8/2026, 16:00:44
+
+✅ Pull Request is successfully MERGED and DEPLOYED on QA. 
+It's Ready for Testing Phase! 
+Dev Task is Done.
+
+---
+
+### Ely - 12/8/2026, 16:02:54
+
+## Ready for QA
+
+Merged to `staging`: [PR #163](https://github.com/upex-galaxy/upex-bunkai-tms/pull/163) (merge commit `2396847`).
+
+Branch: `feature/BK-48-traceability-chain-filters`.
+
+Implementation plan: see the `spec*implementation*plan` field / `implementation-plan.md`. Stage 3 review found and fixed two real bugs before merge (module URL param not validated against the real chain — AC5.4; naturally-uncovered AC cards were being hidden by an active filter — not covered by any AC scenario, corrected to match the mockup and BK-45's shipped baseline) plus an Escape-key focus regression; full adjudication record is in the PR body.
+
+One migration shipped: `0069*story*traceability*module.sql` (additive — adds `module: {id, name}` per ATC row to `bunkai*report*story*traceability`, no schema/authorization change).
+
+@@pinto.lucas.nahuel — assigning to you as the shift-left QA owner for this story.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

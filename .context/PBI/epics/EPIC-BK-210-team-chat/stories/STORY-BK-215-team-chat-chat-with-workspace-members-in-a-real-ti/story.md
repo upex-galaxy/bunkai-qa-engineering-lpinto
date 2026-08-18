@@ -3,7 +3,7 @@
 **Jira Key:** [BK-215](https://jira.upexgalaxy.com/browse/BK-215)
 **Epic:** [BK-210](https://jira.upexgalaxy.com/browse/BK-210) (Team Chat)
 **Type:** Story
-**Status:** Shift-Left QA
+**Status:** Estimation
 **Priority:** Medium
 **Story Points:** -
 **Web Link:** https://staging-upexbunkai.vercel.app/
@@ -12,13 +12,9 @@
 
 ## Overview
 
-## User story
+### ***[Refinement Draft](https://jira.upexgalaxy.com/browse/BK-493)***
 
-As Elena Vargas, a Senior QA Engineer, I want to chat with my workspace members in a real-time channel, so that operational questions like "is staging down?" get answered where the QA work lives instead of scattering into external tools.
-
-## Context
-
-This is the foundation story of the Team Chat epic. Every Workspace gets a general channel shared by all of its members: messages appear for everyone in real time without refreshing, the history persists across sessions, and a roster shows who belongs to the Workspace. Channel access mirrors the shipped Workspace membership model (epic [https://jira.upexgalaxy.com/browse/BK-1#icft=BK-1](https://jira.upexgalaxy.com/browse/BK-1#icft=BK-1)) — joining the Workspace is joining the channel. The remaining Team Chat stories (per-project channels, mentions, rich links, edit and delete, history search) all build on the channel and message primitives introduced here, so this story activates the moment Workspace membership is live and unlocks the rest of the epic.
+### ***[Refined](https://jira.upexgalaxy.com/browse/BK-491)***
 
 ---
 
@@ -32,6 +28,7 @@ This is the foundation story of the Team Chat epic. Every Workspace gets a gener
 - [Out Of Scope](./out-of-scope.md)
 - [Workflow](./workflow.md)
 - [Mockup](./mockup.md)
+- [Acceptance Test Plan (QA)](./acceptance-test-plan.md)
 
 ---
 
@@ -54,9 +51,10 @@ This is the foundation story of the Team Chat epic. Every Workspace gets a gener
 ## Metadata
 
 - **Created:** 11/7/2026
-- **Updated:** 15/8/2026
+- **Updated:** 17/8/2026
 - **Reporter:** Ely
 - **Assignee:** pinto.lucas.nahuel
+- **Labels:** shift-left-2026-08-15, shift-left-reviewed
 
 ---
 

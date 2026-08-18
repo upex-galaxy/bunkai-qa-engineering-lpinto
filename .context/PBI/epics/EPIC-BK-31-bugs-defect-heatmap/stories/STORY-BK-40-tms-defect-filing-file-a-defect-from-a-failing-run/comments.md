@@ -324,5 +324,52 @@ Execution shape: PR-per-slice against a long-lived integration branch (`feat/BK-
 
 ---
 
+### jesusgpythondev - 10/8/2026, 20:45:35
+
+QA Testing Complete - BK-40
+
+
+
+> ***SUCCESS:**** Result: ****PASSED (9/9 TCs)*** — all acceptance-test scenarios verified on staging. No product defects found.
+
+***Environment******:*** Staging
+***Result******:*** PASSED (9/9 TCs)
+
+## Test Data Used
+
+| Item | Value |
+| --- | --- |
+| User | bunkai-staging-user@xenievzoau.resend.app |
+| Workspace | BK-34 Sprint QA |
+| Project | BK-34 QA Seed |
+| Run-linked precondition | run `866e6f5c` with failed step `30fd6410` |
+
+## Verified Behaviors
+
+- :white*check*mark: AC1: "Report defect" action appears only on failed run steps — VERIFIED
+- :white*check*mark: AC2: Dialog prefills module, executed steps, failing ATC, and evidence — VERIFIED
+- :white*check*mark: AC3: Severity selectable P1-P4 before saving — VERIFIED
+- :white*check*mark: AC4: Title validated 5-200 chars with clear out-of-range message — VERIFIED
+- :white*check*mark: AC5: Module required and restricted to current-project modules — VERIFIED
+- :white*check*mark: AC6: Up to 10 evidence links, 11th blocked with clear message — VERIFIED
+- :white*check*mark: AC7: Filed defect starts in `open` and is immediately visible — VERIFIED
+- :white*check*mark: AC8: Run/step/ATC linkage is non-editable — VERIFIED
+- :white*check*mark: AC9: Standalone filing from the defects area — VERIFIED
+- :white*check*mark: AC10: Jira sync out of scope (TMS-native) — VERIFIED
+
+## Observations
+
+- Failed step badge shows "Unrun" while Fail is pressed (home shows "1 failed") — cosmetic, out of AC scope, recorded only.
+- Evidence add input removed at 10/10 rather than an inline error — acceptable given the API `maxItems` backstop.
+- 9 staging bugs are test-seed data; cleanup pending elevated DB access (not product defects).
+
+## Artifacts
+
+- ATP: [BK-347: ATP BK-40 — TMS-Defect Filing](https://jira.upexgalaxy.com/browse/BK-347)
+- ATR: [BK-348: ATR BK-40 — TMS-Defect Filing](https://jira.upexgalaxy.com/browse/BK-348)
+- TCs: [BK-338](https://jira.upexgalaxy.com/browse/BK-338) [BK-339](https://jira.upexgalaxy.com/browse/BK-339) [BK-340](https://jira.upexgalaxy.com/browse/BK-340) [BK-341](https://jira.upexgalaxy.com/browse/BK-341) [BK-342](https://jira.upexgalaxy.com/browse/BK-342) [BK-343](https://jira.upexgalaxy.com/browse/BK-343) [BK-344](https://jira.upexgalaxy.com/browse/BK-344) [BK-345](https://jira.upexgalaxy.com/browse/BK-345) [BK-346](https://jira.upexgalaxy.com/browse/BK-346)
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

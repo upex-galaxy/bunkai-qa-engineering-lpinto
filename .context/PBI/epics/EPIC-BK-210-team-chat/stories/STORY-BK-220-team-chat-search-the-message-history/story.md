@@ -38,7 +38,7 @@ A chat that cannot be searched is a memory hole: the decision about why a Test w
 
 ### Story (1)
 
-- [BK-215](https://jira.upexgalaxy.com/browse/BK-215): Team Chat | Chat with workspace members in a real-time channel _(Shift-Left QA)_
+- [BK-215](https://jira.upexgalaxy.com/browse/BK-215): Team Chat | Chat with workspace members in a real-time channel _(Estimation)_
 
 ---
 

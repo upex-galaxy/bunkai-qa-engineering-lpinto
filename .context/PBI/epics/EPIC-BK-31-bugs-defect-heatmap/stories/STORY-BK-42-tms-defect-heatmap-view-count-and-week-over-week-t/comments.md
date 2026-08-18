@@ -166,5 +166,34 @@ Status moved to Ready For QA, reassigned to jesusgpythondev (shift-left refineme
 
 ---
 
+### jesusgpythondev - 11/8/2026, 12:36:37
+
+# QA Completion Summary - BK-42
+
+> ***SUCCESS:*** Result: 20/20 PASSED - Defect Heatmap is ready for QA Approved. No defects found. Evidence: API/DB/code trifuerza consistent across layers.
+
+Executed the full ATP set (ATP-1..20) against staging (staging-upexbunkai.vercel.app) on 2026-08-11. Every test exercised the live endpoint GET /api/v1/projects/{id}/bugs/heatmap, the underlying RPC (bunkai*report*project*defect*heatmap, migration 0052), and the rendering code. All 20 test runs under the Test Execution are PASSED with per-layer evidence attached.
+
+## Trifuerza summary
+
+- API: HTTP 200 for member project d75e73ac; modules bk-39-qa (3, elevated, rising) and run-execution (6, hotspot, rising); pct null on zero baseline (AC-8). 401 unauthenticated, 404 non-disclosure (e207917d), 400 unsupported window verified.
+- DB: total 9 bugs = 3 + 6 (ATP-1); rollup via path-prefix LIKE (qa-bk41-l1=77 incl descendants, l2 own cell); archived subtrees excluded (ATP-3).
+- Code: defect-heatmap.ts clean at HEAD 75c28c9; heat boundaries Clean 0/Low 1-2/Elevated 3-4/Hotspot 5+; computeDefectTrend no Infinity/NaN; unit tests 12/12 (38 expect).
+
+## Artifacts
+
+- ATP (Test Plan): [BK-349](https://jira.upexgalaxy.com/browse/BK-349)
+- ATR (Test Execution): [BK-350](https://jira.upexgalaxy.com/browse/BK-350) - 20/20 runs PASSED, env staging
+- Tests: BK-351..BK-370 (one Cucumber per ATP)
+
+## Observations
+
+- UI rendering (BugsHeatmapView) not exercised by browser in this pass - covered by code review + unit tests; noted as out of scope, non-blocking.
+- Repo note: transient injected worktree observed and resolved (pull fast-forward restored HEAD 75c28c9); no persistent corruption, non-blocking.
+
+Recommendation: Approve.
+
+---
+
 
 _Synced from Jira by sync-jira-issues_

@@ -38,7 +38,7 @@ No export capability exists anywhere in the product today. The existing Jira imp
 ## Metadata
 
 - **Created:** 14/8/2026
-- **Updated:** 14/8/2026
+- **Updated:** 17/8/2026
 - **Reporter:** Ely
 - **Assignee:** Gianluca Módena
 - **Labels:** Aurora, AutoDeployed, DeployedInQA, atc, csv-export, mvp
