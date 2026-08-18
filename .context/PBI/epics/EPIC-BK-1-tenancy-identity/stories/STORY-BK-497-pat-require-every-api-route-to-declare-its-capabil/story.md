@@ -3,7 +3,7 @@
 **Jira Key:** [BK-497](https://jira.upexgalaxy.com/browse/BK-497)
 **Epic:** [BK-1](https://jira.upexgalaxy.com/browse/BK-1) (Tenancy & Identity)
 **Type:** Story
-**Status:** Ready For Dev
+**Status:** In Review
 **Priority:** Medium
 **Story Points:** 5
 
@@ -42,6 +42,7 @@ This Story is one of three successors split from ***BK-262*** ("PAT | Enforce ca
 - [Business Rules](./business-rules.md)
 - [Scope](./scope.md)
 - [Out Of Scope](./out-of-scope.md)
+- [Implementation Plan (Dev)](./implementation-plan.md)
 
 ---
 
@@ -58,7 +59,7 @@ This Story is one of three successors split from ***BK-262*** ("PAT | Enforce ca
 ## Metadata
 
 - **Created:** 17/8/2026
-- **Updated:** 17/8/2026
+- **Updated:** 18/8/2026
 - **Reporter:** Ely
 - **Assignee:** Unassigned
 - **Labels:** shift-left-2026-08-14, shift-left-reviewed

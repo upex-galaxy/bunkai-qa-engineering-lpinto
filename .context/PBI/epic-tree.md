@@ -15,7 +15,7 @@ _Project: BK_
 - [BK-6](https://jira.upexgalaxy.com/browse/BK-6) TMS-Workspace | Switch between workspaces _(5 pts, Ready For Release)_
 - [BK-166](https://jira.upexgalaxy.com/browse/BK-166) Authentication | Sign up and sign in with email and password _(- pts, Ready For Release)_
 - [BK-262](https://jira.upexgalaxy.com/browse/BK-262) PAT | Enforce capability scopes on every non-ATC route _(21 pts, ABORTED)_
-- [BK-497](https://jira.upexgalaxy.com/browse/BK-497) PAT | Require every API route to declare its capability posture _(5 pts, Ready For Dev)_
+- [BK-497](https://jira.upexgalaxy.com/browse/BK-497) PAT | Require every API route to declare its capability posture _(5 pts, In Review)_
 - [BK-498](https://jira.upexgalaxy.com/browse/BK-498) PAT | Enforce capability scopes on the authoring domain _(8 pts, Ready For Dev)_
 - [BK-499](https://jira.upexgalaxy.com/browse/BK-499) PAT | Enforce capability scopes on read, identity and notification routes _(8 pts, Backlog)_
 

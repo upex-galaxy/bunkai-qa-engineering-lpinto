@@ -48,7 +48,7 @@ Entry status is `Backlog`, not `Ready For Dev`: verification against live code f
 
 ### Storys (2)
 
-- [BK-497](https://jira.upexgalaxy.com/browse/BK-497): PAT | Require every API route to declare its capability posture _(Ready For Dev)_
+- [BK-497](https://jira.upexgalaxy.com/browse/BK-497): PAT | Require every API route to declare its capability posture _(In Review)_
 - [BK-262](https://jira.upexgalaxy.com/browse/BK-262): PAT | Enforce capability scopes on every non-ATC route _(ABORTED)_
 
 ---

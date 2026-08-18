@@ -114,7 +114,7 @@ Per-story acceptance criteria live in Gherkin form on each child story. Edge cas
 | [BK-6](https://jira.upexgalaxy.com/browse/BK-6) | TMS-Workspace | Switch between workspaces | 5 | Medium | Ready For Release |
 | [BK-166](https://jira.upexgalaxy.com/browse/BK-166) | Authentication | Sign up and sign in with email and password | - | Medium | Ready For Release |
 | [BK-262](https://jira.upexgalaxy.com/browse/BK-262) | PAT | Enforce capability scopes on every non-ATC route | 21 | Medium | ABORTED |
-| [BK-497](https://jira.upexgalaxy.com/browse/BK-497) | PAT | Require every API route to declare its capability posture | 5 | Medium | Ready For Dev |
+| [BK-497](https://jira.upexgalaxy.com/browse/BK-497) | PAT | Require every API route to declare its capability posture | 5 | Medium | In Review |
 | [BK-498](https://jira.upexgalaxy.com/browse/BK-498) | PAT | Enforce capability scopes on the authoring domain | 8 | Medium | Ready For Dev |
 | [BK-499](https://jira.upexgalaxy.com/browse/BK-499) | PAT | Enforce capability scopes on read, identity and notification routes | 8 | Medium | Backlog |
 
