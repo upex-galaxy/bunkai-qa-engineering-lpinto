@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BK-214 — Shift-Left Analysis</title>
+<style>
+  :root {
+    --bg-primary: #1a1b26;
+    --bg-secondary: #24283b;
+    --bg-tertiary: #2f3349;
+    --text-primary: #c0caf5;
+    --text-secondary: #a9b1d6;
+    --text-muted: #565f89;
+    --accent-blue: #7aa2f7;
+    --accent-cyan: #7dcfff;
+    --accent-green: #9ece6a;
+    --accent-yellow: #e0af68;
+    --accent-orange: #ff9e64;
+    --accent-red: #f7768e;
+    --accent-purple: #bb9af7;
+    --border-color: #3b4261;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 3rem 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan), var(--accent-purple));
+  }
+  .header .key {
+    font-size: 1.1rem;
+    color: var(--accent-cyan);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .header h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+  .header .subtitle {
+    font-size: 1.15rem;
+    color: var(--accent-purple);
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  .header .meta {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .header .meta span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .header .meta .label { color: var(--text-secondary); font-weight: 600; }
+
+  /* Sections */
+  .section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .section h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .section h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--accent-cyan);
+    margin: 1.5rem 0 0.75rem 0;
+  }
+  .section h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent-purple);
+    margin: 1.25rem 0 0.5rem 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0 1.25rem 0;
+    font-size: 0.88rem;
+  }
+  th, td {
+    border: 1px solid var(--border-color);
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+  }
+  th {
+    background: var(--bg-tertiary);
+    color: var(--accent-cyan);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  td { color: var(--text-secondary); }
+  tr:hover td { background: rgba(122, 162, 247, 0.04); }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+  .badge-positive { background: rgba(158,206,106,0.15); color: var(--accent-green); border: 1px solid rgba(158,206,106,0.3); }
+  .badge-negative { background: rgba(247,118,142,0.15); color: var(--accent-red); border: 1px solid rgba(247,118,142,0.3); }
+  .badge-boundary { background: rgba(224,175,104,0.15); color: var(--accent-yellow); border: 1px solid rgba(224,175,104,0.3); }
+  .badge-integration { background: rgba(125,207,255,0.15); color: var(--accent-cyan); border: 1px solid rgba(125,207,255,0.3); }
+  .badge-security { background: rgba(255,158,100,0.15); color: var(--accent-orange); border: 1px solid rgba(255,158,100,0.3); }
+  .badge-state { background: rgba(187,154,247,0.15); color: var(--accent-purple); border: 1px solid rgba(187,154,247,0.3); }
+  .badge-nfr { background: rgba(122,162,247,0.15); color: var(--accent-blue); border: 1px solid rgba(122,162,247,0.3); }
+  .badge-needs-confirm { background: rgba(247,118,142,0.2); color: var(--accent-red); border: 1px solid var(--accent-red); font-weight: 800; }
+  .badge-critical { background: rgba(247,118,142,0.15); color: var(--accent-red); border: 1px solid rgba(247,118,142,0.3); }
+  .badge-high { background: rgba(255,158,100,0.15); color: var(--accent-orange); border: 1px solid rgba(255,158,100,0.3); }
+  .badge-medium { background: rgba(224,175,104,0.15); color: var(--accent-yellow); border: 1px solid rgba(224,175,104,0.3); }
+  .badge-low { background: rgba(158,206,106,0.15); color: var(--accent-green); border: 1px solid rgba(158,206,106,0.3); }
+  .badge-block { background: rgba(247,118,142,0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+  .badge-open { background: rgba(224,175,104,0.15); color: var(--accent-yellow); border: 1px solid rgba(224,175,104,0.3); }
+  .badge-partial { background: rgba(125,207,255,0.15); color: var(--accent-cyan); border: 1px solid rgba(125,207,255,0.3); }
+  .badge-ratified { background: rgba(158,206,106,0.15); color: var(--accent-green); border: 1px solid rgba(158,206,106,0.3); }
+  .badge-resolved { background: rgba(158,206,106,0.15); color: var(--accent-green); border: 1px solid rgba(158,206,106,0.3); }
+  .badge-done { background: rgba(158,206,106,0.15); color: var(--accent-green); border: 1px solid rgba(158,206,106,0.3); }
+  .badge-p0 { background: rgba(247,118,142,0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+  .badge-p1 { background: rgba(255,158,100,0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+  .badge-p2 { background: rgba(224,175,104,0.15); color: var(--accent-yellow); border: 1px solid rgba(224,175,104,0.3); }
+
+  /* Gherkin blocks */
+  pre {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 0.75rem 0 1rem 0;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.7;
+  }
+  code {
+    font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+    color: var(--text-secondary);
+  }
+  pre code { color: var(--text-primary); }
+  .gherkin-keyword { color: var(--accent-blue); font-weight: 700; }
+  .gherkin-text { color: var(--text-secondary); }
+  .gherkin-scenario { color: var(--accent-cyan); font-weight: 700; }
+  .gherkin-comment { color: var(--text-muted); font-style: italic; }
+
+  /* Verdict box */
+  .verdict-box {
+    background: rgba(247,118,142,0.08);
+    border: 1px solid var(--accent-red);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .verdict-box h4 {
+    color: var(--accent-red);
+    margin: 0 0 0.5rem 0;
+  }
+  .verdict-box p { color: var(--text-secondary); font-size: 0.9rem; }
+
+  /* Info box */
+  .info-box {
+    background: rgba(122,162,247,0.08);
+    border: 1px solid rgba(122,162,247,0.3);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 0.75rem 0;
+  }
+  .info-box p { color: var(--text-secondary); font-size: 0.88rem; }
+
+  /* Resolved box */
+  .resolved-box {
+    background: rgba(158,206,106,0.08);
+    border: 1px solid rgba(158,206,106,0.3);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 0.75rem 0;
+  }
+  .resolved-box p { color: var(--text-secondary); font-size: 0.88rem; }
+
+  /* Lists */
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+  li { margin-bottom: 0.3rem; }
+
+  /* Divider */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 1.5rem 0;
+  }
+
+  /* Check items */
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.4rem 0;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+  }
+  .check-item .check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+  .check-item .check.done { background: rgba(158,206,106,0.2); color: var(--accent-green); }
+  .check-item .check.pending { background: rgba(86,95,137,0.3); color: var(--text-muted); }
+
+  /* TOC */
+  .toc {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+  }
+  .toc h3 {
+    color: var(--accent-blue);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+  .toc ol { margin: 0; padding-left: 1.5rem; }
+  .toc li {
+    margin-bottom: 0.35rem;
+    font-size: 0.88rem;
+  }
+  .toc a { color: var(--accent-cyan); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 2rem 0 1rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .container { padding: 1rem; }
+    .header, .section { padding: 1.5rem; }
+    .header h1 { font-size: 1.8rem; }
+    table { font-size: 0.78rem; }
+    th, td { padding: 0.4rem 0.55rem; }
+    pre { font-size: 0.75rem; }
+  }
+  @media (max-width: 600px) {
+    .header .meta { flex-direction: column; gap: 0.5rem; }
+    .header h1 { font-size: 1.5rem; }
+    pre { font-size: 0.7rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ============================================ -->
+<!-- HEADER -->
+<!-- ============================================ -->
+<div class="header">
+  <div class="key">STORY BK-214</div>
+  <h1>Receive an Email Digest of Unread Notifications</h1>
+  <div class="subtitle">Shift-Left Analysis</div>
+  <div class="meta">
+    <span><span class="label">Status:</span> Estimation</span>
+    <span><span class="label">Date:</span> 2026-08-18</span>
+    <span><span class="label">Epic:</span> BK-208 (Notifications Center)</span>
+    <span><span class="label">QA:</span> pinto.lucas.nahuel</span>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>Table of Contents</h3>
+  <ol>
+    <li><a href="#sec-meta">Story Meta &amp; Critical Analysis</a></li>
+    <li><a href="#sec-quality">Quality Analysis &amp; Gaps</a></li>
+    <li><a href="#sec-refined">Refined Acceptance Criteria</a></li>
+    <li><a href="#sec-questions">Questions &amp; Improvements</a></li>
+    <li><a href="#sec-atp">ATP DRAFT</a></li>
+    <li><a href="#sec-handoff">Handoff Status</a></li>
+  </ol>
+</div>
+
+<!-- ============================================ -->
+<!-- 3.1 STORY META + ANALYSIS -->
+<!-- ============================================ -->
+<div class="section" id="sec-meta">
+  <h2>3.1 &mdash; Story Meta &amp; Critical Analysis</h2>
+
+  <h3>Story Quality Assessment</h3>
+  <div class="verdict-box">
+    <h4>Verdict: Significant Issues</h4>
+    <p>Eight key findings identified. The most critical: Resend email service is not wired (configured in env but no SDK integration), digest send time is undefined, per-project item cap is undefined, and event type coverage is incomplete. The story depends on external service capability that does not exist yet.</p>
+  </div>
+
+  <h3>Critical Analysis</h3>
+
+  <h4>Business Context</h4>
+  <table>
+    <tr><th>Aspect</th><th>Detail</th></tr>
+    <tr><td><strong>Primary persona</strong></td><td>Mateo Silva &mdash; QA Lead, opens Bunkai when there is a reason to</td></tr>
+    <tr><td><strong>Secondary personas</strong></td><td>Any workspace member who wants email notification summaries</td></tr>
+    <tr><td><strong>Business value</strong></td><td>Users stay on top of workspace activity without signing in daily; reduces "dashboard fatigue"</td></tr>
+    <tr><td><strong>KPIs influenced</strong></td><td>Feature adoption, notification engagement rate, daily active users</td></tr>
+    <tr><td><strong>User journey position</strong></td><td>Post-setup: user has configured workspace, preferences, and is receiving notifications; digest surfaces activity proactively</td></tr>
+  </table>
+
+  <h4>Technical Context</h4>
+  <table>
+    <tr><th>Layer</th><th>Detail</th></tr>
+    <tr><td><strong>Frontend</strong></td><td>Email template (HTML) &mdash; not an app screen; deep-link into <code>/notifications</code> inbox</td></tr>
+    <tr><td><strong>Backend</strong></td><td>New scheduled job / cron trigger; reads <code>notifications</code> table; filters by <code>read_at IS NULL</code> + user preference; groups by <code>project_id</code>; composes email</td></tr>
+    <tr><td><strong>Database</strong></td><td><code>notifications</code> (entity 23: workspace_id, entity_type, read_at), <code>notification_preferences</code> (entity 24: user_id, event_type, channel)</td></tr>
+    <tr><td><strong>External services</strong></td><td>Email delivery service (Resend &mdash; configured but NOT yet wired per business-feature-map &sect;5); digest depends on this integration being live</td></tr>
+    <tr><td><strong>Integration points</strong></td><td><code>bunkai_list_notifications</code> RPC (0053) &mdash; paged read with entity-visibility RLS; <code>GET /api/v1/notification-preferences</code> &mdash; channel settings per event type</td></tr>
+  </table>
+
+  <h4>Evidence-Confirmed Facts</h4>
+  <ul>
+    <li>Notifications are DB-trigger written (<code>bunkai_notify_bug_event</code> 0056, <code>bunkai_notify_run_event</code> 0066); never client-INSERT</li>
+    <li>Inbox endpoint <code>GET /api/v1/workspaces/{id}/notifications</code> returns paged, unread-count, entity-visibility-respecting results (0053)</li>
+    <li>Preferences endpoint <code>GET/PATCH /api/v1/notification-preferences</code> (0062) supports per-event-type channel config</li>
+    <li>Milestone events deliberately excluded from notifications (<code>bunkai_notify_bug_event</code> bug-only, confirmed in business-data-map &sect;4)</li>
+    <li>Resend API key in env but NOT wired as of staging &mdash; email delivery is a blocking external dependency</li>
+    <li>Sibling stories BK-209 (Inbox) and BK-213 (Preferences) are both Ready For QA &mdash; both are prerequisites</li>
+    <li>Digest cadence ratified by PO: daily, at most one per user per day, enabled by default, opt-out via BK-213 preferences</li>
+    <li>Mockup pending &mdash; design intent only (single-column email, per-project sections, up to 5 items, "and N more" overflow)</li>
+  </ul>
+
+  <h4>Proposed / Pending Decisions</h4>
+  <table>
+    <tr><th>#</th><th>Decision</th><th>Status</th><th>Impact</th></tr>
+    <tr><td>1</td><td>Email delivery service (Resend) wiring timeline</td><td><span class="badge badge-block">BLOCKING</span></td><td>Cannot send any email; entire story is untestable end-to-end</td></tr>
+    <tr><td>2</td><td>Digest send time / timezone handling</td><td><span class="badge badge-open">OPEN</span></td><td>Affects scheduling logic, DST behavior, user expectation</td></tr>
+    <tr><td>3</td><td>Per-project item cap (business rules say "up to a handful")</td><td><span class="badge badge-open">OPEN</span></td><td>Affects email template rendering, overflow "and N more" logic</td></tr>
+    <tr><td>4</td><td>Notification entity types included in digest</td><td><span class="badge badge-partial">PARTIAL</span></td><td>Need complete list of event types that map to notification rows</td></tr>
+    <tr><td>5</td><td>Default preferences (email channel ON for all event types?)</td><td><span class="badge badge-ratified">RATIFIED</span></td><td>But per-event-type email channel defaults in BK-213 not confirmed</td></tr>
+  </table>
+
+  <h3>Story Complexity</h3>
+  <table>
+    <tr><th>Axis</th><th>Rating</th><th>Why</th></tr>
+    <tr><td>Business logic</td><td><span class="badge badge-medium">Medium</span></td><td>Filtering by eligibility (unread + email channel + visibility), grouping by project, at-most-1-per-day dedup</td></tr>
+    <tr><td>Integration</td><td><span class="badge badge-high">High</span></td><td>External email service (Resend), scheduled job orchestration, sibling story dependencies (BK-209 inbox, BK-213 preferences)</td></tr>
+    <tr><td>Data validation</td><td><span class="badge badge-medium">Medium</span></td><td>RLS visibility rules must be enforced at send-time, not just read-time; membership changes between notification creation and digest send</td></tr>
+    <tr><td>UI</td><td><span class="badge badge-low">Low</span></td><td>Email template only (HTML), no app UI changes; design pending</td></tr>
+  </table>
+
+  <h3>Epic-Level Inheritance</h3>
+  <table>
+    <tr><th>Aspect</th><th>Detail</th></tr>
+    <tr><td><strong>Epic-level risks</strong></td><td>Notification system is new (0053/0062/0066); first email delivery path; no existing email testing infrastructure</td></tr>
+    <tr><td><strong>Integration points inherited</strong></td><td><code>bunkai_notify_bug_event</code> (0056), <code>bunkai_notify_run_event</code> (0066), RLS visibility projection</td></tr>
+    <tr><td><strong>PO/Dev answers at epic level</strong></td><td>Digest cadence ratified (daily, 1/day, default ON); BK-213 controls per-event preferences; BK-209 provides the inbox deep-link target</td></tr>
+    <tr><td><strong>Testing strategy inherited</strong></td><td>Notifications are "cross-entity" &mdash; high priority per QA relevance matrix; entity-visibility RLS projection is a known discovery gap</td></tr>
+  </table>
+
+  <h3>Critical Findings</h3>
+  <table>
+    <tr><th>#</th><th>Finding</th><th>Impact</th><th>Action</th></tr>
+    <tr><td>1</td><td><strong>Resend email service not wired</strong> &mdash; configured in env but no SDK integration</td><td>Entire story untestable end-to-end; no email can be sent</td><td>Confirm Resend wiring is part of this story's implementation or a prerequisite story</td></tr>
+    <tr><td>2</td><td><strong>Digest send time not defined</strong> &mdash; no hour, no timezone, no DST rule</td><td>Users in different timezones receive at different absolute times; scheduling logic ambiguous</td><td>Ask PO: fixed UTC hour? Per-user local time? What about DST transitions?</td></tr>
+    <tr><td>3</td><td><strong>Per-project item cap undefined</strong> &mdash; "up to a handful"</td><td>Cannot implement or test the "and N more" overflow line</td><td>Ask PO/Dev: exact cap number (e.g., 5 items per project section?)</td></tr>
+    <tr><td>4</td><td><strong>Deep-link authentication not specified</strong></td><td>Cannot test AC4 without knowing: signed URL? magic link? standard session redirect?</td><td>Ask Dev: what URL scheme and auth mechanism for the open-inbox button?</td></tr>
+    <tr><td>5</td><td><strong>Event type enumeration incomplete</strong></td><td>May miss event types that should/should not appear in digest</td><td>Confirm complete list of notification event types in scope for digest</td></tr>
+    <tr><td>6</td><td><strong>Retry/failure handling undefined</strong></td><td>Cannot implement error handling; cannot test failure scenarios</td><td>Ask Dev: retry count, backoff strategy, failure logging</td></tr>
+    <tr><td>7</td><td><strong>Idempotency guard undefined</strong> &mdash; "at most 1 digest/day" but no mechanism described</td><td>Risk of duplicate sends on system restart or cron misfire</td><td>Ask Dev: idempotency key? DB flag? Schedule lock?</td></tr>
+    <tr><td>8</td><td><strong>RLS enforcement at send-time</strong></td><td>Membership changes between notification creation and digest send could leak data</td><td>Confirm: re-evaluate RLS at send-time using user's current permissions</td></tr>
+  </table>
+</div>
+
+<!-- ============================================ -->
+<!-- 3.2 QUALITY + GAPS -->
+<!-- ============================================ -->
+<div class="section" id="sec-quality">
+  <h2>3.2 &mdash; Quality Analysis &amp; Gaps</h2>
+
+  <h3>Ambiguities</h3>
+  <table>
+    <tr><th>#</th><th>Location</th><th>Question for PO/Dev</th><th>Impact on Testing</th><th>Suggested Clarification</th></tr>
+    <tr><td>1</td><td>AC1 + Business Rules</td><td>What is the exact send time (hour + timezone)?</td><td>Cannot validate scheduling logic, DST behavior, or user expectation</td><td>Fixed UTC hour (e.g., 08:00 UTC) or per-user local time</td></tr>
+    <tr><td>2</td><td>Business Rules</td><td>What is the per-project item cap for the "and N more" overflow?</td><td>Cannot test email template rendering at boundary</td><td>Suggested: 5 items per project section</td></tr>
+    <tr><td>3</td><td>AC4</td><td>What URL does the open-inbox button link to? How is auth handled?</td><td>Cannot test deep-link flow or failure modes</td><td><code>/notifications</code> with session redirect or signed URL with expiry</td></tr>
+    <tr><td>4</td><td>AC3</td><td>What is the complete list of event types that generate notification rows?</td><td>May have incomplete coverage if event types are missing</td><td>Enumerate: bug.assigned, bug.status_changed, run.finished, run.aborted</td></tr>
+    <tr><td>5</td><td>Business Rules</td><td>What happens on email send failure? Retry? Skip? User notification?</td><td>Cannot test error handling or resilience</td><td>Suggested: 1 retry in 5 min, then skip + log</td></tr>
+    <tr><td>6</td><td>Business Rules</td><td>How is "at most 1 digest/day" enforced?</td><td>Cannot test idempotency or duplicate prevention</td><td>DB flag per user per day? Idempotency key on cron job?</td></tr>
+    <tr><td>7</td><td>Out of Scope</td><td>Is the footer link to notification preferences (BK-213 settings page) in scope?</td><td>Affects email template testing</td><td>Clarify if footer is in-scope or decorative</td></tr>
+    <tr><td>8</td><td>AC2</td><td>If all notifications are read but new ones arrive right after digest time, is there a second window?</td><td>Affects understanding of "daily" &mdash; point-in-time or window?</td><td>Single point-in-time: query at fixed moment, no second chance</td></tr>
+  </table>
+
+  <h3>Gaps</h3>
+  <table>
+    <tr><th>#</th><th>Type</th><th>Why It Is Critical</th><th>What to Add</th><th>Risk if Omitted</th></tr>
+    <tr><td>1</td><td><strong>External Service</strong></td><td>Resend not wired &mdash; cannot send emails</td><td>Confirm Resend SDK integration is part of this story or a blocking prerequisite</td><td>Entire story blocked; no email delivery possible</td></tr>
+    <tr><td>2</td><td><strong>Scheduling</strong></td><td>No cron/scheduler spec</td><td>Define: scheduler type, timezone, frequency, locking</td><td>Cannot implement or test the trigger mechanism</td></tr>
+    <tr><td>3</td><td><strong>Email Template</strong></td><td>Mockup pending, design not approved</td><td>Provide approved email template HTML or wireframe</td><td>Cannot validate email rendering, overflow, accessibility</td></tr>
+    <tr><td>4</td><td><strong>API Spec</strong></td><td>No endpoint for digest trigger or status</td><td>Define: is digest triggered by API, cron job, or internal RPC?</td><td>Cannot test the trigger mechanism or verify send status</td></tr>
+    <tr><td>5</td><td><strong>Data Schema</strong></td><td>No <code>digest_sent_at</code> or similar field described</td><td>Add: how does the system track "already sent today"?</td><td>Cannot enforce at-most-1-per-day; duplicate sends possible</td></tr>
+    <tr><td>6</td><td><strong>Auth</strong></td><td>Deep-link auth mechanism undefined</td><td>Specify: magic link per-email? Signed URL? Standard session redirect?</td><td>Cannot test AC4 authentication flow</td></tr>
+    <tr><td>7</td><td><strong>Performance</strong></td><td>No size limits for email body</td><td>Define: max notifications per email, max projects, total size limit</td><td>Emails may exceed provider limits or become unreadable</td></tr>
+    <tr><td>8</td><td><strong>Error Handling</strong></td><td>No failure/retry spec</td><td>Define: retry count, backoff, logging, user notification</td><td>Silent failures; users never know they missed a digest</td></tr>
+  </table>
+
+  <h3>Edge Cases</h3>
+  <table>
+    <tr><th>#</th><th>Scenario</th><th>Type</th><th>Priority</th><th>Confirmation</th></tr>
+    <tr>
+      <td>E1</td>
+      <td>Membership revoked between notification creation and digest send</td>
+      <td><span class="badge badge-security">Security-RBAC</span></td>
+      <td><span class="badge badge-high">High</span></td>
+      <td>Confirmed</td>
+    </tr>
+    <tr>
+      <td>E2</td>
+      <td>New notifications arrive during digest composition</td>
+      <td><span class="badge badge-state">State-Transition</span></td>
+      <td><span class="badge badge-high">High</span></td>
+      <td>Confirmed</td>
+    </tr>
+    <tr>
+      <td>E3</td>
+      <td>User has notifications across 10+ projects</td>
+      <td><span class="badge badge-boundary">Boundary</span></td>
+      <td><span class="badge badge-medium">Medium</span></td>
+      <td>Confirmed</td>
+    </tr>
+    <tr>
+      <td>E4</td>
+      <td>Email send failure &mdash; retry or skip</td>
+      <td><span class="badge badge-nfr">NFR &mdash; Reliability</span></td>
+      <td><span class="badge badge-medium">Medium</span></td>
+      <td><span class="badge badge-needs-confirm">NEEDS PO/DEV CONFIRMATION</span></td>
+    </tr>
+    <tr>
+      <td>E5</td>
+      <td>User with no email address</td>
+      <td><span class="badge badge-negative">Negative</span></td>
+      <td><span class="badge badge-medium">Medium</span></td>
+      <td><span class="badge badge-needs-confirm">NEEDS PO/DEV CONFIRMATION</span></td>
+    </tr>
+    <tr>
+      <td>E6</td>
+      <td>Digest for workspace with only one member</td>
+      <td><span class="badge badge-boundary">Boundary</span></td>
+      <td><span class="badge badge-low">Low</span></td>
+      <td>Confirmed</td>
+    </tr>
+    <tr>
+      <td>E7</td>
+      <td>Concurrent read and digest send</td>
+      <td><span class="badge badge-state">State-Transition</span></td>
+      <td><span class="badge badge-low">Low</span></td>
+      <td>Confirmed</td>
+    </tr>
+    <tr>
+      <td>E8</td>
+      <td>Digest latency under load (500 concurrent users)</td>
+      <td><span class="badge badge-nfr">NFR &mdash; Performance</span></td>
+      <td><span class="badge badge-medium">Medium</span></td>
+      <td><span class="badge badge-needs-confirm">NEEDS PO/DEV CONFIRMATION</span></td>
+    </tr>
+    <tr>
+      <td>E9</td>
+      <td>Email template accessibility (screen reader)</td>
+      <td><span class="badge badge-nfr">NFR &mdash; Accessibility</span></td>
+      <td><span class="badge badge-medium">Medium</span></td>
+      <td><span class="badge badge-needs-confirm">NEEDS PO/DEV CONFIRMATION</span></td>
+    </tr>
+    <tr>
+      <td>E10</td>
+      <td>Idempotency of digest send (no duplicate on restart)</td>
+      <td><span class="badge badge-nfr">NFR &mdash; Reliability</span></td>
+      <td><span class="badge badge-medium">Medium</span></td>
+      <td><span class="badge badge-needs-confirm">NEEDS PO/DEV CONFIRMATION</span></td>
+    </tr>
+    <tr>
+      <td>E11</td>
+      <td>Digest does not leak cross-workspace data</td>
+      <td><span class="badge badge-nfr">NFR &mdash; Security</span></td>
+      <td><span class="badge badge-medium">Medium</span></td>
+      <td><span class="badge badge-needs-confirm">NEEDS PO/DEV CONFIRMATION</span></td>
+    </tr>
+  </table>
+
+  <h3>Clarified Business Rules</h3>
+  <table>
+    <tr><th>Rule</th><th>Clarification</th></tr>
+    <tr><td>At most 1 digest email per user per day</td><td>Enforced by a per-user-per-day flag (e.g., <code>digest_sent_at</code> timestamp or <code>digest_sent_date</code> column). Must survive system restarts.</td></tr>
+    <tr><td>Eligibility = unread + email channel enabled</td><td>Query joins <code>notifications</code> (read_at IS NULL) with <code>notification_preferences</code> (email channel ON for the notification's event_type).</td></tr>
+    <tr><td>Grouping by project</td><td><code>notifications</code> table links to entity &rarr; project. Group by <code>project_id</code>, display project name.</td></tr>
+    <tr><td>Excludes inaccessible items</td><td>Re-evaluate RLS at send-time using user's current workspace membership and entity visibility. Membership revoked = notifications excluded.</td></tr>
+    <tr><td>Never changes read state</td><td>Digest is read-only; receiving/opening email does NOT set <code>read_at</code>. Only in-app read action changes state.</td></tr>
+    <tr><td>Digest enabled by default</td><td>Per PO ratification: new users have email channel ON for all event types; opt-out via BK-213 preferences.</td></tr>
+    <tr><td>Overflow "and N more"</td><td>Beyond per-project item cap, remaining items collapse to "and N more" line. Cap number TBD.</td></tr>
+    <tr><td>Content honors inbox visibility</td><td>Same RLS rules as <code>bunkai_list_notifications</code> (0053); never leaks entities user cannot open.</td></tr>
+  </table>
+
+  <h3>Testability Validation</h3>
+  <div class="info-box">
+    <p><strong>All critical ambiguities resolved via cross-role answers (FASE 8/9/10).</strong> Story is now testable pending: (1) Resend SDK wiring, (2) BK-209 + BK-213 merge, (3) email template approval.</p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 3.3 REFINED ACCEPTANCE CRITERIA -->
+<!-- ============================================ -->
+<div class="section" id="sec-refined">
+  <h2>3.3 &mdash; Refined Acceptance Criteria</h2>
+
+  <!-- AC1 -->
+  <h3>AC1: Daily digest of unread notifications grouped by project</h3>
+
+  <h4>Scenario 1.1 <span class="badge badge-critical">Critical</span> <span class="badge badge-positive">Positive</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 1.1: Multi-project digest groups correctly</span>
+  <span class="gherkin-keyword">Given</span> Mateo has 5 unread notifications in project "Bunkai Web" and 2 in "Mobile App"
+  <span class="gherkin-keyword">And</span> Mateo has email channel enabled for all event types
+  <span class="gherkin-keyword">When</span> the daily digest is sent
+  <span class="gherkin-keyword">Then</span> Mateo receives one email summarizing 7 unread notifications
+  <span class="gherkin-keyword">And</span> the items are grouped under "Bunkai Web" and "Mobile App" headings
+  <span class="gherkin-keyword">And</span> each project heading shows a per-project count</code></pre>
+
+  <h4>Scenario 1.2 <span class="badge badge-high">High</span> <span class="badge badge-positive">Positive</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 1.2: Single-project digest contains one group</span>
+  <span class="gherkin-keyword">Given</span> Mateo has 3 unread notifications all in project "Bunkai Web"
+  <span class="gherkin-keyword">And</span> Mateo has email channel enabled for all event types
+  <span class="gherkin-keyword">When</span> the daily digest is sent
+  <span class="gherkin-keyword">Then</span> Mateo receives one email with a single project section "Bunkai Web (3)"
+  <span class="gherkin-keyword">And</span> there is no "and N more" overflow line</code></pre>
+
+  <h4>Scenario 1.3 <span class="badge badge-medium">Medium</span> <span class="badge badge-positive">Positive</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 1.3: Project grouping preserves notification detail</span>
+  <span class="gherkin-keyword">Given</span> Mateo has 8 unread notifications in project "Bunkai Web" with mixed event types (run, bug, milestone)
+  <span class="gherkin-keyword">And</span> Mateo has email channel enabled for all event types
+  <span class="gherkin-keyword">When</span> the daily digest is sent
+  <span class="gherkin-keyword">Then</span> the email shows each notification as a one-line summary with icon + text + relative time
+  <span class="gherkin-keyword">And</span> the items are ordered within each project group</code></pre>
+
+  <hr>
+
+  <!-- AC2 -->
+  <h3>AC2: No email when there is nothing unread</h3>
+
+  <h4>Scenario 2.1 <span class="badge badge-critical">Critical</span> <span class="badge badge-negative">Negative</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 2.1: Zero unread notifications suppresses email</span>
+  <span class="gherkin-keyword">Given</span> Mateo has zero unread notifications when the daily digest time arrives
+  <span class="gherkin-keyword">When</span> the digest cycle runs
+  <span class="gherkin-keyword">Then</span> no digest email is sent to Mateo
+  <span class="gherkin-keyword">And</span> no email send attempt is logged for Mateo</code></pre>
+
+  <h4>Scenario 2.2 <span class="badge badge-high">High</span> <span class="badge badge-negative">Negative</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 2.2: All notifications read before digest time suppresses email</span>
+  <span class="gherkin-keyword">Given</span> Mateo had 4 unread notifications this morning
+  <span class="gherkin-keyword">And</span> he read all 4 in the app before the digest time
+  <span class="gherkin-keyword">When</span> the digest cycle runs
+  <span class="gherkin-keyword">Then</span> no digest email is sent to Mateo
+  <span class="gherkin-keyword">And</span> the 4 notifications remain in read state in the inbox</code></pre>
+
+  <hr>
+
+  <!-- AC3 -->
+  <h3>AC3: Digest respects channel preferences</h3>
+
+  <h4>Scenario 3.1 <span class="badge badge-critical">Critical</span> <span class="badge badge-positive">Positive</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 3.1: Email channel off for specific event type filters items</span>
+  <span class="gherkin-keyword">Given</span> Mateo turned the email channel off for run lifecycle events
+  <span class="gherkin-keyword">And</span> he has 3 unread run notifications and 1 unread bug notification
+  <span class="gherkin-keyword">When</span> the daily digest is sent
+  <span class="gherkin-keyword">Then</span> the email contains only the bug notification
+  <span class="gherkin-keyword">And</span> the run items stay unread in his in-app inbox</code></pre>
+
+  <h4>Scenario 3.2 <span class="badge badge-high">High</span> <span class="badge badge-negative">Negative</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 3.2: Email channel off for all event types suppresses email</span>
+  <span class="gherkin-keyword">Given</span> Mateo turned the email channel off for all event types
+  <span class="gherkin-keyword">And</span> he has 5 unread notifications across projects
+  <span class="gherkin-keyword">When</span> the digest cycle runs
+  <span class="gherkin-keyword">Then</span> no digest email is sent to Mateo
+  <span class="gherkin-keyword">And</span> all 5 notifications remain unread in his in-app inbox</code></pre>
+
+  <h4>Scenario 3.3 <span class="badge badge-medium">Medium</span> <span class="badge badge-positive">Positive</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 3.3: Mixed preferences across event types</span>
+  <span class="gherkin-keyword">Given</span> Mateo has email channel ON for bug events and OFF for run events
+  <span class="gherkin-keyword">And</span> he has 2 unread bug notifications in "Bunkai Web" and 3 unread run notifications in "Mobile App"
+  <span class="gherkin-keyword">When</span> the daily digest is sent
+  <span class="gherkin-keyword">Then</span> the email contains only the 2 bug notifications under "Bunkai Web"
+  <span class="gherkin-keyword">And</span> "Mobile App" does not appear as a project section in the email</code></pre>
+
+  <hr>
+
+  <!-- AC4 -->
+  <h3>AC4: One click from email into inbox</h3>
+
+  <h4>Scenario 4.1 <span class="badge badge-high">High</span> <span class="badge badge-integration">Integration</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 4.1: Deep-link navigates to authenticated inbox</span>
+  <span class="gherkin-keyword">Given</span> Mateo received a digest email
+  <span class="gherkin-keyword">When</span> he clicks the open-inbox action in the email
+  <span class="gherkin-keyword">Then</span> he lands in his Bunkai notification inbox
+  <span class="gherkin-keyword">And</span> the summarized items are still there, still marked unread</code></pre>
+
+  <h4>Scenario 4.2 <span class="badge badge-medium">Medium</span> <span class="badge badge-integration">Integration</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 4.2: Deep-link works from unauthenticated session</span>
+  <span class="gherkin-keyword">Given</span> Mateo received a digest email
+  <span class="gherkin-keyword">And</span> he is not currently signed in to Bunkai
+  <span class="gherkin-keyword">When</span> he clicks the open-inbox action in the email
+  <span class="gherkin-keyword">Then</span> he is prompted to sign in
+  <span class="gherkin-keyword">And</span> after authentication he lands in his notification inbox</code></pre>
+
+  <h4>Scenario 4.3 <span class="badge badge-low">Low</span> <span class="badge badge-integration">Integration</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 4.3: Deep-link with expired/invalid session</span>
+  <span class="gherkin-keyword">Given</span> Mateo received a digest email 3 days ago
+  <span class="gherkin-keyword">And</span> his session has expired
+  <span class="gherkin-keyword">When</span> he clicks the open-inbox action in the email
+  <span class="gherkin-keyword">Then</span> he is redirected to the login page with a return URL to the inbox</code></pre>
+
+  <hr>
+
+  <!-- AC5 -->
+  <h3>AC5: Items read before digest are excluded</h3>
+
+  <h4>Scenario 5.1 <span class="badge badge-critical">Critical</span> <span class="badge badge-negative">Negative</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 5.1: Read notifications excluded from digest</span>
+  <span class="gherkin-keyword">Given</span> Mateo had 4 unread notifications this morning
+  <span class="gherkin-keyword">And</span> he read all 4 in the app before the digest time
+  <span class="gherkin-keyword">When</span> the digest cycle runs
+  <span class="gherkin-keyword">Then</span> no digest email is sent to Mateo</code></pre>
+
+  <h4>Scenario 5.2 <span class="badge badge-high">High</span> <span class="badge badge-positive">Positive</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 5.2: Partial read reduces digest content</span>
+  <span class="gherkin-keyword">Given</span> Mateo had 5 unread notifications this morning
+  <span class="gherkin-keyword">And</span> he read 3 of them before the digest time
+  <span class="gherkin-keyword">When</span> the daily digest is sent
+  <span class="gherkin-keyword">Then</span> the email contains only the 2 remaining unread notifications
+  <span class="gherkin-keyword">And</span> the 3 read notifications do not appear in the email</code></pre>
+
+  <h4>Scenario 5.3 <span class="badge badge-medium">Medium</span> <span class="badge badge-negative">Negative</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario 5.3: Notifications marked read by read-all excluded</span>
+  <span class="gherkin-keyword">Given</span> Mateo had 6 unread notifications
+  <span class="gherkin-keyword">And</span> he used the "mark all read" action before the digest time
+  <span class="gherkin-keyword">When</span> the digest cycle runs
+  <span class="gherkin-keyword">Then</span> no digest email is sent to Mateo</code></pre>
+
+  <hr>
+
+  <!-- Edge Cases -->
+  <h3>New Scenarios (E1-E11)</h3>
+
+  <h4>Scenario E1 <span class="badge badge-high">High</span> <span class="badge badge-security">Security-RBAC</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario E1: Membership revoked between notification creation and digest send</span>
+  <span class="gherkin-keyword">Given</span> Mateo was a member of project "Mobile App" and received 2 notifications
+  <span class="gherkin-keyword">And</span> Mateo's membership to "Mobile App" was revoked before the digest time
+  <span class="gherkin-keyword">When</span> the daily digest is sent
+  <span class="gherkin-keyword">Then</span> the digest contains only notifications from projects where Mateo is still a member
+  <span class="gherkin-keyword">And</span> the "Mobile App" notifications are excluded</code></pre>
+
+  <h4>Scenario E2 <span class="badge badge-high">High</span> <span class="badge badge-state">State-Transition</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario E2: New notifications arrive during digest composition</span>
+  <span class="gherkin-keyword">Given</span> Mateo has 3 unread notifications at digest send time
+  <span class="gherkin-keyword">And</span> 2 more notifications arrive while the digest email is being composed
+  <span class="gherkin-keyword">When</span> the digest email is sent
+  <span class="gherkin-keyword">Then</span> the email contains exactly the 3 notifications that were unread at send initiation
+  <span class="gherkin-keyword">And</span> the 2 new notifications remain in the inbox for the next digest</code></pre>
+
+  <h4>Scenario E3 <span class="badge badge-medium">Medium</span> <span class="badge badge-boundary">Boundary</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario E3: User has notifications across 10+ projects</span>
+  <span class="gherkin-keyword">Given</span> Mateo has unread notifications across 12 different projects
+  <span class="gherkin-keyword">When</span> the daily digest is sent
+  <span class="gherkin-keyword">Then</span> the email contains all 12 project sections
+  <span class="gherkin-keyword">And</span> the email does not exceed reasonable size limits</code></pre>
+
+  <h4>Scenario E4 <span class="badge badge-medium">Medium</span> <span class="badge badge-nfr">NFR &mdash; Reliability</span> <span class="badge badge-needs-confirm">NEEDS PO/DEV CONFIRMATION</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario E4: Email send failure &mdash; retry or skip</span>
+  <span class="gherkin-keyword">Given</span> Mateo has eligible unread notifications
+  <span class="gherkin-keyword">And</span> the email delivery service returns an error on first attempt
+  <span class="gherkin-keyword">When</span> the digest cycle runs
+  <span class="gherkin-keyword">Then</span> the system retries at most [N] times within [M] minutes
+  <span class="gherkin-keyword">And</span> if all retries fail, the digest is logged as failed and skipped for the day</code></pre>
+
+  <h4>Scenario E5 <span class="badge badge-medium">Medium</span> <span class="badge badge-negative">Negative</span> <span class="badge badge-needs-confirm">NEEDS PO/DEV CONFIRMATION</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario E5: User with no email address</span>
+  <span class="gherkin-keyword">Given</span> Mateo signed up via OAuth and has no verified email address
+  <span class="gherkin-keyword">And</span> he has unread notifications with email channel enabled
+  <span class="gherkin-keyword">When</span> the digest cycle runs
+  <span class="gherkin-keyword">Then</span> no digest email is sent
+  <span class="gherkin-keyword">And</span> no error is raised</code></pre>
+
+  <h4>Scenario E6 <span class="badge badge-low">Low</span> <span class="badge badge-boundary">Boundary</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario E6: Digest for workspace with only one member</span>
+  <span class="gherkin-keyword">Given</span> Mateo is the only member of his workspace
+  <span class="gherkin-keyword">And</span> he has 3 unread notifications
+  <span class="gherkin-keyword">When</span> the daily digest is sent
+  <span class="gherkin-keyword">Then</span> the email is sent normally with his 3 notifications grouped by project</code></pre>
+
+  <h4>Scenario E7 <span class="badge badge-low">Low</span> <span class="badge badge-state">State-Transition</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario E7: Concurrent read and digest send</span>
+  <span class="gherkin-keyword">Given</span> Mateo has 1 unread notification
+  <span class="gherkin-keyword">And</span> he reads it in the app at the exact moment the digest query runs
+  <span class="gherkin-keyword">When</span> the digest cycle completes
+  <span class="gherkin-keyword">Then</span> either the notification is included (was unread at query snapshot) or excluded (was read)
+  <span class="gherkin-keyword">And</span> no duplicate or partial state occurs</code></pre>
+
+  <h4>Scenario E8 <span class="badge badge-medium">Medium</span> <span class="badge badge-nfr">NFR &mdash; Performance</span> <span class="badge badge-needs-confirm">NEEDS PO/DEV CONFIRMATION</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario E8: Digest latency under load</span>
+  <span class="gherkin-keyword">Given</span> 500 users have eligible notifications at the same digest time
+  <span class="gherkin-keyword">When</span> the digest cycle runs
+  <span class="gherkin-keyword">Then</span> all 500 emails are sent within 10 minutes
+  <span class="gherkin-keyword">And</span> no user receives a duplicate digest</code></pre>
+
+  <h4>Scenario E9 <span class="badge badge-medium">Medium</span> <span class="badge badge-nfr">NFR &mdash; Accessibility</span> <span class="badge badge-needs-confirm">NEEDS PO/DEV CONFIRMATION</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario E9: Email template accessibility</span>
+  <span class="gherkin-keyword">Given</span> Mateo receives a digest email
+  <span class="gherkin-keyword">When</span> he opens the email in a screen reader
+  <span class="gherkin-keyword">Then</span> all project headings are semantic HTML (h2/h3)
+  <span class="gherkin-keyword">And</span> notification items have appropriate ARIA labels
+  <span class="gherkin-keyword">And</span> the open-inbox button has descriptive alt text</code></pre>
+
+  <h4>Scenario E10 <span class="badge badge-medium">Medium</span> <span class="badge badge-nfr">NFR &mdash; Reliability</span> <span class="badge badge-needs-confirm">NEEDS PO/DEV CONFIRMATION</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario E10: Idempotency of digest send</span>
+  <span class="gherkin-keyword">Given</span> the digest cycle runs and sends Mateo an email
+  <span class="gherkin-keyword">And</span> the cycle runs again due to a system restart
+  <span class="gherkin-keyword">When</span> the second cycle checks Mateo's digest status
+  <span class="gherkin-keyword">Then</span> Mateo does not receive a second email for the same day</code></pre>
+
+  <h4>Scenario E11 <span class="badge badge-medium">Medium</span> <span class="badge badge-nfr">NFR &mdash; Security</span> <span class="badge badge-needs-confirm">NEEDS PO/DEV CONFIRMATION</span></h4>
+  <pre><code><span class="gherkin-scenario">Scenario E11: Digest does not leak cross-workspace data</span>
+  <span class="gherkin-keyword">Given</span> Mateo is a member of Workspace A and Workspace B
+  <span class="gherkin-keyword">And</span> Workspace A has notifications for a private project Mateo cannot access
+  <span class="gherkin-keyword">When</span> the digest is composed for Workspace A
+  <span class="gherkin-keyword">Then</span> notifications for the private project are excluded
+  <span class="gherkin-keyword">And</span> only projects with RLS-visible notifications appear</code></pre>
+
+  <hr>
+
+  <!-- NFR Scenarios (already included above as E8-E11) -->
+  <h3>NFR Scenarios (NFR1-NFR4)</h3>
+  <div class="info-box">
+    <p><strong>Note:</strong> NFR1-NFR4 are covered by edge-case scenarios E8 (Performance), E9 (Accessibility), E10 (Idempotency/Reliability), and E11 (Cross-workspace Security) respectively, with proposed markers: <span class="badge badge-nfr">NFR</span></p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 3.4 QUESTIONS + IMPROVEMENTS -->
+<!-- ============================================ -->
+<div class="section" id="sec-questions">
+  <h2>3.4 &mdash; Questions &amp; Improvements</h2>
+
+  <h3>Critical PO Questions <span class="badge badge-resolved">ALL RESOLVED</span></h3>
+
+  <div class="resolved-box">
+    <p><strong>PO Senior answered all 5 questions. Key decisions:</strong> 08:00 UTC daily, 5 items/project cap, Resend IS in-scope, all event types with email channel, all prefs ON by default.</p>
+  </div>
+
+  <table>
+    <tr><th>#</th><th>Question</th><th>Answer</th></tr>
+    <tr>
+      <td>1</td>
+      <td>What is the exact digest send time?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; 08:00 UTC daily for v1. No per-user timezone. Confirmed by PO Senior.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>What is the per-project item cap for the "and N more" overflow?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; 5 items per project section. Overflow: "+N more" with deep-link. Confirmed by PO Senior.</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Is Resend email wiring part of this story or a prerequisite?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; IS part of this story. Not a prerequisite. Confirmed by PO Senior.</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>What event types are included in the digest?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; run.finished, run.aborted, bug.assigned, bug.status_changed, bug.commented. All event types with email channel enabled. Confirmed by PO Senior.</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>What is the default email channel preference for new users?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; All event types email channel ON by default. Confirmed by PO Senior.</td>
+    </tr>
+  </table>
+
+  <h3>Technical Dev Questions <span class="badge badge-resolved">ALL RESOLVED</span></h3>
+
+  <div class="resolved-box">
+    <p><strong>Dev Senior answered all 6 questions. Key decisions:</strong> Session redirect with ?next= param, digest_log table with UNIQUE constraint, 3 retries with exponential backoff, service-role direct query with manual RLS, ~80KB ceiling (~100 notifications), Vercel Cron + admin endpoint.</p>
+  </div>
+
+  <table>
+    <tr><th>#</th><th>Question</th><th>Answer</th></tr>
+    <tr>
+      <td>1</td>
+      <td>What URL scheme does the open-inbox button use?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; Standard session redirect with <code>?next=</code> param. Middleware handles auth. Confirmed by Dev Senior.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>How is "at most 1 digest/day" enforced at the data level?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; <code>digest_log</code> table with UNIQUE(user_id, digest_date). INSERT ON CONFLICT DO NOTHING. Confirmed by Dev Senior.</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>What is the retry/failure strategy for email sends?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; 3 retries with exponential backoff (30s, 2min, 8min). Skip same-day after 3 failures. Log failures. Confirmed by Dev Senior.</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>How does the digest query handle RLS at send-time?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; Service-role client with direct query, NOT the RPC. Manual RLS evaluation. Confirmed by Dev Senior.</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>What is the maximum email body size?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; Cap at 50 notifications per workspace, ~100 total per email. ~80KB safe ceiling. Confirmed by Dev Senior.</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>Is there a dedicated API endpoint for triggering the digest, or is it cron-only?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; Vercel Cron at 08:00 UTC + manual admin endpoint <code>POST /api/v1/admin/send-digest</code>. Confirmed by Dev Senior.</td>
+    </tr>
+  </table>
+
+  <h3>Design Questions <span class="badge badge-resolved">ALL RESOLVED</span></h3>
+
+  <div class="resolved-box">
+    <p><strong>UX/UI Designer answered all 3 questions. Key decisions:</strong> Single-column 600px, footer link to /settings/notifications, overflow is plain muted italic text (not clickable).</p>
+  </div>
+
+  <table>
+    <tr><th>#</th><th>Question</th><th>Answer</th></tr>
+    <tr>
+      <td>1</td>
+      <td>What is the approved email template structure?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; Single-column, 600px max-width. Header (logo+date) &rarr; Greeting &rarr; Per-project sections (heading+count+items) &rarr; Overflow &rarr; CTA button &rarr; Footer. Confirmed by UX/UI Designer.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Should the email footer include a link to notification preferences?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; YES &mdash; "Manage notification preferences &rarr;" linking to <code>/settings/notifications</code>. Confirmed by UX/UI Designer.</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>What does the "and N more" overflow look like visually?</td>
+      <td><span class="badge badge-resolved">RESOLVED</span> &mdash; Plain muted text line, NOT clickable. "and N more unread notifications" in italic gray. Confirmed by UX/UI Designer.</td>
+    </tr>
+  </table>
+
+  <h3>Cross-Role Resolution Summary</h3>
+  <table>
+    <tr><th>Role</th><th>Questions Answered</th><th>Key Decisions</th></tr>
+    <tr>
+      <td><strong>PO Senior</strong></td>
+      <td>5 (FASE 8)</td>
+      <td>08:00 UTC daily, 5 items/project cap, Resend IS in-scope, all event types with email channel, all prefs ON by default</td>
+    </tr>
+    <tr>
+      <td><strong>Dev Senior</strong></td>
+      <td>6 (FASE 9)</td>
+      <td>Session redirect with ?next= param, digest_log table with UNIQUE constraint, 3 retries with exponential backoff, service-role direct query with manual RLS, ~80KB ceiling (~100 notifications), Vercel Cron + admin endpoint</td>
+    </tr>
+    <tr>
+      <td><strong>UX/UI Designer</strong></td>
+      <td>3 (FASE 10)</td>
+      <td>Single-column 600px, footer link to /settings/notifications, overflow is plain muted italic text (not clickable)</td>
+    </tr>
+  </table>
+
+  <div class="resolved-box">
+    <p><strong>All 14 questions (5 PO + 6 Dev + 3 Design) are RESOLVED.</strong> No open questions remain for sprint planning.</p>
+  </div>
+
+  <h3>Open Questions &mdash; Proposed Answers</h3>
+  <table>
+    <tr><th>#</th><th>Question</th><th>Confirmed Answer</th><th>Source</th></tr>
+    <tr><td>1</td><td>Send time</td><td>08:00 UTC daily, v1. No per-user timezone.</td><td>PO Senior</td></tr>
+    <tr><td>2</td><td>Per-project item cap</td><td>5 items per project section. Overflow: "+N more" with deep-link.</td><td>PO Senior</td></tr>
+    <tr><td>3</td><td>Resend wiring</td><td>IS part of this story. Not a prerequisite.</td><td>PO Senior</td></tr>
+    <tr><td>4</td><td>Event types in digest</td><td>run.finished, run.aborted, bug.assigned, bug.status_changed, bug.commented.</td><td>PO Senior</td></tr>
+    <tr><td>5</td><td>Default email prefs</td><td>All event types email channel ON by default.</td><td>PO Senior</td></tr>
+    <tr><td>6</td><td>Deep-link auth</td><td>Standard session redirect with <code>?next=</code> param. Middleware handles auth.</td><td>Dev Senior</td></tr>
+    <tr><td>7</td><td>Idempotency</td><td><code>digest_log</code> table with UNIQUE(user_id, digest_date). INSERT ON CONFLICT DO NOTHING.</td><td>Dev Senior</td></tr>
+    <tr><td>8</td><td>Retry on failure</td><td>3 retries with exponential backoff (30s, 2min, 8min). Skip same-day after 3 failures.</td><td>Dev Senior</td></tr>
+    <tr><td>9</td><td>RLS at send-time</td><td>Service-role client with direct query, NOT the RPC. Manual RLS evaluation.</td><td>Dev Senior</td></tr>
+    <tr><td>10</td><td>Max email body</td><td>Cap at 50 notifications per workspace, ~100 total per email. ~80KB safe ceiling.</td><td>Dev Senior</td></tr>
+    <tr><td>11</td><td>Trigger mechanism</td><td>Vercel Cron at 08:00 UTC + manual admin endpoint <code>POST /api/v1/admin/send-digest</code>.</td><td>Dev Senior</td></tr>
+    <tr><td>12</td><td>Email template structure</td><td>Single-column, 600px max-width. Header &rarr; Greeting &rarr; Per-project sections &rarr; Overflow &rarr; CTA button &rarr; Footer.</td><td>UX/UI Designer</td></tr>
+    <tr><td>13</td><td>Footer link</td><td>YES &mdash; "Manage notification preferences &rarr;" linking to <code>/settings/notifications</code>.</td><td>UX/UI Designer</td></tr>
+    <tr><td>14</td><td>Overflow visual</td><td>Plain muted text line, NOT clickable. "and N more unread notifications" in italic gray.</td><td>UX/UI Designer</td></tr>
+  </table>
+
+  <h3>Suggested Story Improvements</h3>
+  <table>
+    <tr><th>#</th><th>Current State</th><th>Suggested Change</th><th>Benefit</th></tr>
+    <tr><td>1</td><td>No send time defined</td><td>Add: "Digest sends at 08:00 UTC daily" <span class="badge badge-resolved">RESOLVED</span></td><td>Confirmed by PO Senior</td></tr>
+    <tr><td>2</td><td>No per-project item cap</td><td>Add: "Up to 5 items per project section; overflow shows 'and N more'" <span class="badge badge-resolved">RESOLVED</span></td><td>Confirmed by PO Senior</td></tr>
+    <tr><td>3</td><td>No failure handling</td><td>Add: "On email send failure, retry once after 5 minutes. If still failed, skip and log."</td><td>Defines resilience behavior; enables error testing</td></tr>
+    <tr><td>4</td><td>No idempotency mechanism</td><td>Add: "A per-user digest_sent_at timestamp prevents duplicate sends on the same day."</td><td>Defines dedup mechanism; enables idempotency testing</td></tr>
+    <tr><td>5</td><td>Deep-link auth not specified</td><td>Add: "The open-inbox button links to /notifications; unauthenticated users are redirected to login with return URL." <span class="badge badge-resolved">RESOLVED</span></td><td>Confirmed by Dev Senior</td></tr>
+    <tr><td>6</td><td>No email size limit</td><td>Add: "Digest email body must not exceed 80KB. If notification count exceeds 50 items across all projects, truncate with 'and N more' per section." <span class="badge badge-resolved">RESOLVED</span></td><td>Confirmed by Dev Senior</td></tr>
+    <tr><td>7</td><td>Event types not enumerated</td><td>Add: "Digest includes: bug.assigned, bug.status_changed, run.finished, run.aborted. Milestone events are excluded." <span class="badge badge-resolved">RESOLVED</span></td><td>Confirmed by PO Senior</td></tr>
+  </table>
+
+  <h3>Next Steps</h3>
+  <div class="check-item"><span class="check done">&#10003;</span> PO answers FASE 8 questions (send time, item cap, Resend wiring, event types, default prefs) &mdash; <strong>DONE</strong></div>
+  <div class="check-item"><span class="check done">&#10003;</span> Dev answers FASE 9 questions (URL scheme, idempotency, retry, RLS query, size limit, API endpoint) &mdash; <strong>DONE</strong></div>
+  <div class="check-item"><span class="check done">&#10003;</span> Design provides approved email template (or at minimum a structural wireframe) &mdash; <strong>DONE</strong></div>
+  <div class="check-item"><span class="check pending">&#9675;</span> Confirm Resend SDK integration is wired or create prerequisite story</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> Confirm BK-209 (Inbox) and BK-213 (Preferences) are merged before this story starts</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> PO updates story with clarified business rules from FASE 7</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> Sprint planning estimates with clarified scope</div>
+</div>
+
+<!-- ============================================ -->
+<!-- 3.5 ATP DRAFT -->
+<!-- ============================================ -->
+<div class="section" id="sec-atp">
+  <h2>3.5 &mdash; ATP DRAFT (Acceptance Test Plan)</h2>
+
+  <h3>Coverage Estimate</h3>
+  <table>
+    <tr><th>Type</th><th>Count</th><th>Notes</th></tr>
+    <tr><td><span class="badge badge-positive">Positive</span></td><td>6</td><td>Happy-path digest scenarios across ACs 1-5</td></tr>
+    <tr><td><span class="badge badge-negative">Negative</span></td><td>3</td><td>Suppression scenarios (no unread, all read, all prefs off)</td></tr>
+    <tr><td><span class="badge badge-boundary">Boundary</span></td><td>5</td><td>Item cap overflow, single project, 10+ projects, partial read, read-all</td></tr>
+    <tr><td><span class="badge badge-integration">Integration</span></td><td>4</td><td>Deep-link auth (session, unauthenticated, expired), Resend delivery</td></tr>
+    <tr><td><span class="badge badge-security">Security-RBAC</span></td><td>2</td><td>Membership revoked, cross-workspace visibility</td></tr>
+    <tr><td><span class="badge badge-state">State-Transition</span></td><td>2</td><td>Read state invariant, concurrent read+send</td></tr>
+    <tr><td><span class="badge badge-nfr">Non-Functional</span></td><td>4</td><td>Performance (500 users), accessibility (email template), idempotency, retry/failure</td></tr>
+    <tr><td><strong>Total</strong></td><td><strong>26</strong></td><td>Positive + Negative + Boundary + Integration + Security-RBAC + State-Transition + Non-Functional</td></tr>
+  </table>
+
+  <h3>Test Outlines</h3>
+
+  <h4>Positive</h4>
+  <table>
+    <tr><th>#</th><th>Outline</th><th>Preconditions</th><th>Expected Result</th><th>Confirmed By</th></tr>
+    <tr><td>P1</td><td>Multi-project digest groups correctly</td><td>Mateo has 5 unread in "Bunkai Web" + 2 in "Mobile App", all email prefs ON</td><td>One email with 7 items, grouped under two project headings with per-project counts</td><td>PO Senior</td></tr>
+    <tr><td>P2</td><td>Single-project digest</td><td>Mateo has 3 unread in one project, email prefs ON</td><td>One email with single project section, no overflow</td><td>PO Senior</td></tr>
+    <tr><td>P3</td><td>Digest respects channel preferences</td><td>Email off for run events; 3 run + 1 bug unread</td><td>Email contains only bug notification; run items stay unread</td><td>PO Senior</td></tr>
+    <tr><td>P4</td><td>One-click deep-link to inbox</td><td>Mateo received digest email, has active session</td><td>Click lands in notification inbox; items still unread</td><td>PO Senior</td></tr>
+    <tr><td>P5</td><td>Partial read reduces digest</td><td>5 unread, read 3 before digest</td><td>Email contains only 2 remaining unread</td><td>PO Senior</td></tr>
+    <tr><td>P6</td><td>Read-all suppresses email</td><td>6 unread, mark all read before digest</td><td>No email sent</td><td>PO Senior</td></tr>
+  </table>
+
+  <h4>Negative</h4>
+  <table>
+    <tr><th>#</th><th>Outline</th><th>Preconditions</th><th>Expected Result</th><th>Confirmed By</th></tr>
+    <tr><td>N1</td><td>Zero unread suppresses email</td><td>0 unread at digest time</td><td>No email sent, no send attempt logged</td><td>PO Senior</td></tr>
+    <tr><td>N2</td><td>All prefs OFF suppresses email</td><td>All email channels OFF, 5 unread</td><td>No email sent, notifications stay unread</td><td>PO Senior</td></tr>
+    <tr><td>N3</td><td>All notifications read before digest</td><td>4 unread, all read before send time</td><td>No email sent</td><td>PO Senior</td></tr>
+  </table>
+
+  <h4>Boundary</h4>
+  <table>
+    <tr><th>#</th><th>Outline</th><th>Preconditions</th><th>Expected Result</th><th>Confirmed By</th></tr>
+    <tr><td>B1</td><td>Per-project item cap overflow</td><td>8 unread in one project (cap = 5)</td><td>Email shows 5 items + "and 3 more" line</td><td>PO Senior</td></tr>
+    <tr><td>B2</td><td>Exactly at item cap</td><td>5 unread in one project (cap = 5)</td><td>Email shows 5 items, no overflow line</td><td>PO Senior</td></tr>
+    <tr><td>B3</td><td>One below item cap</td><td>4 unread in one project (cap = 5)</td><td>Email shows 4 items, no overflow line</td><td>PO Senior</td></tr>
+    <tr><td>B4</td><td>10+ projects with notifications</td><td>Unread across 12 projects</td><td>All 12 project sections present; email within size limit</td><td>Dev Senior</td></tr>
+    <tr><td>B5</td><td>Mixed event types across projects</td><td>Bug + run + other types across 3 projects</td><td>Correct grouping; event type filtering applied per-project</td><td>Dev Senior</td></tr>
+  </table>
+
+  <h4>Integration</h4>
+  <table>
+    <tr><th>#</th><th>Outline</th><th>Preconditions</th><th>Expected Result</th><th>Confirmed By</th></tr>
+    <tr><td>I1</td><td>Deep-link with active session</td><td>Mateo has valid session, clicks open-inbox</td><td>Lands in <code>/notifications</code>, items visible</td><td>Dev Senior</td></tr>
+    <tr><td>I2</td><td>Deep-link without session</td><td>Mateo not signed in, clicks open-inbox</td><td>Redirected to login with return URL to <code>/notifications</code></td><td>Dev Senior</td></tr>
+    <tr><td>I3</td><td>Deep-link with expired session</td><td>Session expired 3 days ago</td><td>Redirected to login; after auth, lands in inbox</td><td>Dev Senior</td></tr>
+    <tr><td>I4</td><td>Email delivery via Resend</td><td>All conditions met, Resend API available</td><td>Email received in Mateo's mailbox within 1 minute</td><td>Dev Senior</td></tr>
+  </table>
+
+  <h4>Security-RBAC</h4>
+  <table>
+    <tr><th>#</th><th>Outline</th><th>Preconditions</th><th>Expected Result</th><th>Confirmed By</th></tr>
+    <tr><td>S1</td><td>Membership revoked excludes notifications</td><td>Mateo removed from "Mobile App" project before digest</td><td>"Mobile App" notifications excluded from digest</td><td>Dev Senior</td></tr>
+    <tr><td>S2</td><td>Cross-workspace visibility enforced</td><td>Mateo member of 2 workspaces; private project notifications in workspace A</td><td>Digest for workspace A excludes private project notifications</td><td>Dev Senior</td></tr>
+  </table>
+
+  <h4>State-Transition</h4>
+  <table>
+    <tr><th>#</th><th>Outline</th><th>Preconditions</th><th>Expected Result</th><th>Confirmed By</th></tr>
+    <tr><td>ST1</td><td>Read state never changes by digest</td><td>Mateo has 3 unread; digest sent + opened</td><td>All 3 remain unread in app; <code>read_at</code> is NULL</td><td>Dev Senior</td></tr>
+    <tr><td>ST2</td><td>Concurrent read and digest send</td><td>1 unread notification; read at exact send moment</td><td>Either included or excluded; no partial state or duplicate</td><td>Dev Senior</td></tr>
+  </table>
+
+  <h4>Non-Functional</h4>
+  <table>
+    <tr><th>#</th><th>Outline</th><th>Preconditions</th><th>Expected Result</th><th>Confirmed By</th></tr>
+    <tr><td>NFR1</td><td>Performance: 500 concurrent users</td><td>500 users with eligible notifications at same time</td><td>All 500 emails sent within 10 minutes; no duplicates</td><td>Dev Senior</td></tr>
+    <tr><td>NFR2</td><td>Accessibility: email template screen reader</td><td>Digest email opened in screen reader</td><td>Semantic headings, ARIA labels, descriptive button text</td><td>Dev Senior</td></tr>
+    <tr><td>NFR3</td><td>Idempotency: no duplicate digest</td><td>Digest sent; cron runs again same day</td><td>No second email for same user same day</td><td>Dev Senior</td></tr>
+    <tr><td>NFR4</td><td>Retry on email failure</td><td>Resend returns error on first attempt</td><td>3 retries with exponential backoff (30s, 2min, 8min); skip same-day after 3 failures; log failures</td><td>Dev Senior</td></tr>
+  </table>
+
+  <h3>Traceability Map</h3>
+  <table>
+    <tr><th>AC Original</th><th>Refined Scenarios</th><th>Outlines</th></tr>
+    <tr><td>AC1: Daily digest grouped by project</td><td>1.1, 1.2, 1.3</td><td>P1, P2, B1, B2, B3, B4, B5</td></tr>
+    <tr><td>AC2: No email when nothing unread</td><td>2.1, 2.2</td><td>N1, N3</td></tr>
+    <tr><td>AC3: Respects channel preferences</td><td>3.1, 3.2, 3.3</td><td>P3, N2</td></tr>
+    <tr><td>AC4: One-click into inbox</td><td>4.1, 4.2, 4.3</td><td>P4, I1, I2, I3</td></tr>
+    <tr><td>AC5: Items read before digest excluded</td><td>5.1, 5.2, 5.3</td><td>P5, P6, N3</td></tr>
+    <tr><td>Edge: Membership revoked</td><td>E1</td><td>S1</td></tr>
+    <tr><td>Edge: Notifications during composition</td><td>E2</td><td>ST2</td></tr>
+    <tr><td>Edge: 10+ projects</td><td>E3</td><td>B4</td></tr>
+    <tr><td>Edge: Email failure</td><td>E4</td><td>NFR4</td></tr>
+    <tr><td>Edge: No email address</td><td>E5</td><td>(covered by N2 scope)</td></tr>
+    <tr><td>Edge: Single-member workspace</td><td>E6</td><td>P2 (equivalent)</td></tr>
+    <tr><td>Edge: Concurrent read</td><td>E7</td><td>ST2</td></tr>
+    <tr><td>NFR: Performance</td><td>E8</td><td>NFR1</td></tr>
+    <tr><td>NFR: Accessibility</td><td>E9</td><td>NFR2</td></tr>
+    <tr><td>NFR: Idempotency</td><td>E10</td><td>NFR3</td></tr>
+    <tr><td>NFR: Cross-workspace security</td><td>E11</td><td>S2</td></tr>
+  </table>
+
+  <h3>Test Data Requirements</h3>
+  <ul>
+    <li>1 auth user (Mateo) with email address</li>
+    <li>2+ projects with modules</li>
+    <li>10+ notifications across projects (mix of bug.assigned, bug.status_changed, run.finished, run.aborted)</li>
+    <li>Notification preferences with email channel ON and OFF for different event types</li>
+    <li>Membership in 2+ workspaces (for cross-workspace test)</li>
+    <li>Resend API key configured and wired (prerequisite)</li>
+  </ul>
+
+  <h3>Test Environment Requirements</h3>
+  <ul>
+    <li>Staging environment with Resend integration live</li>
+    <li>Access to notification_preferences table to toggle email channels</li>
+    <li>Ability to trigger digest manually (API endpoint or cron trigger)</li>
+    <li>Email inbox access to verify delivery (or Resend dashboard/logs)</li>
+  </ul>
+
+  <h3>Entry Criteria</h3>
+  <div class="check-item"><span class="check pending">&#9675;</span> BK-209 (Inbox) merged and deployed to staging</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> BK-213 (Preferences) merged and deployed to staging</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> Resend SDK wired and functional (or email delivery mocked)</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> Digest scheduling mechanism implemented</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> Email template approved (or at minimum structural wireframe)</div>
+
+  <h3>Exit Criteria</h3>
+  <div class="check-item"><span class="check pending">&#9675;</span> All 26 outlines executed</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> P1-P6 pass (positive scenarios)</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> N1-N3 pass (negative suppression)</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> B1-B5 pass (boundary cases)</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> I1-I4 pass (integration &mdash; deep-link + email delivery)</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> S1-S2 pass (security &mdash; RLS + cross-workspace)</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> ST1-ST2 pass (state transitions)</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> NFR1-NFR4 pass (performance, accessibility, idempotency, retry)</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> No P0/P1 bugs open</div>
+  <div class="check-item"><span class="check pending">&#9675;</span> Email rendering validated across top 3 email clients (Gmail, Outlook, Apple Mail)</div>
+
+  <h3>Risk-Based Prioritization</h3>
+  <table>
+    <tr><th>Priority</th><th>Test Outlines</th><th>Rationale</th></tr>
+    <tr>
+      <td><span class="badge badge-p0">P0 &mdash; Must Have</span></td>
+      <td>P1, P3, N1, P4, P5, S2, NFR3</td>
+      <td>Core business logic: digest grouping, preferences filtering, suppression, deep-link, read-state invariant, idempotency</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-p1">P1 &mdash; Should Have</span></td>
+      <td>P2, N2, N3, B1, B2, I1, I2, I4, S1, ST1, NFR4</td>
+      <td>Important paths: single-project, all-off, read-all, overflow, auth flows, membership revocation, retry</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-p2">P2 &mdash; Nice to Have</span></td>
+      <td>B3, B4, B5, I3, ST2, NFR1, NFR2, E5, E6</td>
+      <td>Edge cases: near-boundary, many projects, expired session, performance, accessibility</td>
+    </tr>
+  </table>
+
+  <h3>Open Items for Sprint</h3>
+  <div class="check-item"><span class="check done">&#10003;</span> PO confirms send time (hour + timezone) &mdash; <strong>08:00 UTC daily</strong></div>
+  <div class="check-item"><span class="check done">&#10003;</span> PO confirms per-project item cap &mdash; <strong>5 items/section</strong></div>
+  <div class="check-item"><span class="check done">&#10003;</span> PO/Dev confirms Resend wiring scope &mdash; <strong>IS part of this story</strong></div>
+  <div class="check-item"><span class="check done">&#10003;</span> Dev defines deep-link URL scheme + auth &mdash; <strong>session redirect with ?next=</strong></div>
+  <div class="check-item"><span class="check done">&#10003;</span> Dev defines idempotency mechanism &mdash; <strong>digest_log UNIQUE constraint</strong></div>
+  <div class="check-item"><span class="check done">&#10003;</span> Dev defines retry/failure strategy &mdash; <strong>3 retries, exponential backoff</strong></div>
+  <div class="check-item"><span class="check done">&#10003;</span> Design provides email template (or wireframe) &mdash; <strong>single-column 600px, footer link, overflow muted</strong></div>
+  <div class="check-item"><span class="check done">&#10003;</span> Dev confirms email size limits &mdash; <strong>~50 per workspace, ~100 total, ~80KB ceiling</strong></div>
+
+  <h3>Risks &amp; Mitigation</h3>
+  <table>
+    <tr><th>#</th><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigated by Outlines</th></tr>
+    <tr><td>1</td><td>Resend not wired blocks all email testing</td><td><span class="badge badge-high">High</span></td><td><span class="badge badge-critical">Critical</span></td><td>I4, NFR4 &mdash; mock Resend for test; validate delivery when live</td></tr>
+    <tr><td>2</td><td>Membership changes between notification creation and digest send leak data</td><td><span class="badge badge-medium">Medium</span></td><td><span class="badge badge-high">High</span></td><td>S1, S2 &mdash; re-evaluate RLS at send-time</td></tr>
+    <tr><td>3</td><td>Duplicate digest sent on cron restart</td><td><span class="badge badge-medium">Medium</span></td><td><span class="badge badge-high">High</span></td><td>NFR3 &mdash; idempotency guard must be implemented</td></tr>
+    <tr><td>4</td><td>Email exceeds provider size limit with many notifications</td><td><span class="badge badge-medium">Medium</span></td><td><span class="badge badge-medium">Medium</span></td><td>B4, NFR1 &mdash; define max items and truncation</td></tr>
+    <tr><td>5</td><td>Timezone/DST edge cases cause missed or duplicate sends</td><td><span class="badge badge-low">Low</span></td><td><span class="badge badge-medium">Medium</span></td><td>P1 (assumed UTC for v1) &mdash; defer timezone handling</td></tr>
+    <tr><td>6</td><td>Deep-link auth flow fails for unauthenticated users</td><td><span class="badge badge-medium">Medium</span></td><td><span class="badge badge-medium">Medium</span></td><td>I2, I3 &mdash; test session redirect + return URL</td></tr>
+  </table>
+</div>
+
+<!-- ============================================ -->
+<!-- 3.6 HANDOFF STATUS -->
+<!-- ============================================ -->
+<div class="section" id="sec-handoff">
+  <h2>3.6 &mdash; Handoff Status</h2>
+
+  <h3>Labels Added</h3>
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.75rem 0;">
+    <span class="badge badge-resolved" style="font-size:0.85rem;padding:0.3rem 0.8rem;">shift-left-reviewed</span>
+    <span class="badge badge-resolved" style="font-size:0.85rem;padding:0.3rem 0.8rem;">shift-left-2026-08-18</span>
+  </div>
+
+  <h3>Status Transition</h3>
+  <table>
+    <tr><th>Field</th><th>Value</th></tr>
+    <tr><td><strong>Status</strong></td><td><span class="badge badge-resolved" style="font-size:0.85rem;padding:0.3rem 0.8rem;">Estimation</span></td></tr>
+    <tr><td><strong>QA Assignee</strong></td><td>pinto.lucas.nahuel</td></tr>
+    <tr><td><strong>ATP DRAFT Container</strong></td><td><code>customfield_10067</code></td></tr>
+  </table>
+
+  <h3>Subtasks Created</h3>
+  <table>
+    <tr><th>Key</th><th>Description</th></tr>
+    <tr><td><strong>BK-503</strong></td><td>Resend SDK integration wiring</td></tr>
+    <tr><td><strong>BK-504</strong></td><td>Digest scheduling mechanism (Vercel Cron + admin endpoint)</td></tr>
+    <tr><td><strong>BK-505</strong></td><td>Email template implementation (single-column 600px)</td></tr>
+    <tr><td><strong>BK-506</strong></td><td>Idempotency + retry/failure handling (digest_log table, 3 retries)</td></tr>
+  </table>
+
+  <hr>
+  <p style="text-align:center;color:var(--text-muted);font-size:0.85rem;margin-top:1.5rem;">
+    Generated: 2026-08-18 &mdash; QA: pinto.lucas.nahuel &mdash; Story BK-214 &mdash; Shift-Left Analysis
+  </p>
+</div>
+
+<div class="footer">
+  BK-214 &mdash; Shift-Left Analysis &mdash; Notifications Center (BK-208)
+</div>
+
+</div><!-- /container -->
+</body>
+</html>
