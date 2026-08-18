@@ -91,7 +91,7 @@ Requires `agentic-qa-core`. Loads on demand:
 
 - **Code block for ACs**: Use ` ```gherkin ` for syntax highlighting of refined acceptance criteria.
 - **No colons in Gherkin**: `Given` (no `Given:`), `When` (no `When:`), `Then` (no `Then:`).
-- **Content separation**: Description = WHAT (User Story + Context + Critical Analysis + Refined ACs + Questions). ATP DRAFT = HOW (Coverage Estimate + Test Outlines + Traceability Map + Risks & mitigation).
+- **Content separation**: Description = WHAT (User Story + Context + Critical Analysis + Refined ACs + Critical Findings + Ambiguities + Gaps + Edge Cases + Contradictions + Testability Validation + Open Questions + Business Rules + Improvements + Data Feasibility + Next Steps). ATP DRAFT = HOW (Coverage Estimate + Test Outlines + Traceability Map + Test Impact Summary + Test Data/Environment + Entry/Exit Criteria + Prioritization + Open Items + Risks).
 - **Tables with headers**: Always include column headers for tables.
 - **Backup before modifying**: Save current Jira JSON before PUT operations.
 - **Verify after PUT**: Confirm HTTP 204 and read back content.
@@ -112,7 +112,8 @@ This skill is compliant with the doctrine in `CLAUDE.md` §"Orchestration Mode (
 |-------|---------|---------------|
 | Phase 1 — Selection | Single | Backlog Selection subagent: pull candidate Stories via `[ISSUE_TRACKER_TOOL]`, apply veto + risk-score triage, return ranked candidate table |
 | Phase 2 — Refinement (per Story) | Sequential — looped per Story | Refinement subagent: load `acceptance-test-planning.md` Phases 1-3 + outline-only Phase 4, write `shift-left-refinement.md`, append PO/Dev questions, return summary block. ONE subagent per Story. NEVER parallel across Stories (each subagent writes a different PBI file but the orchestrator must present each summary to the user sequentially before the next dispatch) |
-| Phase 3 — Handoff (per Story) | Sequential — looped per Story | Handoff subagent: update Jira description + custom field (or Test Plan in Modality jira-xray) + comment mirror + labels + transition `backlog -> shift_left_qa -> estimation`. Returns transition log + trace verification |
+| Phase 2 — Cross-role resolution (optional, per Story) | Parallel — 3 subagents | PO Senior subagent: answer PO-specific questions from refinement. Dev Senior subagent: answer Dev-specific questions (technical, architecture, schema, API). UX/UI Designer subagent: answer Design-specific questions (copy, layout, accessibility, responsive). All 3 run in parallel. Answers integrated inline: `NEEDS PO/DEV CONFIRMATION` → `CONFIRMED`, ambiguities → `RESOLVED`, gaps → `FILLED`. |
+| Phase 3 — Handoff (per Story) | Sequential — looped per Story | Handoff subagent: create 4 subtasks under Story (see `references/subtask-separation.md`), update Jira description + custom field (or Test Plan in Modality jira-xray) + comment mirror + labels + transition `backlog -> shift_left_qa -> estimation`. Returns transition log + trace verification |
 | Phase 3 — Batch report | Single | Batch Report subagent: aggregate per-Story summaries into `.session/shift-left-testing/<batch-id>/batch-report.md` + post to parent epic if Stories share one |
 | Phase 4 — Market comparison (optional) | Single (per accepted Story) | Market Comparison subagent: exhaustive web research via `[WEB_SEARCH_TOOL]` on post-shift-left user-story best practices, build gap table vs the refined Story, present options and WAIT for user decision. Loads `references/market-comparison.md`. |
 | Phase 5 — HTML Presentation (final) | Single (per refined Story) | Presentation subagent: generate `{STORY_KEY}-shift-left-presentation.html` (dark mode, Tokyo Night) with EVERY piece of content added to the Story — full refinement body + Jira Description + ATP DRAFT + Phase 4 output if it ran. Loads `references/presentation-template.md` (section checklist — NOTHING may be omitted). |
@@ -148,6 +149,13 @@ Phase 2 — Refinement (loop per accepted Story)
     -> Reuses sprint-testing/references/acceptance-test-planning.md §Phases 1-3
        with shift-left-mode delta (no test-data generation, no parametrization tables, outline names only)
     -> Present per-Story summary -> WAIT for user OK before next Story
+    -> ASK cross-role question: "¿Querés que lance subagentes cross-role...?"
+       If YES: launch 3 subagents (PO Senior, Dev Senior, UX/UI Designer) in parallel
+    -> Create 4 subtasks under Story:
+       #1 User Story - Refinement Draft (always)
+       #2 User Story - Refined (only if cross-role accepted)
+       #3 ATP Draft - Refinement Draft (always)
+       #4 ATP Draft - Refined (only if cross-role accepted)
 
 Phase 3 — Handoff
     -> Per Story sequentially:
@@ -314,6 +322,19 @@ This is a **separate file** from sprint-testing's synced `acceptance-test-plan.m
 
 **Story Explanation step**: replaced by the per-Story summary the orchestrator presents AFTER the subagent returns. The user OKs (or vetoes) each Story before the next refinement dispatch. This matches the "explain story -> WAIT for OK" rhythm in sprint-testing.
 
+**Cross-role resolution (after user OK on summary)**: present the following question to the user:
+
+> "¿Querés que lance subagentes cross-role (PO Senior, Dev Senior, UX/UI Designer) para responder las preguntas abiertas para resolver ambigüedades, gaps, conflictos y contradicciones?"
+
+- **If user accepts**: launch 3 subagents in parallel (PO Senior, Dev Senior, UX/UI Designer), each answering their role-specific questions from the refinement. Integrate answers inline: `NEEDS PO/DEV CONFIRMATION` → `CONFIRMED`, ambiguities → `RESOLVED`, gaps → `FILLED`, contradictions → `RESOLVED`. Then create 4 subtasks under the Story (see `references/subtask-separation.md` for the full pattern):
+  - `{STORY_KEY} - User Story - Refinement Draft` — draft description BEFORE resolution (always created)
+  - `{STORY_KEY} - User Story - Refined` — resolved description (created only if cross-role accepted)
+  - `{STORY_KEY} - ATP Draft - Refinement Draft` — draft ATP BEFORE resolution (always created)
+  - `{STORY_KEY} - ATP Draft - Refined` — resolved ATP (created only if cross-role accepted)
+- **If user declines**: create only the 2 draft subtasks (#1 and #3). Subtasks #2 and #4 are NOT created.
+
+Draft subtasks (#1, #3) are NEVER overwritten after creation. Refined subtasks (#2, #4) are populated with the cross-role resolution output.
+
 **Progress checkpoint per Story**: after each Refinement subagent returns AND the user OKs the summary, the orchestrator appends a phase entry to `.session/shift-left-testing/<batch-id>/progress.md` per `agentic-qa-core/references/session-management.md` §7: `## Phase 2.<n> — Refine <STORY_KEY> — <ts>` with `status: completed`, `artifacts_touched: [.context/PBI/.../shift-left-refinement.md]`, `next: Phase 2.<n+1> | Phase 3`. This lets a mid-batch resume skip already-refined Stories.
 
 After Phase 2 finishes the full accepted list, the per-Story summaries feed Phase 3.
@@ -328,9 +349,27 @@ For each refined Story, dispatch a Handoff subagent. Sequential, one Story at a 
 
 > **Prerequisite**: Phase 0.2 already loaded `/acli` (and `/xray-cli` in Modality jira-xray if Test Plan creation is opted in). Pseudocode below uses `[ISSUE_TRACKER_TOOL]` and `[TMS_TOOL]`.
 
-> **Content separation (MANDATORY)**: Follow the prompt template at `.claude/skills/shift-left-testing/references/shift-left-template.md` FASE 15 for the exact content split between Description (WHAT) and ATP DRAFT (HOW). Description contains: User Story + Context + Critical Analysis + Story Complexity + Epic Inheritance + Refined ACs + Critical Findings + Ambiguities + Gaps + Clarified Business Rules + Questions + Next Steps. ATP DRAFT contains: Coverage Estimate + Test Outlines + Traceability Map + Test Data/Environment Requirements + Entry/Exit Criteria + Risk-Based Prioritization + Open Items + Risks & mitigation.
+> **Content separation (MANDATORY)**: Follow the prompt template at `.claude/skills/shift-left-testing/references/shift-left-template.md` FASE 15 for the exact content split between Description (WHAT) and ATP DRAFT (HOW).
+>
+> **Description (WHAT)**: User Story + Context + Critical Analysis + Story Complexity + Epic Inheritance + Evidence-Confirmed Facts + Refined ACs + Critical Findings + Ambiguities (all resolved) + Gaps (all filled) + Edge Cases (all confirmed) + Contradictions (all resolved) + Testability Validation + Open Questions (as interrogatives, with answers if cross-role resolved) + Clarified Business Rules + Suggested Story Improvements + Data Feasibility Flags + Next Steps.
+>
+> **ATP DRAFT (HOW)**: Coverage Estimate + Test Outlines (with `Confirmed By` column if cross-role resolved) + Traceability Map + Test Impact Summary + Test Data Requirements + Test Environment Requirements + Entry/Exit Criteria + Risk-Based Prioritization + Open Items for Sprint + Risks & Mitigation (all resolved if cross-role resolved).
 
 ```
+0. Create subtasks under the Story (see `references/subtask-separation.md`):
+     ALWAYS create:
+       - {STORY_KEY} - User Story - Refinement Draft     (Task, parent: STORY_KEY)
+         → Description content BEFORE cross-role resolution (draft)
+       - {STORY_KEY} - ATP Draft - Refinement Draft       (Task, parent: STORY_KEY)
+         → ATP DRAFT content BEFORE cross-role resolution (draft)
+     ONLY if cross-role resolution was accepted in Phase 2:
+       - {STORY_KEY} - User Story - Refined              (Task, parent: STORY_KEY)
+         → Description content AFTER cross-role resolution (resolved)
+       - {STORY_KEY} - ATP Draft - Refined                (Task, parent: STORY_KEY)
+         → ATP DRAFT content AFTER cross-role resolution (resolved)
+     Draft subtasks (#1, #3) are NEVER overwritten after creation.
+     Refined subtasks (#2, #4) are populated with cross-role output.
+
 1. Write the refined ACs to the Jira acceptance_criteria field, then mirror the
    supporting analysis. Jira is source of truth — local Jira-mirrored .md files are
    read-only caches generated by the sync, never hand-written.
@@ -469,6 +508,7 @@ After Phase 5 finishes for the whole batch, append the final progress entry `## 
 11. **Jira is canonical.** No git commit, no test branch. Local `shift-left-refinement.md` is a working artifact — gitignored under `.context/PBI/**`. The byte-for-byte mirror between Jira custom field + comment + local file is the contract `fix-traceability` checks later.
 12. **Language**: artifacts + Jira content always English. Mirror the user's language only in conversation (per CLAUDE.md §1 Rule #14).
 13. **Session-footer contract (mandatory at close).** The final phase is not done until the two chat-facing blocks from `../agentic-qa-core/references/session-footer-contract.md` are printed: (1) consolidated screenshot list — repo-relative paths, verified on disk, bug annotations first — plus in-flow surfacing of every capture's path the instant it lands; (2) Session Footer listing skills/MCPs/CLIs actually used + testing levels touched, with explicit "none" entries for expected-but-untouched levels. Framing for this skill: execution. Multi-subagent sessions: each stage report carries the five footer fields (`skills_loaded`, `mcps_used`, `clis_used`, `testing_levels_touched`, `screenshots_captured`); the orchestrator compiles the footer ONCE at close. Chat only — never in a Jira comment or ATR body.
+14. **4-subtask pattern per Story.** Every refined Story gets 2 draft subtasks (#1 User Story - Refinement Draft, #3 ATP Draft - Refinement Draft) created ALWAYS. If the user accepts cross-role resolution, 2 additional refined subtasks (#2 User Story - Refined, #4 ATP Draft - Refined) are created. Draft subtasks are NEVER overwritten after creation — they are the "before" snapshot. Refined subtasks carry the resolved answers — they are the "after" snapshot. Full pattern: `references/subtask-separation.md`.
 
 ---
 
@@ -532,6 +572,7 @@ All references are self-contained. Load one at a time.
 | `references/atp-draft-template.md` | Phase 2 — body skeleton for `shift-left-refinement.md` (the ATP DRAFT). Different from sprint-testing's full ATP body. |
 | `references/refinement-questions.md` | Phase 2 — catalog of typical PO / Dev / Design gap-spotting questions, grouped by AC archetype (auth, money, search, state machine, etc.). Use as a checklist when the Story is sparse. |
 | `references/handoff-protocol.md` | Phase 3 — exact Jira mutation sequence per Story, label + transition rules, batch report template + epic-comment posting rules. |
+| `references/subtask-separation.md` | Phase 2 + Phase 3 — 4-subtask pattern per Story (User Story Draft/Refined + ATP Draft/Refined), cross-role resolution flow, creation rules. |
 | `references/nfr-proposal-procedure.md` | Phase 2 — Story silent on NFRs (performance/accessibility/scalability): propose NFR outlines + E-scenarios with `NEEDS PO/DEV CONFIRMATION` (never formal ACs), numerical consistency across ATP sections, ADF sync gotchas. |
 | `references/market-comparison.md` | Phase 4 (optional) — after Phase 3 handoff: ask the user for exhaustive web research on post-shift-left user-story best practices, gap table vs the refined Story, present options and wait for approval before any Jira change. |
 | `references/presentation-template.md` | Phase 5 (final, mandatory) — after all phases complete: generate `{STORY_KEY}-shift-left-presentation.html` (dark mode, Tokyo Night) with ALL content added to the Story. Section checklist — nothing may be omitted. |
@@ -549,7 +590,9 @@ All references are self-contained. Load one at a time.
 - [ ] Session folder `.session/shift-left-testing/<YYYY-MM-DD>-<descriptor>/` created with `plan.md` written
 - [ ] Phase 1 produced the ranked candidate table, user OK'd the refinement set
 - [ ] Phase 2 ran ONE refinement subagent per accepted Story, user OK'd each summary
+- [ ] Cross-role question asked; if accepted: 3 subagents launched (PO/Dev/Design), answers integrated
 - [ ] Per-Story `shift-left-refinement.md` written under each Story's PBI folder
+- [ ] Per-Story 4 subtasks created (see `references/subtask-separation.md`): #1 User Story - Refinement Draft (always), #2 User Story - Refined (if cross-role), #3 ATP Draft - Refinement Draft (always), #4 ATP Draft - Refined (if cross-role)
 - [ ] Phase 3 handoff applied per Story: Jira description + ATP DRAFT field + comment mirror + labels + transition (stops at `estimation`)
 - [ ] Trace verified per Story (Modality jira-xray: Test Plan link; Modality jira-native: field+comment mirror)
 - [ ] Batch report written + posted to parent epic (if applicable)

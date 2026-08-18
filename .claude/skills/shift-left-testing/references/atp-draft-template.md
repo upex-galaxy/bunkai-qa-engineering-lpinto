@@ -123,36 +123,54 @@ If Partial / No, list issues:
 ## Phase 4 — Test Outlines (DRAFT — outline names only)
 
 ### Coverage estimate
-| Type | Count | Notes |
-|------|-------|-------|
-| Positive | X | Happy path variants |
-| Negative | Y | Invalid inputs, unauthorized, missing fields |
-| Boundary | Z | Min / max / empty / null / unicode |
-| Integration | W | Per integration point |
-| API | V | Per endpoint touched |
-| **Total** | **N** | (drives PO estimation) |
+| Type | Count | Notes | Status |
+|------|-------|-------|--------|
+| Positive | X | Happy path variants | [CONFIRMED if cross-role, else empty] |
+| Negative | Y | Invalid inputs, unauthorized, missing fields | [CONFIRMED if cross-role, else empty] |
+| Boundary | Z | Min / max / empty / null / unicode | [CONFIRMED if cross-role, else empty] |
+| Integration | W | Per integration point | [CONFIRMED if cross-role, else empty] |
+| Security-RBAC | R | Role-based access control | [CONFIRMED if cross-role, else empty] |
+| State-Transition | S | Status/lifecycle changes | [CONFIRMED if cross-role, else empty] |
+| Non-Functional | N | Performance, accessibility (if applicable) | [CONFIRMED if cross-role, else empty] |
+| **Total** | **T** | (drives PO estimation) | **ALL CONFIRMED** |
 
 **Rationale**: 2-3 sentences explaining why this count given the complexity axes from Phase 1.
 
 ### Outline list (NAMES ONLY — preconditions in 1 line, expected in 1 line)
 
+> If cross-role resolution was accepted, add `Confirmed By` column (Q# reference) to each outline group table.
+
 #### Positive
-- **Should login successfully with valid OTP** — Pre: user requested OTP <5 min ago. Expected: redirect to /dashboard + 200 + session cookie set.
-- ...
+| Outline | Preconditions | Expected Result | Confirmed By |
+|---------|---------------|-----------------|--------------|
+| **Should login successfully with valid OTP** | user requested OTP <5 min ago | redirect to /dashboard + 200 + session cookie set | [Q# if cross-role resolved] |
+| ... | ... | ... | ... |
 
 #### Negative
-- **Should reject login when OTP is incorrect** — Pre: user with active OTP. Expected: 401 + "Invalid code" + no session.
-- ...
+| Outline | Preconditions | Expected Result | Confirmed By |
+|---------|---------------|-----------------|--------------|
+| **Should reject login when OTP is incorrect** | user with active OTP | 401 + "Invalid code" + no session | [Q# if cross-role resolved] |
+| ... | ... | ... | ... |
 
 #### Boundary
-- **Should reject OTP entered exactly at 5-minute expiry boundary** — Pre: OTP issued 5:00 ago. Expected: 401 + "Code expired".
-- ...
+| Outline | Preconditions | Expected Result | Confirmed By |
+|---------|---------------|-----------------|--------------|
+| **Should reject OTP entered exactly at 5-minute expiry boundary** | OTP issued 5:00 ago | 401 + "Code expired" | [Q# if cross-role resolved] |
+| ... | ... | ... | ... |
 
 #### Integration
-- **Should validate Auth0-issued OTP via /verify endpoint** — Pre: Auth0 sandbox configured. Expected: 200 from Auth0 + 200 from app.
-- ...
+| Outline | Preconditions | Expected Result | Confirmed By |
+|---------|---------------|-----------------|--------------|
+| **Should validate Auth0-issued OTP via /verify endpoint** | Auth0 sandbox configured | 200 from Auth0 + 200 from app | [Q# if cross-role resolved] |
+| ... | ... | ... | ... |
 
 > **NOT included here** (deferred to in-sprint planning by `/sprint-testing` Stage 1): parametrization tables, per-outline test-data JSON, numbered test steps, Faker generation strategies. Coverage estimate IS included because PO uses it for estimation.
+
+### Test Impact Summary
+
+| Decision | Test Impact |
+|----------|-------------|
+| [technical decision] | [how it affects tests] |
 
 ---
 

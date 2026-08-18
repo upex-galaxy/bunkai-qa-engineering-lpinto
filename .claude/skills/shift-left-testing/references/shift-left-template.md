@@ -143,6 +143,33 @@ AC[N]: [Título del AC]
 
 ---
 
+## FASE 10.1 — Resolución Cross-Role (opcional — preguntar al usuario)
+
+> **Pregunta al usuario**: "¿Querés que lance subagentes cross-role (PO Senior, Dev Senior, UX/UI Designer) para responder las preguntas abiertas para resolver ambigüedades, gaps, conflictos y contradicciones?"
+
+**Si el usuario acepta:**
+1. Lanzar 3 subagentes en paralelo:
+   - **PO Senior**: responde preguntas PO (Q#1-Q#9 del refinement)
+   - **Dev Senior**: responde preguntas Dev (Q#10-Q#20 del refinement)
+   - **UX/UI Designer**: responde preguntas Design (Q#21-Q#26 del refinement)
+2. Integrar respuestas inline:
+   - `NEEDS PO/DEV CONFIRMATION` → `CONFIRMED` (con Q# reference)
+   - Ambigüedades → `RESOLVED`
+   - Gaps → `FILLED`
+   - Conflictos → `RESOLVED`
+3. Crear 4 subtasks (ver FASE 15, paso 8):
+   - #1 User Story - Refinement Draft (siempre)
+   - #2 User Story - Refined (solo si acepta)
+   - #3 ATP Draft - Refinement Draft (siempre)
+   - #4 ATP Draft - Refined (solo si acepta)
+
+**Si el usuario rechaza:**
+- Crear solo #1 y #3 (drafts)
+- Las preguntas quedan como `NEEDS PO/DEV CONFIRMATION`
+- #2 y #4 NO se crean
+
+---
+
 ## FASE 11 — Preguntas Abiertas — Respuestas Propuestas
 
 | # | Pregunta | Respuesta Propuesta | Fuente |
@@ -179,47 +206,48 @@ Generar el ATP DRAFT con esta estructura:
 | Integration | [N] | [resumen] |
 | Security-RBAC | [N] | [resumen] |
 | State-Transition | [N] | [resumen] |
+| Non-Functional | [N] | [resumen] (si aplica) |
 | **Total** | **[N]** | **[resumen]** |
 
 ### Test Outlines
 
 #### Positive
-| # | Outline | Preconditions | Expected Result |
-|---|---------|---------------|-----------------|
-| P1 | [nombre] | [precondición] | [resultado esperado] |
+| # | Outline | Preconditions | Expected Result | Confirmed By |
+|---|---------|---------------|-----------------|--------------|
+| P1 | [nombre] | [precondición] | [resultado esperado] | [Q# si cross-role resolvió, sino vacío] |
 
 #### Negative
-| # | Outline | Preconditions | Expected Result |
-|---|---------|---------------|-----------------|
-| N1 | [nombre] | [precondición] | [resultado esperado] |
+| # | Outline | Preconditions | Expected Result | Confirmed By |
+|---|---------|---------------|-----------------|--------------|
+| N1 | [nombre] | [precondición] | [resultado esperado] | [Q# si cross-role resolvió, sino vacío] |
 
 #### Boundary
-| # | Outline | Preconditions | Expected Result |
-|---|---------|---------------|-----------------|
-| B1 | [nombre] | [precondición] | [resultado esperado] |
+| # | Outline | Preconditions | Expected Result | Confirmed By |
+|---|---------|---------------|-----------------|--------------|
+| B1 | [nombre] | [precondición] | [resultado esperado] | [Q# si cross-role resolvió, sino vacío] |
 
 #### Integration
-| # | Outline | Preconditions | Expected Result |
-|---|---------|---------------|-----------------|
-| I1 | [nombre] | [precondición] | [resultado esperado] |
+| # | Outline | Preconditions | Expected Result | Confirmed By |
+|---|---------|---------------|-----------------|--------------|
+| I1 | [nombre] | [precondición] | [resultado esperado] | [Q# si cross-role resolvió, sino vacío] |
 
 #### Security-RBAC
-| # | Outline | Preconditions | Expected Result |
-|---|---------|---------------|-----------------|
-| S1 | [nombre] | [precondición] | [resultado esperado] |
+| # | Outline | Preconditions | Expected Result | Confirmed By |
+|---|---------|---------------|-----------------|--------------|
+| S1 | [nombre] | [precondición] | [resultado esperado] | [Q# si cross-role resolvió, sino vacío] |
 
 #### State-Transition
-| # | Outline | Preconditions | Expected Result |
-|---|---------|---------------|-----------------|
-| T1 | [nombre] | [precondición] | [resultado esperado] |
+| # | Outline | Preconditions | Expected Result | Confirmed By |
+|---|---------|---------------|-----------------|--------------|
+| ST1 | [nombre] | [precondición] | [resultado esperado] | [Q# si cross-role resolvió, sino vacío] |
 
-#### Non-Functional (si aplica — NEEDS PO/DEV CONFIRMATION)
-| # | Outline | Preconditions | Expected Result |
-|---|---------|---------------|-----------------|
-| NFR1 | [performance: latency bajo carga concurrente] | [precondición] | [resultado esperado] |
-| NFR2 | [performance: carga de historial grande] | [precondición] | [resultado esperado] |
-| NFR3 | [accesibilidad: navegación por teclado] | [precondición] | [resultado esperado] |
-| NFR4 | [accesibilidad: screen reader / live region] | [precondición] | [resultado esperado] |
+#### Non-Functional (si aplica)
+| # | Outline | Preconditions | Expected Result | Confirmed By |
+|---|---------|---------------|-----------------|--------------|
+| NFR1 | [performance: latency bajo carga concurrente] | [precondición] | [resultado esperado] | [Q# si cross-role resolvió, sino vacío] |
+| NFR2 | [performance: carga de historial grande] | [precondición] | [resultado esperado] | [Q# si cross-role resolvió, sino vacío] |
+| NFR3 | [accesibilidad: navegación por teclado] | [precondición] | [resultado esperado] | [Q# si cross-role resolvió, sino vacío] |
+| NFR4 | [accesibilidad: screen reader / live region] | [precondición] | [resultado esperado] | [Q# si cross-role resolvió, sino vacío] |
 
 > **Consistencia numérica (MANDATORY)**: fila Non-Functional en Coverage Estimate + Total incrementado + filas E4-E7 en Traceability Map + "All N outlines executed" en Exit Criteria + NFRs en Risk-Based Prioritization + Risk row adicional — TODO debe coincidir. Ver `references/nfr-proposal-procedure.md` §4.
 
@@ -229,17 +257,19 @@ Generar el ATP DRAFT con esta estructura:
 |-------------|----------------------|----------|
 | AC1: [título] | 1.1, 1.2, 1.3 | P1, N1, B1 |
 
+### Test Impact Summary
+
+| Decisión | Impacto en Testing |
+|----------|-------------------|
+| [decisión técnica] | [cómo afecta los tests] |
+
 ### Test Data Requirements
 
-| Tipo de Dato | Requisito | Notas |
-|--------------|-----------|-------|
-| [tipo] | [requisito] | [notas] |
+- [dato]: [requisito] — [notas]
 
 ### Test Environment Requirements
 
-| Componente | Requisito | Notas |
-|------------|-----------|-------|
-| [componente] | [requisito] | [notas] |
+- [componente]: [requisito] — [notas]
 
 ### Entry Criteria
 - [ ] [criterio]
@@ -275,29 +305,31 @@ Generar el ATP DRAFT con esta estructura:
 - Critical Analysis
 - Story Complexity
 - Epic-level Inheritance
-- Story Quality Assessment
+- Evidence-Confirmed Facts
 - Refined Acceptance Criteria (code block con `gherkin`)
 - Critical Findings
-- Ambiguities
-- Gaps (missing info)
+- Ambiguities (all resolved if cross-role, else with NEEDS PO/DEV CONFIRMATION)
+- Gaps (all filled if cross-role, else with NEEDS PO/DEV CONFIRMATION)
+- Edge Cases (all confirmed if cross-role, else with NEEDS PO/DEV CONFIRMATION)
+- Contradictions (all resolved if cross-role)
+- Testability Validation
+- Open Questions (as interrogatives, with answers if cross-role resolved)
 - Clarified Business Rules
-- Critical Questions for PO
-- Technical Questions for Dev
-- Design Questions
-- Open Questions — Proposed Answers
 - Suggested Story Improvements
-- Next Steps
+- Data Feasibility Flags
+- Next Steps (with checkmarks)
 
 **ATP DRAFT (HOW):**
-- Coverage Estimate
-- Test Outlines
+- Coverage Estimate (with Status column: CONFIRMED if cross-role)
+- Test Outlines (with `Confirmed By` column if cross-role resolved)
 - Traceability Map
+- Test Impact Summary
 - Test Data Requirements
 - Test Environment Requirements
-- Entry/Exit Criteria
+- Entry/Exit Criteria (with Status: CONFIRMED if cross-role)
 - Risk-Based Prioritization
-- Open Items for Sprint
-- Risks & mitigation
+- Open Items for Sprint (checked if cross-role resolved)
+- Risks & Mitigation (strikethrough + RESOLVED if cross-role resolved)
 
 ### Reglas de formato
 
@@ -327,6 +359,41 @@ bun .claude/skills/acli/scripts/md-to-adf.ts input.md output.adf.json
 
 # 7. Transicionar (si aplica)
 [ISSUE_TRACKER_TOOL] — transition a Estimation (ver {{jira.transition.*}})
+
+# 8. Crear subtasks (ver references/subtask-separation.md)
+#    SIEMPRE crear:
+[ISSUE_TRACKER_TOOL] — Create Issue:
+  fields:
+    project: { key: "{{PROJECT_KEY}}" }
+    parent: { key: "<<STORY_KEY>>" }
+    issuetype: { id: "10018" }  # Task
+    summary: "<<STORY_KEY>> - User Story - Refinement Draft"
+    description: <Description content BEFORE cross-role resolution>
+
+[ISSUE_TRACKER_TOOL] — Create Issue:
+  fields:
+    project: { key: "{{PROJECT_KEY}}" }
+    parent: { key: "<<STORY_KEY>>" }
+    issuetype: { id: "10018" }  # Task
+    summary: "<<STORY_KEY>> - ATP Draft - Refinement Draft"
+    description: <ATP DRAFT content BEFORE cross-role resolution>
+
+#    SOLO si cross-role fue aceptado:
+[ISSUE_TRACKER_TOOL] — Create Issue:
+  fields:
+    project: { key: "{{PROJECT_KEY}}" }
+    parent: { key: "<<STORY_KEY>>" }
+    issuetype: { id: "10018" }  # Task
+    summary: "<<STORY_KEY>> - User Story - Refined"
+    description: <Description content AFTER cross-role resolution>
+
+[ISSUE_TRACKER_TOOL] — Create Issue:
+  fields:
+    project: { key: "{{PROJECT_KEY}}" }
+    parent: { key: "<<STORY_KEY>>" }
+    issuetype: { id: "10018" }  # Task
+    summary: "<<STORY_KEY>> - ATP Draft - Refined"
+    description: <ATP DRAFT content AFTER cross-role resolution>
 ```
 
 ---
