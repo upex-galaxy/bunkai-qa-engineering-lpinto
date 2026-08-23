@@ -116,8 +116,8 @@ const envDataMap: Record<
     user: userCredentialsMap.local,
   },
   staging: {
-    base: 'https://dojo.upexgalaxy.com',
-    api: 'https://dojo.upexgalaxy.com/api',
+    base: 'https://staging-upexbunkai.vercel.app',
+    api: 'https://staging-upexbunkai.vercel.app/api/v1',
     user: userCredentialsMap.staging,
   },
 };
@@ -132,11 +132,14 @@ export const config = {
   baseUrl: envData.base,
   apiUrl: envData.api,
 
-  // Authentication config (UPEX Dojo endpoints - relative to apiUrl)
+  // Authentication config (Bunkai v1 endpoints - relative to apiUrl)
   auth: {
-    loginEndpoint: '/auth/login',
-    tokenEndpoint: '/auth/login', // Endpoint to intercept for token (used by page.waitForResponse)
-    meEndpoint: '/auth/me',
+    loginEndpoint: '/auth/signin',
+    tokenEndpoint: '/auth/signin', // Endpoint to intercept for token (used by page.waitForResponse)
+    meEndpoint: '/me',
+    signupEndpoint: '/auth/signup',
+    confirmEndpoint: '/auth/confirm',
+    resendEndpoint: '/auth/resend',
     tokenLifetimeSeconds: 86400, // 24 hours (1 day)
     // Storage paths for authenticated sessions
     storageStatePath: '.auth/user.json',

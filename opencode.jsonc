@@ -69,15 +69,7 @@
         "dbhub.toml"
       ],
       "enabled": true,
-      "oauth": false,
-      "environment": {
-        "DBHUB_TYPE": "{env:DBHUB_TYPE}",
-        "DBHUB_HOST": "{env:DBHUB_HOST}",
-        "DBHUB_PORT": "{env:DBHUB_PORT}",
-        "DBHUB_DATABASE": "{env:DBHUB_DATABASE}",
-        "DBHUB_USER": "{env:DBHUB_USER}",
-        "DBHUB_PASSWORD": "{env:DBHUB_PASSWORD}"
-      }
+      "oauth": false
     },
     "openapi": {
       "type": "local",

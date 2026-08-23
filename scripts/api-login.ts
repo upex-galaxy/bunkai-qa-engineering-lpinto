@@ -23,7 +23,7 @@
 
 import type { ApiState } from '@data/types';
 
-import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 // ============================================
@@ -49,8 +49,7 @@ if (args.includes('--help') || args.includes('-h')) {
   process.exit(0);
 }
 
-// Validate and override TEST_ENV BEFORE importing config,
-// because config/variables.ts reads TEST_ENV at evaluation time.
+// Validate TEST_ENV from CLI arg
 const validEnvs = ['local', 'staging']; // Must match Environment type in config/variables.ts
 const envArg = args[0];
 if (envArg) {
@@ -59,6 +58,27 @@ if (envArg) {
     log(`Available environments: ${validEnvs.join(', ')}`, 'info');
     process.exit(1);
   }
+}
+
+// Force-read .env into process.env so config/variables.ts picks up the
+// latest values even if Bun auto-loaded a stale cached version.
+const projectRoot = resolve(import.meta.dir, '..');
+const envPath = resolve(projectRoot, '.env');
+if (existsSync(envPath)) {
+  const envContent = readFileSync(envPath, 'utf-8');
+  for (const line of envContent.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) { continue; }
+    const eqIdx = trimmed.indexOf('=');
+    if (eqIdx === -1) { continue; }
+    const key = trimmed.slice(0, eqIdx).trim();
+    const val = trimmed.slice(eqIdx + 1).trim();
+    process.env[key] = val;
+  }
+}
+
+// CLI arg overrides .env value for TEST_ENV
+if (envArg) {
   process.env.TEST_ENV = envArg;
 }
 
@@ -75,39 +95,215 @@ const ENV_FILE = resolve(PROJECT_ROOT, '.env');
 const ENV_TOKEN_KEY = 'API_TOKEN';
 
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  PROJECT-SPECIFIC AUTHENTICATION CONFIGURATION                  ║
-// ║  Adapt this section to match YOUR project's auth mechanism.     ║
-// ║  The boilerplate default uses POST /auth/login with             ║
-// ║  { email, password } → { access_token }.                       ║
-// ║  Your project may use OAuth2, API keys, or a different format.  ║
+// ║  PROJECT-SPECIFIC: Bunkai Auth Flow                             ║
+// ║  Multi-step: signin → (signup → OTP via Resend → confirm)      ║
+// ║  Saves the PAT (long-lived) as primary token.                   ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
-/**
- * Build the request body for the auth endpoint.
- * Override this for different auth formats (e.g., { username, password }, OAuth2 form data).
- */
-function buildAuthPayload(email: string, password: string): Record<string, string> {
-  return { email, password };
+const BUNKAI_HEADERS = { 'Accept': '*/*', 'Content-Type': 'application/json' };
+
+interface BunkaiAuthResult {
+  pat: string
+  accessToken: string
+  expiresIn: number
+  refreshToken: string | null
 }
 
 /**
- * Extract token fields from the auth response.
- * Override this if your API returns tokens in a different shape.
- *
- * Expected response format (default):
- *   { access_token: string, token_type: string, expires_in: number, refresh_token?: string }
+ * Try direct signin (works if email is already confirmed).
  */
-function extractTokenFromResponse(body: Record<string, unknown>): {
-  accessToken: string
-  tokenType: string
-  expiresIn: number
-  refreshToken: string | null
-} {
+async function trySignin(email: string, password: string): Promise<BunkaiAuthResult | null> {
+  const url = `${config.apiUrl}${config.auth.loginEndpoint}`;
+  log(`Trying signin at ${url}...`);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: BUNKAI_HEADERS,
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    log(`Signin failed (${res.status}): ${body}`, 'warn');
+    return null;
+  }
+
+  const data = (await res.json()) as Record<string, unknown>;
+  const session = data.session as Record<string, unknown> | undefined;
+  const pat = data.pat as Record<string, unknown> | undefined;
+
+  if (!pat?.token) {
+    log('Signin response missing pat.token', 'warn');
+    return null;
+  }
+
   return {
-    accessToken: String(body.access_token ?? ''),
-    tokenType: String(body.token_type ?? 'Bearer'),
-    expiresIn: Number(body.expires_in ?? 86400),
-    refreshToken: body.refresh_token ? String(body.refresh_token) : null,
+    pat: String(pat.token),
+    accessToken: String(session?.access_token ?? ''),
+    expiresIn: Number(session?.expires_in ?? 3600),
+    refreshToken: session?.refresh_token ? String(session.refresh_token) : null,
+  };
+}
+
+/**
+ * Register new account via signup endpoint.
+ */
+async function signup(email: string, password: string): Promise<boolean> {
+  const url = `${config.apiUrl}${config.auth.signupEndpoint}`;
+  log(`Signing up at ${url}...`);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: BUNKAI_HEADERS,
+    body: JSON.stringify({ email, password }),
+  });
+
+  const body = await res.text();
+  if (!res.ok) {
+    log(`Signup failed (${res.status}): ${body}`, 'error');
+    return false;
+  }
+
+  log(`Signup response: ${body}`, 'info');
+  return true;
+}
+
+/**
+ * Resend confirmation email for existing unconfirmed account.
+ */
+async function resendConfirmation(email: string): Promise<void> {
+  const url = `${config.apiUrl}${config.auth.resendEndpoint}`;
+  log(`Resending confirmation at ${url}...`);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: BUNKAI_HEADERS,
+    body: JSON.stringify({ email }),
+  });
+
+  const body = await res.text();
+  if (!res.ok) {
+    log(`Resend failed (${res.status}): ${body}`, 'warn');
+  }
+  else {
+    log(`Resend response: ${body}`, 'info');
+  }
+}
+
+/**
+ * Read the latest OTP from Resend inbox for the given email.
+ * Uses the Resend CLI (resend emails receiving list/get) since the REST API
+ * for receiving is not publicly available.
+ */
+async function readOtpFromResend(toEmail: string): Promise<string | null> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    log('RESEND_API_KEY not set in .env — cannot read OTP automatically.', 'error');
+    return null;
+  }
+
+  log('Reading OTP from Resend inbox via CLI...');
+
+  try {
+    // List recent received emails via CLI
+    const listProc = Bun.spawnSync(['resend', 'emails', 'receiving', 'list', '-q'], {
+      env: { ...process.env, RESEND_API_KEY: apiKey },
+    });
+
+    if (listProc.exitCode !== 0) {
+      log(`Resend CLI list failed: ${listProc.stderr.toString()}`, 'error');
+      return null;
+    }
+
+    const listData = JSON.parse(listProc.stdout.toString()) as { data?: Array<{ id: string, to: string[], subject: string, created_at: string }> };
+    const emails = listData.data ?? [];
+
+    // Find the most recent confirmation email for this address
+    const match = emails.find(e =>
+      e.to.some(t => t.toLowerCase() === toEmail.toLowerCase())
+      && e.subject.toLowerCase().includes('confirm'),
+    );
+
+    if (!match) {
+      log('No confirmation email found in Resend inbox.', 'error');
+      return null;
+    }
+
+    log(`Found email ${match.id} (${match.created_at})`, 'info');
+
+    // Get full email content via CLI
+    const getProc = Bun.spawnSync(['resend', 'emails', 'receiving', 'get', match.id, '-q'], {
+      env: { ...process.env, RESEND_API_KEY: apiKey },
+    });
+
+    if (getProc.exitCode !== 0) {
+      log(`Resend CLI get failed: ${getProc.stderr.toString()}`, 'error');
+      return null;
+    }
+
+    const emailData = JSON.parse(getProc.stdout.toString()) as { text?: string, html?: string };
+    const text = emailData.text ?? emailData.html ?? '';
+
+    // Extract 6-8 digit OTP
+    const otpMatch = text.match(/\b(\d{6,8})\b/);
+    if (!otpMatch) {
+      log('Could not extract OTP from email content.', 'error');
+      log(`Email text preview: ${text.slice(0, 200)}`, 'info');
+      return null;
+    }
+
+    log(`OTP extracted: ${otpMatch[1]}`, 'success');
+    return otpMatch[1];
+  }
+  catch (error) {
+    log(`Resend read failed: ${String(error)}`, 'error');
+    return null;
+  }
+}
+
+/**
+ * Confirm email with OTP and get PAT.
+ */
+async function confirmWithOtp(email: string, otp: string): Promise<BunkaiAuthResult | null> {
+  const url = `${config.apiUrl}${config.auth.confirmEndpoint}`;
+  log(`Confirming at ${url}...`);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: BUNKAI_HEADERS,
+    body: JSON.stringify({ email, token: otp }),
+  });
+
+  const rawBody = await res.text();
+  if (!res.ok) {
+    log(`Confirm failed (${res.status}): ${rawBody}`, 'error');
+    return null;
+  }
+
+  let data: Record<string, unknown>;
+  try {
+    data = JSON.parse(rawBody) as Record<string, unknown>;
+  }
+  catch {
+    log(`Confirm returned invalid JSON: ${rawBody.slice(0, 200)}`, 'error');
+    return null;
+  }
+
+  const session = data.session as Record<string, unknown> | undefined;
+  const pat = data.pat as Record<string, unknown> | undefined;
+
+  if (!pat?.token) {
+    log('Confirm response missing pat.token', 'error');
+    log(`Response: ${rawBody}`, 'info');
+    return null;
+  }
+
+  log('Email confirmed, PAT received.', 'success');
+  return {
+    pat: String(pat.token),
+    accessToken: String(session?.access_token ?? ''),
+    expiresIn: Number(session?.expires_in ?? 3600),
+    refreshToken: session?.refresh_token ? String(session.refresh_token) : null,
   };
 }
 
@@ -116,11 +312,10 @@ function extractTokenFromResponse(body: Record<string, unknown>): {
 // ╚══════════════════════════════════════════════════════════════════╝
 
 // ============================================
-// Authentication
+// Authentication (orchestrator)
 // ============================================
 
 async function authenticate(): Promise<ApiState | null> {
-  const url = `${config.apiUrl}${config.auth.loginEndpoint}`;
   const { email, password } = config.testUser;
 
   if (!email || !password) {
@@ -132,41 +327,48 @@ async function authenticate(): Promise<ApiState | null> {
     return null;
   }
 
-  log(`Authenticating against ${url}...`);
-
   try {
-    const payload = buildAuthPayload(email, password);
+    // 1. Try direct signin (fast path — email already confirmed)
+    const signinResult = await trySignin(email, password);
+    if (signinResult) {
+      return {
+        token: signinResult.pat,
+        tokenType: 'Bearer',
+        expiresIn: signinResult.expiresIn,
+        refreshToken: signinResult.refreshToken,
+        source: 'api-login',
+        createdAt: new Date().toISOString(),
+      };
+    }
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Accept': '*/*',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    // 2. Signup → read OTP from Resend → confirm
+    log('Signin failed — attempting signup + OTP confirm flow...', 'info');
 
-    if (!response.ok) {
-      const body = await response.text();
-      log(`Authentication failed with status ${response.status}`, 'error');
-      log(`Response: ${body}`, 'error');
+    const signupOk = await signup(email, password);
+    if (!signupOk) {
+      // 409 = account exists but may not be confirmed — try resend + confirm anyway
+      log('Signup returned error — trying resend + confirm (account may exist)...', 'info');
+      await resendConfirmation(email);
+    }
+
+    // Wait for email delivery
+    log('Waiting 5s for email delivery...', 'info');
+    await new Promise(r => setTimeout(r, 5000));
+
+    const otp = await readOtpFromResend(email);
+    if (!otp) {
+      log('Could not retrieve OTP. Check Resend inbox manually.', 'error');
       return null;
     }
 
-    const responseBody = (await response.json()) as Record<string, unknown>;
-    const tokenData = extractTokenFromResponse(responseBody);
-
-    if (!tokenData.accessToken) {
-      log('Authentication response did not contain an access token.', 'error');
-      log(`Response keys: ${Object.keys(responseBody).join(', ')}`, 'error');
-      return null;
-    }
+    const confirmResult = await confirmWithOtp(email, otp);
+    if (!confirmResult) { return null; }
 
     return {
-      token: tokenData.accessToken,
-      tokenType: tokenData.tokenType,
-      expiresIn: tokenData.expiresIn,
-      refreshToken: tokenData.refreshToken,
+      token: confirmResult.pat,
+      tokenType: 'Bearer',
+      expiresIn: confirmResult.expiresIn,
+      refreshToken: confirmResult.refreshToken,
       source: 'api-login',
       createdAt: new Date().toISOString(),
     };
@@ -184,6 +386,10 @@ async function authenticate(): Promise<ApiState | null> {
 
 function saveApiState(apiState: ApiState): void {
   const apiStatePath = config.auth.apiStatePath;
+  const dir = apiStatePath.substring(0, apiStatePath.lastIndexOf('/'));
+  if (dir && !existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
   writeFileSync(apiStatePath, JSON.stringify(apiState, null, 2));
   log(`Token saved to ${apiStatePath}`, 'success');
 }
@@ -246,14 +452,19 @@ function updateEnvFile(token: string): void {
 
 function showHelp(): void {
   console.log(`
-\x1B[1mAPI Login\x1B[0m - Authenticate and store token for tests & MCP tools
+\x1B[1mAPI Login\x1B[0m - Authenticate and store PAT for tests & MCP tools
 
 \x1B[1mUSAGE\x1B[0m
   bun run api:login [environment]
 
 \x1B[1mENVIRONMENTS\x1B[0m
   local       Authenticate against local dev server (default)
-  staging     Authenticate against staging server
+  staging     Authenticate against Bunkai staging server
+
+\x1B[1mFLOW (staging)\x1B[0m
+  1. Try signin (fast path if email already confirmed)
+  2. If fails: signup → read OTP from Resend → confirm email
+  3. Save PAT (long-lived token) to storage
 
 \x1B[1mEXAMPLES\x1B[0m
   bun run api:login                  # Uses TEST_ENV from .env
@@ -268,11 +479,11 @@ function showHelp(): void {
 
 \x1B[1mREQUIRED .env VARIABLES\x1B[0m
   For local:    LOCAL_USER_EMAIL, LOCAL_USER_PASSWORD
-  For staging:  STAGING_USER_EMAIL, STAGING_USER_PASSWORD
+  For staging:  STAGING_USER_EMAIL, STAGING_USER_PASSWORD, RESEND_API_KEY
 
 \x1B[1mCONFIGURATION\x1B[0m
   Environment URLs:   config/variables.ts (envDataMap)
-  Auth format:        scripts/api-login.ts (PROJECT-SPECIFIC section)
+  Auth flow:          scripts/api-login.ts (Bunkai multi-step section)
 
 \x1B[1mOPTIONS\x1B[0m
   -h, --help    Show this help
