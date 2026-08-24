@@ -1,14 +1,14 @@
-# ATP DRAFT Template — Skeleton for `shift-left-refinement.md`
+# ATP Outline Template — Skeleton for `shift-left-refinement.md`
 
 > **Subagent context**: this file is the "Context docs" template the Phase 2 Refinement subagent writes into the Story's PBI folder (see `shift-left-testing/SKILL.md` §Phase 2 and `refinement-playbook.md`).
 
-This is the **DRAFT** ATP body used during pre-sprint Shift-Left. Different from sprint-testing's full ATP (`acceptance-test-planning.md`) — see §Differences from sprint-testing's ATP below.
+This is the pre-sprint ATP body at **outline maturity**. It is the Story's single, real ATP — pre-sprint it lives in the `{{jira.acceptance_test_plan}}` field; `/sprint-testing` Stage 1 later creates the Test Plan issue FROM that field content and refines the SAME ATP into the executable superset (see `acceptance-test-planning.md` for that stage's full body). What changes between the two passes is scope (and home: field → item), not identity.
 
-The skeleton below is the canonical body for `shift-left-refinement.md`. The same body is mirrored byte-for-byte in Jira during Phase 3 (custom field `{{jira.acceptance_test_plan}}` + Story description QA Refinements section + comment mirror).
+The skeleton below is the canonical body for `shift-left-refinement.md`, the `[LOCAL]` staging buffer. Phase 3 publishes it to Jira (custom field `{{jira.acceptance_test_plan}}` + Story description QA Refinements section); the Phase 3 comment is a POINTER to the field — full body in a comment only in fallback mode when the field is absent (see `handoff-protocol.md`).
 
-> **ATP DRAFT item title** — the `# Shift-Left Refinement: …` heading below is only the local file heading. When Phase 3 publishes the DRAFT (see `handoff-protocol.md` Step 2), by excellence it is a real **Test Plan** issue titled `ATP: {STORY-KEY}: {story title} (Shift-Left DRAFT)`, parented to the **QA Master Test Plan** epic. The Story custom field is a **fallback ONLY** when the Test Plan work type is unavailable.
+> **ATP item title** — the `# Shift-Left Refinement: …` heading below is only the local file heading. Phase 3's publish target is the `{{jira.acceptance_test_plan}}` field — Shift-Left creates NO Test Plan issue. The real **Test Plan** item titled `ATP: {STORY-KEY}: {story title}`, parented to the **QA Master Test Plan** epic, is created by `/sprint-testing` Stage 1 from the field content — never a title variant, never a second ATP.
 
-> **Before Phase 3 publishes ATP DRAFT body to Jira rich-text fields**, read `../../agentic-qa-core/references/jira-publishing-gotchas.md` — covers the two ADF conversion gotchas (`md-to-adf` mark collision + MCP batched custom-field rejection) that silently fail HTTP 400.
+> **Before Phase 3 publishes the ATP body to Jira rich-text fields**, read `../../agentic-qa-core/references/jira-publishing-gotchas.md` — covers the two ADF conversion gotchas (`md-to-adf` mark collision + MCP batched custom-field rejection) that silently fail HTTP 400.
 
 ---
 
@@ -120,61 +120,43 @@ If Partial / No, list issues:
 
 ---
 
-## Phase 4 — Test Outlines (DRAFT — outline names only)
+## Phase 4 — Test Outlines (outline names only)
 
 ### Coverage estimate
-| Type | Count | Notes | Status |
-|------|-------|-------|--------|
-| Positive | X | Happy path variants | [CONFIRMED if cross-role, else empty] |
-| Negative | Y | Invalid inputs, unauthorized, missing fields | [CONFIRMED if cross-role, else empty] |
-| Boundary | Z | Min / max / empty / null / unicode | [CONFIRMED if cross-role, else empty] |
-| Integration | W | Per integration point | [CONFIRMED if cross-role, else empty] |
-| Security-RBAC | R | Role-based access control | [CONFIRMED if cross-role, else empty] |
-| State-Transition | S | Status/lifecycle changes | [CONFIRMED if cross-role, else empty] |
-| Non-Functional | N | Performance, accessibility (if applicable) | [CONFIRMED if cross-role, else empty] |
-| **Total** | **T** | (drives PO estimation) | **ALL CONFIRMED** |
+| Type | Count | Notes |
+|------|-------|-------|
+| Positive | X | Happy path variants |
+| Negative | Y | Invalid inputs, unauthorized, missing fields |
+| Boundary | Z | Min / max / empty / null / unicode |
+| Integration | W | Per integration point |
+| API | V | Per endpoint touched |
+| **Total** | **N** | (drives PO estimation) |
 
 **Rationale**: 2-3 sentences explaining why this count given the complexity axes from Phase 1.
 
 ### Outline list (NAMES ONLY — preconditions in 1 line, expected in 1 line)
 
-> If cross-role resolution was accepted, add `Confirmed By` column (Q# reference) to each outline group table.
-
 #### Positive
-| Outline | Preconditions | Expected Result | Confirmed By |
-|---------|---------------|-----------------|--------------|
-| **Should login successfully with valid OTP** | user requested OTP <5 min ago | redirect to /dashboard + 200 + session cookie set | [Q# if cross-role resolved] |
-| ... | ... | ... | ... |
+- **Should login successfully with valid OTP** — Pre: user requested OTP <5 min ago. Expected: redirect to /dashboard + 200 + session cookie set.
+- ...
 
 #### Negative
-| Outline | Preconditions | Expected Result | Confirmed By |
-|---------|---------------|-----------------|--------------|
-| **Should reject login when OTP is incorrect** | user with active OTP | 401 + "Invalid code" + no session | [Q# if cross-role resolved] |
-| ... | ... | ... | ... |
+- **Should reject login when OTP is incorrect** — Pre: user with active OTP. Expected: 401 + "Invalid code" + no session.
+- ...
 
 #### Boundary
-| Outline | Preconditions | Expected Result | Confirmed By |
-|---------|---------------|-----------------|--------------|
-| **Should reject OTP entered exactly at 5-minute expiry boundary** | OTP issued 5:00 ago | 401 + "Code expired" | [Q# if cross-role resolved] |
-| ... | ... | ... | ... |
+- **Should reject OTP entered exactly at 5-minute expiry boundary** — Pre: OTP issued 5:00 ago. Expected: 401 + "Code expired".
+- ...
 
 #### Integration
-| Outline | Preconditions | Expected Result | Confirmed By |
-|---------|---------------|-----------------|--------------|
-| **Should validate Auth0-issued OTP via /verify endpoint** | Auth0 sandbox configured | 200 from Auth0 + 200 from app | [Q# if cross-role resolved] |
-| ... | ... | ... | ... |
+- **Should validate Auth0-issued OTP via /verify endpoint** — Pre: Auth0 sandbox configured. Expected: 200 from Auth0 + 200 from app.
+- ...
 
 > **NOT included here** (deferred to in-sprint planning by `/sprint-testing` Stage 1): parametrization tables, per-outline test-data JSON, numbered test steps, Faker generation strategies. Coverage estimate IS included because PO uses it for estimation.
 
-### Test Impact Summary
-
-| Decision | Test Impact |
-|----------|-------------|
-| [technical decision] | [how it affects tests] |
-
 ---
 
-## Phase 5 — Edge Cases (DRAFT)
+## Phase 5 — Edge Cases (outline)
 
 | # | Edge case | In original Story? | Criticality | Action |
 |---|-----------|-------------------|-------------|--------|
@@ -265,7 +247,7 @@ If Partial / No, list issues:
 
 ## Differences from sprint-testing's full ATP
 
-| Section | Sprint-testing's synced `acceptance-test-plan.md` (full ATP) | Shift-Left's `shift-left-refinement.md` (DRAFT) |
+| Section | In-sprint ATP (sprint-testing Stage 1) | Pre-sprint ATP (this skill, Phase 2) |
 |---------|----------------------------------------------|-------------------------------------------------|
 | Phase 4 parametrization tables | YES | NO |
 | Phase 4 per-outline test-data JSON | YES | NO |
@@ -277,14 +259,14 @@ If Partial / No, list issues:
 | Bug variant section | YES | NO — bugs out of scope |
 | Status flag at top | "Test Analysis — Ready for Execution" | "Refined — Awaiting PO Estimation" |
 
-When `/sprint-testing` later runs Stage 1 on a Story with `shift-left-reviewed` label fresh (<30 days), it reads `shift-left-refinement.md` from the same PBI folder and:
+When `/sprint-testing` later runs Stage 1 on a Story with `shift-left-reviewed` label fresh (<30 days), it syncs and reads `acceptance-test-plan.md` (which at that point holds THIS body, published to Jira in Phase 3) and:
 
 1. Validates Refined ACs still match the (possibly updated) Story description.
 2. Skips Phases 1-3 of `acceptance-test-planning.md` (already done).
 3. Adds the deferred sections: parametrization, test-data JSON, Faker recipes, numbered steps.
-4. Writes the full ATP to the Jira `acceptance_test_plan` field (or fallback comment) as a SUPERSET of `shift-left-refinement.md`, then syncs it down to `acceptance-test-plan.md`.
+4. Creates the Test Plan issue (`ATP: {STORY-KEY}: {story title}`, parented to the QA Master Test Plan epic, linked to the Story) from the field content, then writes the full ATP back to the SAME Jira `acceptance_test_plan` field (or fallback comment) and into that Test Plan issue, as a SUPERSET of the pre-sprint body.
 
-Both files coexist in the PBI folder. `shift-left-refinement.md` is the historical record of pre-sprint analysis; the synced `acceptance-test-plan.md` is the in-sprint authoritative test plan (Jira source of truth).
+**One ATP per Story.** `shift-left-refinement.md` is a local staging buffer for Phase 2 → Phase 3, not a durable artifact: once Phase 3 publishes, Jira holds the canonical copy and the synced `acceptance-test-plan.md` is the readable one. Never make the in-sprint short-circuit depend on the staging file being present on disk — it lives under a gitignored path and will be missing on any other machine.
 
 ---
 
