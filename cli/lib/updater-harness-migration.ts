@@ -191,8 +191,11 @@ export function planHarnessMigration(root = process.cwd()): HarnessMigrationPlan
       const child = join(claudeSkills, entry);
       const stats = lstatSync(child);
       if (stats.isSymbolicLink()) {
+        const norm = (p: string) => p.replaceAll('\\', '/');
         const target = resolve(claudeSkills, readlinkSync(child));
-        if (target === canonicalSkills || target.startsWith(`${canonicalSkills}/`)) {
+        const canonical = norm(canonicalSkills);
+        const normalizedTarget = norm(target);
+        if (normalizedTarget === canonical || normalizedTarget.startsWith(`${canonical}/`)) {
           skillsShimLinks.push(entry);
         }
         else {
