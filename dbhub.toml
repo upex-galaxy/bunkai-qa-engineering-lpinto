@@ -6,17 +6,37 @@
 # file.
 #
 # Required environment variables (declare in .env):
-#   DBHUB_TYPE       — sqlserver | postgres | mysql | sqlite
 #   DBHUB_HOST       — database host
-#   DBHUB_PORT       — database port (e.g. 1433 for sqlserver, 5432 for postgres)
+#   DBHUB_PORT       — database port (e.g. 5432 for postgres, 1433 for sqlserver)
 #   DBHUB_DATABASE   — database name
 #   DBHUB_USER       — database user
 #   DBHUB_PASSWORD   — database password
 #
-# Caveat: DBHub silently substitutes the literal string `${VAR}` when a variable
-# is missing from the environment — this produces a cryptic auth failure instead
-# of a startup error. Verify all DBHUB_* vars are exported BEFORE launching the
-# MCP server.
+# Why DSN form instead of separate host/port/user fields:
+#   DBHub requires `port` as an unquoted integer in TOML, but `${DBHUB_PORT}`
+#   interpolates to a STRING and breaks parsing. Inside the DSN string every
+#   ${VAR} is plain text — no typing issue. Do NOT switch back to split fields
+#   unless you hardcode the port as an integer literal.
+#
+# sslmode semantics (DBHub-specific, differs from libpq/pg driver):
+#   disable    — plaintext
+#   require    — encrypted, certificate NOT verified  ← use this behind
+#                corporate TLS interception / Supabase pooler (the pg driver
+#                treats `require` as verify-full and fails with "self signed
+#                certificate in certificate chain"; DBHub's `require` does not).
+#   verify-ca / verify-full — PostgreSQL only, need sslrootcert.
+#
+# lazy = true — register the source without connecting at startup; connection
+#   happens on first query. Without it, an unreachable DB blocks MCP startup
+#   indefinitely (eager connect has NO default timeout).
+#
+# Gotcha: unresolved ${VAR} are left literally (no error) → auth failures that
+# look like wrong password. Verify with: env | grep DBHUB
+#
+# Cold start warning: first run of `bunx @bytebase/dbhub@latest` can take
+# 10-30s on slow Bun caches ("Slow filesystem detected" warning). If the MCP
+# client kills it early it looks like "server won't start" — retry once the
+# cache is warm.
 #
 # Add additional [[sources]] blocks below to register more databases. This file
 # is NEVER overwritten by `bun up` (no updater component owns it).
@@ -24,10 +44,5 @@
 
 [[sources]]
 id = "primary"
-type = "${DBHUB_TYPE}"
-host = "${DBHUB_HOST}"
-port = "${DBHUB_PORT}"
-database = "${DBHUB_DATABASE}"
-user = "${DBHUB_USER}"
-password = "${DBHUB_PASSWORD}"
-sslmode = "require"
+dsn = "postgres://${DBHUB_USER}:${DBHUB_PASSWORD}@${DBHUB_HOST}:${DBHUB_PORT}/${DBHUB_DATABASE}?sslmode=require"
+lazy = true

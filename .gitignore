@@ -150,3 +150,19 @@ dbhub.local.toml
 # ----- 2026-08-03 (sync) -----
 .template/upstream-sha/
 .session/
+
+# ----- 2026-08-23 (sync) -----
+.context/reports/*
+!.context/reports/README.md
+.claude/worktrees/
+.context/PBI/*
+!.context/PBI/README.md
+!.context/PBI/templates/
+!.context/PBI/epics/
+.context/PBI/epics/*
+!.context/PBI/epics/*/
+.context/PBI/epics/*/*
+!.context/PBI/epics/*/test-specs/
+.claude/skills/playwright-cli/
+.claude/skills/playwright-best-practices/
+.claude/skills/resend-cli/

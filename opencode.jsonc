@@ -27,18 +27,18 @@
     "context7": {
       "type": "local",
       "command": [
-        "npx",
+        "bunx",
         "-y",
-        "@upstash/context7-mcp"
+        "@upstash/context7-mcp@latest"
       ],
       "enabled": true
     },
     "tavily": {
       "type": "local",
       "command": [
-        "npx",
+        "bunx",
         "-y",
-        "mcp-remote",
+        "mcp-remote@latest",
         "https://mcp.tavily.com/mcp/?tavilyApiKey={env:TAVILY_API_KEY}"
       ],
       "enabled": true
