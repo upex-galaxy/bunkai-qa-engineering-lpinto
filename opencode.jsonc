@@ -54,7 +54,7 @@
     },
     "dbhub": {
       "type": "local",
-      "command": ["bunx", "-y", "@bytebase/dbhub@1.2.0", "--config", "dbhub.toml"],
+      "command": ["bunx", "-y", "@bytebase/dbhub@1.2.1", "--config", "dbhub.toml"],
       "enabled": true
     },
     // SCHEMA-READ-ONLY: no API_TOKEN / Authorization header is injected here.
