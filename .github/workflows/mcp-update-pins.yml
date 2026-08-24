@@ -29,6 +29,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    # Husky's pre-push runs full-repo gates whose state is environment-dependent
+    # (e.g. skills REGISTRY.md staleness differs between OS checkouts). This
+    # workflow validates exactly what it ships via its own explicit steps
+    # (agents:compat repair + mcp:update-pins internal agents:compat:check).
+    env:
+      HUSKY: 0
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
