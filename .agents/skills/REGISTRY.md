@@ -1,6 +1,6 @@
 # Skill Registry (auto-generated)
 
-> Generated: `2026-08-24T02:13:08.272Z`
+> Generated: `2026-08-24T02:17:18.412Z`
 > Generator: `bun scripts/build-skill-registry.ts`
 > Protocol: `.agents/skills/agentic-qa-core/references/skill-resolver.md`
 
@@ -8,7 +8,7 @@ This file is the per-session compact-rules cache for the Skill Resolver protocol
 The orchestrator copies one or more `## Skill: <slug>` blocks below into every subagent briefing under `## Project Standards (auto-resolved)`.
 Subagents trust those compact rules and only read the full SKILL.md when explicitly instructed.
 
-Skills indexed: 18
+Skills indexed: 22
 
 ---
 ## Skill: acli
@@ -36,6 +36,20 @@ Skills indexed: 18
 **Read full SKILL.md when**: the compact rules above are insufficient (e.g. novel scenario, debugging, or the briefing tells you to load the full skill).
 
 > Source: `.agents\skills\acli\SKILL.md` · phase: `unknown` · extraction strategy: B
+
+---
+
+## Skill: adapt-framework
+
+**Purpose**: Adapt this boilerplate's KATA test architecture, auth, schemas, variables, fixtures, CI, MCPs, and reporting to a project already reverse...
+
+**Compact Rules**:
+- This skill has one mode, `adapt`. Forward `$ARGUMENTS` unchanged and load `references/adaptation-workflow.md`.
+- The reference owns the complete idempotent Phase 0-9 workflow. Its boundary is mandatory: Phases 0-2 are analysis and planning only; Phase 3 begins only after explicit approval of `.context/reports/adapt-framework-plan.md`. Never bypass its genericness scan, credential stops, or ordered verification gate.
+
+**Read full SKILL.md when**: the compact rules above are insufficient (e.g. novel scenario, debugging, or the briefing tells you to load the full skill).
+
+> Source: `.agents\skills\adapt-framework\SKILL.md` · phase: `unknown` · extraction strategy: B
 
 ---
 
@@ -171,6 +185,24 @@ Skills indexed: 18
 
 ---
 
+## Skill: jira-administration
+
+**Purpose**: Run bounded Jira administration workflows for project Components or Atlassian instance migration.
+
+**Compact Rules**:
+- Forward `$ARGUMENTS` unchanged.
+- Load `/acli` before Jira operations. Load other tool-owner skills only when the selected reference requires them.
+- Missing MCP or Jira credentials are a hard stop under `AGENTS.md` Critical Rule #10.
+- `components`: derive and inspect, author the plan, run dry-run, then wait for explicit approval before `--apply`.
+- `instance-migration`: resolve and confirm both instances, audit and verify reachability, then wait for explicit approval before changing files or the machine-global `acli` session.
+- Run only the selected reference's verification. Never fall through into the other mode.
+
+**Read full SKILL.md when**: the compact rules above are insufficient (e.g. novel scenario, debugging, or the briefing tells you to load the full skill).
+
+> Source: `.agents\skills\jira-administration\SKILL.md` · phase: `unknown` · extraction strategy: B
+
+---
+
 ## Skill: judgment-day
 
 **Purpose**: Trigger: judgment day, dual review, adversarial review, juzgar.
@@ -283,9 +315,31 @@ Skills indexed: 18
 
 ---
 
+## Skill: project-context
+
+**Purpose**: Generate or refresh the canonical business context maps and master test plan.
+
+**Compact Rules**:
+- `data`
+- `features`
+- `api`
+- `test-plan`
+- Read every available source required by the selected reference. Never invent business facts.
+- CREATE mode may write the missing artifact after analysis.
+- UPDATE mode must generate a candidate, show the diff summary, and wait for explicit approval before overwriting.
+- Each output includes `## Discovery Gaps` for unverified facts.
+- After a successful artifact write, update the canonical instruction/context pointers in `AGENTS.md` only when a pointer is missing. Never add operational prose to `CLAUDE.md`.
+- `$ARGUMENTS` are forwarded unchanged to the selected mode.
+
+**Read full SKILL.md when**: the compact rules above are insufficient (e.g. novel scenario, debugging, or the briefing tells you to load the full skill).
+
+> Source: `.agents\skills\project-context\SKILL.md` · phase: `unknown` · extraction strategy: B
+
+---
+
 ## Skill: project-discovery
 
-**Purpose**: Onboard a project to this testing boilerplate and generate the context files that every QA and automation session depends on.
+**Purpose**: Onboard a project through four discovery phases: Constitution, Architecture, Infrastructure, and Specification.
 
 **Compact Rules**:
 - **Target project repo** — path resolved at session start (see "Before starting: target repo location" below). Read code and any in-repo PRD. This is the primary source of truth — discovery is reverse-engineering, never aspirational design.
@@ -293,7 +347,7 @@ Skills indexed: 18
 - **`.context/` directory** (if partial state exists from a prior discovery run) — informs Phase 0 resume decisions and prevents redundant work. Diff against current code before overwriting.
 - **`.agents/project.yaml` and `.env.example`** — variable resolution patterns (`{{PROJECT_KEY}}`, env URLs, MCP names) that every downstream context file references.
 - **`kata-manifest.json`** — registry of existing KATA Components + ATCs. Anchors what test surface the boilerplate already expects so discovery records gaps coherently.
-- **`.agents/skills/agentic-qa-core/references/skill-composition-strategy.md`** — workflow context for downstream skill hand-offs (`/adapt-framework`, `/sprint-testing`, `/test-documentation`).
+- **`.agents/skills/agentic-qa-core/references/skill-composition-strategy.md`** — workflow context for downstream handoffs (`project-context`, `adapt-framework`, `sprint-testing`, `test-documentation`).
 - **Business / domain docs supplied by the user** (Confluence, Notion exports, internal wikis) — secondary source for business model and glossary when in-repo signal is thin.
 - Check `.session/project-discovery/progress.md`.
 - If it does NOT exist → proceed to "Before starting: target repo location" below, then "Pick the scope first" (which writes `plan.md`).
@@ -424,9 +478,25 @@ Skills indexed: 18
 
 ---
 
+## Skill: sync-ai-context
+
+**Purpose**: Synchronize AI-critical repository documents against current context, package scripts, skills, aliases, and project identity.
+
+**Compact Rules**:
+- Legacy `sync-ai-memory` invocations route to `sync` for backward compatibility. The canonical name avoids confusion with Engram persistent memory.
+- Forward `$ARGUMENTS` unchanged.
+- Load `references/sync.md`, patch only verified facts, preserve all protected sections, run its cross-document and security checks, then report per-file outcomes.
+- This skill synchronizes repository documents. It does not read, write, merge, or replace Engram observations.
+
+**Read full SKILL.md when**: the compact rules above are insufficient (e.g. novel scenario, debugging, or the briefing tells you to load the full skill).
+
+> Source: `.agents\skills\sync-ai-context\SKILL.md` · phase: `unknown` · extraction strategy: B
+
+---
+
 ## Skill: test-automation
 
-**Purpose**: Plan, write, and review automated tests following KATA (Komponent Action Test Architecture) on Playwright + TypeScript.
+**Purpose**: Plan, write, and review automated tests following KATA (Komponent Action Test Architecture) on Playwright + TypeScript, or explain existi...
 
 **Compact Rules**:
 - "All ACs covered" is the FLOOR, not the success bar. The ATC set must also cover risk-beyond-AC: invalid/boundary inputs, auth/error paths, state transitions, and anomalies the AC is silent on.
@@ -448,7 +518,7 @@ Skills indexed: 18
 
 ## Skill: test-documentation
 
-**Purpose**: Analyze, prioritize, and document test cases in TMS (Jira/Xray) -- the bridge between manual QA and test automation.
+**Purpose**: Analyze, prioritize, and document test cases in TMS (Jira/Xray), or repair an existing Story-ATS-ATP-ATR-TC cascade through a sealed expl...
 
 **Compact Rules**:
 - Documenting an AC→TC map is the FLOOR (≥1 TC per AC is a minimum, never a target). Coverage = AC-conformance + risk-beyond-AC; the TC set must include boundary / negative / state / anomaly cases the AC is silent on. (Canon: `agentic-qa-core/references/test-design-doctrine.md`.)

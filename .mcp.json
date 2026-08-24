@@ -1,16 +1,15 @@
 {
   "mcpServers": {
     "context7": {
-      "command": "bunx",
-      "args": ["-y", "@upstash/context7-mcp@latest"]
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
     },
     "tavily": {
-      "command": "bunx",
-      "args": [
-        "-y",
-        "mcp-remote@latest",
-        "https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}"
-      ]
+      "type": "http",
+      "url": "https://mcp.tavily.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${TAVILY_API_KEY}"
+      }
     },
     "playwright": {
       "command": "bunx",
@@ -35,8 +34,7 @@
       "args": ["-y", "@ivotoby/openapi-mcp-server", "--tools", "dynamic"],
       "env": {
         "API_BASE_URL": "${API_BASE_URL}",
-        "OPENAPI_SPEC_PATH": "${OPENAPI_SPEC_PATH}",
-        "API_HEADERS": "Authorization:Bearer ${API_TOKEN}"
+        "OPENAPI_SPEC_PATH": "${OPENAPI_SPEC_PATH}"
       }
     },
     "postman": {

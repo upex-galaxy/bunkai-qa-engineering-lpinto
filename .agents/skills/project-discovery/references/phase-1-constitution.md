@@ -237,7 +237,7 @@ If HIGH risks exist, also write `.context/risk-assessment.md` with per-risk Seve
 
 ### Completion criteria
 
-- `## Project Assessment (Phase 1)` section present in `AGENTS.md` (AGENTS.md is a symlink to it).
+- `## Project Assessment (Phase 1)` section present in canonical `AGENTS.md`.
 - HIGH risks (if any) captured in `.context/risk-assessment.md`.
 
 ---
@@ -375,7 +375,7 @@ Required sections:
 Before proceeding to Phase 2:
 
 - [ ] `.context/project-config.md` exists and is non-empty.
-- [ ] `## Project Assessment (Phase 1)` block present in `AGENTS.md` (AGENTS.md is a symlink to it).
+- [ ] `## Project Assessment (Phase 1)` block present in canonical `AGENTS.md`.
 - [ ] `.context/business/business-model.md` exists with real sources cited.
 - [ ] `.context/business/domain-glossary.md` exists with at least Core Entities + Relationships Diagram.
 - [ ] All Discovery Gaps are listed explicitly (no silent skipping).

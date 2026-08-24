@@ -1,6 +1,6 @@
 ---
 name: test-documentation
-description: "Analyze, prioritize, and document test cases in TMS (Jira/Xray) -- the bridge between manual QA and test automation. Use when creating Test/ATP/ATR artifacts, calculating ROI to choose which tests to automate, maintaining US-ATP-ATR-TC traceability, or repairing broken TMS links. Supports four scopes: module-driven (exhaustive module exploration), ticket-driven (QA-approved user story), bug-driven (regression TC for a closed bug), and ad-hoc/exploratory. Produces three outcomes per TC: Candidate (feeds test-automation), Manual (terminal), Deferred (terminal). Triggers on: document tests, create test cases in Jira/Xray, prioritize for automation, ROI analysis, which tests to automate, Candidate vs Manual, link ATP to ATR, fix TMS traceability, stage 4, turn this bug into a regression test. Do NOT use for writing test code (test-automation) or running suites (regression-testing)."
+description: "Analyze, prioritize, and document test cases in TMS (Jira/Xray), or repair an existing Story-ATS-ATP-ATR-TC cascade through a sealed explicit mode. Use for Test/ATP/ATR artifacts, ROI and automation verdicts, maintaining traceability, fix-traceability, or broken TMS links. The repair-traceability mode audits, plans, waits for explicit approval, applies, and verifies without launching the general documentation workflow. Do NOT use for writing test code (test-automation) or running suites (regression-testing)."
 license: MIT
 compatibility: [claude-code, copilot, cursor, codex, opencode]
 complementary_categories: [tms, issue-tracker]
@@ -75,6 +75,17 @@ Requires `agentic-qa-core`. Loads on demand:
 - Bug-driven (GOLDEN RULE): not every bug is a regression TC, but a regression-worthy bug MUST end with a Test — REUSE the existing failed Test if it came from one, else CREATE one (both modalities). A non-qualifying bug is treated like a failed test → Deferred, no new Test.
 
 **Read full SKILL.md when**: resolving TMS modality, computing ROI, writing Gherkin, or wiring US-ATP-ATR-TC traceability links.
+
+---
+
+## Mode routing
+
+Resolve mode before the readiness preflight and Phase -1 session workflow.
+
+- `repair-traceability`: selected only by the legacy `fix-traceability` alias or an explicit request to repair a ticket's existing traceability. Forward `$ARGUMENTS` unchanged and load only `references/repair-traceability.md`. Preserve its sealed sequence: audit -> present plan -> explicit user approval -> apply -> verify. Do not start Analyze -> Prioritize -> Document, create unrelated test cases, or broaden the ticket scope.
+- `document` (default): normal TMS documentation, ROI, and Candidate/Manual/Deferred work. Continue with the workflow below.
+
+If the user has not supplied the ticket key required by `repair-traceability`, ask for it before any TMS call. Missing credentials remain a hard stop under `AGENTS.md` Critical Rule #10.
 
 ---
 

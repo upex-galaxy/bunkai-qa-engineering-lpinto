@@ -172,3 +172,14 @@ dbhub.local.toml
 .claude/skills
 # Local recovery copy written by the cross-harness migration.
 .template\pre-agents-migration/
+
+# ----- 2026-08-24 (sync) -----
+.env*
+!.env.example
+.template/pre-agents-migration/
+.agents/skills/*-workspace/
+.agents/skills/playwright-cli/
+.agents/skills/playwright-best-practices/
+.agents/skills/resend-cli/
+!skills-lock.json
+!**/skills-lock.json

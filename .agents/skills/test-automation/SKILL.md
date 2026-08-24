@@ -1,6 +1,6 @@
 ---
 name: test-automation
-description: "Plan, write, and review automated tests following KATA (Komponent Action Test Architecture) on Playwright + TypeScript. Use when writing E2E or API/integration tests, creating Page or Api components, designing ATCs, parameterizing test data, registering fixtures, or reviewing test code for KATA compliance. Triggers on: write test, automate test, create E2E test, create API test, integration test, KATA, page object, API component, implementation plan, ATC, automated test case, review test code, automate module, automate ticket, add regression test. Always load before writing any test code -- KATA fixture selection, inline-locator rule, ATC-identity rule, and import-alias requirements differ from standard Playwright conventions. Do NOT use for running suites (regression-testing), documenting TCs in Jira/Xray (test-documentation), onboarding a repo (project-discovery), or orchestrating sprint-wide testing (sprint-testing)."
+description: "Plan, write, and review automated tests following KATA (Komponent Action Test Architecture) on Playwright + TypeScript, or explain existing automated tests in a sealed read-only mode. Use when writing E2E or API/integration tests, creating Page or Api components, designing ATCs, parameterizing test data, registering fixtures, reviewing test code for KATA compliance, or requesting break-down-tests / a plain-English test breakdown. The explain mode reads source and reports assertions without entering Plan-Code-Review or editing tests. Do NOT use for running suites (regression-testing), documenting TCs in Jira/Xray (test-documentation), onboarding a repo (project-discovery), or orchestrating sprint-wide testing (sprint-testing)."
 license: MIT
 compatibility: [claude-code, copilot, cursor, codex, opencode]
 complementary_categories: [testing-e2e, testing-api, testing-component, automation-cli, accessibility]
@@ -54,6 +54,17 @@ Requires `agentic-qa-core`. Loads on demand:
 - Public methods fail fast; utilities silent-fail (return null). Validate against `kata-manifest.json` before adding components/ATCs (anti-duplication gate).
 
 **Read full SKILL.md when**: writing KATA component code, choosing fixtures for a hybrid flow, or applying the Phase 3 review checklist.
+
+---
+
+## Mode routing
+
+Resolve mode before any readiness preflight or session workflow.
+
+- `explain`: selected by the legacy `break-down-tests` alias or an explicit request to explain existing automated tests. Forward `$ARGUMENTS` unchanged, load only `references/explain-tests.md`, produce its read-only report, then stop. Do not create session state, run Plan -> Code -> Review, edit tests, regenerate `kata-manifest.json`, or call Jira/TMS.
+- `automate` (default): all normal KATA planning, coding, and review triggers. Continue with the workflow below.
+
+If the invocation could mean either explanation or implementation, ask which outcome is wanted. Never infer implementation from a read-only explanation request.
 
 ---
 
