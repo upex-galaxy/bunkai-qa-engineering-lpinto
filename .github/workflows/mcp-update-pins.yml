@@ -38,7 +38,9 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          # Match the local dev version: newer Bun rewrites bun.lock and
+          # `--frozen-lockfile` then fails ("lockfile had changes").
+          bun-version: 1.3.13
 
       - name: Install Dependencies
         run: bun install --frozen-lockfile
