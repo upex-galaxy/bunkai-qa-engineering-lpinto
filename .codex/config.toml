@@ -25,7 +25,7 @@ command = "bunx"
 enabled = true
 args = [
   "-y",
-  "@bytebase/dbhub@1.2.0",
+  "@bytebase/dbhub@1.2.1",
   "--config",
   "dbhub.toml",
 ]
