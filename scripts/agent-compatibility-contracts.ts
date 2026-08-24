@@ -51,7 +51,7 @@ const EXPECTED_MCP: Record<McpId, NormalizedMcpServer> = {
     transport: 'stdio',
     command: 'bunx',
     args: [
-      '@playwright/mcp@latest',
+      '@playwright/mcp@0.0.79',
       '--caps',
       'vision,pdf,testing,tracing,tabs',
       '--timeout-action',
@@ -67,7 +67,7 @@ const EXPECTED_MCP: Record<McpId, NormalizedMcpServer> = {
   dbhub: {
     transport: 'stdio',
     command: 'bunx',
-    args: ['-y', '@bytebase/dbhub@latest', '--config', 'dbhub.toml'],
+    args: ['-y', '@bytebase/dbhub@1.2.1', '--config', 'dbhub.toml'],
     env: [],
     enabled: true,
   },

@@ -40,7 +40,7 @@
       "type": "local",
       "command": [
         "bunx",
-        "@playwright/mcp@latest",
+        "@playwright/mcp@0.0.79",
         "--caps",
         "vision,pdf,testing,tracing,tabs",
         "--timeout-action",
@@ -54,7 +54,7 @@
     },
     "dbhub": {
       "type": "local",
-      "command": ["bunx", "-y", "@bytebase/dbhub@latest", "--config", "dbhub.toml"],
+      "command": ["bunx", "-y", "@bytebase/dbhub@1.2.1", "--config", "dbhub.toml"],
       "enabled": true
     },
     // SCHEMA-READ-ONLY: no API_TOKEN / Authorization header is injected here.
