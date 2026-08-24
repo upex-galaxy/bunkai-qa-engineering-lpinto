@@ -67,7 +67,7 @@ const EXPECTED_MCP: Record<McpId, NormalizedMcpServer> = {
   dbhub: {
     transport: 'stdio',
     command: 'bunx',
-    args: ['-y', '@bytebase/dbhub@1.2.0', '--config', 'dbhub.toml'],
+    args: ['-y', '@bytebase/dbhub@1.2.1', '--config', 'dbhub.toml'],
     env: [],
     enabled: true,
   },
