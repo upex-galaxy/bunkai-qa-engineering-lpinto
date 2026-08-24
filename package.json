@@ -56,6 +56,7 @@
     "kata:manifest": "bun scripts/kata-manifest.ts",
     "lint:check": "eslint .",
     "lint:fix": "eslint --fix .",
+    "mcp:update-pins": "bun scripts/update-mcp-pins.ts",
     "onboarding": "bun scripts/onboarding.ts",
     "opencode": "dotenv -o -e .env -- opencode",
     "prepare": "husky",
