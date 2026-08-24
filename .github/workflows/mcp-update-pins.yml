@@ -71,6 +71,10 @@ jobs:
           fi
 
           BRANCH="chore/mcp-pin-updates-$(date +%Y-%m)"
+          # A leftover branch from an earlier run of this month would reject
+          # the push below; its only purpose is this month's pending update,
+          # which we are about to regenerate identically.
+          git push origin --delete "$BRANCH" 2>/dev/null || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git diff --stat -- $PIN_PATHS
