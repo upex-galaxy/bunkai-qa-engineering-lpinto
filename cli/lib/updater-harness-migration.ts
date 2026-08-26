@@ -35,9 +35,17 @@ import { spawnSync } from 'node:child_process';
 import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-import { CLAUDE_INSTRUCTIONS_SHIM } from '../../scripts/agent-compatibility.ts';
+import { CLAUDE_INSTRUCTIONS_SHIM, isInside } from './agent-compatibility.ts';
 
-export const MIGRATION_BACKUP_DIR = join('.template', 'pre-agents-migration');
+/**
+ * Repo-relative, POSIX-separated on purpose. It is written into `.gitignore` (whose
+ * patterns are always `/`), printed to the user, and asserted on in tests. Building it
+ * with `join()` yields `.template\\pre-agents-migration` on Windows, which would make the
+ * ignore rule match nothing and leave the project's own pre-migration CLAUDE.md
+ * committable. `join(root, MIGRATION_BACKUP_DIR)` still resolves correctly on every
+ * platform, so filesystem use is unaffected.
+ */
+export const MIGRATION_BACKUP_DIR = '.template/pre-agents-migration';
 
 /**
  * OS-generated files that turn up inside any browsed directory. They carry no
@@ -191,11 +199,8 @@ export function planHarnessMigration(root = process.cwd()): HarnessMigrationPlan
       const child = join(claudeSkills, entry);
       const stats = lstatSync(child);
       if (stats.isSymbolicLink()) {
-        const norm = (p: string) => p.replaceAll('\\', '/');
         const target = resolve(claudeSkills, readlinkSync(child));
-        const canonical = norm(canonicalSkills);
-        const normalizedTarget = norm(target);
-        if (normalizedTarget === canonical || normalizedTarget.startsWith(`${canonical}/`)) {
+        if (isInside(target, canonicalSkills)) {
           skillsShimLinks.push(entry);
         }
         else {

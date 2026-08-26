@@ -75,7 +75,7 @@ import {
   checkAgentCompatibility,
   repairClaudeSkillsAlias,
   repairCommandWrappers,
-} from '../scripts/agent-compatibility.ts';
+} from './lib/agent-compatibility.ts';
 import {
   resolveAtlassianInstance,
   toSiteSlug,
@@ -225,6 +225,17 @@ const EXTERNAL_CLIS: ReadonlyArray<{ name: string, install?: string, docs: strin
     name: 'gh',
     docs: 'https://github.com/cli/cli#installation',
     purpose: 'GitHub CLI — repos, PRs, releases, gh api',
+  },
+  {
+    // Both permission allowlists already grant `Bash(rg *)`, and agents reach for it
+    // constantly. Claude Code ships its own copy, so this never surfaced there — but
+    // OpenCode and Codex fall through to the system binary, and a downstream user hit
+    // exactly that while running /git-flow-master. Declaring it is the point of
+    // supporting three harnesses.
+    name: 'rg',
+    install: 'brew install ripgrep   # or: apt install ripgrep · winget install BurntSushi.ripgrep.MSVC',
+    docs: 'https://github.com/BurntSushi/ripgrep#installation',
+    purpose: 'ripgrep — fast repo search. Bundled with Claude Code; OpenCode and Codex use the system binary',
   },
   {
     // Promoted to the sole default tool for Jira/Confluence/TMS work
