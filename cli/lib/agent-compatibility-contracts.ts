@@ -37,7 +37,7 @@ const EXPECTED_MCP: Record<McpId, NormalizedMcpServer> = {
   context7: {
     transport: 'stdio',
     command: 'npx',
-    args: ['-y', '@upstash/context7-mcp'],
+    args: ['-y', '@upstash/context7-mcp@4.0.3'],
     env: [],
     enabled: true,
   },
@@ -74,7 +74,7 @@ const EXPECTED_MCP: Record<McpId, NormalizedMcpServer> = {
   openapi: {
     transport: 'stdio',
     command: 'bunx',
-    args: ['-y', '@ivotoby/openapi-mcp-server', '--tools', 'dynamic'],
+    args: ['-y', '@ivotoby/openapi-mcp-server@1.16.1', '--tools', 'dynamic'],
     env: ['API_BASE_URL', 'OPENAPI_SPEC_PATH'],
     enabled: true,
   },
