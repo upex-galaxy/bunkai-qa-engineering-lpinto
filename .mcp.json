@@ -23,11 +23,13 @@
         "30000",
         "--viewport-size",
         "1920x1080"
-      ]
+      ],
+      "enabled": false
     },
     "dbhub": {
       "command": "bunx",
-      "args": ["-y", "@bytebase/dbhub@1.2.1", "--config", "dbhub.toml"]
+      "args": ["-y", "@bytebase/dbhub@1.2.1", "--config", "dbhub.toml"],
+      "enabled": false
     },
     "openapi": {
       "command": "bunx",
@@ -35,14 +37,16 @@
       "env": {
         "API_BASE_URL": "${API_BASE_URL}",
         "OPENAPI_SPEC_PATH": "${OPENAPI_SPEC_PATH}"
-      }
+      },
+      "enabled": false
     },
     "postman": {
       "type": "http",
       "url": "https://mcp.postman.com/mcp",
       "headers": {
         "Authorization": "Bearer ${POSTMAN_API_KEY}"
-      }
+      },
+      "enabled": false
     }
   }
 }

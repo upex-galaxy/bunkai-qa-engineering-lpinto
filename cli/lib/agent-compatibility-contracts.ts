@@ -62,27 +62,27 @@ const EXPECTED_MCP: Record<McpId, NormalizedMcpServer> = {
       '1920x1080',
     ],
     env: [],
-    enabled: true,
+    enabled: false,
   },
   dbhub: {
     transport: 'stdio',
     command: 'bunx',
     args: ['-y', '@bytebase/dbhub@1.2.1', '--config', 'dbhub.toml'],
     env: [],
-    enabled: true,
+    enabled: false,
   },
   openapi: {
     transport: 'stdio',
     command: 'bunx',
     args: ['-y', '@ivotoby/openapi-mcp-server@1.16.1', '--tools', 'dynamic'],
     env: ['API_BASE_URL', 'OPENAPI_SPEC_PATH'],
-    enabled: true,
+    enabled: false,
   },
   postman: {
     transport: 'http',
     url: 'https://mcp.postman.com/mcp',
     env: ['POSTMAN_API_KEY'],
-    enabled: true,
+    enabled: false,
   },
 };
 
