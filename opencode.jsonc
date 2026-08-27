@@ -49,7 +49,7 @@
         "30000",
         "--viewport-size",
         "1920x1080"
-        ],
+      ],
       "enabled": false
     },
     "dbhub": {
