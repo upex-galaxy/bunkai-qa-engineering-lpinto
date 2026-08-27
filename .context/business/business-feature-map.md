@@ -1,10 +1,10 @@
 # Business Feature Map — Bunkai (QA Lens)
 
 > Generated: 2026-08-09 (v2 — synced to `upex-bunkai-tms` staging branch, tip `5e0134c`; refreshed 2026-08-13)
-> Refreshed: 2026-08-15 (v4 — verified against `upex-bunkai-tms` branch `staging`, tip `de670c4`)
-> Sources: `../upex-bunkai-tms/app/` (31 pages), `../upex-bunkai-tms/app/api/v1/` (65 route files), `../upex-bunkai-tms/supabase/migrations/` (0001–0070), `../upex-bunkai-tms/lib/`
+> Refreshed: 2026-08-27 (v5 — verified against `upex-bunkai-tms` staging, migrations 0001–0075, 69 route files)
+> Sources: `../upex-bunkai-tms/app/` (31 pages), `../upex-bunkai-tms/app/api/v1/` (69 route files), `../upex-bunkai-tms/supabase/migrations/` (0001–0075), `../upex-bunkai-tms/lib/`
 > Cross-refs: `.context/business/business-data-map.md`, `.context/business/business-api-map.md`
-> Delta vs v3 (2026-08-13): **FEAT-BUG-006 Defect detail read SHIPPED** (BK-337: GET /api/v1/bugs/{id}, BugDetailSchema with origin + module.archived_at); BK-466 evidence-link scheme guard (http/https only); 0070 bug detail composer RPC widening.
+> Delta vs v4 (2026-08-15): **FEAT-SEARCH-001 Cross-entity search SHIPPED** (BK-398: `GET /api/v1/search`, `bunkai_workspace_search` RPC 0071); **FEAT-BILLING-001 Workspace billing overview SHIPPED** (BK-229: `GET /api/v1/workspaces/{id}/billing`, `bunkai_workspace_billing_overview` RPC 0072); **FEAT-PLAN-001 Test Plans SHIPPED** (BK-202: `GET/POST /api/v1/projects/{id}/test-plans`, `PATCH /api/v1/test-plans/{id}`, `test_plans` table 0073 with `open`/`closed` status, RPCs `bunkai_list_test_plans`, `bunkai_create_test_plan`, `bunkai_update_test_plan`); **FEAT-RUN-007 Abandoned-run sweep SHIPPED** (BK-269: `bunkai_close_abandoned_runs` pg_cron job 0075, auto-closes runs idle >30 min); NBSP whitespace fix in ATC editor (0074).
 
 ---
 
@@ -17,20 +17,22 @@
 | Project & module tree | 6 | Stable (CRUD now via API) |
 | ATC authoring | 7 | Stable (create/update/duplicate/usage/search) |
 | Tests (chains) | 5 | **Stable (was Planned)** |
-| Runs execution | 6 | **Stable (was Planned)** |
+| Runs execution | 7 | **Stable (was Planned)** + abandoned-sweep |
 | Bugs / defects | 6 | **Stable (was Planned)** |
 | Environments | 2 | **Stable (was Planned)** |
 | Imports (Jira) | 2 | **Stable (was Planned)** |
 | Milestones | 2 | **New — Stable** |
+| Test plans | 1 | **New — Stable (BK-202)** |
+| Billing | 1 | **New — Stable (BK-229)** |
 | Notifications | 4 | **New — Stable** |
 | Activity stream | 1 | **New — Stable** |
 | Coverage & traceability | 4 | **New — Stable** |
 | API layer | 8 | Stable (scopes now enforced) |
 | Token management | 3 | Stable |
-| Search & discovery | 2 | Partial / WIP |
+| Search & discovery | 1 | **New — Stable (BK-398)** |
 | Integrations | 2 | Planned |
-| UI / experience | 9 | Mixed |
-| **Total** | **~81** | |
+| UI / experience | 10 | Mixed |
+| **Total** | **~84** | |
 
 ---
 
@@ -504,6 +506,19 @@
 | **Status** | **New — Stable** |
 | **Endpoints** | `GET /api/v1/workspaces/{id}/active-runs` (Home + run filtering) |
 
+#### Feature: Abandoned-run sweep (NEW)
+
+| Aspect | Value |
+|--------|-------|
+| **ID** | FEAT-RUN-007 |
+| **Status** | **New — Stable (BK-269)** |
+| **Detail** | `bunkai_close_abandoned_runs` pg_cron job (0075) — auto-closes runs idle >30 min; runs in `in_progress` state with no `finished_at` set are swept; emits `run.aborted` event with `reason: 'abandoned'` + `via: 'sweep'`; sweep runs every 5 minutes via `pg_cron` |
+
+- [x] Configurable threshold: 30-minute inactivity window (hardcoded in 0075)
+- [x] Sweep is idempotent: already-finished runs are skipped
+- [x] Abandoned runs get `verdict: 'aborted'` + `aborted_reason: 'abandoned'`
+- [x] Notifications emitted via `bunkai_notify_run_event` (same as manual abort)
+
 ---
 
 ### 2.7 Bugs / defects — was Planned
@@ -758,7 +773,7 @@
 |--------|-------|
 | **ID** | FEAT-API-004 |
 | **Status** | Stable |
-| **Detail** | Zod schemas → OpenAPI 3.1; tags for auth/tenancy/identity + 65 route files; bearer + cookie schemes; Scalar UI at `/api/docs` |
+| **Detail** | Zod schemas → OpenAPI 3.1; tags for auth/tenancy/identity + 69 route files; bearer + cookie schemes; Scalar UI at `/api/docs` |
 
 #### Feature: API health probe
 
@@ -789,8 +804,8 @@
 |--------|-------|
 | **ID** | FEAT-API-008 |
 | **Status** | Stable + **expanded** |
-| **Endpoints** | workspaces CRUD + invites + membership (leave) + recent-projects + projects + open-bugs + active-runs + notifications + coverage |
-| **Detail** | 65 route files, ~84+ handlers |
+| **Endpoints** | workspaces CRUD + invites + membership (leave) + recent-projects + projects + open-bugs + active-runs + notifications + coverage + billing + test-plans + search |
+| **Detail** | 69 route files, ~89+ handlers |
 
 ---
 
@@ -809,6 +824,68 @@
 | Activity UI | FEAT-UI-014 | **New** | `/activity` |
 | Home | FEAT-UI-015 | **New** | `/home` |
 | Members UI | FEAT-UI-016 | Stable | `/workspaces/[id]/members` |
+| Billing UI | FEAT-UI-017 | **New (BK-229)** | `/settings/billing` |
+| Test Plans UI | FEAT-UI-018 | **New (BK-202)** | `/projects/[slug]/plans`, `/projects/[slug]/plans/[planId]` |
+
+---
+
+### 2.10 Billing
+
+#### Feature: Workspace billing overview (NEW)
+
+| Aspect | Value |
+|--------|-------|
+| **ID** | FEAT-BILLING-001 |
+| **Status** | **New — Stable (BK-229)** |
+| **Endpoints** | `GET /api/v1/workspaces/{id}/billing` → `bunkai_workspace_billing_overview` (RPC 0072) |
+| **UI** | `/settings/billing` — plan name, seats used, storage used |
+| **RPCs** | `bunkai_workspace_billing_overview` — SECURITY DEFINER; returns plan name, member count, storage bytes; caller must be workspace member (RLS enforced) |
+
+- [x] Plan name, member count, storage bytes in single RPC call
+- [x] Read-only — no plan upgrade/downgrade (placeholder for Stripe integration)
+- [x] Cross-workspace 404 collapse (0072 respects `assertWorkspaceContext`)
+
+---
+
+### 2.11 Test plans
+
+#### Feature: Test plans CRUD (NEW)
+
+| Aspect | Value |
+|--------|-------|
+| **ID** | FEAT-PLAN-001 |
+| **Status** | **New — Stable (BK-202)** |
+| **Endpoints** | `GET /api/v1/projects/{id}/test-plans` (list), `POST /api/v1/projects/{id}/test-plans` (create), `PATCH /api/v1/test-plans/{id}` (update) |
+| **RPCs** | `bunkai_list_test_plans` (0073), `bunkai_create_test_plan` (0073), `bunkai_update_test_plan` (0073) |
+| **UI** | `/projects/[slug]/plans` (list), `/projects/[slug]/plans/[planId]` (detail) |
+| **Table** | `test_plans` (0073): `id`, `project_id`, `name`, `description`, `status` (`open`/`closed`), `created_by`, `created_at`, `updated_at` |
+
+- [x] Create: name (required, ≤200ch), description (optional, ≤2000ch)
+- [x] Update: name, description, status (`open`/`closed`)
+- [x] Status machine: `open` → `closed` (forward-only, 45801 skip, 45802 backward)
+- [x] List: ordered by `created_at DESC`; supports `?status=open` filter
+- [x] Cross-workspace 404 collapse (RPC respects project ownership via RLS)
+- [x] Events `test_plan.created` / `test_plan.status_changed` emitted
+
+---
+
+### 2.12 Search & discovery
+
+#### Feature: Cross-entity search (NEW)
+
+| Aspect | Value |
+|--------|-------|
+| **ID** | FEAT-SEARCH-001 |
+| **Status** | **New — Stable (BK-398)** |
+| **Endpoints** | `GET /api/v1/search?q=&limit=` → `bunkai_workspace_search` (RPC 0071) |
+| **RPCs** | `bunkai_workspace_search` — SECURITY DEFINER; searches across `atcs`, `bugs`, `user_stories`, `tests` within caller's workspace; returns `items[]` with `{type, id, title, snippet, module_id, module_name}` |
+
+- [x] Full-text search over `tsv` columns (atcs, bugs) + `LIKE` on name/title (user_stories, tests)
+- [x] Unified result set: union across 4 entity types, ordered by relevance
+- [x] `limit` param (default 20, max 50)
+- [x] Module identity per result (`module_id`, `module_name`)
+- [x] Cross-workspace isolation enforced via RLS in the RPC
+- [x] Snippet: first 120 chars of matching content with `ts_headline` highlighting
 
 ---
 
@@ -831,6 +908,7 @@
 | `bugs` | ✅ POST /bugs | ✅ list + project + heatmap + detail read (BK-337) | ✅ assign + status | ❌ (lifecycle) | 0046, 0051, 0052, 0054, 0070 |
 | `import_jobs` | ✅ POST /imports | ✅ GET/{id} | ❌ | ❌ | 0019/0020 |
 | `milestones` | ✅ POST | ✅ GET | ✅ PATCH | ❌ (no delete RPC) | 0064 |
+| `test_plans` | ✅ POST /projects/{id}/test-plans | ✅ GET + ?status filter | ✅ PATCH (name, desc, status) | ❌ | 0073 |
 | `notifications` | ⚠️ DB-trigger only | ✅ list | ✅ mark read/read-all | ❌ | 0053, 0057, 0066 |
 | `notification_preferences` | ✅ implicit | ✅ GET | ✅ PATCH | ❌ | 0062 |
 | `activity_log` | ⚠️ RPC-only | ✅ GET /activity | ❌ | ❌ | 0045, 0047, 0055 |
@@ -838,11 +916,11 @@
 | `user_view_state` | ✅ RLS-owner | ✅ | ✅ | ✅ | 0009 |
 | `feature_flags` | ❌ | ⚠️ RPC | ❌ | ❌ | 0009 |
 
-**Key observation v2**: The product surface is now essentially fully CRUD via the versioned API — the "planned" wall of v1 is gone. Remaining gaps: member role change (invite-time only), workspace delete/slug rotation, ATC delete/archive, Test delete, Bug delete (lifecycle-only), project update/delete.
+**Key observation v3**: The product surface is now essentially fully CRUD via the versioned API — the "planned" wall of v1 is gone. v5 added test_plans (open/closed), workspace billing overview, and cross-entity search. Remaining gaps: member role change (invite-time only), workspace delete/slug rotation, ATC delete/archive, Test delete, Bug delete (lifecycle-only), project update/delete.
 
 ---
 
-## 4. API endpoint inventory (65 route files, ~84+ handlers)
+## 4. API endpoint inventory (69 route files, ~89+ handlers)
 
 ### Versioned REST (`/api/v1`) — by domain
 
@@ -914,10 +992,14 @@
 | `GET` | `/api/v1/projects/{id}/coverage` | Project coverage | Session or Bearer |
 | `GET` | `/api/v1/projects/{id}/metrics/recovery-cycles` | Recovery cycles | Session or Bearer |
 | `GET` | `/api/v1/projects/{id}/traceability` | Story traceability chain | Session or Bearer |
+| `GET` | `/api/v1/search` | Cross-entity search (BK-398) | Session or Bearer |
+| `GET` | `/api/v1/workspaces/{id}/billing` | Workspace billing overview (BK-229) | Session or Bearer |
+| `GET/POST` | `/api/v1/projects/{id}/test-plans` | List / create test plans (BK-202) | Session or Bearer |
+| `PATCH` | `/api/v1/test-plans/{id}` | Update test plan (BK-202) | Session or Bearer |
 
 ### Pages (staging)
 
-`/`, `(auth)/login`, `(app)/onboarding`, `(app)/home`, `(app)/projects`, `(app)/projects/new`, `(app)/projects/[slug]`, `…/atcs/new`, `…/atcs/[atcId]`, `…/tests/new`, `…/tests/[testId]`, `…/tests/[testId]/runs`, `…/runs`, `…/runs/[runId]`, `…/bugs`, `…/milestones`, `…/milestones/[milestoneId]`, `…/metrics`, `…/traceability`, `…/settings/{account,notifications,tokens,workspaces}`, `(app)/activity`, `invites/accept`, `about`, `qa`, `design-tokens`, `api/docs`
+`/`, `(auth)/login`, `(app)/onboarding`, `(app)/home`, `(app)/projects`, `(app)/projects/new`, `(app)/projects/[slug]`, `…/atcs/new`, `…/atcs/[atcId]`, `…/tests/new`, `…/tests/[testId]`, `…/tests/[testId]/runs`, `…/runs`, `…/runs/[runId]`, `…/bugs`, `…/milestones`, `…/milestones/[milestoneId]`, `…/metrics`, `…/traceability`, `…/plans`, `…/plans/[planId]`, `…/settings/{account,notifications,tokens,workspaces,billing}`, `(app)/activity`, `invites/accept`, `about`, `qa`, `design-tokens`, `api/docs`
 
 ---
 
@@ -927,7 +1009,7 @@
 |---------|---------|--------|-------------------|
 | Supabase Auth (GoTrue) | OTP magic-link, password, sessions, **OAuth (GitHub/Google)** | **Active** | AUTH-001/002/003/006 |
 | Supabase PostgREST | Auto-generated REST | **Active** | UI reads, RLS |
-| Supabase PostgreSQL | Primary DB (31 tables) | **Active** | All |
+| Supabase PostgreSQL | Primary DB (32 tables) | **Active** | All |
 | Supabase Realtime | Run row broadcast (0043) | **Active (runs)** | RUN-001 |
 | Atlassian Jira | **Async US import (real)** — `lib/jira/import-runner.ts` | **Active (import one-way)** | IMPORT-001 |
 | Resend | Transactional email | Configured only | magic-link (GoTrue default) |
@@ -942,6 +1024,10 @@
 | Feature | Evidence | Status |
 |---------|----------|--------|
 | ~~OAuth providers~~ | **SHIPPED** — `app/auth/oauth/*` + login `OAuthButtons` | ~~Planned next sprint~~ → **Stable** |
+| ~~Cross-entity search~~ | **SHIPPED** (BK-398) — `GET /api/v1/search`, `bunkai_workspace_search` RPC | ~~Partial~~ → **Stable** |
+| ~~Workspace billing~~ | **SHIPPED** (BK-229) — `GET /api/v1/workspaces/{id}/billing`, `bunkai_workspace_billing_overview` RPC | ~~Planned~~ → **Stable** |
+| ~~Test plans~~ | **SHIPPED** (BK-202) — `test_plans` table + CRUD RPCs | ~~Planned~~ → **Stable** |
+| ~~Abandoned-run sweep~~ | **SHIPPED** (BK-269) — `bunkai_close_abandoned_runs` pg_cron | ~~Planned~~ → **Stable** |
 | Magic-link anti-silent-signup | `shouldCreateUser: false` (BK-175) | Stable |
 | Workspace slug rotation | PATCH only allows name | Post-MVP |
 | Member role change | Invite-time role only | Not scheduled |
@@ -949,7 +1035,6 @@
 | Bug→Jira sync | import one-way only | Phase 3 |
 | Resend email integration | `RESEND_API_KEY` in env, no SDK | Phase 2 |
 | ATC version history | Bump only, no history UI | Not scheduled |
-| Migrations 0058/0067 | In tree, NOT applied (pending approval) | Pending |
 
 ---
 
@@ -966,6 +1051,10 @@
 | FEAT-TEST-001..005 | Tests/chains | ✅ RPCs | ✅ 6 test endpoints | ⚠️ Tests UI | **HIGH — was untestable** |
 | FEAT-COV-001..004 | Coverage/traceability | ✅ 5 report RPCs | ✅ 5 endpoints | ⚠️ Metrics/Traceability UI | **HIGH — audit-facing** |
 | FEAT-NOTIF-001..004 | Notifications | ✅ triggers | ✅ 4 endpoints | ✅ Settings UI | **HIGH — cross-entity** |
+| FEAT-PLAN-001 | Test plans | ✅ RPCs + status machine | ✅ 3 endpoints | ✅ Plans UI | **MEDIUM — new entity** |
+| FEAT-BILLING-001 | Billing overview | ✅ RPC | ✅ 1 endpoint | ✅ Settings UI | LOW — read-only |
+| FEAT-SEARCH-001 | Cross-entity search | ✅ RPC + tsv | ✅ 1 endpoint | ❌ (API only) | **MEDIUM — cross-entity** |
+| FEAT-RUN-007 | Abandoned-run sweep | ✅ pg_cron | ✅ auto-closes | ❌ | **MEDIUM — background job** |
 | FEAT-IMPORT-001 | Jira async import | ✅ one-active constraint | ✅ 202 + poll | ❌ | **MEDIUM — worker timing** |
 | FEAT-WS-004 | Cross-workspace isolation | ✅ RLS | ✅ versioned endpoints | ❌ | **CRITICAL** |
 | FEAT-WS-006 | Home dashboard | ✅ indexes | ✅ 4 endpoints | ✅ Home UI | MEDIUM |
@@ -991,7 +1080,7 @@
 | Activity feed allowlist | MEDIUM | Verify BK-49's allowlist excludes `run_step.marked` and `run.aborted.reason` never renders |
 | Notifications entity-visibility | MEDIUM | RLS projection respects entity visibility — member must never see notifications for hidden entities |
 | Import worker timing | MEDIUM | `after()` async — test 202 → poll until succeeded; one-active 409 |
-| OpenAPI spec vs 65 routes | MEDIUM | Spec coverage of new domains (runs/bugs/imports/milestones) must match shipped handlers |
+| OpenAPI spec vs 69 routes | MEDIUM | Spec coverage of new domains (runs/bugs/imports/milestones/search/billing/test-plans) must match shipped handlers |
 | No workspace delete/slug rotation | LOW | Multi-tenant lifecycle incomplete |
 | Resend/Jira-sync absent | LOW | Email still GoTrue; bug sync future |
 
@@ -999,11 +1088,14 @@
 
 ## 8. Discovery gaps — updated
 
-| Gap | v1 verdict | v2 verdict |
-|-----|-----------|-----------|
-| Runs engine | "Planned — not testable" | **REAL — testable** |
-| Bugs | "Planned — not testable" | **REAL — testable** |
-| Tests | "Planned" | **REAL — testable** |
-| Idempotency | "Skeleton only" | **Functional** |
-| Scope enforcement | "Defined, unused" | **Enforced (`requires:`)** |
+| Gap | v1 verdict | v2 verdict | v5 verdict |
+|-----|-----------|-----------|-----------|
+| Runs engine | "Planned — not testable" | **REAL — testable** | **REAL — testable + abandoned sweep** |
+| Bugs | "Planned — not testable" | **REAL — testable** | **REAL — testable** |
+| Tests | "Planned" | **REAL — testable** | **REAL — testable** |
+| Test plans | — | — | **NEW — Stable (BK-202)** |
+| Idempotency | "Skeleton only" | **Functional** | **Functional** |
+| Scope enforcement | "Defined, unused" | **Enforced (`requires:`)** | **Enforced (`requires:`)** |
+| Search | — | — | **NEW — Stable (BK-398)** |
+| Billing | — | — | **NEW — Stable (BK-229)** |
 | PostgREST-only CRUD for taxonomy | "Projects/stories/ACs read-only" | **Full versioned API CRUD** |

@@ -1,19 +1,19 @@
 # Business API Map — Bunkai (QA Lens)
 
 > Generated: 2026-08-09 (refreshed 2026-08-13)
-> Refreshed: 2026-08-15 (v4 — verified against `upex-bunkai-tms` branch `staging`, tip `de670c4`)
-> Sources: `../upex-bunkai-tms/public/openapi.json`, `../upex-bunkai-tms/app/api/v1/` (65 route files, 84+ handlers), `../upex-bunkai-tms/lib/api/handler.ts`, `../upex-bunkai-tms/lib/api/principal.ts`, `../upex-bunkai-tms/lib/api/middleware/bearer.ts`, `../upex-bunkai-tms/middleware.ts`, `../upex-bunkai-tms/supabase/migrations/0001..0070`
-> Last verified against OpenAPI on 2026-08-13 (re-verified route inventory 2026-08-15)
+> Refreshed: 2026-08-26 (v5 — verified against `upex-bunkai-tms` branch `staging`, tip post-pull 2026-08-26)
+> Sources: `../upex-bunkai-tms/public/openapi.json`, `../upex-bunkai-tms/app/api/v1/` (69 route files, 92 handlers), `../upex-bunkai-tms/lib/api/handler.ts`, `../upex-bunkai-tms/lib/api/principal.ts`, `../upex-bunkai-tms/lib/api/middleware/bearer.ts`, `../upex-bunkai-tms/lib/api/capabilities.ts`, `../upex-bunkai-tms/lib/test-plans/validation.ts`, `../upex-bunkai-tms/lib/test-plans/errors.ts`, `../upex-bunkai-tms/middleware.ts`, `../upex-bunkai-tms/supabase/migrations/0001..0075`
+> Last verified against OpenAPI on 2026-08-26 (route inventory verified via `route-capability-coverage.snapshot.json`)
 
 ---
 
 ## 1. Executive summary
 
-Bunkai's API lets two distinct operator types drive the same test-management data model: **human QA engineers** through a session-cookie browser app, and **AI agents / CI pipelines** through bearer PATs. Since June 2026 the `/api/v1` surface grew roughly **3× — from 19 endpoints to 65 route files / 84+ handlers** — and the product moved from "auth + tenancy skeleton" to a working test lifecycle: test chains, run execution, native bugs with triage, coverage reporting, notifications, and async Jira import all now have versioned endpoints over RPCs and RLS.
+Bunkai's API lets two distinct operator types drive the same test-management data model: **human QA engineers** through a session-cookie browser app, and **AI agents / CI pipelines** through bearer PATs. Since June 2026 the `/api/v1` surface grew roughly **5× — from 19 endpoints to 69 route files / 92 handlers** — and the product moved from "auth + tenancy skeleton" to a working test lifecycle: test chains, run execution, native bugs with triage, test plan grouping, coverage reporting, cross-entity search, workspace billing, notifications, and async Jira import all now have versioned endpoints over RPCs and RLS.
 
 The auth model was rebuilt around a **unified Principal** (ADR-0001): `withApiHandler()` + `resolveIdentity()` collapse cookie and Bearer callers into one identity, and `requires:` scope gates are now **enforced** (previously `requireScope()` existed but no route called it). Signup is **verification-first** (BK-166): an unconfirmed account can do nothing — only email confirmation mints the session and first PAT. A password sign-in mints a PAT in the same call, so headless/agent flows never touch a browser. **OAuth (GitHub + Google) is live** via server-initiated GoTrue OAuth (CSRF state cookie); an OAuth session carries all cookie capabilities but does NOT auto-mint a PAT — headless callers issue one via `/tokens`.
 
-Four product surfaces dominate the staging API: **run execution** (start → step-marking → finish/abort with state machines + triggers), **bug management** (provenance from run steps, forward-only triage), **coverage/traceability** (per-project and workspace roll-ups, export chain), and **async Jira import** (202 + worker + poll). Core authoring data (projects, modules, stories, ACs, ATCs) still flows mostly through Supabase PostgREST and `bunkai_*` RPCs, all RLS-gated.
+Five product surfaces dominate the staging API: **run execution** (start → step-marking → finish/abort with state machines + triggers), **bug management** (provenance from run steps, forward-only triage), **test plan grouping** (BK-202: name/description/goal, open/close lifecycle, project-scoped), **coverage/traceability** (per-project and workspace roll-ups, export chain, filtered run reports), and **async Jira import** (202 + worker + poll). A **cross-entity search** surface (BK-398) unifies lookups across ATCs, tests, projects, modules, bugs, and runs. **Workspace billing** (BK-229) exposes plan, seats, and usage to admin/owner callers. Core authoring data (projects, modules, stories, ACs, ATCs) still flows mostly through Supabase PostgREST and `bunkai_*` RPCs, all RLS-gated.
 
 ---
 
@@ -207,7 +207,7 @@ Agent/CI              API                                DB (RPCs + triggers)
  │  ← 200 { run, run_atcs, run_steps, env, executor }       │
 ```
 
-**Endpoints**: `GET/POST /api/v1/tests`, `GET/PATCH/DELETE /api/v1/tests/{id}`, `POST /api/v1/tests/{id}/reorder`, `PUT /api/v1/tests/{id}/tags` (whole-set replace, `X-If-Match` optimistic lock → `bunkai_set_test_tags`), `POST /api/v1/tests/{id}/runs`, `POST /api/v1/runs`, `GET /api/v1/runs/{id}`, `POST /api/v1/runs/{id}/steps/{stepId}/mark`, `POST /api/v1/runs/{id}/finish`, `POST /api/v1/runs/{id}/abort`, `GET /api/v1/workspaces/{id}/active-runs`.
+**Endpoints**: `GET/POST /api/v1/tests`, `GET/PATCH/DELETE /api/v1/tests/{id}`, `POST /api/v1/tests/{id}/reorder`, `PUT /api/v1/tests/{id}/tags` (whole-set replace, `X-If-Match` optimistic lock → `bunkai_set_test_tags`), `POST /api/v1/tests/{id}/runs`, `POST /api/v1/runs`, `GET /api/v1/runs/{id}`, `POST /api/v1/runs/{id}/steps/{stepId}/mark`, `POST /api/v1/runs/{id}/finish`, `POST /api/v1/runs/{id}/abort`, `GET /api/v1/workspaces/{id}/active-runs`, `GET /api/v1/projects/{id}/runs/report` (BK-38, BK-499).
 
 **Entities touched**: `tests`, `test_steps`, `project_environments`, `runs`, `run_atcs`, `run_steps`, `idempotency_keys`.
 
@@ -219,6 +219,7 @@ Agent/CI              API                                DB (RPCs + triggers)
 3. Position grain (`run_atcs.status`: pending/passed/failed/blocked/skipped) recomputes via trigger; run grain (`runs.status`: running/passed/failed/aborted) is terminal via finish/abort — `aborted` never appears at position grain (see domain-glossary run-status grain split).
 4. `via` parameter records the executor (manual/agent/ci) on terminal transitions (migration 0067).
 5. Environments are project-scoped with unique names; removal blocked while any Run references them (history preservation).
+6. **BK-38/BK-499 filtered run report** (`GET /api/v1/projects/{id}/runs/report`): date range, module, status, and executor filters (AND-composed); pass/fail totals recomputed from the SAME filtered set (not all-time). Requires `atc:read`; uses `createAdminClient()` path; `bunkai_report_project_runs` RPC rechecks membership. Non-disclosure: missing/foreign projects collapse to generic 404.
 
 **What breaks if the API hangs here**: duplicate runs (idempotency leak), inconsistent run status if trigger cascades fail, finish/abort accepting `via` values that break the activity feed's redaction contract.
 
@@ -368,6 +369,106 @@ User            API                                          DB
 
 ---
 
+### Journey 8: Test plan grouping (BK-202)
+
+**Business purpose**: QA organizes tests under named plans with a release goal — creating a lightweight grouping that predates (and is distinct from) milestones. Plans have an open/close lifecycle; no delete path exists.
+
+```
+QA                  API                                  DB (RPCs)
+ │  POST /projects/{id}/test-plans { name, description, goal }
+ │ ──────────────────────────────────────────────────────────────►│  bunkai_create_test_plan
+ │                                                               │  (normalize, length checks,
+ │                                                               │   case-insensitive unique,
+ │                                                               │   activity_log audit)
+ │  ← 201 { test_plan: { id, status: 'open', ... } }
+ │  GET /projects/{id}/test-plans
+ │ ──────────────────────────────────────────────────────────────►│  RLS-scoped query
+ │  ← 200 { test_plans: [...] }
+ │  PATCH /test-plans/{id} { name, description, goal }
+ │ ──────────────────────────────────────────────────────────────►│  bunkai_update_test_plan
+ │                                                               │  (enforces status = 'open',
+ │                                                               │   self-exclusion on rename)
+ │  ← 200 { test_plan: { ... } }
+```
+
+**Endpoints**: `GET /api/v1/projects/{id}/test-plans`, `POST /api/v1/projects/{id}/test-plans`, `PATCH /api/v1/test-plans/{id}`.
+
+**Entities touched**: `test_plans` (0073), `activity_log`.
+
+**Feature IDs**: FEAT-TP-001..003.
+
+**Numbered narrative**:
+1. Test plans are **project-scoped** — the RPC resolves workspace from project and role-gates via `bunkai_can_write_workspace`.
+2. Name uniqueness is **case-insensitive + whitespace-collapsed** (0073 CHECK constraints); duplicate → 409 `test_plan_name_taken`.
+3. **No DELETE path** — ratified decision T4: Close is the only exit from Open (status = 'closed'). Pre-mapped SQLSTATE 45603 (`test_plan_not_open`) blocks edits on closed plans.
+4. `created_by` is audit-only (FK → `auth.users`); any member can edit any plan — creator restriction does not apply.
+5. **NBSP whitespace fix (BK-591, 0074)**: `regexp_replace` now uses explicit `[\t\n\v\f\r ]+` instead of `\s+` to avoid collapsing NBSP-padded names onto their unpadded twin.
+6. Full-replace semantics: omitting `description` or `goal` clears them (they default to empty string).
+
+**What breaks if the API hangs here**: case-insensitive uniqueness violation under concurrent creates; edits on closed plans silently accepted; NBSP-padded names colliding with unpadded twins (fixed by 0074).
+
+---
+
+### Journey 9: Cross-entity search (BK-398)
+
+**Business purpose**: A single search surface that unifies lookups across all entity types — no more navigating to individual list views.
+
+```
+QA/Agent            API                                   DB (RPC)
+ │  GET /search?q=login+button&limit=10
+ │ ──────────────────────────────────────────────────────►│  workspace-scoped search
+ │                                                       │  (max 5 per entity type)
+ │  ← 200 { data: [...], truncated: false }
+ │    data[i]: { entity_type, id, name, project_id,
+ │              project_slug, project_name, href }
+```
+
+**Endpoint**: `GET /api/v1/search`.
+
+**Entities touched**: Cross-entity query across `atcs`, `tests`, `projects`, `modules`, `bugs`, `runs`.
+
+**Feature IDs**: FEAT-SEARCH-001.
+
+**Numbered narrative**:
+1. Query `q` must be ≥2 chars after trim; `limit` is 1–20 (default 20) — per-request ceiling only.
+2. **RPC-enforced cap**: max 5 results per entity type (ATC, Test, Project, Module, Bug, Run); `truncated: true` when any group hits its 5-row cap.
+3. **Scope model**: workspace resolved server-side from session cookie (`bk_active_ws`) or PAT scope — no workspace param exposed. Unknown/inaccessible workspace returns `200 { data: [], truncated: false }` (no 403/404 disclosure).
+4. **`href` field**: server-built navigation path — clients never reconstruct URLs client-side.
+5. Returns `200` with empty data for scope failures (non-disclosure) — 422 only for validation errors or unbound Bearer PAT.
+
+**What breaks if the API hangs here**: search leaking entity context across workspace boundaries; `href` pointing to inaccessible routes; truncation flag not matching actual result count.
+
+---
+
+### Journey 10: Workspace billing overview (BK-229)
+
+**Business purpose**: Workspace admins/owners view their current plan tier, seat count, and usage — a read-only summary that drives upgrade decisions without exposing internal billing state.
+
+```
+Admin/Owner         API                                   DB (RPC)
+ │  GET /workspaces/{id}/billing
+ │ ──────────────────────────────────────────────────────►│  bunkai_workspace_billing_overview
+ │                                                       │  (SECURITY INVOKER, admin/owner gate,
+ │                                                       │   tier ladder from TypeScript constants)
+ │  ← 200 { plan, seats, usage }  (or 404 non-disclosing)
+```
+
+**Endpoint**: `GET /api/v1/workspaces/{id}/billing`.
+
+**Entities touched**: `workspaces`, `workspace_members`.
+
+**Feature IDs**: FEAT-WS-007.
+
+**Numbered narrative**:
+1. **Admin/owner only** — `bunkai_is_workspace_admin()` gates access; non-admin callers get 404 (never 403 — no existence disclosure).
+2. **Tier ladder lives in code** (`lib/billing/plan-tiers.ts`), not a DB table — per ADR-0012 / BK-267 binding decision.
+3. **SECURITY INVOKER** — the RPC reads `auth.uid()` indirectly via the admin-check helper; no caller-supplied identity parameter. Route must use `getAuth(ctx).db`, never `createAdminClient()`.
+4. **Non-disclosing 404**: unknown workspace, non-visible workspace, and non-admin caller all return identical 404.
+
+**What breaks if the API hangs here**: billing info leaking to non-admin members; tier values diverging between code and any future DB-backed source; wrong 403 leaking workspace existence.
+
+---
+
 ## 4. Architecture behind the API
 
 ### Layered diagram
@@ -383,7 +484,7 @@ User            API                                          DB
 │   public prefixes: /login /auth* /invites /api/v1/auth* /api/v1/health│
 └───────────────────────────┬──────────────────────────────────────────┘
 ┌───────────────────────────▼──────────────────────────────────────────┐
-│  ROUTE HANDLER LAYER (Next.js 15 App Router, 65 route files)         │
+│  ROUTE HANDLER LAYER (Next.js 15 App Router, 69 route files)         │
 │   withApiHandler({ auth, requires }) → Principal (resolveIdentity)   │
 │    ├─ cookie session (supabase-ssr) ──┐  ┌─ bearer.ts (PAT verify)   │
 │    └──────┬────────────────────┬──────┘  └──► mintUserJwt (AS user)  │
@@ -393,11 +494,11 @@ User            API                                          DB
 └───────────────────────────┬──────────────────────────────────────────┘
 ┌───────────────────────────▼──────────────────────────────────────────┐
 │  DATA ACCESS LAYER                                                    │
-│   PostgREST (UI reads, RLS) · bunkai_* RPCs (~91, SECURITY DEFINER)  │
+│   PostgREST (UI reads, RLS) · bunkai_* RPCs (~93, SECURITY DEFINER)  │
 │   assertWorkspaceContext (ADR-0006) · RLS (auth.uid, helpers)        │
 └───────────────────────────┬──────────────────────────────────────────┘
 ┌───────────────────────────▼──────────────────────────────────────────┐
-│  PERSISTENCE LAYER — Supabase (Postgres, 31 tables + auth + realtime)│
+│  PERSISTENCE LAYER — Supabase (Postgres, 32 tables + auth + realtime)│
 │   triggers (status recompute, consistency) · idempotency_keys        │
 │   access_tokens + access_token_secrets (split, least-privilege)      │
 └───────────────────────────┬──────────────────────────────────────────┘
@@ -416,9 +517,9 @@ User            API                                          DB
 | `principal.ts` | Unified identity | Session JWT or `mintUserJwt` (PAT → RLS client AS user) | **The dual-path pivot** — cookie vs Bearer must resolve identical rows on every route |
 | `bearer.ts` | PAT validation | `access_tokens` + `access_token_secrets` | Immediate revocation (DB read per request); uniform 401 contract |
 | `workspace-cookie.ts` | Active-workspace context | `bk_active_ws` httpOnly cookie | Membership validated on every write; stale cookie = wrong tenant |
-| Versioned REST (`/api/v1`) | Public API surface | Supabase Auth + RPCs + PostgREST reads | Thin wrapper — role gates in handlers, RLS underneath; 84+ handlers to keep in contract tests |
-| `bunkai_*` RPCs (~92) | Mutation/report layer | SECURITY DEFINER functions, SQLSTATEs (45200.., 45300.., 45500..) | RPC + trigger double layers must agree; SQLSTATE mapping to HTTP codes is a contract |
-| PostgREST | Auto-generated REST | All 31 tables with RLS | Default UI read path — RLS bug = data leak |
+| Versioned REST (`/api/v1`) | Public API surface | Supabase Auth + RPCs + PostgREST reads | Thin wrapper — role gates in handlers, RLS underneath; 92 handlers to keep in contract tests |
+| `bunkai_*` RPCs (~69) | Mutation/report layer | SECURITY DEFINER functions, SQLSTATEs (45200.., 45300.., 45500.., 45600..) | RPC + trigger double layers must agree; SQLSTATE mapping to HTTP codes is a contract |
+| PostgREST | Auto-generated REST | All 32 tables with RLS | Default UI read path — RLS bug = data leak |
 | DB triggers | Recomputation + consistency | `run_atcs.status`, `bunkai_bugs_check_consistency`, `activity_log` sink, realtime (0043) | Cascade failures produce inconsistent run/bug states |
 | Vercel `after()` workers | Async work | `import_jobs` (Jira import) | Worker crash leaves `running` forever — poll UX contract |
 | OpenAPI pipeline | API documentation | Zod → `scripts/openapi-gen.ts` → `public/openapi.json` | Spec vs implementation drift — contract tests source of truth |
@@ -451,13 +552,15 @@ User            API                                          DB
 | `access_tokens` / `access_token_secrets` | `/api/v1/tokens` + mint on signin/confirm | `business-data-map.md` §1 auth cluster |
 | `tests` / `test_steps` | `/api/v1/tests*` (incl. reorder, tags with `X-If-Match`) | `business-data-map.md` §1 tests cluster |
 | `project_environments` | `/api/v1/environments*`, `/api/v1/projects/{id}/environments` | `business-data-map.md` §1 environments |
-| `runs` / `run_atcs` / `run_steps` | `/api/v1/runs*` (+ `tests/{id}/runs`) | `business-data-map.md` §1 runs cluster |
+| `runs` / `run_atcs` / `run_steps` | `/api/v1/runs*` (+ `tests/{id}/runs`, `projects/{id}/runs/report` BK-38/BK-499) | `business-data-map.md` §1 runs cluster |
 | `bugs` | `/api/v1/bugs*` (+ detail read BK-337, status, assign, heatmap, open-bugs) | `business-data-map.md` §1 bugs cluster |
 | `atcs` + children | `/api/v1/atcs*` (+ search, usage, duplicate) | `business-data-map.md` §1 atcs cluster |
 | `modules` / `user_stories` / `acceptance_criteria` | `/api/v1/modules*`, `/user-stories*`, `/acceptance-criteria*` + PostgREST | `business-data-map.md` §1 authoring cluster |
 | `milestones` | `/api/v1/milestones*`, `/projects/{id}/milestones` | `business-data-map.md` §1 milestones |
 | `import_jobs` | `/api/v1/imports*` | `business-data-map.md` §1 imports |
 | `activity_log` / `notifications` / `notification_preferences` | `/activity`, `/notifications*`, `/notification-preferences` | `business-data-map.md` §1 collaboration cluster |
+| `test_plans` | `/api/v1/projects/{id}/test-plans`, `/api/v1/test-plans/{id}` (BK-202) | `business-data-map.md` §1 test_plans (new) |
+| Cross-entity search | `/api/v1/search` (BK-398) | Derived — queries across atcs, tests, projects, modules, bugs, runs |
 
 ### Feature-map features this API backs
 
@@ -470,6 +573,9 @@ User            API                                          DB
 | Coverage / traceability (J5) | FEAT-COV-001..004, FEAT-ATC-001..007 |
 | Jira import (J6) | FEAT-IMPORT-001..002 |
 | Activity / notifications (J7) | FEAT-ACT-001, FEAT-NOTIF-001..004, FEAT-WS-006 |
+| Test plan grouping (J8) | FEAT-TP-001..003 |
+| Cross-entity search (J9) | FEAT-SEARCH-001 |
+| Workspace billing overview (J10) | FEAT-WS-007 |
 
 ### OpenAPI spec location
 
@@ -486,7 +592,7 @@ User            API                                          DB
 | Dual-path RLS parity untested | HIGH | Every route resolving cookie vs Bearer to the same rows (`mintUserJwt` + RLS AS user) needs a consent QA suite; PAT impersonation of a session user is the top auth risk. |
 | `workspace:admin` scope accepted-but-rejected | HIGH | ADR-0005: minted PATs may carry `workspace:admin`, but `requires:` rejects it at runtime. Verify the rejection is consistent across all routes and that creating such a PAT doesn't advertise a capability that never works. |
 | Coverage roll-up invariant unverified | HIGH | `sum/sum` (never mean-of-percentages) shared Home/API `lib/home/coverage.ts` — parity test between Home page and both coverage endpoints required (FEAT-COV-001). |
-| OpenAPI spec vs 65 routes drift | MEDIUM | Not every route file may be documented in `public/openapi.json`; contract tests should diff route inventory against the spec (10 of 65+ endpoints verified by grep only). |
+| OpenAPI spec vs 69 routes drift | MEDIUM | Not every route file may be documented in `public/openapi.json`; contract tests should diff route inventory against the spec (route-capability-coverage.snapshot.json tracks 92 handlers). |
 | Abort-reason redaction | MEDIUM | Run abort writes a reason that must be redacted from activity feed (0067). Untested cross-surface consistency (run detail vs feed). |
 | Idempotency window semantics | MEDIUM | HTTP key vs 24h `start_token` interplay on `POST /runs`: hard-replay detection is functional now — test key reuse across/concurrent calls, and expiry at the 24h boundary. |
 | Magic-link legacy coexistence | MEDIUM | `POST /auth/magic-link` coexists with verification-first confirm; canonical path unknown. Both must be tested, and the 409-no-echo invariant verified on both. BK-400 added stateless verification via `verifyOtp` (works cross-device) — test both PKCE (legacy) and implicit (new) flows. |
@@ -494,8 +600,25 @@ User            API                                          DB
 | Jira import resilience | MEDIUM | No retry/backoff evidence in `import-runner`; crash leaves `running` forever; concurrent-import 409 is the only guard. Worker-failure simulation needed. |
 | Notifications cross-workspace leak | MEDIUM | `entity_available` per-row RLS: verify a member never receives notifications for entities outside their workspaces, and read-all races. |
 | Rate limiting | LOW | No application-layer rate limiting; 429s come from Supabase only. |
+| Test plan concurrency safety | MEDIUM | `bunkai_create_test_plan` uses DB unique index as sole concurrency guard — verify concurrent creates for the same project + name produce exactly one 409, not a silent duplication or deadlock. |
+| Test plan close-not-edit guard | LOW | Closed plans must reject edits (SQLSTATE 45603 → 409 `test_plan_not_open`); verify PATCH on a closed plan returns 409, not 200 with stale data. |
+| Search scope disclosure | MEDIUM | `/search` returns 200 with empty data for scope failures (no 403/404 disclosure); verify a Bearer PAT scoped to workspace A returns empty results (not 403) for queries hitting workspace B entities. |
+| Run auto-sweep (BK-269) | LOW | `bunkai_sweep_abandoned_runs` runs every 15min via pg_cron, threshold 4h; no API endpoint exposes sweep state — QA must test via DB. Verify sweep does not abort runs with recent step activity, and that `SKIP LOCKED` + per-run isolation prevents one bad run from stranding the pass. |
+| NBSP whitespace normalization parity | LOW | TypeScript (`validation.ts`) uses explicit `[\t\n\v\f\r ]+`; SQL (0074) now matches. Verify no remaining `regexp_replace` with `\s+` pattern in test_plans RPCs or CHECK constraints. |
 | BugDetailSchema vs BugSchema drift | MEDIUM | BK-337: POST /bugs, POST /bugs/{id}/assign, POST /bugs/{id}/status now return `BugDetailSchema` (origin + module.archived_at); list endpoints still return `BugSchema` (no origin, no archived_at). Verify no route accidentally uses the wrong schema. |
 | Evidence-link scheme guard | LOW | BK-466: `evidence_url` restricted to http/https at API edge (Zod) and render time (`isHttpUrl`). Verify consistent rejection of `javascript:`/`data:` across filing, marking, and rendering surfaces. |
-| Run timeout sweeper | LOW | Auto-abort of abandoned runs (15-min cron) is DB-level; no API endpoint exposes its state — QA must test via DB, not API. |
+| Capability vocabulary sync | LOW | `lib/api/capabilities.ts` defines 4 scopes (`atc:read`, `atc:write`, `run:execute`, `workspace:admin`); must stay in sync with the `scopes` CHECK constraint in migration `0008_access_tokens.sql`. Verify adding a new capability widens the CHECK before any PAT can mint it. |
+| Billing endpoint admin-only gate | MEDIUM | `GET /workspaces/{id}/billing` returns 404 for non-admin/non-owner; verify the 404 is identical for unknown workspace, non-visible workspace, and non-admin caller (non-disclosure). |
+| Run report filter parity | MEDIUM | `GET /projects/{id}/runs/report` filters (date/module/status/executor) must compose AND; verify empty-filter returns same totals as unfiltered run-history endpoint. |
 
 ---
+
+## 8. Change log
+
+| Version | Date | Changes |
+|---------|------|---------|
+| v1 | 2026-06-20 | Initial generation |
+| v2 | 2026-07-08 | OAuth, unified Principal, bugs, coverage |
+| v3 | 2026-08-12 | Jira import, BK-337 bugs, BK-466 evidence |
+| v4 | 2026-08-15 | Post-pull refresh, BK-166, ADR-0005/0006 |
+| v5 | 2026-08-26 | Test plan grouping (BK-202), cross-entity search (BK-398), run report (BK-38/BK-499), workspace billing (BK-229), NBSP fix (BK-591), auto-sweep (BK-269); corrected counts (69 routes, 92 handlers, ~69 RPCs, 32 tables, 75 migrations) |

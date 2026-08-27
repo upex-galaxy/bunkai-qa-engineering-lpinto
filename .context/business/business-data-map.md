@@ -1,14 +1,14 @@
 # Business Data Map — Bunkai (QA Lens)
 
 > Generated: 2026-08-09 (v2 — synced to `upex-bunkai-tms` staging branch, tip `5e0134c`; refreshed 2026-08-13)
-> Refreshed: 2026-08-15 (v4 — verified against `upex-bunkai-tms` branch `staging`, tip `de670c4`)
-> Sources: `../upex-bunkai-tms/supabase/migrations/` (0001–0070), `../upex-bunkai-tms/app/api/v1/`, `../upex-bunkai-tms/lib/`, `../upex-bunkai-tms/.context/business/events.md`
+> Refreshed: 2026-08-27 (v5 — verified against `upex-bunkai-tms` branch `staging`, tip `de670c4` + migrations 0071–0075)
+> Sources: `../upex-bunkai-tms/supabase/migrations/` (0001–0075), `../upex-bunkai-tms/app/api/v1/`, `../upex-bunkai-tms/lib/`, `../upex-bunkai-tms/.context/business/events.md`
 > Cross-refs: `.context/business/business-feature-map.md`, `.context/business/business-api-map.md`, `.context/business/domain-glossary.md`
-> Delta vs v3 (2026-08-13): BK-337 defect detail read (GET /api/v1/bugs/{id}), BugDetailSchema with `origin` + `module.archived_at`, `bunkai_bug_json` RPC widened (0070), BK-466 evidence-link scheme guard (http/https only).
+> Delta vs v4 (2026-08-15): BK-398 ⌘K cross-entity search (0071, search RPC + GIN indexes), BK-229 workspace billing overview (0072, admin-gated RPC + `lib/billing/plan-tiers.ts` tier ladder), BK-202 test_plans table + create/update RPCs (0073, 0074 NBSP bugfix), BK-269 pg_cron abandoned-run sweep (0075, no HTTP route).
 
 ---
 
-## 1. Entity Summary (31 tables + 4 secret tables)
+## 1. Entity Summary (32 tables + 4 secret tables)
 
 | # | Entity | Layer | Create via (authoritative) | Key FK Constraints |
 |---|--------|-------|---------------------------|-------------------|
@@ -43,11 +43,11 @@
 | 29 | `magic_link_tokens` | Auth | Supabase GoTrue OTP tracking | user_id/email |
 | 30 | `magic_link_token_secrets` | Auth (secret) | Split from `magic_link_tokens` (0011) | token_id |
 | 31 | `workspace_invite_secrets` | Auth (secret) | Split from `workspace_invites` (0011) | token_id |
-| 32 | `integrations` | Config | **NOT PRESENT** — greenfield schema never shipped; Jira import uses `import_jobs` (0019) + `lib/jira/import-runner.ts` instead | — |
+| 32 | `test_plans` | Planning | `POST /api/v1/projects/{id}/test-plans` → `bunkai_create_test_plan` RPC; `PATCH /api/v1/test-plans/{id}` → `bunkai_update_test_plan` RPC (0073, 0074) | project_id, unique (project_id, lower(name)) |
 
-> NOTE: v1's entity #9 `integrations` (Jira webhook config) does NOT exist in any migration (0001–0069). Jira connectivity is real but implemented as async `import_jobs` + `lib/jira/import-runner.ts`, not a config table. The v1 "idempotency skeleton" is also outdated — idempotent writes (replay store) are now functional on runs/tests/atcs/imports.
+> NOTE: v1's entity #9 `integrations` (Jira webhook config) does NOT exist in any migration (0001–0075). Jira connectivity is real but implemented as async `import_jobs` + `lib/jira/import-runner.ts`, not a config table. The v1 "idempotency skeleton" is also outdated — idempotent writes (replay store) are now functional on runs/tests/atcs/imports.
 
-> **Migration application status (2026-08-15)**: 70 migrations exist in `supabase/migrations/` (0001–0070). **0067 (run finish/abort `via`, SECURITY DEFINER rewrites) and 0058 (ATC title length CHECK) are NOT applied** — present in the tree, pending human approval. QA must not assume either constraint exists at runtime.
+> **Migration application status (2026-08-27)**: 75 migrations exist in `supabase/migrations/` (0001–0075). **0067 (run finish/abort `via`, SECURITY DEFINER rewrites) and 0058 (ATC title length CHECK) are NOT applied** — present in the tree, pending human approval. QA must not assume either constraint exists at runtime.
 
 ---
 
@@ -121,6 +121,58 @@ DB event → activity_log (RPC-written) → GET /api/v1/activity?workspace_id=&l
 DB event (bug/run) → notifications row → GET /workspaces/{id}/notifications + POST /notifications/{id}/read
 ```
 
+### Flow G: ⌘K Cross-Entity Search (BK-398, migration 0071)
+
+```
+GET /api/v1/search?q=<text>&limit=<1..20>
+  → workspace resolved server-side (cookie session via ACTIVE_WORKSPACE_COOKIE, or Bearer PAT via principal.workspaceId)
+  → bunkai_search_workspace(query, workspaceId, limit) SECURITY INVOKER
+  → GIN expression indexes on atcs.title, tests.title, projects.name, modules.name, bugs.title, runs.id
+  → union across 6 entity types, 5-per-group cap, total ≤ limit
+  → 200 { data: [], truncated: false } for foreign/missing workspace (non-disclosure, never 403/404)
+```
+
+**Auth**: cookie session or Bearer PAT (`atc:read`). No workspace path segment — scope resolved server-side. Every failure path collapses into the same 200 empty result.
+
+**Validation**: `q` required, trimmed, ≥ 2 chars after trim (defensive backstop — client never sends shorter). `limit` 1..20, default 20. `lib/search/validation.ts` mirrors `lib/atcs/search-validation.ts` shape.
+
+### Flow H: Workspace Billing Overview (BK-229, migration 0072)
+
+```
+GET /api/v1/workspaces/{id}/billing
+  → bunkai_workspace_billing_overview(workspaceId) SECURITY INVOKER
+  → step-0 gate: bunkai_is_workspace_admin (SECURITY DEFINER, self-binds auth.uid()) — admin/owner only
+  → returns { plan, active_seats, project_count, oldest_run_age_days }
+  → tier ladder + meter math in lib/billing/plan-tiers.ts (community/cloud/enterprise, no plan_tiers table)
+```
+
+**Auth**: cookie session or Bearer PAT (`atc:read`). Non-disclosure: null from RPC collapses to 404 (never 403 — disclosing "exists but you can't see billing" reveals more than workspace existence).
+
+**Tier ladder** (typed constants, not a DB table — ratified by AI PO + Tech Lead, comment 12417):
+
+| Tier | Display Name | Seat Limit | Project Limit | Retention (days) | Price |
+|------|-------------|------------|---------------|------------------|-------|
+| `community` | Community | 5 | 3 | 30 | $0/mo |
+| `cloud` | Cloud | 25 | 50 | 90 | $24/seat/mo |
+| `enterprise` | Enterprise | unlimited | unlimited | unlimited | Custom |
+
+### Flow I: Test Plans (BK-202, migrations 0073 + 0074)
+
+```
+GET  /api/v1/projects/{id}/test-plans    → list (newest first, id tie-break), visible to any member (read is role-agnostic)
+POST /api/v1/projects/{id}/test-plans    → create (member+), bunkai_create_test_plan RPC
+PATCH /api/v1/test-plans/{id}            → edit name/description/goal (member+, open plans only), bunkai_update_test_plan RPC
+(no DELETE — Close is the sole exit from Open, BK-207, not yet shipped)
+```
+
+**Schema**: id (uuid PK), project_id (FK), name (1–100 chars, case-insensitive unique per project), description (≤500 chars, optional), goal (≤100 chars, optional), status (open by default), created_by, created_at. Unique index: `(project_id, lower(name))`.
+
+**Whitespace normalization**: collapse ASCII whitespace → trim. U+00A0 (NBSP) is preserved (BK-591, 0074 bugfix — earlier 0073 collapsed it). Zod pre-check mirrors the RPC rulebook in `lib/test-plans/validation.ts`; error copy derived from shared constants (BK-592).
+
+**Auth**: RPCs are SECURITY DEFINER, no `p_actor_user_id` — `auth.uid()` read directly. Route MUST use `getAuth(ctx).db` (never `createAdminClient()`). Member+ gate inside RPC; viewer can read (SELECT RLS policy).
+
+**Error model** (hybrid, mirrors milestones/environments/bugs): body-rule failures carry `code` + `details.reason`. RPC SQLSTATEs: 45600 (name length), 45601 (description length), 45602 (goal length), 45603 (not open — unreachable until BK-207), 23505 (unique violation), 42501 (not member), P0002 (not found / cross-workspace).
+
 ---
 
 ## 3. State Machines (real, from migrations)
@@ -136,6 +188,7 @@ DB event (bug/run) → notifications row → GET /workspaces/{id}/notifications 
 | `import_jobs` | pending → running → succeeded / failed | Vercel `after()` worker; one active per project (0019+0020) | succeeded/failed |
 | `notifications` | unread → read | `POST /notifications/{id}/read`, read-all; preference-gated | read |
 | `milestones` | (no status column) | create/update only; target_date validated (past → 45502, >5y → 45503) | — |
+| `test_plans.status` | open → closed | Close (BK-207, not yet shipped) — sole exit from Open | closed |
 
 > **Invariant (BK-317/domain-glossary)**: `aborted` is run-grain ONLY; a step is `skipped`, never `aborted`. There are three distinct run-status grains — never harmonise them with the KATA/IQL vocabulary (TODO/EXECUTING/PASS/FAIL).
 
@@ -157,6 +210,8 @@ DB event (bug/run) → notifications row → GET /workspaces/{id}/notifications 
 | Run realtime replication (0043) | run row changes | live broadcast to browser | Yes — two-session test |
 | Run timeout/24h `start_token` window | RPC level | abandoned runs abortable window | Yes |
 | `import_jobs` worker | `after()` on `POST /api/v1/imports` | pages Jira, upserts stories+ACs | Yes — Jira mock |
+| `bunkai_close_abandoned_runs` (00269, 0075) | pg_cron, every 5 min | closes idle `running` Runs as `aborted` after 15 min inactivity; SECURITY DEFINER; no HTTP route; pg_cron available but not yet installed on live instance | Yes — SQL direct call with mock data |
+| `bunkai_search_workspace` GIN index refresh (0071) | title or entity-type change on indexed tables | expression indexes updated for ⌘K search | Yes — insert/update ATC, verify search results |
 
 ---
 
@@ -176,6 +231,7 @@ DB event (bug/run) → notifications row → GET /workspaces/{id}/notifications 
 | Environment | `POST /api/v1/projects/{id}/environments` | `DELETE /api/v1/environments/{id}` — blocked while any run references it | Scoped to project |
 | Run | `POST /api/v1/runs` (Idempotency-Key REQUIRED) | terminal via finish/abort | Ephemeral |
 | Bug | `POST /api/v1/bugs` | — (lifecycle closed) | Scoped to project |
+| Test Plan | `POST /api/v1/projects/{id}/test-plans` | — (no delete endpoint; Close via BK-207 only) | Scoped to project |
 
 ---
 
@@ -183,11 +239,11 @@ DB event (bug/run) → notifications row → GET /workspaces/{id}/notifications 
 
 For each entity with `workspace_id` FK (direct or via project):
 1. Create in Workspace A → list as Workspace B member → expect `[]` (200, never 404/403 leak)
-2. READ by ID as B → 404/403 — and foreign/missing workspace collapses to the SAME empty result (non-disclosure convention observed in `/activity`, `/workspaces/{id}/coverage`, `/tests?tag=`)
+2. READ by ID as B → 404/403 — and foreign/missing workspace collapses to the SAME empty result (non-disclosure convention observed in `/activity`, `/workspaces/{id}/coverage`, `/tests?tag=`, `/search`, `/workspaces/{id}/billing`, `/workspaces/{id}/active-runs`, `/workspaces/{id}/open-bugs`)
 3. DELETE as B → 403
 4. PAT scoped to workspace A calling workspace B admin op → `assertWorkspaceContext` 403 (ADR-0006)
 
-**Entities covered**: projects, modules, user_stories, acceptance_criteria, atcs, tests, test_steps, runs, run_atcs, run_steps, bugs, import_jobs, milestones, notifications, activity_log, environments.
+**Entities covered**: projects, modules, user_stories, acceptance_criteria, atcs, tests, test_steps, runs, run_atcs, run_steps, bugs, import_jobs, milestones, test_plans, notifications, activity_log, environments.
 
 ---
 
@@ -204,16 +260,20 @@ For each entity with `workspace_id` FK (direct or via project):
 | Import jobs REAL | 0019, 0020 | async Jira import + one-active-per-project |
 | Auth verification-first | 0033, 0034, BK-166 | signup 202 pending_confirmation; confirm mints session+PAT; admin scope never global (ADR-0005) |
 | OAuth GitHub/Google | — | live `app/auth/oauth/*`; provider session via GoTrue; magic-link anti-silent-signup (BK-175) |
-| Versioned API expanded | — | 19 → 65 route files; ~84+ handlers; idempotency functional; scopes enforced via `requires:` |
+| Versioned API expanded | — | 19 → 69 route files; ~89+ handlers; idempotency functional; scopes enforced via `requires:` |
 | Module/US/AC CRUD via API | 0013–0018, 0021–0023 | soft-delete, move, description, ordering, ready-to-test gate, activity events |
 | Bug detail read + BK-466 | 0070 | `bunkai_bug_json` widened with `origin` (provenance: run_id, step position, ATC title/layer) + `module.archived_at`; GET /api/v1/bugs/{id} returns BugDetailSchema; POST /bugs, /assign, /status also return BugDetailSchema; evidence_url/evidence_urls restricted to http/https (BK-466) |
+| ⌘K cross-entity search | 0071 (BK-398) | `bunkai_search_workspace` RPC (SECURITY INVOKER), GIN expression indexes on 6 entity types, 5-per-group cap, GET /api/v1/search, `lib/search/validation.ts` |
+| Workspace billing overview | 0072 (BK-229) | `bunkai_workspace_billing_overview` RPC (SECURITY INVOKER, admin gate), GET /api/v1/workspaces/{id}/billing, `lib/billing/plan-tiers.ts` tier ladder (community/cloud/enterprise, typed constants — no plan_tiers table) |
+| Test plans table + RPCs | 0073 + 0074 (BK-202, BK-591) | `test_plans` table (32nd entity), create/update RPCs (SECURITY DEFINER), GET/POST /api/v1/projects/{id}/test-plans, PATCH /api/v1/test-plans/{id}, `lib/test-plans/validation.ts` + `errors.ts`, NBSP-aware whitespace normalization, case-insensitive uniqueness |
+| Abandoned run sweep | 0075 (BK-269) | `bunkai_close_abandoned_runs` pg_cron function (every 5 min, 15 min threshold), SECURITY DEFINER, no HTTP route, pg_cron available but not yet installed on live |
 
 ---
 
 ## Cross-References
 
 - `domain-glossary.md` — canonical terminology (ATC = Acceptance Test Case, NOT "Atomic Test Component"); anti-glossary entries
-- `business-feature-map.md` — feature catalog + CRUD matrix + endpoint inventory (64 routes)
+- `business-feature-map.md` — feature catalog + CRUD matrix + endpoint inventory (69 routes)
 - `business-api-map.md` — auth tiers, Principal model (ADR-0001), journeys
 - Target `../upex-bunkai-tms/.context/business/events.md` — full event vocabulary (activity_log sink)
 - `.context/master-test-plan.md` — what to test and why
