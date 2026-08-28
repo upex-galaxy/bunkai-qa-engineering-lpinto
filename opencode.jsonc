@@ -11,6 +11,7 @@
   //   - Missing env vars resolve to empty string (no hard failure) — see AGENTS.md
   //     Critical Reminder about stopping immediately when MCP credentials fail.
   "$schema": "https://opencode.ai/config.json",
+  "model": "opencode/mimo-v2.5-free",
 
   // Plugins:
   //   - @warp-dot-dev/opencode-warp: Warp terminal integration — surfaces
