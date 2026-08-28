@@ -1,15 +1,17 @@
 # Master Test Plan — Bunkai TMS
 
 > What to test in this system, and why.
-> Regenerated: 2026-08-13 (synced to staging branch, tip `b9f3fc6`)
+> Regenerated: 2026-08-28 (synced to staging branch, tip `de670c4`, migrations 0001–0075)
 
 ---
 
 ## 1. Executive Risk Map
 
-Bunkai's API surface has grown to **64 route files / 82 handlers** covering a full test lifecycle: ATC authoring, test chains, run execution, native bug triage, coverage reporting, notifications, and async Jira import. The auth model was rebuilt around a **unified Principal** (ADR-0001) where cookie and bearer callers resolve to identical rows, and **scopes are now enforced** via `requires:`. Verification-first signup (BK-166) means unconfirmed accounts can do nothing.
+Bunkai's API surface has grown to **69 route files / ~89+ handlers** covering a full test lifecycle: ATC authoring, test chains, run execution, native bug triage, coverage reporting, notifications, and async Jira import. The auth model was rebuilt around a **unified Principal** (ADR-0001) where cookie and bearer callers resolve to identical rows, and **scopes are now enforced** via `requires:`. Verification-first signup (BK-166) means unconfirmed accounts can do nothing.
 
 The deepest risk today is **tenant isolation (RLS)** — a single missing policy on any table leaks data across workspaces with zero UI feedback, and the dual-path auth (cookie vs PAT→`mintUserJwt`) must produce identical RLS outcomes on every route. Second is **run execution integrity** — the state machine spans four tables (`runs`, `run_atcs`, `run_steps`, triggers) with cascading recomputation; a trigger failure leaves inconsistent run status. Third is **idempotency correctness** — now functional on runs/tests/atcs/imports, but the 24h `start_token` window vs HTTP key interplay is untested at boundaries. Fourth is **traceability chain filter correctness** (BK-48) — module identity (0069) + client-side filtering must stay synchronized with the chain content. Fifth is **magic-link cross-device** (BK-400) — stateless verification via `verifyOtp` works on any device, but the legacy PKCE flow still coexists.
+
+Since the last generation (v5, migrations 0001–0075), five surfaces shipped and are now testable: **⌘K cross-entity search** (BK-398, 0071), **workspace billing overview** (BK-229, 0072), **test plans** (BK-202, 0073/0074), **bug detail read** with evidence scheme guard (BK-337/466, 0070), and the **abandoned-run sweep** (BK-269, 0075). Two migrations are in the tree but NOT applied — **0067** (run finish/abort `via` + SECURITY DEFINER rewrites) and **0058** (ATC title length CHECK) — so QA must not assume either constraint holds at runtime.
 
 | Priority | Flow | Why it matters | Depends on / Affects | Testable Today? |
 |----------|------|----------------|----------------------|-----------------|
@@ -28,6 +30,11 @@ The deepest risk today is **tenant isolation (RLS)** — a single missing policy
 | MEDIUM | Cross-workspace notifications (FEAT-NOTIF-001..004) | `entity_available` per-row RLS; member must never see notifications for hidden entities | Inbox, read-all races | ✅ Yes (API) |
 | MEDIUM | Activity feed integrity (FEAT-ACT-001) | Cursor pagination; `run.aborted.reason` redacted from feed; empty = 200 never 404 | Activity UI, audit trail | ✅ Yes (API) |
 | MEDIUM | Abort-reason redaction (FEAT-RUN-003) | `run.aborted.reason` must be dropped from activity feed (0067) | Activity, notifications | ✅ Yes (API) |
+| MEDIUM | ⌘K cross-entity search (FEAT-SEARCH-001) | Server-side workspace scope + GIN indexes; any wrong resolution leaks cross-workspace results | Search RPC (0071), cookie/bearer workspace context | ✅ Yes (API) |
+| MEDIUM | Test plans (FEAT-PLAN-001) | New planning entity: case-insensitive unique names, open→closed machine, NBSP whitespace (BK-591) | `test_plans` (0073), create/update RPCs | ✅ Yes (API) |
+| MEDIUM | Bug detail read + evidence guard (FEAT-BUG-006) | `origin` provenance + archived module + http/https evidence scheme (BK-466) | `bunkai_bug_json` (0070), BugDetailSchema | ✅ Yes (API) |
+| MEDIUM | Abandoned-run sweep (FEAT-RUN-007) | pg_cron auto-aborts idle runs; silent, no HTTP route, not yet installed | `bunkai_close_abandoned_runs` (0075), pg_cron | ✅ Yes (SQL) |
+| LOW | Workspace billing overview (FEAT-BILLING-001) | Admin-gated read-only; non-disclosure 404-never-403 | `bunkai_workspace_billing_overview` (0072) | ✅ Yes (API) |
 
 ---
 
@@ -206,6 +213,81 @@ The deepest risk today is **tenant isolation (RLS)** — a single missing policy
 - Magic link with missing code → toast "missing_code"
 - Verify `VERIFIABLE_OTP_TYPES` only allows `magiclink` and `email` (not `signup`, `invite`, `recovery`)
 
+### MEDIUM: ⌘K cross-entity search (FEAT-SEARCH-001)
+
+**Why it matters.** The ⌘K palette searches across six entity types (ATCs, tests, projects, modules, bugs, runs) via GIN expression indexes. Workspace scope is resolved server-side — never from a path segment — so a wrong resolution leaks cross-workspace results, and the non-disclosure convention demands every failure path collapse into the same `200 {data:[], truncated:false}`.
+
+**What commonly breaks.** Query normalization off (leading/trailing whitespace), the `q` min-2-char backstop regressing, the 5-per-group cap or total `limit` exceeding bounds, GIN indexes going stale after title edits, a foreign workspace leaking results instead of the empty 200.
+
+**Dependencies.** `bunkai_search_workspace` RPC (0071), GIN expression indexes, cookie `ACTIVE_WORKSPACE_COOKIE` / Bearer `principal.workspaceId`.
+
+**What an experienced QA would check:**
+- Search as workspace A member → never returns workspace B entities
+- `q` shorter than 2 chars after trim → rejected (defensive backstop)
+- `limit` outside 1..20 → rejected; default 20 applied
+- Foreign/missing workspace → 200 empty, never 403/404
+- Edit an ATC title → search reflects the new title (GIN index refreshed)
+- Verify which entity types are actually indexed — the maps disagree (see §10)
+
+### LOW: Workspace billing overview (FEAT-BILLING-001)
+
+**Why it matters.** A read-only, admin-gated endpoint returning plan / seats / project count / oldest run age. The gate is a SECURITY DEFINER helper (`bunkai_is_workspace_admin`), and non-disclosure means a non-admin or foreign workspace collapses to 404 — never 403 — because revealing "billing exists but you can't see it" leaks workspace existence.
+
+**What commonly breaks.** Non-admin resolving 200, a foreign workspace returning 403 instead of 404, tier-ladder math (community/cloud/enterprise seat and project caps) drifting from `lib/billing/plan-tiers.ts`.
+
+**Dependencies.** `bunkai_workspace_billing_overview` RPC (0072), `bunkai_is_workspace_admin`, `lib/billing/plan-tiers.ts`.
+
+**What an experienced QA would check:**
+- Owner/admin → 200 with plan + seat/project counts
+- Viewer/member (non-admin) → 404 (not 403)
+- Foreign workspace → 404
+- Tier boundaries (community 5 seats / 3 projects; cloud 25 / 50) enforced at the edge
+
+### MEDIUM: Test plans (FEAT-PLAN-001)
+
+**Why it matters.** New planning entity with an `open → closed` status machine (close is the sole exit — no DELETE) and case-insensitive unique names per project. The NBSP whitespace bug (BK-591, 0074) means normalization that collapses ASCII whitespace but preserves U+00A0 has subtle round-trip behavior.
+
+**What commonly breaks.** Duplicate name differing only by case/whitespace, NBSP collapsing when it shouldn't, the member+ gate leaking to viewers on create/update, a SECURITY DEFINER RPC reading the wrong `auth.uid()` (the route must use `getAuth(ctx).db`, never `createAdminClient()`).
+
+**Dependencies.** `test_plans` table (0073), `bunkai_create_test_plan` / `bunkai_update_test_plan` RPCs, `lib/test-plans/validation.ts`.
+
+**What an experienced QA would check:**
+- Create plan with a valid name → 201; empty or over-limit → rejected (45600)
+- Two plans with the same name (case/whitespace variants) → 23505 unique violation
+- Viewer can list but cannot create/update (member+ gate)
+- NBSP in name is preserved; ASCII whitespace is collapsed
+- No DELETE — close (BK-207) is the only exit; PATCH on a closed plan → 45603 (once shipped)
+
+### MEDIUM: Bug detail read + evidence scheme guard (FEAT-BUG-006)
+
+**Why it matters.** `GET /bugs/{id}` now returns the full composed record including `origin` provenance (run_id, step position, ATC title/layer) and `module.archived_at`. It runs SECURITY INVOKER under RLS, so a hidden or foreign bug collapses to a non-disclosing 404. Evidence links are scheme-guarded to http/https (BK-466).
+
+**What commonly breaks.** An archived-module bug rendering with `archived_at` but no tag (PO ruling: tag, never 404), a standalone bug returning a malformed `origin` instead of a clean null, an evidence URL with a `javascript:`/`data:` scheme slipping through, provenance leaking another workspace's run.
+
+**Dependencies.** `bunkai_bug_json` (0070), `BugDetailSchema`, `isHttpUrl` render guard.
+
+**What an experienced QA would check:**
+- Bug from a run step → origin carries run_id + 0-based step position + ATC title/layer
+- Standalone bug → origin is null (clean, not partial)
+- Archived module → detail renders with `module.archived_at` set, never 404
+- Foreign/missing bug → generic 404 (non-disclosing)
+- Evidence URL with a non-http scheme → rejected at filing and render
+
+### MEDIUM: Abandoned-run sweep (FEAT-RUN-007)
+
+**Why it matters.** A pg_cron job sweeps idle `running` runs into `aborted` (reason `abandoned`, `via: 'sweep'`). It has no HTTP route and no UI feedback — a silent killer that keeps run state from rotting forever. pg_cron is available but not yet installed on the live instance, so the sweep is inert until installed.
+
+**What commonly breaks.** The sweep missing a run (idle threshold off), double-sweeping an already-finished run (must be idempotent), `via: 'sweep'` surfacing in the activity feed (should be redacted like a manual abort), notification spam on a bulk sweep.
+
+**Dependencies.** `bunkai_close_abandoned_runs` (0075), the pg_cron scheduler, `bunkai_notify_run_event`.
+
+**What an experienced QA would check:**
+- Idle run past threshold → aborted with reason `abandoned`
+- Already-finished run → skipped (idempotent)
+- Swept run emits `run.aborted` (notifications via the same trigger as a manual abort)
+- Abort reason never leaks into the activity feed
+- Confirm the sweep threshold (15 vs 30 min — maps disagree, see §10) against the actual function
+
 ---
 
 ## 3. State machines that matter
@@ -242,6 +324,12 @@ The deepest risk today is **tenant isolation (RLS)** — a single missing policy
 
 **Transitions most likely to be broken.** Worker crash → stuck `running`, concurrent import attempt → 409 (must be serialized), partial import data on failure.
 
+### Test plans — open/closed
+
+**Why transitions matter.** `open → closed` is forward-only and close is the sole exit (no DELETE — BK-207 not yet shipped). Closing a plan before its tests execute orphans its run linkage, and the case-insensitive unique name must hold across both statuses.
+
+**Transitions most likely to be broken.** Reopening a closed plan, PATCH on a closed plan (45603 — unreachable until BK-207 ships), name uniqueness breaking across open/closed plans.
+
 ---
 
 ## 4. Silent killers — automated processes
@@ -259,6 +347,7 @@ The deepest risk today is **tenant isolation (RLS)** — a single missing policy
 | Run timeout/24h `start_token` | RPC level | Abandoned runs abortable window | Runs stuck `running` | Wait >24h → verify new run can be started | ✅ Active |
 | `import_jobs` worker | `after()` on POST /imports | Import stuck `running` forever | Poll shows `running` indefinitely | POST import → poll until succeeded/failed | ✅ Active |
 | Idempotency cleanup | TTL-based cleanup of expired keys | Expired keys block legitimate retries | Agent sees stored result instead of fresh | Wait for key expiry → verify fresh execution | ✅ Active |
+| `bunkai_close_abandoned_runs` | pg_cron every 5 min closes idle `running` Runs as `aborted` | Runs rot in `running` forever; reports count them active | None today — pg_cron not yet installed on live | Direct SQL call with mock data | ⚠️ Inert (pg_cron not installed) |
 
 ---
 
@@ -287,6 +376,12 @@ The deepest risk today is **tenant isolation (RLS)** — a single missing policy
 | Aspect | Impact | Notes |
 |--------|--------|-------|
 | No SDK in package.json | Magic-link delivery uses Supabase GoTrue default | Cannot customize or test transactional email flow |
+
+### Supabase pg_cron — AVAILABLE, NOT INSTALLED
+
+| Aspect | Impact | Notes |
+|--------|--------|-------|
+| Abandoned-run sweep inert | Idle runs never auto-abort | `bunkai_close_abandoned_runs` (0075) is defined but pg_cron is not installed on the live instance — the sweep is dormant until the scheduler is installed |
 
 ---
 
@@ -376,6 +471,16 @@ Home dashboard (aggregates all above)
 - Signup with existing email → 409 without echoing account existence
 - Wrong OTP → uniform 401 (no distinguishable error messages)
 
+### New-surface edge cases (search / billing / plans / sweep / bug-detail)
+- Search `q` trimmed below 2 chars → rejected; `limit` outside 1..20 → rejected
+- Test-plan name 1–100 chars, description ≤500, goal ≤100, case-insensitive unique (verify against the map — see §10)
+- Billing tier boundaries: community 5 seats / 3 projects, cloud 25 / 50
+- Two concurrent test-plan creates with the same name → 23505 (one wins)
+- Sweep racing a manual abort on the same run → idempotent, no double terminal
+- Billing endpoint: non-admin or foreign workspace → 404 (never 403)
+- Test-plan create/update: member+ only; viewer read-only
+- Evidence URL with a `javascript:`/`data:` scheme → rejected (BK-466)
+
 ---
 
 ## 8. Pre-release checklist (priority-ordered)
@@ -401,6 +506,13 @@ Home dashboard (aggregates all above)
 14. Verify cross-workspace notifications: member never sees notifications for hidden entities
 15. Verify module tree: depth 6 → success; depth 7 → rejected; archive cascade
 
+### NEW SHIPPED (BK-398 / 229 / 202 / 337 / 269)
+16. Verify ⌘K search: workspace A never sees workspace B; foreign workspace → 200 empty
+17. Verify test plans: case-insensitive unique name, NBSP preserved, member+ gate, no DELETE
+18. Verify bug detail read: origin provenance, archived-module tag-not-404, evidence http/https guard
+19. Verify billing: admin 200, non-admin/foreign 404 (never 403)
+20. Verify abandoned-run sweep: idle run → aborted `abandoned`, idempotent, reason redacted
+
 ---
 
 ## 9. What is NOT in this plan
@@ -421,12 +533,17 @@ Home dashboard (aggregates all above)
 | Dual-path RLS parity untested | HIGH | Every route resolving cookie vs Bearer to the same rows needs a consent QA suite; PAT impersonation is the top auth risk |
 | `workspace:admin` scope accepted-but-rejected | HIGH | ADR-0005: minted PATs may carry `workspace:admin`, but `requires:` rejects it at runtime — verify consistency |
 | Coverage roll-up invariant unverified | HIGH | `sum/sum` shared Home/API — parity test required |
-| OpenAPI spec vs 64 routes drift | MEDIUM | Not every route may be documented in `public/openapi.json` |
+| OpenAPI spec vs 69 routes drift | MEDIUM | Not every route may be documented in `public/openapi.json` |
 | Abort-reason redaction | MEDIUM | Run abort writes reason that must be redacted from activity feed (0067) — cross-surface consistency untested |
 | Idempotency window semantics | MEDIUM | HTTP key vs 24h `start_token` interplay — boundary testing needed |
 | Jira import resilience | MEDIUM | No retry/backoff evidence; worker crash leaves `running` forever |
 | Notifications cross-workspace leak | MEDIUM | `entity_available` per-row RLS — verify entity visibility respected |
 | Rate limiting | LOW | No application-layer rate limiting; 429s from Supabase only |
-| Run timeout sweeper | LOW | Auto-abort of abandoned runs (15-min cron) — testable via DB, not API |
+| Run timeout sweeper | MEDIUM | Shipped as 0075 but pg_cron not installed on live — sweep is dormant until the scheduler is installed; idle threshold (15 vs 30 min) unverified |
 | No workspace delete/slug rotation | LOW | Multi-tenant lifecycle incomplete |
 | Resend email wiring | LOW | Configured but not wired — GoTrue handles OTP email |
+| Migration 0067 (`via` + SECURITY DEFINER rewrites) NOT applied | HIGH | finish/abort `via` executor recording is defined but the DEFINER rewrite is pending human approval — do not assume executor mode is recorded at runtime |
+| Migration 0058 (ATC title length CHECK) NOT applied | MEDIUM | Title min-length constraint is in the tree but not live — ATC title validation may be client/Zod-only |
+| Search entity-type count discrepancy | MEDIUM | data-map lists 6 types (atcs/tests/projects/modules/bugs/runs); feature-map §2.12 lists 4 (atcs/bugs/user_stories/tests) — reconcile which types are actually indexed |
+| Abandoned-run threshold discrepancy | MEDIUM | data-map says 15 min inactivity; feature-map says >30 min — confirm the real hardcoded threshold in 0075 |
+| Test-plan field-limit discrepancy | MEDIUM | data-map: name 1–100, desc ≤500, goal ≤100, codes 45600–45603; feature-map §2.11: name ≤200, desc ≤2000, codes 45801/45802 — reconcile before writing ATCs |
