@@ -37,10 +37,10 @@ them to the free IDs once the Zen free endpoint is configured.
 - **Claude Code** cannot reach opencode-go per-subagent without a model router;
   roles map to Anthropic-native tiers (`opus`/`sonnet`/`haiku`) as equivalents.
 
-## Fallback (DeepSeek peak hours / primary failure)
+## Peak-hours model swap
 
 `qa-plan` uses `deepseek-v4-pro`. Peak hours are `01:00–04:00` and `06:00–10:00`
-UTC Mon–Fri (price ×2). During peak or on failure, switch `qa-plan` to
+UTC Mon–Fri (price ×2). During peak, switch `qa-plan` to
 `opencode-go/glm-5.3` (paid, no peak surcharge). Free models are NOT a
 reasoning fallback: the shift-left mini-eval scored Nemotron 3 Ultra Free 8/12
 vs DeepSeek V4 Pro 12/12 — free models fabricate specifics under ambiguity.
