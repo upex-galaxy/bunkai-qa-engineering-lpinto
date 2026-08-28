@@ -315,6 +315,15 @@ export const VAR_MANIFEST: VarSpec[] = [
     note: 'Resend email-test verification key; also authenticates the resend CLI. CRITICAL — project-independent email-testing tool. Local only.',
   },
   {
+    name: 'OPENCODE_GO_API_KEY',
+    destinations: ['local'],
+    secret: true,
+    required: false,
+    critical: false,
+    obtainHint: 'OpenCode Go subscription key — https://opencode.ai/auth (only for codex subagent model routing).',
+    note: 'Authenticates the codex model_providers.opencode-go block (.codex/config.toml) for QA role-subagent routing. The opencode harness uses /connect instead and does not read this. Local only.',
+  },
+  {
     name: 'DBHUB_TYPE',
     destinations: ['local'],
     secret: false,

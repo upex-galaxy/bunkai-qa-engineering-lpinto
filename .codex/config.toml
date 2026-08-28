@@ -63,3 +63,15 @@ args = [
 url = "https://mcp.postman.com/mcp"
 bearer_token_env_var = "POSTMAN_API_KEY"
 enabled = false
+
+# Model routing — QA role subagents (.codex/agents/*.md) reference these models
+# via the `opencode-go/` provider. The OpenCode Go endpoint is OpenAI-compatible
+# (chat/completions). Auth comes from OPENCODE_GO_API_KEY in .env (the Go
+# subscription key). Verify the model_providers schema against the codex docs if
+# the provider does not resolve; the free `opencode/` Zen models are on a separate
+# endpoint and are NOT wired here (use paid cheap equivalents above).
+[model_providers.opencode-go]
+name = "OpenCode Go"
+base_url = "https://opencode.ai/zen/go/v1"
+env_key = "OPENCODE_GO_API_KEY"
+wire_api = "chat"
