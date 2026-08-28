@@ -269,22 +269,32 @@ link_types:
   required:
     blocks:
       name: Blocks
+      outward: blocks
+      inward: is blocked by
       description: Link an issue to another that blocks it.
       used_by: [sprint-testing, test-documentation, agentic-qa-core]
     problem_incident:
       name: Problem/Incident
+      outward: causes
+      inward: is caused by
       description: Link a bug to the story it blocks or relates to.
       used_by: [sprint-testing, agentic-qa-core]
     test:
       name: Test
+      outward: tests
+      inward: is tested by
       description: Link a Test issue to the Story it validates.
       used_by: [shift-left-testing, sprint-testing, test-documentation, agentic-qa-core]
     test_design:
       name: Test Design
+      outward: designs
+      inward: is designed by
       description: Link a Test issue to the Story or Epic it validates.
       used_by: [test-documentation]
     test_execute:
-      name: Test Execution
+      name: Test Execute
+      outward: executes
+      inward: is executed by
       description: Link a Test Execution to a Test Plan or Test issue.
       used_by: [test-documentation]
   optional: {}

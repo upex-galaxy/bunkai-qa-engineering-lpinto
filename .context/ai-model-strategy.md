@@ -5,6 +5,22 @@ single source of truth; the harness configs (`.opencode/agents/`,
 `.codex/agents/`, `.claude/agents/`) bind each role to a model, and the routing
 rule in `AGENTS.md` maps each task to its role.
 
+## Routing decision order (read first)
+
+Before mapping a task to a role → model, the orchestrator decides the CHEAPEST
+path and uses it — efficiency over protocol ceremony:
+
+1. **Main thread (inline)** when the work needs MCP tools bound to the main
+   thread (`playwright_browser_*`, `openapi_*`, `engram_*` — subagents don't
+   have them), or when the context is already loaded in the main thread and a
+   briefing + re-read would duplicate tokens.
+2. **Subagent** when the work is heavy file reading (context discarded on
+   return) or mechanical/bulk (bulk TC creation, verifiers, log reading) — then
+   route to the role/model table below.
+
+A stage is only "delegable" if the subagent can reach the required tools via
+bash/CLI. MCP-bound stages stay in the main thread.
+
 ## Role agents
 
 | Role | Task type | Model (opencode) |

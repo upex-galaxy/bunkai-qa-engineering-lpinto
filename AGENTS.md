@@ -75,6 +75,8 @@ Example: ❌ "Added `waitForResponse('**/api/auth/login')` before toast assertio
 
 > **Main conversation = command center. Subagents = executors.** Active EVERY session. Not optional.
 
+**MOST EFFICIENT PATH FIRST (overrides the lists below)**: before every dispatch, the orchestrator picks the CHEAPEST path — main thread (inline) vs subagent — and uses it. Efficiency (tokens/latency) is the tie-breaker, never protocol ceremony. Prefer **inline** when the work needs MCP tools bound to the main thread (`playwright_browser_*`, `openapi_*`, `engram_*` — subagents don't have them), or when the context is already loaded in the main thread and a briefing + re-read would duplicate tokens. Prefer a **subagent** when the work is heavy file reading whose context gets discarded on return, or mechanical/bulk work (bulk TC creation, verifiers, log reading). A stage is only "delegable" if the subagent can reach the required tools via bash/CLI — MCP-bound stages stay in the main thread.
+
 **USE SUBAGENTS FOR**: reading/writing multiple files, MCP ops, research across repos, git ops, verification (tests/types/lint), multi-file edits, long-running tasks.
 
 **NO SUBAGENTS FOR**: quick lookups, memory reads/writes, task tracking, asking user, planning.
