@@ -6,6 +6,13 @@
 # Cross-platform: Linux, macOS (BSD sed), Git Bash on Windows.
 set -euo pipefail
 
+QUIET=false
+for arg in "$@"; do
+  case "$arg" in
+    -q|--quiet) QUIET=true ;;
+  esac
+done
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
@@ -54,14 +61,14 @@ for AGENT_FILE in "${AGENT_FILES[@]}"; do
   CURRENT_MODEL=$(sed -n 's/^[[:space:]]*model:[[:space:]]*//p' "$AGENT_FILE" | head -n1 || echo "unknown")
 
   if [[ "$CURRENT_MODEL" == "$TARGET_MODEL" ]]; then
-    echo "OK: $(basename "$(dirname "$AGENT_FILE")")/qa-plan.md already on $TARGET_MODEL"
+    $QUIET || echo "OK: $(basename "$(dirname "$AGENT_FILE")")/qa-plan.md already on $TARGET_MODEL"
     SKIPPED=$((SKIPPED + 1))
     continue
   fi
 
   sed_inplace "s|^[[:space:]]*model:.*|model: $TARGET_MODEL|" "$AGENT_FILE"
-  echo "SWAPPED: $(basename "$(dirname "$AGENT_FILE")")/qa-plan.md $CURRENT_MODEL -> $TARGET_MODEL"
+  $QUIET || echo "SWAPPED: $(basename "$(dirname "$AGENT_FILE")")/qa-plan.md $CURRENT_MODEL -> $TARGET_MODEL"
   UPDATED=$((UPDATED + 1))
 done
 
-echo "DONE: $UPDATED swapped, $SKIPPED unchanged (UTC $(date -u +%H:%M), dow=$DOW)"
+$QUIET || echo "DONE: $UPDATED swapped, $SKIPPED unchanged (UTC $(date -u +%H:%M), dow=$DOW)"

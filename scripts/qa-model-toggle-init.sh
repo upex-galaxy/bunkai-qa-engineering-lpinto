@@ -10,13 +10,13 @@ _REPO_TOGGLE_SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/toggle-qa-pla
 
 if [[ -f "$_REPO_TOGGLE_SCRIPT" ]]; then
   # Run once immediately on shell open
-  bash "$_REPO_TOGGLE_SCRIPT" 2>/dev/null &
+  bash "$_REPO_TOGGLE_SCRIPT" -q 2>/dev/null &
 
   # Then check every 5 min in background
   (
     while true; do
       sleep 300
-      bash "$_REPO_TOGGLE_SCRIPT" 2>/dev/null
+      bash "$_REPO_TOGGLE_SCRIPT" -q 2>/dev/null
     done
   ) &
   disown
