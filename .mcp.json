@@ -24,12 +24,12 @@
         "--viewport-size",
         "1920x1080"
       ],
-      "enabled": false
+      "enabled": true
     },
     "dbhub": {
       "command": "bunx",
       "args": ["-y", "@bytebase/dbhub@1.2.1", "--config", "dbhub.toml"],
-      "enabled": false
+      "enabled": true
     },
     "openapi": {
       "command": "bunx",
@@ -38,7 +38,7 @@
         "API_BASE_URL": "${API_BASE_URL}",
         "OPENAPI_SPEC_PATH": "${OPENAPI_SPEC_PATH}"
       },
-      "enabled": false
+      "enabled": true
     },
     "postman": {
       "type": "http",

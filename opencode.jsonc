@@ -56,7 +56,7 @@
         "--viewport-size",
         "1920x1080"
       ],
-      "enabled": false
+      "enabled": true
     },
     "dbhub": {
       "type": "local",
@@ -67,7 +67,7 @@
         "--config",
         "dbhub.toml"
       ],
-      "enabled": false
+      "enabled": true
     },
     // SCHEMA-READ-ONLY: no API_TOKEN / Authorization header is injected here.
     // The OpenAPI MCP is used ONLY to discover endpoints + read schemas
@@ -84,7 +84,7 @@
         "--tools",
         "dynamic"
       ],
-      "enabled": false,
+      "enabled": true,
       "environment": {
         "API_BASE_URL": "{env:API_BASE_URL}",
         "OPENAPI_SPEC_PATH": "{env:OPENAPI_SPEC_PATH}"

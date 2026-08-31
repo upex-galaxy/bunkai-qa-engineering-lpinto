@@ -3,7 +3,7 @@
 # Peak hours: 01:00-04:00 + 06:00-10:00 UTC Mon-Fri.
 # Covers OpenCode (.opencode/agents/) and Codex (.codex/agents/).
 # Zero LLM tokens — pure filesystem operation.
-# macOS-compatible (BSD sed, no grep -P).
+# Cross-platform: Linux, macOS (BSD sed), Git Bash on Windows.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -31,6 +31,17 @@ else
   TARGET_MODEL="opencode-go/deepseek-v4-pro"
 fi
 
+# Cross-platform sed in-place: BSD sed (macOS) needs space between -i and extension,
+# GNU sed (Linux/Git Bash) treats -i.bak as one arg. Detect and handle both.
+sed_inplace() {
+  local expr=$1 file=$2
+  if sed --version 2>/dev/null | grep -q 'GNU'; then
+    sed -i "$expr" "$file"
+  else
+    sed -i '' "$expr" "$file"
+  fi
+}
+
 UPDATED=0
 SKIPPED=0
 
@@ -48,8 +59,7 @@ for AGENT_FILE in "${AGENT_FILES[@]}"; do
     continue
   fi
 
-  sed -i.bak "s|^[[:space:]]*model:.*|model: $TARGET_MODEL|" "$AGENT_FILE"
-  rm -f "$AGENT_FILE.bak"
+  sed_inplace "s|^[[:space:]]*model:.*|model: $TARGET_MODEL|" "$AGENT_FILE"
   echo "SWAPPED: $(basename "$(dirname "$AGENT_FILE")")/qa-plan.md $CURRENT_MODEL -> $TARGET_MODEL"
   UPDATED=$((UPDATED + 1))
 done

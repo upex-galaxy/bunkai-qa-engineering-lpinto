@@ -22,7 +22,7 @@ enabled = true
 
 [mcp_servers.dbhub]
 command = "bunx"
-enabled = false
+enabled = true
 args = [
   "-y",
   "@bytebase/dbhub@1.2.1",
@@ -32,7 +32,7 @@ args = [
 
 [mcp_servers.openapi]
 command = "bunx"
-enabled = false
+enabled = true
 args = [
   "-y",
   "@ivotoby/openapi-mcp-server@1.16.1",
@@ -46,7 +46,7 @@ env_vars = [
 
 [mcp_servers.playwright]
 command = "bunx"
-enabled = false
+enabled = true
 args = [
   "@playwright/mcp@0.0.79",
   "--caps",
