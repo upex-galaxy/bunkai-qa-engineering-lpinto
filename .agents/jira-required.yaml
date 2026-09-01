@@ -107,8 +107,11 @@ required:
     fallback: { target: comment, label: Feature Test Plan (QA) }
     description: |
       Epic-level QA test plan (strategy + coverage approach for the whole feature/epic).
-      Authored by sprint-testing/feature-test-planning, written to this field, then synced
-      to `.context/PBI/epics/EPIC-<KEY>-<slug>/feature-test-plan.md`.
+      Authored by sprint-testing/feature-test-planning. ITEM-FIRST: the home of the FTP body
+      is the `FTP: {EPIC-KEY}: {feature}` Test Plan item (parent: QA Master Test Plan), which
+      syncs to `.context/PBI/test-plans/FTP-<KEY>-<slug>.md`. THIS FIELD IS THE FALLBACK ONLY,
+      for an instance without the Test Plan work type; when used, it syncs to
+      `.context/PBI/epics/EPIC-<KEY>-<slug>/feature-test-plan.md`.
     used_by: [sprint-testing, sync-jira-issues]
 
   feature_implementation_plan:
@@ -261,43 +264,116 @@ unmapped:
 # — declare a slug here when the methodology expects a field semantically but
 # no real Jira field exists yet, then promote it to `required:` once configured.)
 
-# Link types (Jira issue-link types). Declared here so {{jira.link_types.<slug>}}
-# references in skill files pass lint. Each entry maps to an issue-link type in
-# the user's Jira workspace. Sub-fields: name, outward, inward, fallback.
-# Validated by `bun run jira:check` against `.agents/jira-link-types.json`.
+# Issue-link types the QA methodology needs for traceability between work items
+# (Story↔Test coverage, Story↔Defect causality, Story-blocked gates). Slug-based
+# so workspaces with custom link-type names can override. Resolved per workspace
+# by `bun run jira:sync-link-types` → `.agents/jira-link-types.json`.
+#
+# NEVER hardcode link-type names ("Test", "Blocks", "Problem/Incident") in skill
+# content. Always resolve via {{jira.link_types.<slug>}}, .outward, .inward,
+# .fallback. Creation doctrine + the acli --out/--in inversion gotcha live in
+# agentic-qa-core/references/traceability-linking.md.
+#
+# NOTE: Test↔Test Set membership is NOT a Jira issuelink — it is Xray-internal;
+# handle via /xray-cli, never `acli link create`.
 link_types:
   required:
-    blocks:
-      name: Blocks
-      outward: blocks
-      inward: is blocked by
-      description: Link an issue to another that blocks it.
-      used_by: [sprint-testing, test-documentation, agentic-qa-core]
-    problem_incident:
-      name: Problem/Incident
-      outward: causes
-      inward: is caused by
-      description: Link a bug to the story it blocks or relates to.
-      used_by: [sprint-testing, agentic-qa-core]
     test:
       name: Test
       outward: tests
       inward: is tested by
-      description: Link a Test issue to the Story it validates.
-      used_by: [shift-left-testing, sprint-testing, test-documentation, agentic-qa-core]
+      description: |
+        Coverage edge — a Story is tested by a Test / Test Plan / Test Execution
+        artifact. The canonical Story↔test-artifact traceability link.
+      fallback: relates
+      used_by:
+        - sprint-testing
+        - shift-left-testing
+        - test-documentation
+        - regression-testing
+
+    problem_incident:
+      name: Problem/Incident
+      outward: causes
+      inward: is caused by
+      description: |
+        Causal edge — a Story causes a Bug/Defect found during QA. The workspace
+        link type is named "Problem/Incident"; semantics are causes / is caused by.
+      fallback: relates
+      used_by:
+        - sprint-testing
+        - regression-testing
+
+    blocks:
+      name: Blocks
+      outward: blocks
+      inward: is blocked by
+      description: |
+        Blocking edge — an open Bug/Defect/Story/Tech Story/Tech Debt blocks a
+        Story. Created when the defect_reported → blocked QA gate fires.
+      fallback: blocking
+      used_by:
+        - sprint-testing
+        - regression-testing
+
+  optional:
+    relates:
+      name: Relates
+      outward: relates to
+      inward: relates to
+      description: |
+        Symmetric, informational link. Degradation target when a directional type
+        is absent — consumers MUST flag the fallback (direction is lost).
+      fallback: null
+      used_by: [sprint-testing, test-documentation]
+
+    defect:
+      name: Defect
+      outward: created
+      inward: created by
+      description: Alt to problem_incident — a Story created a Defect (Defect link variant).
+      fallback: problem_incident
+      used_by: [sprint-testing]
+
     test_design:
       name: Test Design
       outward: designs
       inward: is designed by
-      description: Link a Test issue to the Story or Epic it validates.
-      used_by: [test-documentation]
+      description: Xray refinement — Test Plan-level design coverage link.
+      fallback: test
+      used_by: [test-documentation, xray-cli]
+
     test_execute:
       name: Test Execute
       outward: executes
       inward: is executed by
-      description: Link a Test Execution to a Test Plan or Test issue.
-      used_by: [test-documentation]
-  optional: {}
+      description: Xray refinement — Test Execution coverage link.
+      fallback: test
+      used_by: [test-documentation, xray-cli, sprint-testing]
+
+    test_automation:
+      name: Test Automation
+      outward: automation test for
+      inward: is automated by
+      description: Links a manual Test to its automation.
+      fallback: relates
+      used_by: [test-automation]
+
+    blocking:
+      name: Blocking
+      outward: blocks
+      inward: is blocked by
+      description: Duplicate of Blocks in this workspace (separate id); fallback for blocks.
+      fallback: blocks
+      used_by: [sprint-testing]
+
+    xray_defect:
+      name: Xray Defect
+      outward: created
+      inward: created by
+      description: Xray-managed defect creation link.
+      fallback: defect
+      used_by: [xray-cli, sprint-testing]
 
 # Issue types (`work_types`) plus the canonical statuses + transitions the
 # methodology requires per work type. Validated by `bun run jira:check` against
@@ -547,3 +623,291 @@ work_types:
       deprecated: { from: any, to: deprecated, description: Retire the TC (global transition) }
       recover: { from: deprecated, to: draft, description: Restore a deprecated TC back to draft }
     used_by: [test-documentation, test-automation]
+
+  # ---- Registry-only types (coverage sync). Workflows (statuses/transitions) are
+  # resolved by `bun run jira:sync-workflows` per workspace when these types exist;
+  # the keys below drive `sync-jira-issues.ts` coverage routing. ----
+  epic:
+    jira_issue_type: Epic
+    description: Epic / feature container (holds child stories)
+    sync: default
+    container: true
+    content: split
+    local_dir: epics
+    required_statuses:
+      backlog: { description: Newly created epic awaiting planning }
+      planning: { description: Epic being planned / scoped (default landing state after creation) }
+      in_progress: { description: Epic actively in development }
+      done: { description: Epic completed (terminal success) }
+      aborted: { description: Epic cancelled (terminal) }
+    required_transitions:
+      plan: { from: backlog, to: planning, description: Move a backlog epic into planning }
+      ready_to_work:
+        { from: planning, to: in_progress, description: 'Planning done, epic work begins' }
+      complete: { from: in_progress, to: done, description: Epic finished }
+      aborted: { from: any, to: aborted, description: Cancel the epic (global transition) }
+
+  defect:
+    jira_issue_type: Defect
+    description: Defect found during QA of a coverable issue (story / bug / etc.)
+    sync: discovery
+    coverable: true
+    content: single
+    local_dir: defects
+    defect_link_types: [problem_incident, blocks, blocking, defect, xray_defect]
+    required_statuses:
+      open: { description: Newly reported defect awaiting triage }
+      in_progress: { description: Developer actively fixing }
+      in_review: { description: Pull request open }
+      ready_for_qa: { description: Fix deployed; defect ready to retest }
+      closed: { description: Defect verified fixed (terminal) }
+      deferred: { description: Defect accepted but postponed; resumable via resume_fix }
+      cannot_reproduce: { description: Defect closed because the team cannot reproduce (terminal) }
+      duplicated: { description: Defect closed as duplicate of another (terminal) }
+      rejected: { description: Defect rejected as Working As Designed / WAD (terminal) }
+      enhancement: { description: Reclassified as enhancement / feature request (terminal) }
+      aborted: { description: Defect abandoned without fix (terminal) }
+    required_transitions:
+      start_fixing:
+        { from: open, to: in_progress, description: Developer starts working on the defect }
+      is_cnr: { from: open, to: cannot_reproduce, description: Cannot reproduce — close (terminal) }
+      defer: { from: open, to: deferred, description: Postpone the fix }
+      is_duplicated: { from: open, to: duplicated, description: Defect is a duplicate of another }
+      is_wad: { from: open, to: rejected, description: Working as designed — reject the defect }
+      is_not_a_bug:
+        { from: open, to: enhancement, description: Reclassify as enhancement / feature request }
+      pull_request: { from: in_progress, to: in_review, description: PR opened }
+      hard_pushed:
+        { from: in_progress, to: ready_for_qa, description: 'Skip review, push directly to QA' }
+      fixed_and_deployed:
+        from: in_review
+        to: ready_for_qa
+        description: PR merged and deployed; defect ready to retest
+
+      retest_passed:
+        from: ready_for_qa
+        to: closed
+        description: QA verifies the fix (canonical Tested transition for defects)
+
+      re_open:
+        from: any
+        to: open
+        description: Re-open a closed defect (global transition — accepts any source state)
+
+      back:
+        from: closed
+        to: ready_for_qa
+        description: Re-test required after close (regression caught after sign-off)
+
+      resume_fix: { from: deferred, to: in_progress, description: Resume work on a deferred defect }
+      aborted: { from: any, to: aborted, description: Abandon the defect (global transition) }
+
+  improvement:
+    jira_issue_type: Improvement
+    description: Improvement / enhancement work item
+    sync: optional
+    recommended: true
+    coverable: true
+    content: single
+    local_dir: improvements
+    required_statuses:
+      open: { description: Newly reported improvement awaiting triage }
+      in_progress: { description: Developer actively working }
+      in_review: { description: Pull request open }
+      ready_for_qa: { description: Change deployed; ready to verify }
+      closed: { description: Improvement verified delivered (terminal) }
+      deferred: { description: Improvement accepted but postponed; resumable via resume_fix }
+      cannot_reproduce:
+        { description: Closed because the team cannot reproduce the need (terminal) }
+      duplicated: { description: Closed as duplicate of another (terminal) }
+      rejected: { description: Rejected as Working As Designed / WAD (terminal) }
+      enhancement: { description: Reclassified as enhancement / feature request (terminal) }
+      aborted: { description: Abandoned without delivery (terminal) }
+    required_transitions:
+      start_fixing:
+        { from: open, to: in_progress, description: Developer starts working on the improvement }
+      is_cnr: { from: open, to: cannot_reproduce, description: Cannot reproduce — close (terminal) }
+      defer: { from: open, to: deferred, description: Postpone the work }
+      is_duplicated:
+        { from: open, to: duplicated, description: Improvement is a duplicate of another }
+      is_wad: { from: open, to: rejected, description: Working as designed — reject }
+      is_not_a_bug:
+        { from: open, to: enhancement, description: Reclassify as enhancement / feature request }
+      pull_request: { from: in_progress, to: in_review, description: PR opened }
+      hard_pushed:
+        { from: in_progress, to: ready_for_qa, description: 'Skip review, push directly to QA' }
+      fixed_and_deployed:
+        from: in_review
+        to: ready_for_qa
+        description: PR merged and deployed; improvement ready to verify
+
+      retest_passed:
+        from: ready_for_qa
+        to: closed
+        description: QA verifies the change (canonical Tested transition)
+
+      re_open:
+        from: any
+        to: open
+        description: Re-open a closed improvement (global transition — accepts any source state)
+
+      back:
+        from: closed
+        to: ready_for_qa
+        description: Re-test required after close (regression caught after sign-off)
+
+      resume_fix:
+        { from: deferred, to: in_progress, description: Resume work on a deferred improvement }
+      aborted: { from: any, to: aborted, description: Abandon the improvement (global transition) }
+
+  tech_story:
+    jira_issue_type: Tech Story
+    description: Technical story (same coverage shape as a user story)
+    sync: optional
+    recommended: true
+    coverable: true
+    content: auto
+    local_dir: tech-stories
+    required_statuses:
+      to_do: { description: Newly created tech story awaiting pickup }
+      in_progress: { description: Developer actively working }
+      in_review: { description: Pull request open / under review }
+      blocked: { description: Work blocked; resumable via recover_from_blocked }
+      fixed: { description: Fix landed (reworkable via back_from_fixed) }
+      completed: { description: Work completed (terminal success) }
+      automated: { description: Verified / test-finished (terminal success) }
+      aborted: { description: Cancelled (terminal); recoverable via recovered }
+    required_transitions:
+      start_working:
+        { from: to_do, to: in_progress, description: Developer picks up the tech story }
+      ready: { from: in_progress, to: in_review, description: Work ready for review }
+      fix: { from: in_review, to: fixed, description: Apply fix from review }
+      complete: { from: in_review, to: completed, description: Mark work completed }
+      test_finished: { from: in_review, to: automated, description: Testing finished / automated }
+      blocked: { from: in_progress, to: blocked, description: Block the work }
+      recover_from_blocked: { from: blocked, to: in_progress, description: Unblock and resume }
+      renew: { from: in_progress, to: to_do, description: Return work to To Do }
+      abort: { from: in_progress, to: aborted, description: Cancel the work }
+      recover_from_in_review:
+        { from: in_review, to: in_progress, description: Send review back to in progress }
+      back_from_completed:
+        { from: completed, to: in_review, description: Re-open completed work for review }
+      back_from_fixed: { from: fixed, to: in_review, description: Re-open fixed work for review }
+      back_from_automated:
+        { from: automated, to: in_review, description: Re-open automated work for review }
+      recovered: { from: aborted, to: to_do, description: Restore an aborted item back to To Do }
+
+  tech_debt:
+    jira_issue_type: Tech Debt
+    description: Technical debt work item (coverable like a story)
+    sync: optional
+    recommended: true
+    coverable: true
+    content: auto
+    local_dir: tech-debts
+    required_statuses:
+      to_do: { description: Newly created tech debt item awaiting pickup }
+      in_progress: { description: Developer actively working }
+      in_review: { description: Pull request open / under review }
+      blocked: { description: Work blocked; resumable via recover_from_blocked }
+      fixed: { description: Fix landed (reworkable via back_from_fixed) }
+      completed: { description: Work completed (terminal success) }
+      automated: { description: Verified / test-finished (terminal success) }
+      aborted: { description: Cancelled (terminal); recoverable via recovered }
+    required_transitions:
+      start_working:
+        { from: to_do, to: in_progress, description: Developer picks up the tech debt item }
+      ready: { from: in_progress, to: in_review, description: Work ready for review }
+      fix: { from: in_review, to: fixed, description: Apply fix from review }
+      complete: { from: in_review, to: completed, description: Mark work completed }
+      test_finished: { from: in_review, to: automated, description: Testing finished / automated }
+      blocked: { from: in_progress, to: blocked, description: Block the work }
+      recover_from_blocked: { from: blocked, to: in_progress, description: Unblock and resume }
+      renew: { from: in_progress, to: to_do, description: Return work to To Do }
+      abort: { from: in_progress, to: aborted, description: Cancel the work }
+      recover_from_in_review:
+        { from: in_review, to: in_progress, description: Send review back to in progress }
+      back_from_completed:
+        { from: completed, to: in_review, description: Re-open completed work for review }
+      back_from_fixed: { from: fixed, to: in_review, description: Re-open fixed work for review }
+      back_from_automated:
+        { from: automated, to: in_review, description: Re-open automated work for review }
+      recovered: { from: aborted, to: to_do, description: Restore an aborted item back to To Do }
+
+  test_plan:
+    jira_issue_type: Test Plan
+    description: |
+      Xray Test Plan — holds the ATP body in its description (role atp). Altitude guard
+      (sync-jira-issues): only a Plan titled `ATP:*` syncs as a Story's acceptance-test-plan.md;
+      `FTP:*` / `STP:*` Plans are higher ladder altitudes and are skipped with an info line.
+      No `MTP:*` guard: the Master Test Plan is an Epic, never a Test Plan (defect-management
+      doctrine Part 4), so no Plan can legitimately carry that prefix. Unprefixed titles keep
+      the legacy behavior (any linked Plan counts). Higher altitudes still MATERIALIZE — the
+      QA-process-epic sweep writes them to test-plans/ as FTP-/STP-/ATP-<KEY>-<slug>.md
+      (non-conforming titles fall back to TESTPLAN-).
+    sync: discovery
+    role: atp
+    content: description
+    local_dir: test-plans
+
+  test_execution:
+    jira_issue_type: Test Execution
+    description: |
+      Xray Test Execution — holds the ATR body in its description (role atr). Altitude guard
+      (sync-jira-issues): only an Execution titled `ATR:*` / `ReTest:*` syncs as a Story's
+      acceptance-test-results.md; `STR:*` / `FTR:*` Executions are skipped with an info line
+      (`FTR` is a legacy guard — the rung was cut, the skip stays for pre-migration data).
+      Unprefixed titles keep the legacy behavior (any linked Execution counts). Higher
+      altitudes still MATERIALIZE — the QA-process-epic sweep writes them to test-executions/
+      as STR-/ATR-<KEY>-<slug>.md (non-conforming titles fall back to TESTEXEC-).
+    sync: discovery
+    role: atr
+    content: description
+    local_dir: test-executions
+
+  re_test_execution:
+    jira_issue_type: Re-Test Execution
+    description: |
+      Xray Re-Test Execution (subtask) — retest ATR (role atr, same altitude guard as
+      test_execution). Files as RETEST-<KEY>-<slug>.md when titled `ReTest:*`, else RETESTEXEC-.
+    sync: discovery
+    role: atr
+    content: description
+    local_dir: test-executions
+
+  test_set:
+    jira_issue_type: Test Set
+    description: |
+      Xray Test Set — grouping of tests. A Set titled `ATS:*` linked to a coverable issue feeds
+      cascade rung 1 of sync-jira-issues: its member Tests (Xray GraphQL membership, or TC→ATS
+      Jira links in Modality jira-native) materialize under that issue's test-cases/.
+      Feature-level `TS:*` Sets stay ignored by the cascade.
+      `sync: discovery` — reachable by an explicit `get <KEY>` / `jql`, and swept from the QA
+      Test Artifacts epic, but never by a plain type sweep. It was `never` while the code wrote
+      it anyway on `get`: declaration and behavior now agree (`sync: never` is honored).
+    sync: discovery
+    local_dir: test-sets
+
+  precondition:
+    jira_issue_type: Precondition
+    description: |
+      Xray Precondition — reusable test prerequisite. `sync: discovery` — reachable by an
+      explicit `get <KEY>` / `jql`, and swept from the QA Test Artifacts epic, but never by a
+      plain type sweep. Was `never` while the code wrote it anyway on `get`; the two now agree.
+    sync: discovery
+    local_dir: preconditions
+
+  subtask:
+    # `A | B | C` = ordered alternatives; the first one the project actually has
+    # wins. The subtask level is named differently per instance: Jira's default is
+    # "Sub-task", the BK instance calls it "Task", a Spanish-localized instance
+    # calls it "Subtarea". Declaring a single name made every other spelling a
+    # silent skip in jira:sync-workflows — which is exactly why this work_type was
+    # missing from the catalog while being declared right here. Add your own
+    # spelling to the list if your instance uses another.
+    # Consumed by /shift-left-testing for the per-Story "[QA] Shift-Left Review"
+    # tracking subtask (find-or-create; skip with a warning when the project has
+    # no subtask-level type at all).
+    jira_issue_type: Sub-task | Task | Subtarea
+    description: Generic subtask under a Story — tracking-only, never synced as its own folder
+    sync: never
