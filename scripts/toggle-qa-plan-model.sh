@@ -21,7 +21,7 @@ AGENT_FILES=(
   "$REPO_ROOT/.codex/agents/qa-plan.md"
 )
 
-HOUR=$(date -u +%H)
+HOUR=$(date -u +%H | sed 's/^0//')  # strip leading zero to avoid octal interpretation
 DOW=$(date -u +%u)  # 1=Mon, 7=Sun
 
 is_peak() {
