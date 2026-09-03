@@ -1,8 +1,14 @@
 ---
 description: QA reasoning/analysis agent for judgment-heavy tasks — shift-left AC refinement, test planning (ATP/TC design), ROI prioritization, failure classification, GO/NO-GO verdicts, code review verdicts. Use for any task that decides what a requirement does NOT say or classifies quality. NOT for mechanical/bulk work.
 mode: subagent
-model: opencode-go/glm-5.3
+model: opencode-go/deepseek-v4-pro
 temperature: 0.1
+permission:
+  context7_*: allow
+  tavily_*: allow
+  playwright_*: allow
+  dbhub_*: allow
+  openapi_*: allow
 ---
 
 You are a senior QA reasoning agent. Follow the briefing in the task.

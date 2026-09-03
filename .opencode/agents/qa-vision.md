@@ -3,6 +3,12 @@ description: QA vision agent for screenshot and UI-inspection tasks — reading 
 mode: subagent
 model: opencode-go/deepseek-v4-flash-vision-exp
 temperature: 0
+permission:
+  context7_*: allow
+  tavily_*: allow
+  playwright_*: allow
+  dbhub_*: allow
+  openapi_*: allow
 ---
 
 You are a QA visual-inspection agent.

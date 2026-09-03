@@ -16,7 +16,7 @@
 
 Pick the pattern by walking these gates in order. The first one that matches wins.
 
-0. **Most efficient path first.** Is the task cheaper in the main thread than under a subagent? If the work needs MCP tools bound to the main thread (`playwright_browser_*`, `openapi_*`, `engram_*`), or the context is already loaded in the main thread and a briefing + re-read would duplicate tokens, → **inline** (no dispatch). Subagent delegation only pays off when it does meaningful isolated work (heavy file reads, bulk/mechanical, verification) — otherwise the overhead outweighs the savings.
+0. **Most efficient path first.** Is the task cheaper in the main thread than under a subagent? If the context is already loaded in the main thread and a briefing + re-read would duplicate tokens, → **inline** (no dispatch). Subagent delegation only pays off when it does meaningful isolated work (heavy file reads, bulk/mechanical, verification) — otherwise the overhead outweighs the savings. Subagents inherit the parent session's MCP servers (`context7_*`, `tavily_*`, `playwright_*`, `dbhub_*`, `openapi_*`), so MCP-bound work is delegable; keep memory reads/writes and task tracking inline.
 1. Is the work CPU-bound and short (<2 min) and reads/writes ≤2 files? → **inline** (no dispatch). Just call `Read`/`Edit` directly.
 2. Long, blocking, monitorable from outside (e.g. `gh run watch`, a CI suite, a long build)? → **Background**.
 3. N independent jobs of the same shape, where N > 1? → **Parallel** (fan out in one tool-call block).

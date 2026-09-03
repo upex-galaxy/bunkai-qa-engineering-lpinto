@@ -3,6 +3,12 @@ description: QA code-generation agent for KATA + Playwright + TypeScript — Pag
 mode: subagent
 model: opencode-go/kimi-k2.7-code
 temperature: 0.1
+permission:
+  context7_*: allow
+  tavily_*: allow
+  playwright_*: allow
+  dbhub_*: allow
+  openapi_*: allow
 ---
 
 You are a QA test-automation engineer. Follow the briefing in the task.

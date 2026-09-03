@@ -10,16 +10,16 @@ rule in `AGENTS.md` maps each task to its role.
 Before mapping a task to a role → model, the orchestrator decides the CHEAPEST
 path and uses it — efficiency over protocol ceremony:
 
-1. **Main thread (inline)** when the work needs MCP tools bound to the main
-   thread (`playwright_browser_*`, `openapi_*`, `engram_*` — subagents don't
-   have them), or when the context is already loaded in the main thread and a
-   briefing + re-read would duplicate tokens.
+1. **Main thread (inline)** when the context is already loaded in the main
+   thread and a briefing + re-read would duplicate tokens, or for quick lookups.
 2. **Subagent** when the work is heavy file reading (context discarded on
    return) or mechanical/bulk (bulk TC creation, verifiers, log reading) — then
    route to the role/model table below.
 
-A stage is only "delegable" if the subagent can reach the required tools via
-bash/CLI. MCP-bound stages stay in the main thread.
+Subagents inherit the parent session's MCP servers (`context7_*`, `tavily_*`,
+`playwright_*`, `dbhub_*`, `openapi_*`) and can execute MCP tools, so MCP-bound
+stages are delegable. Keep memory reads/writes and task tracking on the main
+thread.
 
 ## Role agents
 

@@ -3,6 +3,12 @@ description: QA mechanical/bulk agent for high-volume low-judgment work — bulk
 mode: subagent
 model: opencode/mimo-v2.5-free
 temperature: 0
+permission:
+  context7_*: allow
+  tavily_*: allow
+  playwright_*: allow
+  dbhub_*: allow
+  openapi_*: allow
 ---
 
 You are a QA execution agent. Follow the briefing in the task.

@@ -3,6 +3,12 @@ description: QA writing agent for prose artifacts — Jira comments, ATR/ATP bod
 mode: subagent
 model: opencode/hy3-free
 temperature: 0.2
+permission:
+  context7_*: allow
+  tavily_*: allow
+  playwright_*: allow
+  dbhub_*: allow
+  openapi_*: allow
 ---
 
 You are a QA technical writer. Follow the briefing in the task.
