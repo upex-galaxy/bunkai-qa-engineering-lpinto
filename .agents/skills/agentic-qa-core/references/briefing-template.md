@@ -6,6 +6,8 @@
 ## The 7 components
 
 1. **Goal** — one sentence. What outcome the subagent must achieve.
+
+> **Role agent (mandatory companion field).** The 7 components describe WHAT the subagent does; the role agent (`subagent_type`) decides WHICH model runs it. On every dispatch, resolve the `subagent_type` from `AGENTS.md` §"Orchestration Mode" routing table (`qa-plan` / `qa-code` / `qa-review` / `qa-bulk` / `qa-vision` / `qa-write`) — **never `general` / `explore`**. Role→model binding: `.context/ai-model-strategy.md`. A briefing without an explicit role agent is incomplete; the orchestrator resolves it and passes it as `subagent_type` at dispatch time.
 2. **Context docs** — files the subagent reads before acting. Absolute paths. The repo root is written as `<<REPO_ROOT>>` — a session variable per `.agents/README.md` §Variable syntax conventions — which the orchestrator resolves to the real absolute root at dispatch time (a subagent's cwd resets between calls, so relative paths are unsafe).
 3. **Project Standards (auto-resolved)** — REQUIRED. Compact rules of skills relevant to this dispatch. Pulled from `.agents/skills/REGISTRY.md` (built once per session by `bun run skills:registry`). The subagent treats this section as authoritative for the listed conventions and does NOT re-read the full SKILL.md unless explicitly told to. Protocol: `agentic-qa-core/references/skill-resolver.md`.
 4. **Skills to load** — skill triggers (e.g. `/acli`, `/xray-cli`, `/playwright-cli`) the subagent must invoke before issuing tool calls. The orchestrator never inlines tool syntax — that lives in the owning skill.

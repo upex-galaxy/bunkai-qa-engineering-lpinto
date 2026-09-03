@@ -231,6 +231,8 @@ Every dispatch uses the **7-component briefing format** defined in `.agents/skil
 ### Briefing 1 — Session Start subagent
 
 ```
+Role agent: qa-plan  (dispatch with subagent_type=qa-plan — never general/explore)
+
 Goal: Fetch ticket <TICKET_KEY> from the issue tracker, load relevant context, create the PBI folder, and return a session-start report.
 
 Context docs:
@@ -288,6 +290,8 @@ Rules:
 ### Briefing 2 — Stage 1 Planning subagent
 
 ```
+Role agent: qa-plan  (dispatch with subagent_type=qa-plan — never general/explore)
+
 Goal: Produce ATP, risk-triage, and draft TCs for <TICKET_KEY> in <PBI_FOLDER>; for Bug tickets, apply the veto + risk-score decision tree before producing the ATP.
 
 Context docs:
@@ -345,6 +349,8 @@ Rules:
 ### Briefing 3 — Stage 2 Execution subagent
 
 ```
+Role agent: qa-bulk (mechanical CLI) OR qa-plan (exploratory reasoning)  — see SKILL.md §"Stage 2 split rule"; dispatch with subagent_type=<chosen role>, never general/explore
+
 Goal: Run smoke pass + triforce exploration (UI / API / DB) for <TICKET_KEY> against the <ENV> environment; capture evidence; surface any BUG_FOUND.
 
 Context docs:
@@ -400,6 +406,8 @@ Rules:
 ### Briefing 4 — Stage 3 Reporting subagent
 
 ```
+Role agent: qa-write  (dispatch with subagent_type=qa-write — never general/explore)
+
 Goal: Fill the ATR, post the QA comment, transition the issue, and file bug reports for <TICKET_KEY>.
 
 Context docs:

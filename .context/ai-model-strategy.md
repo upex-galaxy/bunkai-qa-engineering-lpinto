@@ -25,8 +25,9 @@ thread.
 
 | Role | Task type | Model (opencode) |
 |---|---|---|
-| `qa-plan` | Reasoning: shift-left AC refinement, ATP/TC design, ROI prioritization, failure classification, GO/NO-GO verdicts, review verdicts | `opencode-go/deepseek-v4-pro` |
-| `qa-code` | Code: KATA/Playwright/TypeScript components, fixtures, Gherkin, test files | `opencode-go/kimi-k2.7-code` |
+| `qa-plan` | Reasoning: shift-left AC refinement, ATP/TC design, ROI prioritization, failure classification, GO/NO-GO verdicts | `opencode-go/deepseek-v4-pro` |
+| `qa-code` | Code: KATA/Playwright/TypeScript components, fixtures, Gherkin, test files | `opencode-go/deepseek-v4-pro` |
+| `qa-review` | Review: code review, KATA compliance, doctrine checking, finding triage, PR review verdicts | `opencode-go/kimi-k2.7-code` |
 | `qa-bulk` | Mechanical: bulk TC creation, verifiers (test/types/lint), CI monitor, log reading, CLI ops | `opencode/mimo-v2.5-free` |
 | `qa-vision` | Visual: screenshots, bug annotation, UI verification | `opencode-go/deepseek-v4-flash-vision-exp` |
 | `qa-write` | Prose: Jira comments, ATR/ATP bodies, reports | `opencode/hy3-free` |
@@ -36,7 +37,8 @@ thread.
 | Role | opencode | codex | Claude Code |
 |---|---|---|---|
 | `qa-plan` | `opencode-go/deepseek-v4-pro` | `opencode-go/deepseek-v4-pro` | `opus` |
-| `qa-code` | `opencode-go/kimi-k2.7-code` | `opencode-go/kimi-k2.7-code` | `sonnet` |
+| `qa-code` | `opencode-go/deepseek-v4-pro` | `opencode-go/deepseek-v4-pro` | `sonnet` |
+| `qa-review` | `opencode-go/kimi-k2.7-code` | `opencode-go/kimi-k2.7-code` | `sonnet` |
 | `qa-bulk` | `opencode/mimo-v2.5-free` | `opencode-go/mimo-v2.5` | `haiku` |
 | `qa-vision` | `opencode-go/deepseek-v4-flash-vision-exp` | `opencode-go/deepseek-v4-flash-vision-exp` | `sonnet` |
 | `qa-write` | `opencode/hy3-free` | `opencode-go/hy3` | `haiku` |

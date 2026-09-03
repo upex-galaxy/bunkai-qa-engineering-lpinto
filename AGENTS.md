@@ -104,8 +104,9 @@ Example: ❌ "Added `waitForResponse('**/api/auth/login')` before toast assertio
 
 | Role agent  | Task type                                                                                                  |
 | ----------- | ---------------------------------------------------------------------------------------------------------- |
-| `qa-plan`   | reasoning — shift-left refinement, ATP/TC planning, ROI, failure classification, GO/NO-GO, review verdicts |
+| `qa-plan`   | reasoning — shift-left refinement, ATP/TC planning, ROI, failure classification, GO/NO-GO                  |
 | `qa-code`   | code — KATA/Playwright/TS components, fixtures, Gherkin                                                    |
+| `qa-review` | review — code review, KATA compliance, doctrine checking, finding triage, PR review verdicts               |
 | `qa-bulk`   | mechanical — bulk TC creation, verifiers, CI monitor, log reading, CLI ops                                 |
 | `qa-vision` | visual — screenshots, bug annotation, UI verification                                                      |
 | `qa-write`  | prose — Jira comments, ATR/ATP bodies, reports                                                             |

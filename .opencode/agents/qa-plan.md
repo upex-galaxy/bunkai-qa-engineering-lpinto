@@ -1,5 +1,5 @@
 ---
-description: QA reasoning/analysis agent for judgment-heavy tasks — shift-left AC refinement, test planning (ATP/TC design), ROI prioritization, failure classification, GO/NO-GO verdicts, code review verdicts. Use for any task that decides what a requirement does NOT say or classifies quality. NOT for mechanical/bulk work.
+description: QA reasoning/analysis agent for judgment-heavy tasks — shift-left AC refinement, test planning (ATP/TC design), ROI prioritization, failure classification, GO/NO-GO verdicts. Use for any task that decides what a requirement does NOT say or classifies quality. NOT for mechanical/bulk work or code review.
 mode: subagent
 model: opencode-go/deepseek-v4-pro
 temperature: 0.1

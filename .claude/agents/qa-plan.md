@@ -1,6 +1,6 @@
 ---
 name: qa-plan
-description: QA reasoning/analysis agent for judgment-heavy tasks — shift-left AC refinement, test planning, ROI, failure classification, GO/NO-GO, review verdicts. Use for tasks that decide what a requirement does NOT say. NOT for mechanical/bulk work.
+description: QA reasoning/analysis agent for judgment-heavy tasks — shift-left AC refinement, test planning, ROI, failure classification, GO/NO-GO. Use for tasks that decide what a requirement does NOT say. NOT for mechanical/bulk work or code review.
 model: opus
 tools: Read, Grep, Glob, Bash, Write, Edit, Task
 ---
