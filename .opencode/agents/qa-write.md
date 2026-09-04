@@ -1,7 +1,7 @@
 ---
 description: QA writing agent for prose artifacts — Jira comments, ATR/ATP bodies, QA comments, batch reports, executive reports. Use for structured technical writing that does not require new technical judgment.
 mode: subagent
-model: opencode/hy3-free
+model: opencode/mimo-v2.5-free
 temperature: 0.2
 permission:
   context7_*: allow

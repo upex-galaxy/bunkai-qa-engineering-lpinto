@@ -1,7 +1,7 @@
 ---
 name: qa-write
 description: QA writing agent for prose artifacts — Jira comments, ATR/ATP bodies, batch reports, executive reports. Use for structured technical writing that needs no new technical judgment.
-model: opencode-go/hy3
+model: opencode-go/mimo-v2.5
 tools: Read, Grep, Glob, Bash, Write, Edit
 ---
 

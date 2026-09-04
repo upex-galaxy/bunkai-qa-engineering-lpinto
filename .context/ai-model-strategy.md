@@ -30,7 +30,7 @@ thread.
 | `qa-review` | Review: code review, KATA compliance, doctrine checking, finding triage, PR review verdicts | `opencode-go/kimi-k2.7-code` |
 | `qa-bulk` | Mechanical: bulk TC creation, verifiers (test/types/lint), CI monitor, log reading, CLI ops | `opencode/mimo-v2.5-free` |
 | `qa-vision` | Visual: screenshots, bug annotation, UI verification | `opencode-go/deepseek-v4-flash-vision-exp` |
-| `qa-write` | Prose: Jira comments, ATR/ATP bodies, reports | `opencode/hy3-free` |
+| `qa-write` | Prose: Jira comments, ATR/ATP bodies, reports | `opencode/mimo-v2.5-free` |
 
 ## Model bindings per harness
 
@@ -41,9 +41,9 @@ thread.
 | `qa-review` | `opencode-go/kimi-k2.7-code` | `opencode-go/kimi-k2.7-code` | `sonnet` |
 | `qa-bulk` | `opencode/mimo-v2.5-free` | `opencode-go/mimo-v2.5` | `haiku` |
 | `qa-vision` | `opencode-go/deepseek-v4-flash-vision-exp` | `opencode-go/deepseek-v4-flash-vision-exp` | `sonnet` |
-| `qa-write` | `opencode/hy3-free` | `opencode-go/hy3` | `haiku` |
+| `qa-write` | `opencode/mimo-v2.5-free` | `opencode-go/mimo-v2.5` | `haiku` |
 
-codex uses paid cheap equivalents (`mimo-v2.5`, `hy3`) for bulk/write because the
+codex uses paid cheap equivalents (`mimo-v2.5`) for bulk/write because the
 free `opencode/` Zen models live on a separate endpoint that is not wired; swap
 them to the free IDs once the Zen free endpoint is configured.
 
@@ -109,7 +109,7 @@ Caveats:
 
 - Only the paid Go models (`opencode-go/*`) are wired. The free `opencode/` Zen
   models live on a separate endpoint and are not reachable from codex yet; the
-  bulk/write roles use paid cheap equivalents (`mimo-v2.5`, `hy3`) until that
+  bulk/write roles use the paid cheap equivalent (`mimo-v2.5`) until that
   endpoint is configured.
 - Claude Code cannot use OpenCode Go models per-subagent without a model router;
   its QA agents map to Anthropic tiers instead.
