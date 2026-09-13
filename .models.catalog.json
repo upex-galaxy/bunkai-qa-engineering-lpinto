@@ -589,6 +589,20 @@
       "capabilities": []
     },
     {
+      "id": "opencode-go/deepseek-flash",
+      "name": "deepseek-flash",
+      "provider": "opencode",
+      "source": "https://opencode.ai/zen/go/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "opencode-go/deepseek-v4.1-flash",
+      "name": "deepseek-v4.1-flash",
+      "provider": "opencode",
+      "source": "https://opencode.ai/zen/go/v1/models",
+      "capabilities": []
+    },
+    {
       "id": "opencode-go/deepseek-v4-flash-vision-exp",
       "name": "deepseek-v4-flash-vision-exp",
       "provider": "opencode",
@@ -1912,9 +1926,44 @@
       "capabilities": []
     },
     {
-      "id": "deepseek/deepseek-v4-flash",
-      "name": "deepseek-v4-flash",
-      "provider": "opencode",
+      "id": "openai/gpt-image-2.5-flare",
+      "name": "gpt-image-2.5-flare",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-image-2.5-sunburst",
+      "name": "gpt-image-2.5-sunburst",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-image-2.5-flare-2026-09-08",
+      "name": "gpt-image-2.5-flare-2026-09-08",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-image-2.5-sunburst-2026-09-08",
+      "name": "gpt-image-2.5-sunburst-2026-09-08",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-live-1",
+      "name": "gpt-live-1",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "deepseek/deepseek-flash",
+      "name": "deepseek-flash",
+      "provider": "deepseek",
       "source": "https://api.deepseek.com/models",
       "capabilities": []
     },
@@ -1924,16 +1973,9 @@
       "provider": "opencode",
       "source": "https://api.deepseek.com/models",
       "capabilities": ["reasoning"]
-    },
-    {
-      "id": "deepseek/deepseek-v4-flash-vision-exp",
-      "name": "deepseek-v4-flash-vision-exp",
-      "provider": "opencode",
-      "source": "https://api.deepseek.com/models",
-      "capabilities": ["vision"]
     }
   ],
-  "fetchedAt": 1788934976658,
+  "fetchedAt": 1789294933669,
   "sources": [
     "https://opencode.ai/zen/v1/models",
     "https://opencode.ai/zen/go/v1/models",
