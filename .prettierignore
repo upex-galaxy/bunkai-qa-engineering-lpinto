@@ -86,6 +86,8 @@ api/.openapi-config.json
 .backups/
 .claude/worktrees/
 
+.mcp.json
+
 # ----- 2026-07-22 (sync) -----
 packages/decks/
 scripts/contribution-audit/out/
