@@ -253,6 +253,19 @@ optional:
     options: [yes, no]
     description: Whether the Test should be automated (ROI verdict from test-documentation).
     used_by: [test-documentation]
+  vcr_estimation:
+    name: 💊 VCR Estimation
+    type: string
+    fallback: { target: comment, label: VCR Estimation }
+    description: VCR Estimation textarea on the ATS (ADF format). Filled during ROI classification in Stage 4.
+    used_by: [test-documentation]
+  in_regression_plan:
+    name: 📊 In Regression Plan (QA)
+    type: option
+    fallback: { target: comment, label: In Regression Plan }
+    options: [yes, no]
+    description: Whether the Test is included in the regression plan (ROI verdict from test-documentation).
+    used_by: [test-documentation]
 
 # Special markers — fields the methodology expects to exist semantically but
 # that haven't been mapped to a real Jira custom field yet. The check command
