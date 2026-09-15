@@ -102,6 +102,10 @@ git_strategy:
     direct_push_to_protected: confirm # sdet default: always ask before pushing to main
     admin_bypass: true # team POLICY: may a repo admin bypass PR/protection for urgent changes? actual capability still depends on the GitHub user's role — the skill re-confirms at runtime
     require_pr_reviews: 0 # sdet: 0 on trunk self-merge; 1 on final trunk→main PR (informational)
+    accepted_divergences:
+      - field: main.direct_push_to_protected
+        enforced: open
+        reason: GitHub token lacks admin:org scope — rulesets not yet created; will apply once scope is granted
   branch_prefixes:
     precedence: [feat, fix, refactor, test, docs, chore]
     naming_with_key: '{prefix}/{ISSUE-KEY}-{kebab-slug}'
