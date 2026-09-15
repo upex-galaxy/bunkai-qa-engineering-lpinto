@@ -104,5 +104,6 @@ git_strategy:
     naming_with_key: '{prefix}/{ISSUE-KEY}-{kebab-slug}'
     naming_without_key: '{prefix}/{kebab-slug}'
   meta:
+    strategy_source: shipped-default # shipped-default | strategy-setup | manual — how the strategy was chosen
     setup_version: 1
     created: 2026-06-20 # YYYY-MM-DD stamped by Strategy Setup

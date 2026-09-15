@@ -1002,6 +1002,13 @@
       "capabilities": []
     },
     {
+      "id": "google/antigravity-preview-09-2026",
+      "name": "Antigravity Agent Preview",
+      "provider": "google",
+      "source": "https://generativelanguage.googleapis.com/v1beta/models",
+      "capabilities": []
+    },
+    {
       "id": "google/deep-research-max-preview-04-2026",
       "name": "Deep Research Max Preview (Apr-21-2026)",
       "provider": "google",
@@ -1081,13 +1088,6 @@
     {
       "id": "google/gemini-2.5-flash-native-audio-latest",
       "name": "Gemini 2.5 Flash Native Audio Latest",
-      "provider": "google",
-      "source": "https://generativelanguage.googleapis.com/v1beta/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "google/gemini-2.5-flash-native-audio-preview-09-2025",
-      "name": "Gemini 2.5 Flash Native Audio Preview 09-2025",
       "provider": "google",
       "source": "https://generativelanguage.googleapis.com/v1beta/models",
       "capabilities": ["budget"]
@@ -1975,7 +1975,7 @@
       "capabilities": ["reasoning"]
     }
   ],
-  "fetchedAt": 1789294933669,
+  "fetchedAt": 1789403358277,
   "sources": [
     "https://opencode.ai/zen/v1/models",
     "https://opencode.ai/zen/go/v1/models",

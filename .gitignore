@@ -191,3 +191,9 @@ dbhub.local.toml
 .agents/skills/resend-cli/
 !skills-lock.json
 !**/skills-lock.json
+
+# ----- 2026-09-14 (sync) -----
+.backups*/
+.template/last-apply.json
+.mcp.local.json
+opencode.local.jsonc

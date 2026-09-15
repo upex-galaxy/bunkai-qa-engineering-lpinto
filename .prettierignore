@@ -96,3 +96,6 @@ scripts/contribution-audit/report_template.html
 
 # ----- 2026-08-23 (sync) -----
 .scratch/
+
+# ----- 2026-09-14 (sync) -----
+.backups*/
