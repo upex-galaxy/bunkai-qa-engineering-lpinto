@@ -2,8 +2,9 @@
 import type { ModelCatalog } from './model-catalog.ts';
 import fs from 'node:fs';
 import path from 'node:path';
-import { input, select } from '@inquirer/prompts';
+import { input, select, Separator } from '@inquirer/prompts';
 import { parse as parseYaml } from 'yaml';
+import { goBackOrExit } from './harness-nav.ts';
 import { loadCache } from './model-catalog.ts';
 import { selectModel } from './model-picker.ts';
 
@@ -279,7 +280,7 @@ export function loadCatalog(): McpCatalog {
   }
 }
 
-async function parseArgs(catalog: McpCatalog): Promise<string[]> {
+async function parseArgs(catalog: McpCatalog): Promise<string[] | null> {
   const args = process.argv.slice(2);
 
   // Sin argumentos en terminal interactiva: selector
@@ -294,7 +295,7 @@ async function parseArgs(catalog: McpCatalog): Promise<string[]> {
   return resolveProfile(args[0], catalog);
 }
 
-async function interactiveSelect(catalog: McpCatalog): Promise<string[]> {
+async function interactiveSelect(catalog: McpCatalog): Promise<string[] | null> {
   const saved = loadPreference();
   const profileNames = Object.keys(PROFILES);
 
@@ -311,8 +312,14 @@ async function interactiveSelect(catalog: McpCatalog): Promise<string[]> {
         return { value: `profile:${name}`, name: `${name} — ${desc}` };
       }),
       { value: 'custom', name: 'Seleccionar MCPs manualmente...' },
+      new Separator(),
+      { value: '__back', name: '← volver' },
     ],
   });
+
+  if (choice === '__back') {
+    return null;
+  }
 
   if (choice === 'custom') {
     const customInput = await input({
@@ -519,6 +526,9 @@ export function printUsage(): void {
 async function main(): Promise<void> {
   const catalog = loadCatalog();
   const selectedMcps = await parseArgs(catalog);
+  if (selectedMcps === null) {
+    goBackOrExit();
+  }
 
   // Interactive only (no args + TTY): also pick the main session model.
   // The direnv path uses harness-config-default, which never prompts.

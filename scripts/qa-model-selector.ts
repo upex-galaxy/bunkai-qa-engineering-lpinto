@@ -42,6 +42,7 @@ import type { ModelEntry, ModelsDevInfo } from './qa-model-parsers.ts';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { confirm, select, Separator } from '@inquirer/prompts';
+import { goBackOrExit } from './harness-nav.ts';
 import { colors, err, log, out } from './log.ts';
 import { loadCache, saveCache } from './model-catalog.ts';
 import { selectModel } from './model-picker.ts';
@@ -460,7 +461,7 @@ async function interactiveSelect(
   models: ModelEntry[],
   currentAssignment: Record<QaRole, string>,
   dryRun: boolean,
-): Promise<Record<QaRole, string> | null> {
+): Promise<Record<QaRole, string> | '__back' | null> {
   log.header('QA Model Selector — interactive mode');
   log.dim(`${models.length} model(s) available from ${new Set(models.map(m => m.provider)).size} provider(s)\n`);
 
@@ -479,6 +480,7 @@ async function interactiveSelect(
     choices.push(new Separator());
     choices.push({ value: '__done', name: 'done — save assignments' });
     choices.push({ value: '__cancel', name: 'cancel — discard changes' });
+    choices.push({ value: '__back', name: '← volver' });
 
     const selected = await select({
       message: 'Select a role to edit',
@@ -493,6 +495,10 @@ async function interactiveSelect(
     if (selected === '__cancel') {
       log.warn('Cancelled. No changes saved.');
       return null;
+    }
+
+    if (selected === '__back') {
+      return '__back';
     }
 
     // Edit the selected role
@@ -841,6 +847,9 @@ async function main(): Promise<void> {
   }
 
   const newAssignment = await interactiveSelect(availableModels, currentAssignment, flags.dryRun);
+  if (newAssignment === '__back') {
+    goBackOrExit();
+  }
   if (!newAssignment) {
     process.exit(0);
   }
