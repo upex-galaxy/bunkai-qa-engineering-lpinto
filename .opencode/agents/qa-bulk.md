@@ -1,7 +1,7 @@
 ---
 description: QA mechanical/bulk agent for high-volume low-judgment work — bulk TC creation, running test/type/lint verifiers, monitoring CI runs, reading large logs, CLI tool invocation (git/acli/xray/playwright). Use when a task is repetitive or mechanical and needs no requirement-level judgment.
 mode: subagent
-model: opencode/mimo-v2.5-free
+model: opencode/mimo-v2.6-flash-free
 temperature: 0
 permission:
   context7_*: allow

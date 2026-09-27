@@ -15,6 +15,13 @@
       "capabilities": []
     },
     {
+      "id": "opencode/claude-opus-5-5",
+      "name": "claude-opus-5-5",
+      "provider": "anthropic",
+      "source": "https://opencode.ai/zen/v1/models",
+      "capabilities": []
+    },
+    {
       "id": "opencode/claude-opus-5",
       "name": "claude-opus-5",
       "provider": "anthropic",
@@ -136,6 +143,20 @@
     {
       "id": "opencode/gpt-6-astra",
       "name": "gpt-6-astra",
+      "provider": "openai",
+      "source": "https://opencode.ai/zen/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "opencode/gpt-6-sol",
+      "name": "gpt-6-sol",
+      "provider": "openai",
+      "source": "https://opencode.ai/zen/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "opencode/gpt-6-luna",
+      "name": "gpt-6-luna",
       "provider": "openai",
       "source": "https://opencode.ai/zen/v1/models",
       "capabilities": []
@@ -288,6 +309,13 @@
       "capabilities": []
     },
     {
+      "id": "opencode/grok-4.7",
+      "name": "grok-4.7",
+      "provider": "openai",
+      "source": "https://opencode.ai/zen/v1/models",
+      "capabilities": []
+    },
+    {
       "id": "opencode/grok-4.6",
       "name": "grok-4.6",
       "provider": "openai",
@@ -312,6 +340,13 @@
       "id": "opencode/muse-spark-1.2",
       "name": "muse-spark-1.2",
       "provider": "openai",
+      "source": "https://opencode.ai/zen/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "opencode/deepseek-v4.1-flash",
+      "name": "deepseek-v4.1-flash",
+      "provider": "opencode",
       "source": "https://opencode.ai/zen/v1/models",
       "capabilities": []
     },
@@ -421,6 +456,13 @@
       "capabilities": []
     },
     {
+      "id": "opencode/qwen3.8-flash",
+      "name": "qwen3.8-flash",
+      "provider": "anthropic",
+      "source": "https://opencode.ai/zen/v1/models",
+      "capabilities": []
+    },
+    {
       "id": "opencode/qwen3.6-plus",
       "name": "qwen3.6-plus",
       "provider": "anthropic",
@@ -435,11 +477,25 @@
       "capabilities": []
     },
     {
+      "id": "opencode/jev-1.13",
+      "name": "jev-1.13",
+      "provider": "opencode",
+      "source": "https://opencode.ai/zen/v1/models",
+      "capabilities": []
+    },
+    {
       "id": "opencode/big-pickle",
       "name": "big-pickle",
       "provider": "opencode",
       "source": "https://opencode.ai/zen/v1/models",
       "capabilities": []
+    },
+    {
+      "id": "opencode/jev-1.13-free",
+      "name": "jev-1.13-free",
+      "provider": "opencode",
+      "source": "https://opencode.ai/zen/v1/models",
+      "capabilities": ["budget"]
     },
     {
       "id": "opencode/muse-spark-1.3-contributor-free",
@@ -449,15 +505,22 @@
       "capabilities": ["budget"]
     },
     {
-      "id": "opencode/muse-spark-1.2-contributor-free",
-      "name": "muse-spark-1.2-contributor-free",
-      "provider": "openai",
+      "id": "opencode/mimo-v2.6-flash-free",
+      "name": "mimo-v2.6-flash-free",
+      "provider": "opencode",
       "source": "https://opencode.ai/zen/v1/models",
       "capabilities": ["budget"]
     },
     {
-      "id": "opencode/mimo-v2.5-free",
-      "name": "mimo-v2.5-free",
+      "id": "opencode/space-bunny-free",
+      "name": "space-bunny-free",
+      "provider": "opencode",
+      "source": "https://opencode.ai/zen/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "opencode/longcat-2.5-preview-free",
+      "name": "longcat-2.5-preview-free",
       "provider": "opencode",
       "source": "https://opencode.ai/zen/v1/models",
       "capabilities": ["budget"]
@@ -482,6 +545,13 @@
       "provider": "opencode",
       "source": "https://opencode.ai/zen/v1/models",
       "capabilities": ["budget"]
+    },
+    {
+      "id": "opencode/qwen3.8-max",
+      "name": "qwen3.8-max",
+      "provider": "opencode",
+      "source": "https://opencode.ai/zen/v1/models",
+      "capabilities": []
     },
     {
       "id": "opencode-go/minimax-m3",
@@ -626,7 +696,7 @@
     {
       "id": "opencode-go/qwen3.8-flash",
       "name": "qwen3.8-flash",
-      "provider": "opencode",
+      "provider": "anthropic",
       "source": "https://opencode.ai/zen/go/v1/models",
       "capabilities": []
     },
@@ -664,6 +734,34 @@
       "provider": "opencode",
       "source": "https://opencode.ai/zen/go/v1/models",
       "capabilities": []
+    },
+    {
+      "id": "opencode-go/mimo-v2.6-pro",
+      "name": "mimo-v2.6-pro",
+      "provider": "opencode",
+      "source": "https://opencode.ai/zen/go/v1/models",
+      "capabilities": ["reasoning"]
+    },
+    {
+      "id": "opencode-go/mimo-v2.6-flash",
+      "name": "mimo-v2.6-flash",
+      "provider": "opencode",
+      "source": "https://opencode.ai/zen/go/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "opencode-go/space-bunny-free",
+      "name": "space-bunny-free",
+      "provider": "opencode",
+      "source": "https://opencode.ai/zen/go/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "opencode-go/longcat-2.5-preview-free",
+      "name": "longcat-2.5-preview-free",
+      "provider": "opencode",
+      "source": "https://opencode.ai/zen/go/v1/models",
+      "capabilities": ["budget"]
     },
     {
       "id": "opencode-go/mimo-v2.5-pro",
@@ -715,6 +813,13 @@
       "capabilities": []
     },
     {
+      "id": "opencode-go/grok-4.7",
+      "name": "grok-4.7",
+      "provider": "openai",
+      "source": "https://opencode.ai/zen/go/v1/models",
+      "capabilities": []
+    },
+    {
       "id": "opencode-go/grok-4.6",
       "name": "grok-4.6",
       "provider": "openai",
@@ -739,6 +844,13 @@
       "id": "opencode-go/omen-alpha",
       "name": "omen-alpha",
       "provider": "opencode",
+      "source": "https://opencode.ai/zen/go/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "opencode-go/gpt-6-luna",
+      "name": "gpt-6-luna",
+      "provider": "openai",
       "source": "https://opencode.ai/zen/go/v1/models",
       "capabilities": []
     },
@@ -981,6 +1093,20 @@
       "capabilities": ["budget"]
     },
     {
+      "id": "google/gemini-3.8-flash-tts",
+      "name": "Gemini 3.8 Flash TTS",
+      "provider": "google",
+      "source": "https://generativelanguage.googleapis.com/v1beta/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "google/gemini-3.8-flash-lite-tts",
+      "name": "Gemini 3.8 Flash Lite TTS",
+      "provider": "google",
+      "source": "https://generativelanguage.googleapis.com/v1beta/models",
+      "capabilities": ["budget"]
+    },
+    {
       "id": "google/gemini-robotics-er-2-preview",
       "name": "Gemini Robotics-ER 2 Preview",
       "provider": "google",
@@ -1004,6 +1130,13 @@
     {
       "id": "google/antigravity-preview-09-2026",
       "name": "Antigravity Agent Preview",
+      "provider": "google",
+      "source": "https://generativelanguage.googleapis.com/v1beta/models",
+      "capabilities": []
+    },
+    {
+      "id": "google/antigravity-preview-latest",
+      "name": "Antigravity Agent Preview Latest",
       "provider": "google",
       "source": "https://generativelanguage.googleapis.com/v1beta/models",
       "capabilities": []
@@ -1072,316 +1205,15 @@
       "capabilities": []
     },
     {
-      "id": "google/veo-3.1-lite-generate-preview",
-      "name": "Veo 3.1 lite",
-      "provider": "google",
-      "source": "https://generativelanguage.googleapis.com/v1beta/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "google/gemini-3.5-transcribe-live",
-      "name": "Gemini 3.5 Transcribe Live",
-      "provider": "google",
-      "source": "https://generativelanguage.googleapis.com/v1beta/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "google/gemini-2.5-flash-native-audio-latest",
-      "name": "Gemini 2.5 Flash Native Audio Latest",
-      "provider": "google",
-      "source": "https://generativelanguage.googleapis.com/v1beta/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/text-embedding-ada-002",
-      "name": "text-embedding-ada-002",
+      "id": "openai/gpt-image-1.5",
+      "name": "gpt-image-1.5",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
     },
     {
-      "id": "openai/whisper-1",
-      "name": "whisper-1",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-3.5-turbo",
-      "name": "gpt-3.5-turbo",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/tts-1",
-      "name": "tts-1",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-3.5-turbo-16k",
-      "name": "gpt-3.5-turbo-16k",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/davinci-002",
-      "name": "davinci-002",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/babbage-002",
-      "name": "babbage-002",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-3.5-turbo-instruct",
-      "name": "gpt-3.5-turbo-instruct",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-3.5-turbo-instruct-0914",
-      "name": "gpt-3.5-turbo-instruct-0914",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-3.5-turbo-1106",
-      "name": "gpt-3.5-turbo-1106",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/tts-1-hd",
-      "name": "tts-1-hd",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/tts-1-1106",
-      "name": "tts-1-1106",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/tts-1-hd-1106",
-      "name": "tts-1-hd-1106",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/text-embedding-3-small",
-      "name": "text-embedding-3-small",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/text-embedding-3-large",
-      "name": "text-embedding-3-large",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-3.5-turbo-0125",
-      "name": "gpt-3.5-turbo-0125",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-4o",
-      "name": "gpt-4o",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-4o-2024-05-13",
-      "name": "gpt-4o-2024-05-13",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-4o-mini-2024-07-18",
-      "name": "gpt-4o-mini-2024-07-18",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-4o-mini",
-      "name": "gpt-4o-mini",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-4o-2024-08-06",
-      "name": "gpt-4o-2024-08-06",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/omni-moderation-latest",
-      "name": "omni-moderation-latest",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/omni-moderation-2024-09-26",
-      "name": "omni-moderation-2024-09-26",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/o1-2024-12-17",
-      "name": "o1-2024-12-17",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/o1",
-      "name": "o1",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/o3-mini",
-      "name": "o3-mini",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/o3-mini-2025-01-31",
-      "name": "o3-mini-2025-01-31",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-4o-2024-11-20",
-      "name": "gpt-4o-2024-11-20",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-4o-mini-search-preview-2025-03-11",
-      "name": "gpt-4o-mini-search-preview-2025-03-11",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-4o-mini-search-preview",
-      "name": "gpt-4o-mini-search-preview",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-4o-transcribe",
-      "name": "gpt-4o-transcribe",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-4o-mini-transcribe",
-      "name": "gpt-4o-mini-transcribe",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-4o-mini-tts",
-      "name": "gpt-4o-mini-tts",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/o3-2025-04-16",
-      "name": "o3-2025-04-16",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/o4-mini-2025-04-16",
-      "name": "o4-mini-2025-04-16",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/o3",
-      "name": "o3",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/o4-mini",
-      "name": "o4-mini",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-4.1-2025-04-14",
-      "name": "gpt-4.1-2025-04-14",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-4.1",
-      "name": "gpt-4.1",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-4.1-mini-2025-04-14",
-      "name": "gpt-4.1-mini-2025-04-14",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-4.1-mini",
-      "name": "gpt-4.1-mini",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-4.1-nano-2025-04-14",
-      "name": "gpt-4.1-nano-2025-04-14",
+      "id": "openai/gpt-image-2.5-sunburst",
+      "name": "gpt-image-2.5-sunburst",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
@@ -1394,85 +1226,36 @@
       "capabilities": []
     },
     {
-      "id": "openai/gpt-image-1",
-      "name": "gpt-image-1",
+      "id": "openai/gpt-4.1-nano-2025-04-14",
+      "name": "gpt-4.1-nano-2025-04-14",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
     },
     {
-      "id": "openai/gpt-4o-transcribe-diarize",
-      "name": "gpt-4o-transcribe-diarize",
+      "id": "openai/gpt-realtime-whisper",
+      "name": "gpt-realtime-whisper",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
     },
     {
-      "id": "openai/gpt-5-chat-latest",
-      "name": "gpt-5-chat-latest",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-5-2025-08-07",
-      "name": "gpt-5-2025-08-07",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-5",
-      "name": "gpt-5",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-5-mini-2025-08-07",
-      "name": "gpt-5-mini-2025-08-07",
+      "id": "openai/gpt-realtime-mini-2025-12-15",
+      "name": "gpt-realtime-mini-2025-12-15",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": ["budget"]
     },
     {
-      "id": "openai/gpt-5-mini",
-      "name": "gpt-5-mini",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-5-nano-2025-08-07",
-      "name": "gpt-5-nano-2025-08-07",
+      "id": "openai/babbage-002",
+      "name": "babbage-002",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
     },
     {
-      "id": "openai/gpt-5-nano",
-      "name": "gpt-5-nano",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-audio-2025-08-28",
-      "name": "gpt-audio-2025-08-28",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-realtime",
-      "name": "gpt-realtime",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-realtime-2025-08-28",
-      "name": "gpt-realtime-2025-08-28",
+      "id": "openai/gpt-4.1-2025-04-14",
+      "name": "gpt-4.1-2025-04-14",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
@@ -1485,25 +1268,81 @@
       "capabilities": []
     },
     {
-      "id": "openai/gpt-5-codex",
-      "name": "gpt-5-codex",
+      "id": "openai/gpt-5.2-codex",
+      "name": "gpt-5.2-codex",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": ["code"]
     },
     {
-      "id": "openai/gpt-image-1-mini",
-      "name": "gpt-image-1-mini",
+      "id": "openai/gpt-4o-2024-05-13",
+      "name": "gpt-4o-2024-05-13",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5.4-mini",
+      "name": "gpt-5.4-mini",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": ["budget"]
     },
     {
-      "id": "openai/gpt-5-pro-2025-10-06",
-      "name": "gpt-5-pro-2025-10-06",
+      "id": "openai/gpt-image-2.5-flare-2026-09-08",
+      "name": "gpt-image-2.5-flare-2026-09-08",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
-      "capabilities": ["reasoning"]
+      "capabilities": []
+    },
+    {
+      "id": "openai/o1",
+      "name": "o1",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/omni-moderation-2024-09-26",
+      "name": "omni-moderation-2024-09-26",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-4.1-mini",
+      "name": "gpt-4.1-mini",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-4o-mini-search-preview-2025-03-11",
+      "name": "gpt-4o-mini-search-preview-2025-03-11",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/o4-mini",
+      "name": "o4-mini",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/o1-2024-12-17",
+      "name": "o1-2024-12-17",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-6-luna",
+      "name": "gpt-6-luna",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
     },
     {
       "id": "openai/gpt-5-pro",
@@ -1513,22 +1352,15 @@
       "capabilities": ["reasoning"]
     },
     {
-      "id": "openai/gpt-audio-mini",
-      "name": "gpt-audio-mini",
+      "id": "openai/gpt-5.1-codex-max",
+      "name": "gpt-5.1-codex-max",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
+      "capabilities": ["code"]
     },
     {
-      "id": "openai/gpt-audio-mini-2025-10-06",
-      "name": "gpt-audio-mini-2025-10-06",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-5-search-api",
-      "name": "gpt-5-search-api",
+      "id": "openai/gpt-image-2.5-sunburst-2026-09-08",
+      "name": "gpt-image-2.5-sunburst-2026-09-08",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
@@ -1541,8 +1373,162 @@
       "capabilities": ["budget"]
     },
     {
+      "id": "openai/gpt-3.5-turbo-0125",
+      "name": "gpt-3.5-turbo-0125",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/o3-mini",
+      "name": "o3-mini",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/text-embedding-3-large",
+      "name": "text-embedding-3-large",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-audio-mini",
+      "name": "gpt-audio-mini",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-5.4-pro-2026-03-05",
+      "name": "gpt-5.4-pro-2026-03-05",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["reasoning"]
+    },
+    {
+      "id": "openai/gpt-image-1-mini",
+      "name": "gpt-image-1-mini",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-4o-mini",
+      "name": "gpt-4o-mini",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-5.2-pro-2025-12-11",
+      "name": "gpt-5.2-pro-2025-12-11",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["reasoning"]
+    },
+    {
+      "id": "openai/gpt-3.5-turbo-instruct-0914",
+      "name": "gpt-3.5-turbo-instruct-0914",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-image-2",
+      "name": "gpt-image-2",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
       "id": "openai/sora-2",
       "name": "sora-2",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-realtime-2",
+      "name": "gpt-realtime-2",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-4o-mini-transcribe",
+      "name": "gpt-4o-mini-transcribe",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-5.4-mini-2026-03-17",
+      "name": "gpt-5.4-mini-2026-03-17",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/tts-1",
+      "name": "tts-1",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-image-2-2026-04-21",
+      "name": "gpt-image-2-2026-04-21",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-image-2.5-flare",
+      "name": "gpt-image-2.5-flare",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5-search-api-2025-10-14",
+      "name": "gpt-5-search-api-2025-10-14",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-4o-mini-tts-2025-12-15",
+      "name": "gpt-4o-mini-tts-2025-12-15",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-3.5-turbo-16k",
+      "name": "gpt-3.5-turbo-16k",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/o3-mini-2025-01-31",
+      "name": "o3-mini-2025-01-31",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-4o-search-preview-2025-03-11",
+      "name": "gpt-4o-search-preview-2025-03-11",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-4o-transcribe-diarize",
+      "name": "gpt-4o-transcribe-diarize",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
@@ -1555,169 +1541,15 @@
       "capabilities": ["reasoning"]
     },
     {
-      "id": "openai/gpt-5-search-api-2025-10-14",
-      "name": "gpt-5-search-api-2025-10-14",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-5.1-chat-latest",
-      "name": "gpt-5.1-chat-latest",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-5.1-2025-11-13",
-      "name": "gpt-5.1-2025-11-13",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-5.1",
-      "name": "gpt-5.1",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-5.1-codex",
-      "name": "gpt-5.1-codex",
+      "id": "openai/gpt-5-codex",
+      "name": "gpt-5-codex",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": ["code"]
-    },
-    {
-      "id": "openai/gpt-5.1-codex-mini",
-      "name": "gpt-5.1-codex-mini",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["code", "budget"]
-    },
-    {
-      "id": "openai/gpt-5.1-codex-max",
-      "name": "gpt-5.1-codex-max",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["code"]
-    },
-    {
-      "id": "openai/gpt-image-1.5",
-      "name": "gpt-image-1.5",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
     },
     {
       "id": "openai/gpt-5.2-2025-12-11",
       "name": "gpt-5.2-2025-12-11",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-5.2",
-      "name": "gpt-5.2",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-5.2-pro-2025-12-11",
-      "name": "gpt-5.2-pro-2025-12-11",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["reasoning"]
-    },
-    {
-      "id": "openai/gpt-5.2-pro",
-      "name": "gpt-5.2-pro",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["reasoning"]
-    },
-    {
-      "id": "openai/gpt-5.2-chat-latest",
-      "name": "gpt-5.2-chat-latest",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-4o-mini-transcribe-2025-12-15",
-      "name": "gpt-4o-mini-transcribe-2025-12-15",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-4o-mini-transcribe-2025-03-20",
-      "name": "gpt-4o-mini-transcribe-2025-03-20",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-4o-mini-tts-2025-03-20",
-      "name": "gpt-4o-mini-tts-2025-03-20",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-4o-mini-tts-2025-12-15",
-      "name": "gpt-4o-mini-tts-2025-12-15",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-realtime-mini-2025-12-15",
-      "name": "gpt-realtime-mini-2025-12-15",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-audio-mini-2025-12-15",
-      "name": "gpt-audio-mini-2025-12-15",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/chatgpt-image-latest",
-      "name": "chatgpt-image-latest",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-5.2-codex",
-      "name": "gpt-5.2-codex",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["code"]
-    },
-    {
-      "id": "openai/gpt-5.3-codex",
-      "name": "gpt-5.3-codex",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["code"]
-    },
-    {
-      "id": "openai/gpt-realtime-1.5",
-      "name": "gpt-realtime-1.5",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-audio-1.5",
-      "name": "gpt-audio-1.5",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
@@ -1730,15 +1562,15 @@
       "capabilities": []
     },
     {
-      "id": "openai/gpt-4o-search-preview-2025-03-11",
-      "name": "gpt-4o-search-preview-2025-03-11",
+      "id": "openai/gpt-realtime-2.1",
+      "name": "gpt-realtime-2.1",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
     },
     {
-      "id": "openai/gpt-5.3-chat-latest",
-      "name": "gpt-5.3-chat-latest",
+      "id": "openai/gpt-realtime-1.5",
+      "name": "gpt-realtime-1.5",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
@@ -1751,6 +1583,174 @@
       "capabilities": []
     },
     {
+      "id": "openai/gpt-4o-2024-08-06",
+      "name": "gpt-4o-2024-08-06",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/chatgpt-image-latest",
+      "name": "chatgpt-image-latest",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-realtime",
+      "name": "gpt-realtime",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-4.1",
+      "name": "gpt-4.1",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5-mini",
+      "name": "gpt-5-mini",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-live-transcribe",
+      "name": "gpt-live-transcribe",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/text-embedding-3-small",
+      "name": "text-embedding-3-small",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-6-sol",
+      "name": "gpt-6-sol",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-4.1-mini-2025-04-14",
+      "name": "gpt-4.1-mini-2025-04-14",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/o3-2025-04-16",
+      "name": "o3-2025-04-16",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-4o-mini-search-preview",
+      "name": "gpt-4o-mini-search-preview",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-5-nano-2025-08-07",
+      "name": "gpt-5-nano-2025-08-07",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/tts-1-hd",
+      "name": "tts-1-hd",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-realtime-2.1-mini",
+      "name": "gpt-realtime-2.1-mini",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-5-mini-2025-08-07",
+      "name": "gpt-5-mini-2025-08-07",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-5-search-api",
+      "name": "gpt-5-search-api",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-transcribe",
+      "name": "gpt-transcribe",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-4o-mini-2024-07-18",
+      "name": "gpt-4o-mini-2024-07-18",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-5.6-sol",
+      "name": "gpt-5.6-sol",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5.5-2026-04-23",
+      "name": "gpt-5.5-2026-04-23",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-3.5-turbo-1106",
+      "name": "gpt-3.5-turbo-1106",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-4o-mini-transcribe-2025-12-15",
+      "name": "gpt-4o-mini-transcribe-2025-12-15",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-5.1",
+      "name": "gpt-5.1",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5.2",
+      "name": "gpt-5.2",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
       "id": "openai/gpt-5.4-pro",
       "name": "gpt-5.4-pro",
       "provider": "openai",
@@ -1758,11 +1758,67 @@
       "capabilities": ["reasoning"]
     },
     {
-      "id": "openai/gpt-5.4-pro-2026-03-05",
-      "name": "gpt-5.4-pro-2026-03-05",
+      "id": "openai/gpt-3.5-turbo",
+      "name": "gpt-3.5-turbo",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
-      "capabilities": ["reasoning"]
+      "capabilities": []
+    },
+    {
+      "id": "openai/o4-mini-2025-04-16",
+      "name": "o4-mini-2025-04-16",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-audio-mini-2025-12-15",
+      "name": "gpt-audio-mini-2025-12-15",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-5-2025-08-07",
+      "name": "gpt-5-2025-08-07",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/davinci-002",
+      "name": "davinci-002",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/text-embedding-ada-002",
+      "name": "text-embedding-ada-002",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5.3-chat-latest",
+      "name": "gpt-5.3-chat-latest",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5.3-codex",
+      "name": "gpt-5.3-codex",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["code"]
+    },
+    {
+      "id": "openai/gpt-audio-2025-08-28",
+      "name": "gpt-audio-2025-08-28",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
     },
     {
       "id": "openai/gpt-5.4",
@@ -1779,41 +1835,6 @@
       "capabilities": []
     },
     {
-      "id": "openai/gpt-5.4-nano",
-      "name": "gpt-5.4-nano",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-5.4-mini-2026-03-17",
-      "name": "gpt-5.4-mini-2026-03-17",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-5.4-mini",
-      "name": "gpt-5.4-mini",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-image-2",
-      "name": "gpt-image-2",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-image-2-2026-04-21",
-      "name": "gpt-image-2-2026-04-21",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
       "id": "openai/gpt-5.5",
       "name": "gpt-5.5",
       "provider": "openai",
@@ -1821,29 +1842,8 @@
       "capabilities": []
     },
     {
-      "id": "openai/gpt-5.5-2026-04-23",
-      "name": "gpt-5.5-2026-04-23",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-5.5-pro",
-      "name": "gpt-5.5-pro",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["reasoning"]
-    },
-    {
-      "id": "openai/gpt-5.5-pro-2026-04-23",
-      "name": "gpt-5.5-pro-2026-04-23",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["reasoning"]
-    },
-    {
-      "id": "openai/chat-latest",
-      "name": "chat-latest",
+      "id": "openai/gpt-realtime-2025-08-28",
+      "name": "gpt-realtime-2025-08-28",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
@@ -1856,29 +1856,57 @@
       "capabilities": []
     },
     {
-      "id": "openai/gpt-realtime-2",
-      "name": "gpt-realtime-2",
+      "id": "openai/gpt-5-pro-2025-10-06",
+      "name": "gpt-5-pro-2025-10-06",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["reasoning"]
+    },
+    {
+      "id": "openai/gpt-4o-mini-tts-2025-03-20",
+      "name": "gpt-4o-mini-tts-2025-03-20",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/tts-1-hd-1106",
+      "name": "tts-1-hd-1106",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
     },
     {
-      "id": "openai/gpt-realtime-whisper",
-      "name": "gpt-realtime-whisper",
+      "id": "openai/gpt-4o-transcribe",
+      "name": "gpt-4o-transcribe",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
     },
     {
-      "id": "openai/gpt-5.6-sol",
-      "name": "gpt-5.6-sol",
+      "id": "openai/o3",
+      "name": "o3",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
     },
     {
-      "id": "openai/gpt-5.6-terra",
-      "name": "gpt-5.6-terra",
+      "id": "openai/gpt-5.1-codex",
+      "name": "gpt-5.1-codex",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["code"]
+    },
+    {
+      "id": "openai/gpt-4o",
+      "name": "gpt-4o",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/whisper-1",
+      "name": "whisper-1",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
@@ -1891,64 +1919,15 @@
       "capabilities": []
     },
     {
-      "id": "openai/gpt-realtime-2.1",
-      "name": "gpt-realtime-2.1",
+      "id": "openai/tts-1-1106",
+      "name": "tts-1-1106",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
     },
     {
-      "id": "openai/gpt-realtime-2.1-mini",
-      "name": "gpt-realtime-2.1-mini",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": ["budget"]
-    },
-    {
-      "id": "openai/gpt-transcribe",
-      "name": "gpt-transcribe",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-live-transcribe",
-      "name": "gpt-live-transcribe",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-6-astra",
-      "name": "gpt-6-astra",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-image-2.5-flare",
-      "name": "gpt-image-2.5-flare",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-image-2.5-sunburst",
-      "name": "gpt-image-2.5-sunburst",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-image-2.5-flare-2026-09-08",
-      "name": "gpt-image-2.5-flare-2026-09-08",
-      "provider": "openai",
-      "source": "https://api.openai.com/v1/models",
-      "capabilities": []
-    },
-    {
-      "id": "openai/gpt-image-2.5-sunburst-2026-09-08",
-      "name": "gpt-image-2.5-sunburst-2026-09-08",
+      "id": "openai/gpt-5.1-chat-latest",
+      "name": "gpt-5.1-chat-latest",
       "provider": "openai",
       "source": "https://api.openai.com/v1/models",
       "capabilities": []
@@ -1961,21 +1940,168 @@
       "capabilities": []
     },
     {
+      "id": "openai/gpt-4o-mini-transcribe-2025-03-20",
+      "name": "gpt-4o-mini-transcribe-2025-03-20",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-audio-1.5",
+      "name": "gpt-audio-1.5",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-3.5-turbo-instruct",
+      "name": "gpt-3.5-turbo-instruct",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/omni-moderation-latest",
+      "name": "omni-moderation-latest",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-image-1",
+      "name": "gpt-image-1",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5.5-pro-2026-04-23",
+      "name": "gpt-5.5-pro-2026-04-23",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["reasoning"]
+    },
+    {
+      "id": "openai/gpt-5.2-pro",
+      "name": "gpt-5.2-pro",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["reasoning"]
+    },
+    {
+      "id": "openai/gpt-4o-2024-11-20",
+      "name": "gpt-4o-2024-11-20",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-audio-mini-2025-10-06",
+      "name": "gpt-audio-mini-2025-10-06",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-5.4-nano",
+      "name": "gpt-5.4-nano",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5-nano",
+      "name": "gpt-5-nano",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5.5-pro",
+      "name": "gpt-5.5-pro",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["reasoning"]
+    },
+    {
+      "id": "openai/chat-latest",
+      "name": "chat-latest",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5.1-2025-11-13",
+      "name": "gpt-5.1-2025-11-13",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-6-astra",
+      "name": "gpt-6-astra",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5-chat-latest",
+      "name": "gpt-5-chat-latest",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5.1-codex-mini",
+      "name": "gpt-5.1-codex-mini",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["code", "budget"]
+    },
+    {
+      "id": "openai/gpt-5.6-terra",
+      "name": "gpt-5.6-terra",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-5.2-chat-latest",
+      "name": "gpt-5.2-chat-latest",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
+      "id": "openai/gpt-4o-mini-tts",
+      "name": "gpt-4o-mini-tts",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": ["budget"]
+    },
+    {
+      "id": "openai/gpt-5",
+      "name": "gpt-5",
+      "provider": "openai",
+      "source": "https://api.openai.com/v1/models",
+      "capabilities": []
+    },
+    {
       "id": "deepseek/deepseek-flash",
-      "name": "deepseek-flash",
+      "name": "DeepSeek-V4.1-Flash",
       "provider": "deepseek",
       "source": "https://api.deepseek.com/models",
       "capabilities": []
     },
     {
       "id": "deepseek/deepseek-v4-pro",
-      "name": "deepseek-v4-pro",
+      "name": "DeepSeek-V4-Pro",
       "provider": "opencode",
       "source": "https://api.deepseek.com/models",
       "capabilities": ["reasoning"]
     }
   ],
-  "fetchedAt": 1789403358277,
+  "fetchedAt": 1790519915073,
   "sources": [
     "https://opencode.ai/zen/v1/models",
     "https://opencode.ai/zen/go/v1/models",
