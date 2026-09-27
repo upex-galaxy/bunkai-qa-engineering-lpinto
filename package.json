@@ -33,7 +33,7 @@
     "agentic"
   ],
   "scripts": {
-    "harness-config": "bun scripts/harness-config-builder.ts",
+    "harness-config": "bun scripts/harness-config.ts",
     "harness-config-help": "bun scripts/harness-config-help.ts",
     "harness-config-default": "bun scripts/harness-config-default.ts",
     "agents:setup": "bun scripts/agents-setup.ts",
@@ -99,7 +99,6 @@
     "agents:compat:check": "bun scripts/agent-compatibility.ts --check",
     "codex": "dotenv -o -e .env -- codex",
     "qa-role:model:select": "bun scripts/qa-model-selector.ts",
-    "qa-role:model:select:help": "bun scripts/qa-model-select-help.ts",
     "qa-role:model:test": "bun test scripts/qa-model-selector.test.ts"
   },
   "dependencies": {
