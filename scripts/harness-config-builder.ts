@@ -2,9 +2,10 @@
 import type { ModelCatalog } from './model-catalog.ts';
 import fs from 'node:fs';
 import path from 'node:path';
-import { input, select, Separator } from '@inquirer/prompts';
+import { input, select } from '@inquirer/prompts';
 import { parse as parseYaml } from 'yaml';
 import { loadCache } from './model-catalog.ts';
+import { selectModel } from './model-picker.ts';
 
 // =========== TYPES ============
 interface McpServer {
@@ -428,27 +429,17 @@ function claudeToOpencode(claudeConfig: { mcpServers?: Record<string, McpServer>
   return { mcp };
 }
 
-// Interactive picker for the main session model. Returns the current value
-// unchanged when there is no fresh catalog to choose from.
+// Interactive main-session-model picker (shared searchable UI). Returns the
+// current value unchanged when there is no fresh catalog to choose from, or
+// when the user cancels.
 async function selectMainModel(catalog: ModelCatalog | null, current: string | null): Promise<string | null> {
   if (!catalog || catalog.models.length === 0) {
     return current;
   }
-  const choices: (string | { value: string, name: string } | Separator)[] = [];
-  if (current) {
-    choices.push({ value: '__keep', name: `keep current (${current})` });
-    choices.push(new Separator());
-  }
-  for (const m of catalog.models) {
-    choices.push({ value: m.id, name: `${m.id}${m.id === current ? ' (current)' : ''}` });
-  }
-  const choice = await select({
-    message: 'Modelo de IA principal por defecto:',
-    choices,
-    loop: false,
-    pageSize: 15,
+  return selectModel(catalog.models, current, {
+    subject: 'session model',
+    backLabel: current ? `keep current (${current})` : 'cancel',
   });
-  return choice === '__keep' ? current : choice;
 }
 
 // Warn-only (never blocks): the pinned model is not in the local catalog.
