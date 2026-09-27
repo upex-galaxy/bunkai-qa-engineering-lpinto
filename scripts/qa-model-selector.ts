@@ -16,12 +16,12 @@
  * USAGE
  * ============================================================================
  *
- *   bun run qa-role:model:select                          # interactive (default)
- *   bun run qa-role:model:select --dry-run                # print changes, do not write
- *   bun run qa-role:model:select --role qa-plan --model x # set single role
- *   bun run qa-role:model:select --list                   # list available models
- *   bun run qa-role:model:select --refresh                # force re-fetch models
- *   bun run qa-role:model:select --help                   # show help
+ *   bun run harness-config roles                          # interactive (default)
+ *   bun run harness-config roles --dry-run                # print changes, do not write
+ *   bun run harness-config roles --role qa-plan --model x # set single role
+ *   bun run harness-config roles --list                   # list available models
+ *   bun run harness-config roles --refresh                # force re-fetch models
+ *   bun run harness-config roles --help                   # show help
  *
  * ============================================================================
  * ENVIRONMENT VARIABLES
@@ -213,10 +213,10 @@ function parseArgs(argv: string[]): CliFlags {
 }
 
 function printHelp(): void {
-  out(`qa-role:model:select — select AI models per QA role
+  out(`harness-config roles — select AI models per QA role
 
 USAGE:
-  bun run qa-role:model:select [flags]
+  bun run harness-config roles [flags]
 
 FLAGS:
   --dry-run            Print changes without writing files.
@@ -233,9 +233,9 @@ ENVIRONMENT VARIABLES:
   MODELS_CACHE_FILE      Cache file path (default: .models.catalog.json).
 
 EXAMPLES:
-  bun run qa-role:model:select                    # interactive selector
-  bun run qa-role:model:select --list             # show available models
-  bun run qa-role:model:select --role qa-plan --model opencode-go/glm-5.3
+  bun run harness-config roles                    # interactive selector
+  bun run harness-config roles --list             # show available models
+  bun run harness-config roles --role qa-plan --model opencode-go/glm-5.3
 `);
 }
 
@@ -817,7 +817,7 @@ async function main(): Promise<void> {
     for (const o of orphaned) {
       log.warn(`  ${o.role}: ${o.model}`);
     }
-    log.info('Re-select them with: bun run qa-role:model:select');
+    log.info('Re-select them with: bun run harness-config roles');
   }
 
   // Non-interactive: single role + model

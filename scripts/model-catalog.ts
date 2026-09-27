@@ -47,7 +47,7 @@ export function loadCache(): ModelCatalog | null {
     const data = JSON.parse(readFileSync(cacheFile, 'utf8')) as ModelCatalog;
     const age = Date.now() - data.fetchedAt;
     if (age > getCacheTtl()) {
-      log.dim('Model cache expired — refresh with `bun run qa-role:model:select --refresh`.');
+      log.dim('Model cache expired — refresh with `bun run harness-config roles --refresh`.');
       return null;
     }
     return data;

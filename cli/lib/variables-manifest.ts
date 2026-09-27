@@ -350,7 +350,7 @@ export const VAR_MANIFEST: VarSpec[] = [
     required: false,
     critical: false,
     obtainHint: 'Google AI Studio — https://aistudio.google.com/apikey.',
-    note: 'Enables the harness-config roles (qa-role:model:select) Google Gemini endpoint discovery. Optional; missing key omits the provider from the catalog. Local only.',
+    note: 'Enables the harness-config roles Google Gemini endpoint discovery. Optional; missing key omits the provider from the catalog. Local only.',
   },
   {
     name: 'ANTHROPIC_API_KEY',
@@ -359,7 +359,7 @@ export const VAR_MANIFEST: VarSpec[] = [
     required: false,
     critical: false,
     obtainHint: 'Anthropic Console — https://console.anthropic.com/ (only if you use Claude models directly).',
-    note: 'Enables the harness-config roles (qa-role:model:select) Anthropic endpoint discovery. Optional; missing key omits the provider from the catalog. Local only.',
+    note: 'Enables the harness-config roles Anthropic endpoint discovery. Optional; missing key omits the provider from the catalog. Local only.',
   },
   {
     name: 'OPENAI_API_KEY',
@@ -368,7 +368,7 @@ export const VAR_MANIFEST: VarSpec[] = [
     required: false,
     critical: false,
     obtainHint: 'OpenAI Platform — https://platform.openai.com/api-keys.',
-    note: 'Enables the harness-config roles (qa-role:model:select) OpenAI endpoint discovery. Optional; missing key omits the provider from the catalog. Local only.',
+    note: 'Enables the harness-config roles OpenAI endpoint discovery. Optional; missing key omits the provider from the catalog. Local only.',
   },
   {
     name: 'DEEPSEEK_API_KEY',
@@ -377,7 +377,7 @@ export const VAR_MANIFEST: VarSpec[] = [
     required: false,
     critical: false,
     obtainHint: 'DeepSeek Platform — https://platform.deepseek.com/api_keys.',
-    note: 'Enables the harness-config roles (qa-role:model:select) DeepSeek endpoint discovery. Optional; missing key omits the provider from the catalog. Local only.',
+    note: 'Enables the harness-config roles DeepSeek endpoint discovery. Optional; missing key omits the provider from the catalog. Local only.',
   },
   {
     name: 'KIMI_API_KEY',
@@ -386,7 +386,7 @@ export const VAR_MANIFEST: VarSpec[] = [
     required: false,
     critical: false,
     obtainHint: 'Moonshot Platform — https://platform.moonshot.cn.',
-    note: 'Enables the harness-config roles (qa-role:model:select) Kimi/Moonshot endpoint discovery. Optional; missing key omits the provider from the catalog. Local only.',
+    note: 'Enables the harness-config roles Kimi/Moonshot endpoint discovery. Optional; missing key omits the provider from the catalog. Local only.',
   },
   {
     name: 'DBHUB_TYPE',

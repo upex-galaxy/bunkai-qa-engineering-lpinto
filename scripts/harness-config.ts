@@ -29,7 +29,6 @@ function printHelp(): void {
   console.log('');
   console.log('Aliases:');
   console.log('  bun run harness-config-default          # session base, no interactivo (direnv)');
-  console.log('  bun run qa-role:model:select            # == harness-config roles');
   console.log('');
 }
 

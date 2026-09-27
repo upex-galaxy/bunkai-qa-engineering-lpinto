@@ -452,7 +452,7 @@ function warnIfModelUnknown(model: string | null, silent: boolean): void {
     return;
   }
   if (!catalog.models.some(m => m.id === model)) {
-    console.warn(`  ! "${model}" no esta en .models.catalog.json — refresca con \`bun run qa-role:model:select --refresh\` o cambia harness.opencode_default_model.`);
+    console.warn(`  ! "${model}" no esta en .models.catalog.json — refresca con \`bun run harness-config roles --refresh\` o cambia harness.opencode_default_model.`);
   }
 }
 
