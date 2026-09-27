@@ -1,7 +1,10 @@
 #!/usr/bin/env bun
+import type { ModelCatalog } from './model-catalog.ts';
 import fs from 'node:fs';
 import path from 'node:path';
-import { input, select } from '@inquirer/prompts';
+import { input, select, Separator } from '@inquirer/prompts';
+import { parse as parseYaml } from 'yaml';
+import { loadCache } from './model-catalog.ts';
 
 // =========== TYPES ============
 interface McpServer {
@@ -43,13 +46,13 @@ function getMcpCatalogFile(): string {
 }
 
 // Soporte para multiples archivos separados por coma.
-// Escribe SOLO a archivos locales gitignored (*.local.*) — nunca a los
-// commiteados (.mcp.json / opencode.jsonc / .codex/config.toml), que son el
-// inventario curado por el equipo y no deben regenerarse por sesion.
+// Escribe los archivos de config del harness (gitignored, regenerables):
+// .mcp.json (Claude Code), opencode.jsonc (OpenCode), .codex/config.toml (Codex).
+// El catalogo de MCPs disponibles vive en MCP_CATALOG_FILE.
 function getMcpFiles(): string[] {
-  const files = process.env.MCP_FILE;
+  const files = process.env.HARNESS_FILE;
   if (!files) {
-    console.error('Falta variable de entorno: MCP_FILE (ver .env)');
+    console.error('Falta variable de entorno: HARNESS_FILE (ver .env)');
     process.exit(1);
   }
   return files.split(',').map(f => f.trim()).filter(Boolean).map(f =>
@@ -57,7 +60,8 @@ function getMcpFiles(): string[] {
   );
 }
 
-const PREF_FILE = path.join(process.cwd(), '.selected-mcps-kit');
+const PREF_FILE = path.join(process.cwd(), '.selected-harness-config');
+const MODEL_PREF_FILE = path.join(process.cwd(), '.selected-harness-model');
 
 function loadPreference(): string | null {
   try {
@@ -76,6 +80,43 @@ export function clearPreference(): void {
   if (fs.existsSync(PREF_FILE)) {
     fs.unlinkSync(PREF_FILE);
   }
+}
+
+function loadModelPreference(): string | null {
+  try {
+    const value = fs.readFileSync(MODEL_PREF_FILE, 'utf8').trim();
+    return value || null;
+  }
+  catch {
+    return null;
+  }
+}
+
+export function saveModelPreference(model: string): void {
+  fs.writeFileSync(MODEL_PREF_FILE, model, 'utf8');
+}
+
+// Default committed in .agents/project.yaml -> harness.opencode_default_model.
+// Read directly by this builder (not a {{VAR}} token) -> skipped by vars:check.
+function loadHarnessDefaults(): string | null {
+  const yamlPath = path.join(process.cwd(), '.agents', 'project.yaml');
+  if (!fs.existsSync(yamlPath)) {
+    return null;
+  }
+  try {
+    const doc = parseYaml(fs.readFileSync(yamlPath, 'utf8')) as
+      { harness?: { opencode_default_model?: unknown } } | null;
+    const value = doc?.harness?.opencode_default_model;
+    return typeof value === 'string' && value.trim() ? value.trim() : null;
+  }
+  catch {
+    return null;
+  }
+}
+
+// Layered resolution: per-dev pref overrides the committed team default.
+function resolveSessionModel(): string | null {
+  return loadModelPreference() ?? loadHarnessDefaults();
 }
 
 // Perfiles predefinidos para QA Engineering
@@ -387,7 +428,44 @@ function claudeToOpencode(claudeConfig: { mcpServers?: Record<string, McpServer>
   return { mcp };
 }
 
-export function generateMcpJson(selectedMcps: string[], catalog: McpCatalog, silent = false): void {
+// Interactive picker for the main session model. Returns the current value
+// unchanged when there is no fresh catalog to choose from.
+async function selectMainModel(catalog: ModelCatalog | null, current: string | null): Promise<string | null> {
+  if (!catalog || catalog.models.length === 0) {
+    return current;
+  }
+  const choices: (string | { value: string, name: string } | Separator)[] = [];
+  if (current) {
+    choices.push({ value: '__keep', name: `keep current (${current})` });
+    choices.push(new Separator());
+  }
+  for (const m of catalog.models) {
+    choices.push({ value: m.id, name: `${m.id}${m.id === current ? ' (current)' : ''}` });
+  }
+  const choice = await select({
+    message: 'Modelo de IA principal por defecto:',
+    choices,
+    loop: false,
+    pageSize: 15,
+  });
+  return choice === '__keep' ? current : choice;
+}
+
+// Warn-only (never blocks): the pinned model is not in the local catalog.
+function warnIfModelUnknown(model: string | null, silent: boolean): void {
+  if (!model || silent) {
+    return;
+  }
+  const catalog = loadCache();
+  if (!catalog) {
+    return;
+  }
+  if (!catalog.models.some(m => m.id === model)) {
+    console.warn(`  ! "${model}" no esta en .models.catalog.json — refresca con \`bun run qa-role:model:select --refresh\` o cambia harness.opencode_default_model.`);
+  }
+}
+
+export function generateHarnessConfigs(selectedMcps: string[], catalog: McpCatalog, silent = false): void {
   const catalogMcps = catalog.mcpServers || catalog.mcp || {};
 
   // Construir config con solo los seleccionados
@@ -406,7 +484,13 @@ export function generateMcpJson(selectedMcps: string[], catalog: McpCatalog, sil
       content = claudeToCodexToml(filteredMcps);
     }
     else if (isOpencodeFormat) {
-      const config = { mcp: catalog.mcpServers ? claudeToOpencode({ mcpServers: filteredMcps }).mcp : filteredMcps };
+      const model = resolveSessionModel();
+      warnIfModelUnknown(model, silent);
+      const config: Record<string, unknown> = { $schema: 'https://opencode.ai/config.json' };
+      if (model) {
+        config.model = model;
+      }
+      config.mcp = catalog.mcpServers ? claudeToOpencode({ mcpServers: filteredMcps }).mcp : filteredMcps;
       content = JSON.stringify(config, null, 2);
     }
     else {
@@ -424,7 +508,7 @@ export function generateMcpJson(selectedMcps: string[], catalog: McpCatalog, sil
 }
 
 export function printUsage(): void {
-  console.log('Uso: bun run mcps-kit <perfil | mcp1,mcp2,...>\n');
+  console.log('Uso: bun run harness-config <perfil | mcp1,mcp2,...>\n');
   console.log('Perfiles:');
   Object.entries(PROFILES).forEach(([name, mcps]) => {
     const desc = mcps === 'ALL'
@@ -433,11 +517,11 @@ export function printUsage(): void {
     console.log(`  ${name.padEnd(12)} ${desc}`);
   });
   console.log('\nEjemplos:');
-  console.log('  bun run mcps-kit e2e           # playwright + context7');
-  console.log('  bun run mcps-kit api           # openapi + context7 + tavily');
-  console.log('  bun run mcps-kit db            # dbhub + context7');
-  console.log('  bun run mcps-kit sprint        # playwright + openapi + dbhub + context7 + tavily');
-  console.log('  bun run mcps-kit openapi,tavily # MCPs especificos por nombre');
+  console.log('  bun run harness-config e2e           # playwright + context7');
+  console.log('  bun run harness-config api           # openapi + context7 + tavily');
+  console.log('  bun run harness-config db            # dbhub + context7');
+  console.log('  bun run harness-config sprint        # playwright + openapi + dbhub + context7 + tavily');
+  console.log('  bun run harness-config openapi,tavily # MCPs especificos por nombre');
 }
 
 // ============ MAIN ============
@@ -445,7 +529,17 @@ async function main(): Promise<void> {
   const catalog = loadCatalog();
   const selectedMcps = await parseArgs(catalog);
 
-  generateMcpJson(selectedMcps, catalog);
+  // Interactive only (no args + TTY): also pick the main session model.
+  // The direnv path uses harness-config-default, which never prompts.
+  if (process.argv.slice(2).length === 0 && process.stdin.isTTY) {
+    const current = resolveSessionModel();
+    const picked = await selectMainModel(loadCache(), current);
+    if (picked && picked !== current) {
+      saveModelPreference(picked);
+    }
+  }
+
+  generateHarnessConfigs(selectedMcps, catalog);
 }
 
 try {

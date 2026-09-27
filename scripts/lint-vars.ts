@@ -152,6 +152,9 @@ function loadDeclaredVariables(yamlPath: string): DeclaredVars {
     // `git_strategy` is read DIRECTLY by the git-flow-master skill — its leaves are NOT
     // {{VAR}} template variables, so they must not be harvested as declared vars.
     if (sectionName === 'git_strategy') { continue; }
+    // `harness` is read DIRECTLY by scripts/harness-config-builder.ts — its leaves are
+    // NOT {{VAR}} template variables either (same rationale as the git_strategy carve-out).
+    if (sectionName === 'harness') { continue; }
     if (sectionName === 'environments') {
       // Nested: each child is an environment whose leaves are env-scoped vars.
       if (!sectionVal || typeof sectionVal !== 'object' || Array.isArray(sectionVal)) {

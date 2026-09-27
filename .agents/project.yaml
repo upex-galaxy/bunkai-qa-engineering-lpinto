@@ -57,6 +57,13 @@ qa:
       name: QA Defect Management # convention name; the `QA ` prefix marks a process epic, not product
       key: null # discovered/created at runtime, then cached here (e.g. PROJ-123)
 
+# Harness configuration — consumed by scripts/harness-config-builder.ts (bun run harness-config).
+# `opencode_default_model` is the committed team default for the OpenCode session model;
+# a per-developer `.selected-harness-model` pref (gitignored) overrides it. Read DIRECTLY by
+# the builder (not a {{VAR}} token) -> skipped by vars:check, like git_strategy leaves.
+harness:
+  opencode_default_model: opencode/mimo-v2.6-flash-free # e.g. opencode/mimo-v2.6-flash-free; null to omit the model key
+
 # Per-environment config. Add/remove environments freely (production, dev, qa, uat, etc.).
 # Each environment must define ALL four keys: web_url, api_url, db_mcp, api_mcp.
 # Skills referencing {{WEB_URL}} / {{API_URL}} / {{DB_MCP}} / {{API_MCP}} resolve to the

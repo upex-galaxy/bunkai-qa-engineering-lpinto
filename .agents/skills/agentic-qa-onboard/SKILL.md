@@ -234,7 +234,7 @@ The **Atlassian MCP is opt-in** (setup in `docs/mcp/`) — the primary Jira tool
 - Use `/acli` for ticket WRITES (create, transition, comment, link); for detailed READS (custom fields, ACs, ATP/ATR, comments) use `bun run jira:sync-issues get`/`jql`
 - Use **Playwright MCP** for ad-hoc live browser interactions; for scripted runs use `/playwright-cli`
 
-`.mcp.json` is **gitignored** and generated per session by the MCP Builder (`bun run mcps-kit <profile>`). The MCP catalog (`.mcp.catalog.json`) lists all available servers.
+`.mcp.json` is **gitignored** and generated per session by `harness-config` (`bun run harness-config <profile>`). The MCP catalog (`.mcp.catalog.json`) lists all available servers.
 
 ---
 
@@ -253,7 +253,7 @@ Place these in `.env` before running anything that talks to a real environment:
 
 `.env` is **gitignored**. Never commit it. `.agents/project.yaml` (committed) holds non-secret context (URLs, project key, environment names); `.env` holds the matching secrets.
 
-`.mcp.json` is **gitignored** and generated per session by the MCP Builder — it contains `${VAR}` placeholders resolved from `.env` at runtime.
+`.mcp.json` is **gitignored** and generated per session by `harness-config` — it contains `${VAR}` placeholders resolved from `.env` at runtime.
 
 Verify your config with `bun run vars:check` (should report 0 errors when fully configured).
 

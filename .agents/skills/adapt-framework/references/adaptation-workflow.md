@@ -450,7 +450,7 @@ bun run kata:manifest:check    # must exit 0
 
 ### 7.3 MCP registry — THREE-HARNESS sync (highest-risk surface)
 
-`.mcp.catalog.json` holds all available MCP server definitions. The MCP Builder (`bun run mcps-kit <profile>`) generates `.mcp.json` (Claude Code), `opencode.jsonc` (OpenCode), and `.codex/config.toml` (Codex) from the catalog. **Every semantic change must land in the catalog**, then the builder regenerates the configs. Per `AGENTS.md` Rule #10, a missing or empty MCP variable is a HARD SESSION STOP, not a soft CI failure.
+`.mcp.catalog.json` holds all available MCP server definitions. The `harness-config` (`bun run harness-config <profile>`) generates `.mcp.json` (Claude Code), `opencode.jsonc` (OpenCode), and `.codex/config.toml` (Codex) from the catalog. **Every semantic change must land in the catalog**, then the builder regenerates the configs. Per `AGENTS.md` Rule #10, a missing or empty MCP variable is a HARD SESSION STOP, not a soft CI failure.
 
 - `project.yaml` `environments.<env>.db_mcp` / `api_mcp` resolve to MCP **server names**. Default: point them at the existing `dbhub` / `openapi` servers. If the target needs per-env DB/API servers, add those entries to all three harness configs.
 - `openapi` server reads `API_BASE_URL` / `OPENAPI_SPEC_PATH` ONLY — it is **schema-read-only**, so do NOT inject `API_TOKEN` / `API_HEADERS` (authenticated requests run via curl using `.auth/tokens.env` from `bun run api:login`; canon: `agentic-qa-core/references/api-testing-doctrine.md`). If the target has **no API**, disable/remove the `openapi` entry in all three configs (else it spins against empty env and `[API_TOOL]` breaks).

@@ -37,10 +37,13 @@
  * ============================================================================
  */
 
+import type { ModelCatalog } from './model-catalog.ts';
 import type { ModelEntry, ModelsDevInfo } from './qa-model-parsers.ts';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative, sep } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join, relative, sep } from 'node:path';
 import { confirm, input, select, Separator } from '@inquirer/prompts';
+import { colors, err, log, out } from './log.ts';
+import { loadCache, saveCache } from './model-catalog.ts';
 import { detectProvider, inferUnderlyingProvider, parseProvider } from './qa-model-parsers.ts';
 
 // ============================================================================
@@ -98,12 +101,6 @@ const PREF_FILE = join(REPO_ROOT, '.selected-qa-models');
 // ============================================================================
 // TYPES
 // ============================================================================
-
-interface ModelCatalog {
-  models: ModelEntry[]
-  fetchedAt: number
-  sources: string[]
-}
 
 interface CliFlags {
   dryRun: boolean
@@ -170,38 +167,6 @@ export function toHarnessModelId(cli: ActiveCli, modelId: string): string {
   if (id.includes('haiku')) { return 'haiku'; }
   return modelId.replace(/^(?:opencode-go|opencode|anthropic)\//, '');
 }
-
-// ============================================================================
-// COLORS / OUTPUT
-// ============================================================================
-
-const colors = {
-  reset: '\x1B[0m',
-  bold: '\x1B[1m',
-  dim: '\x1B[2m',
-  red: '\x1B[31m',
-  green: '\x1B[32m',
-  yellow: '\x1B[33m',
-  blue: '\x1B[34m',
-  cyan: '\x1B[36m',
-};
-
-function out(msg: string): void {
-  process.stdout.write(`${msg}\n`);
-}
-
-function err(msg: string): void {
-  process.stderr.write(`${msg}\n`);
-}
-
-const log = {
-  info: (msg: string) => err(`${colors.blue}i${colors.reset} ${msg}`),
-  success: (msg: string) => err(`${colors.green}+${colors.reset} ${msg}`),
-  warn: (msg: string) => err(`${colors.yellow}!${colors.reset} ${msg}`),
-  error: (msg: string) => err(`${colors.red}x${colors.reset} ${msg}`),
-  dim: (msg: string) => err(`${colors.dim}${msg}${colors.reset}`),
-  header: (msg: string) => err(`\n${colors.bold}${colors.cyan}${msg}${colors.reset}`),
-};
 
 // ============================================================================
 // CLI PARSING
@@ -277,19 +242,6 @@ EXAMPLES:
 // MODEL CATALOG — fetch, cache, normalize
 // ============================================================================
 
-function getCacheFile(): string {
-  const file = process.env.MODELS_CACHE_FILE;
-  if (file) {
-    return join(REPO_ROOT, file);
-  }
-  return join(REPO_ROOT, '.models.catalog.json');
-}
-
-function getCacheTtl(): number {
-  const ttl = process.env.MODELS_CACHE_TTL;
-  return ttl ? Number.parseInt(ttl, 10) * 1000 : 86400 * 1000; // 24h default
-}
-
 function getCatalogUrls(): string[] {
   const urls = process.env.MODELS_CATALOG_URLS;
   if (urls) {
@@ -328,34 +280,6 @@ function getCatalogUrls(): string[] {
     defaultUrls.push('https://api.moonshot.cn/v1/models');
   }
   return defaultUrls;
-}
-
-function loadCache(): ModelCatalog | null {
-  const cacheFile = getCacheFile();
-  if (!existsSync(cacheFile)) {
-    return null;
-  }
-  try {
-    const data = JSON.parse(readFileSync(cacheFile, 'utf8')) as ModelCatalog;
-    const age = Date.now() - data.fetchedAt;
-    if (age > getCacheTtl()) {
-      log.info('Cache expired, will re-fetch.');
-      return null;
-    }
-    return data;
-  }
-  catch {
-    return null;
-  }
-}
-
-function saveCache(catalog: ModelCatalog): void {
-  const cacheFile = getCacheFile();
-  const dir = dirname(cacheFile);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
-  writeFileSync(cacheFile, `${JSON.stringify(catalog, null, 2)}\n`, 'utf8');
 }
 
 // models.dev metadata cache — deprecated models are filtered from /models menu

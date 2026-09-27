@@ -443,13 +443,13 @@ export const VAR_MANIFEST: VarSpec[] = [
     note: 'DBHub MCP password. Local only; sensitive.',
   },
   {
-    name: 'MCP_FILE',
+    name: 'HARNESS_FILE',
     destinations: ['local'],
     secret: false,
     required: false,
     critical: false,
-    obtainHint: 'auto-set by MCP Builder; comma-separated list of generated config files.',
-    note: 'Output files for MCP Builder (e.g. .mcp.json,opencode.jsonc,.codex/config.toml). Local only.',
+    obtainHint: 'auto-set by harness-config; comma-separated list of generated config files.',
+    note: 'Output files for harness-config (e.g. .mcp.json,opencode.jsonc,.codex/config.toml). Local only.',
   },
   {
     name: 'MCP_CATALOG_FILE',
@@ -457,7 +457,7 @@ export const VAR_MANIFEST: VarSpec[] = [
     secret: false,
     required: false,
     critical: false,
-    obtainHint: 'auto-set by MCP Builder; path to MCP catalog.',
+    obtainHint: 'auto-set by harness-config; path to MCP catalog.',
     note: 'MCP catalog file path (.mcp.catalog.json). Local only.',
   },
 ];
