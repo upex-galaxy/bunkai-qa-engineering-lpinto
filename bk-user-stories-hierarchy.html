@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BK · Jerarquía de User Stories</title>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#11161d; --card:#161b22; --card2:#1b2129;
+    --line:#30363d; --txt:#e6edf3; --dim:#9aa4b1; --mut:#6e7681;
+    --acc:#58a6ff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:radial-gradient(1200px 600px at 50% -10%, #131a24 0%, var(--bg) 60%);
+    color:var(--txt);
+    font:14px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    padding-bottom:64px;
+  }
+  a{color:inherit;text-decoration:none}
+  .head{max-width:1180px;margin:0 auto;padding:36px 24px 8px}
+  h1{margin:0 0 6px;font-size:26px;letter-spacing:-.3px}
+  h1 span{color:var(--acc)}
+  .sub{margin:0;color:var(--dim);font-size:13.5px}
+  .stats{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 14px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:132px}
+  .stat b{display:block;font-size:20px;line-height:1.2}
+  .stat span{color:var(--mut);font-size:11.5px;text-transform:uppercase;letter-spacing:.6px}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px;padding-top:14px;border-top:1px solid var(--line)}
+  .legend .lbl{color:var(--mut);font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;margin-right:4px}
+  .chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:12.5px;color:var(--dim)}
+  .chip i{width:9px;height:9px;border-radius:50%;background:var(--st);box-shadow:0 0 8px color-mix(in srgb,var(--st) 60%, transparent)}
+  .chip b{color:var(--txt);background:#21262d;border-radius:6px;padding:1px 6px;font-size:11.5px}
+
+  .scrollhint{max-width:1180px;margin:18px auto 0;padding:0 24px;color:var(--mut);font-size:12.5px;display:flex;gap:8px;align-items:center}
+  .scrollhint kbd{background:#21262d;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font:11.5px ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--dim)}
+
+  .scroll{overflow-x:auto;overflow-y:visible;padding:26px 0 8px}
+  .scroll::-webkit-scrollbar{height:14px}
+  .scroll::-webkit-scrollbar-track{background:#0e1319}
+  .scroll::-webkit-scrollbar-thumb{background:#30363d;border-radius:8px;border:3px solid #0e1319}
+  .scroll::-webkit-scrollbar-thumb:hover{background:#484f58}
+  .canvas{width:max-content;margin:0 auto;padding:0 48px 24px}
+
+  .tree{display:flex;flex-direction:column}
+  .tree.center{align-items:center}
+  .tree.left{align-items:flex-start}
+  .rootbox{width:300px;text-align:center;flex:none}
+  .root{display:inline-block;background:linear-gradient(180deg,#1c2430,#151b23);border:1px solid #3d4753;border-radius:12px;padding:12px 22px;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+  .root b{display:block;font-size:17px;letter-spacing:.4px}
+  .root span{display:block;color:var(--mut);font-size:11.5px;text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+  .root.qa{border-color:#4b3a1f;background:linear-gradient(180deg,#241d12,#1a1610)}
+  .stem{width:2px;height:30px;margin:0 auto;background:var(--line)}
+  .wrap{position:relative;padding-top:34px}
+  .bus{position:absolute;top:0;left:150px;right:150px;height:2px;background:var(--line)}
+  .row{display:flex;gap:40px;align-items:flex-start}
+
+  .epic{width:300px;flex:none;position:relative}
+  .epic::before{content:"";position:absolute;top:-34px;left:50%;width:2px;height:34px;background:linear-gradient(180deg,var(--line),var(--acc))}
+  .e-head{background:linear-gradient(180deg,#171d26,#131920);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:10px 10px 0 0;padding:11px 13px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+  .e-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:5px}
+  .key{font:600 12.5px ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--acc);letter-spacing:.3px}
+  a.key:hover{text-decoration:underline}
+  .badge{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);border:1px solid var(--line);background:#0f141a;border-radius:999px;padding:2px 8px}
+  .e-head h3{margin:0;font-size:14.5px;line-height:1.3;font-weight:600}
+  .e-meta{display:flex;gap:12px;margin-top:8px;font-size:11.5px;color:var(--mut)}
+  .e-meta span{background:#0f141a;border:1px solid var(--line);border-radius:6px;padding:2px 7px}
+  .stories{display:flex;flex-direction:column;gap:8px;padding-top:8px}
+  .story{display:block;background:var(--card);border:1px solid var(--line);border-left:3px solid color-mix(in srgb,var(--st) 65%, #1b2129);border-radius:8px;padding:9px 11px;transition:border-color .12s,transform .12s,background .12s}
+  .story:hover{background:var(--card2);border-color:color-mix(in srgb,var(--st) 55%, var(--line));transform:translateX(2px)}
+  .s-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .mod{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);background:#0f141a;border:1px solid var(--line);border-radius:5px;padding:1px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+  .s-title{margin-top:5px;font-size:13px;line-height:1.35;color:#d7dde4}
+  .s-foot{display:flex;justify-content:space-between;align-items:center;margin-top:7px;font-size:11.5px}
+  .pts{color:var(--mut);font:600 11.5px ui-monospace,SFMono-Regular,Consolas,monospace}
+  .st{font-weight:600}
+  .empty{border:1px dashed var(--line);border-radius:8px;padding:14px 12px;text-align:center;color:var(--mut);font-size:12.5px;background:#0e1319}
+
+  .sec-title{max-width:1180px;margin:46px auto 0;padding:0 24px}
+  .sec-title h2{margin:0 0 4px;font-size:18px}
+  .sec-title p{margin:0;color:var(--mut);font-size:13px}
+
+  .notes{max-width:1180px;margin:44px auto 0;padding:0 24px}
+  .notes h2{font-size:18px;margin:0 0 12px}
+  .notes ul{margin:0;padding:0;list-style:none;display:grid;gap:9px}
+  .notes li{background:var(--panel);border:1px solid var(--line);border-left:3px solid #d29922;border-radius:8px;padding:11px 14px;font-size:13.5px;color:#cdd5dd;line-height:1.5}
+  .notes code{font:12.5px ui-monospace,SFMono-Regular,Consolas,monospace;background:#0f141a;border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:#9ecbff}
+  .foot{max-width:1180px;margin:34px auto 0;padding:16px 24px 0;border-top:1px solid var(--line);color:var(--mut);font-size:12.5px}
+  @media (max-width:760px){ .head,.notes,.sec-title,.scrollhint,.foot{padding-left:16px;padding-right:16px} }
+</style>
+</head>
+<body>
+
+<header class="head">
+  <h1>BK · Jerarquía de <span>User Stories</span> y trazabilidad</h1>
+  <p class="sub">Proyecto BK → Épicas → User Stories. Cada tarjeta enlaca a su ticket en Jira. Fuente: <code style="font-family:ui-monospace,Consolas,monospace;color:#9ecbff">.context/PBI/epic-tree.md</code> (sincronizado 2026-08-31).</p>
+  <div class="stats">
+    <div class="stat"><b>16</b><span>Épicas de producto</span></div>
+    <div class="stat"><b>125</b><span>User stories</span></div>
+    <div class="stat"><b>412</b><span>Story points</span></div>
+    <div class="stat"><b>4</b><span>Épicas de proceso QA</span></div>
+    <div class="stat"><b>8</b><span>Estados en uso</span></div>
+  </div>
+  <div class="legend"><span class="lbl">Estados de story</span><span class="chip" style="--st:#2ea043"><i></i>Ready For Release<b>24</b></span><span class="chip" style="--st:#3fb950"><i></i>QA Approved<b>30</b></span><span class="chip" style="--st:#bc8cff"><i></i>Ready For QA<b>20</b></span><span class="chip" style="--st:#d29922"><i></i>In Test<b>2</b></span><span class="chip" style="--st:#39c5cf"><i></i>Ready For Dev<b>1</b></span><span class="chip" style="--st:#79c0ff"><i></i>Estimation<b>1</b></span><span class="chip" style="--st:#8b949e"><i></i>Backlog<b>44</b></span><span class="chip" style="--st:#f85149"><i></i>ABORTED<b>3</b></span></div>
+</header>
+
+<div class="scrollhint"><kbd>↔</kbd> Desplaza la barra horizontal para recorrer las 16 épicas · <kbd>rueda</kbd> para bajar por las stories</div>
+
+<div class="scroll">
+  <div class="canvas">
+    <div class="tree center">
+      <div class="rootbox"><div class="root"><b>BK</b><span>Proyecto · TMS</span></div><div class="stem"></div></div>
+      <div class="wrap">
+        <div class="bus"></div>
+        <div class="row">
+<section class="epic" style="--acc:#58a6ff">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-1" target="_blank" rel="noopener">BK-1</a><span class="badge">Planning</span></div>
+          <h3>Tenancy &amp; Identity</h3>
+          <div class="e-meta"><span>13 stories</span><span>74 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-2" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-2</span><span class="mod">Authentication</span></div>
+        <div class="s-title">Sign up and sign in with email magic-link</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-3" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-3</span><span class="mod">Authentication</span></div>
+        <div class="s-title">Sign up and sign in via OAuth (GitHub / Google)</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-4" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-4</span><span class="mod">TMS-Workspace</span></div>
+        <div class="s-title">Create a workspace</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-5" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-5</span><span class="mod">TMS-Workspace</span></div>
+        <div class="s-title">Invite a teammate with a role</div>
+        <div class="s-foot"><span class="pts">13 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-6" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-6</span><span class="mod">TMS-Workspace</span></div>
+        <div class="s-title">Switch between workspaces</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-166" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-166</span><span class="mod">Authentication</span></div>
+        <div class="s-title">Sign up and sign in with email and password</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#f85149" href="https://jira.upexgalaxy.com/browse/BK-262" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-262</span><span class="mod">PAT</span></div>
+        <div class="s-title">Enforce capability scopes on every non-ATC route</div>
+        <div class="s-foot"><span class="pts">21 pts</span><span class="st" style="color:#f85149">ABORTED</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-497" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-497</span><span class="mod">PAT</span></div>
+        <div class="s-title">Require every API route to declare its capability posture</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-498" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-498</span><span class="mod">PAT</span></div>
+        <div class="s-title">Enforce capability scopes on the authoring domain</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-499" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-499</span><span class="mod">PAT</span></div>
+        <div class="s-title">Enforce capability scopes on read, identity and notification routes</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-572" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-572</span><span class="mod">TMS-Workspace</span></div>
+        <div class="s-title">Remove a teammate from a workspace</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-667" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-667</span><span class="mod">API Contract</span></div>
+        <div class="s-title">Make the five remaining create endpoints safe to retry</div>
+        <div class="s-foot"><span class="pts">1 pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-743" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-743</span><span class="mod">Authentication</span></div>
+        <div class="s-title">Rate-limit repeated email-existence checks</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#3fb950">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-7" target="_blank" rel="noopener">BK-7</a><span class="badge">Planning</span></div>
+          <h3>Project &amp; Module Hierarchy</h3>
+          <div class="e-meta"><span>12 stories</span><span>46 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-8" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-8</span><span class="mod">TMS-Project</span></div>
+        <div class="s-title">Create a project inside a workspace</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-9" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-9</span><span class="mod">TMS-Module</span></div>
+        <div class="s-title">Create modules with nested sub-modules</div>
+        <div class="s-foot"><span class="pts">13 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-10" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-10</span><span class="mod">TMS-Module</span></div>
+        <div class="s-title">Rename and soft-delete a module</div>
+        <div class="s-foot"><span class="pts">2 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-11" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-11</span><span class="mod">TMS-Module</span></div>
+        <div class="s-title">Move a module to a different parent</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-98" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-98</span><span class="mod">TMS-Projects</span></div>
+        <div class="s-title">Switch between Tree, Table &amp; Mind map views in a hardened explorer</div>
+        <div class="s-foot"><span class="pts">1 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-147" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-147</span><span class="mod">App Shell</span></div>
+        <div class="s-title">Open ATCs and Tests as tabs with a persistent explorer</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-148" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-148</span><span class="mod">TMS-Project Environments</span></div>
+        <div class="s-title">List, add, rename and remove environments</div>
+        <div class="s-foot"><span class="pts">1 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-266" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-266</span><span class="mod">TMS-Projects</span></div>
+        <div class="s-title">Browse workspace projects in an index with a dedicated create route</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-398" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-398</span><span class="mod">Command Palette</span></div>
+        <div class="s-title">Search and jump across the workspace</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-443" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-443</span><span class="mod">App Shell</span></div>
+        <div class="s-title">Save, name, and return to a filtered view</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-509" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-509</span><span class="mod">TMS-Project</span></div>
+        <div class="s-title">Create a project inside a workspace</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-601" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-601</span><span class="mod">TMS-Module</span></div>
+        <div class="s-title">See what is archived and restore an archived module</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#d29922">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-12" target="_blank" rel="noopener">BK-12</a><span class="badge">Planning</span></div>
+          <h3>User Stories &amp; Acceptance Criteria</h3>
+          <div class="e-meta"><span>4 stories</span><span>24 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-14" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-14</span><span class="mod">TMS-US</span></div>
+        <div class="s-title">Manage user stories anchored to a module</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-15" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-15</span><span class="mod">TMS-AC</span></div>
+        <div class="s-title">Manage criteria under a user story</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-16" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-16</span><span class="mod">Markdown Editor</span></div>
+        <div class="s-title">Write and preview Markdown safely</div>
+        <div class="s-foot"><span class="pts">13 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-17" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-17</span><span class="mod">Jira Import</span></div>
+        <div class="s-title">Pull Jira issues by JQL</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#bc8cff">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-13" target="_blank" rel="noopener">BK-13</a><span class="badge">Planning</span></div>
+          <h3>ATC Library (Acceptance Test Cases)</h3>
+          <div class="e-meta"><span>16 stories</span><span>42 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-18" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-18</span><span class="mod">TMS-ATC API</span></div>
+        <div class="s-title">Create and edit ATCs with steps and assertions</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-19" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-19</span><span class="mod">TMS-ATC Builder</span></div>
+        <div class="s-title">Build an ATC with ordered steps and assertions</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-20" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-20</span><span class="mod">TMS-ATC Search</span></div>
+        <div class="s-title">Search and autocomplete ATCs</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-21" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-21</span><span class="mod">TMS-ATC Propagation</span></div>
+        <div class="s-title">Cascade ATC edits to all tests</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-22" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-22</span><span class="mod">TMS-ATC Usage</span></div>
+        <div class="s-title">See a &quot;Used in N tests&quot; report</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-23" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-23</span><span class="mod">TMS-ATC Duplicate</span></div>
+        <div class="s-title">Duplicate an ATC with steps and assertions</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#f85149" href="https://jira.upexgalaxy.com/browse/BK-267" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-267</span><span class="mod">TMS-ATC Library</span></div>
+        <div class="s-title">Browse, search, and filter ATCs across every project</div>
+        <div class="s-foot"><span class="pts">1 pts</span><span class="st" style="color:#f85149">ABORTED</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-315" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-315</span><span class="mod">TMS-ATC Library</span></div>
+        <div class="s-title">Export a Project's ATCs to CSV</div>
+        <div class="s-foot"><span class="pts">1 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-399" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-399</span><span class="mod">TMS-ATC Classification</span></div>
+        <div class="s-title">Classify by test-design technique and priority</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-439" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-439</span><span class="mod">TMS-ATC Library</span></div>
+        <div class="s-title">Browse every ATC in the workspace from one index</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-440" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-440</span><span class="mod">TMS-ATC Library</span></div>
+        <div class="s-title">Find an ATC by name as you type</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-441" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-441</span><span class="mod">TMS-ATC Library</span></div>
+        <div class="s-title">Narrow the index by Project, Module, layer and anchor</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-467" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-467</span><span class="mod">TMS-ATC Library</span></div>
+        <div class="s-title">Export a Project's ATCs to CSV</div>
+        <div class="s-foot"><span class="pts">1 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-507" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-507</span><span class="mod">TMS-ATC Library</span></div>
+        <div class="s-title">Bulk-edit tags, Module and layer on selected ATCs</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-571" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-571</span><span class="mod">TMS-ATC Library</span></div>
+        <div class="s-title">Archive an ATC and restore it from the archive</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-595" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-595</span><span class="mod">TMS-ATC API</span></div>
+        <div class="s-title">Read a single ATC by id</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#39c5cf">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-24" target="_blank" rel="noopener">BK-24</a><span class="badge">Planning</span></div>
+          <h3>Tests (chains of ATCs)</h3>
+          <div class="e-meta"><span>7 stories</span><span>24 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-27" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-27</span><span class="mod">TMS-Test Builder</span></div>
+        <div class="s-title">Assemble a test by chaining ATCs</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-28" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-28</span><span class="mod">TMS-Test Builder</span></div>
+        <div class="s-title">Reorder ATCs inside a test</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-32" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-32</span><span class="mod">TMS-Test View</span></div>
+        <div class="s-title">View a test with all chained ATCs expanded</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-33" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-33</span><span class="mod">TMS-Test Tags</span></div>
+        <div class="s-title">Assign reserved and custom tags to a test</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-596" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-596</span><span class="mod">TMS-Test</span></div>
+        <div class="s-title">Rename a Test, archive it and restore it</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-666" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-666</span><span class="mod">TMS-Test List</span></div>
+        <div class="s-title">Browse, filter and sort every Test in a Project</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-742" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-742</span><span class="mod">TMS-Test Tags</span></div>
+        <div class="s-title">Page through a large tag-filtered Test list</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#f778ba">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-29" target="_blank" rel="noopener">BK-29</a><span class="badge">Planning</span></div>
+          <h3>Bunkai TMS — Credenciales de Acceso para Testing (DB / API / UI)</h3>
+          <div class="e-meta"><span>0 stories</span><span>0 pts</span></div>
+        </header>
+        <div class="stories">
+          <div class="empty">Sin user stories vinculadas</div>
+        </div>
+      </section>
+<section class="epic" style="--acc:#7ee787">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-30" target="_blank" rel="noopener">BK-30</a><span class="badge">Planning</span></div>
+          <h3>Manual Execution &amp; Runs</h3>
+          <div class="e-meta"><span>12 stories</span><span>40 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-34" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-34</span><span class="mod">TMS-Run Execution</span></div>
+        <div class="s-title">Start a manual run in a chosen environment</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-35" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-35</span><span class="mod">TMS-Run Execution</span></div>
+        <div class="s-title">Mark each step pass, fail, or block</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-36" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-36</span><span class="mod">TMS-Run Execution</span></div>
+        <div class="s-title">Abort a run in progress with a reason</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-37" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-37</span><span class="mod">TMS-Run History</span></div>
+        <div class="s-title">View a test's past runs, filterable by outcome</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-38" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-38</span><span class="mod">TMS-Run Reporting</span></div>
+        <div class="s-title">Filter project runs with pass/fail totals</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-39" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-39</span><span class="mod">TMS-Run Execution</span></div>
+        <div class="s-title">Finish a run with a final verdict</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-269" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-269</span><span class="mod">TMS-Run Execution</span></div>
+        <div class="s-title">Automatically abort abandoned runs after inactivity</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-442" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-442</span><span class="mod">TMS-Run History</span></div>
+        <div class="s-title">Compare a run against the previous run of the same test</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-513" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-513</span><span class="mod">TMS-Run History</span></div>
+        <div class="s-title">Browse every run in the workspace from one index</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-554" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-554</span><span class="mod">TMS-Run History</span></div>
+        <div class="s-title">See how flaky a test is across its recent runs</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-593" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-593</span><span class="mod">TMS-Run Execution</span></div>
+        <div class="s-title">Attach a screenshot as evidence on a step result</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-600" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-600</span><span class="mod">TMS-Run Execution</span></div>
+        <div class="s-title">Drive step verdicts and bug filing from the keyboard</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#ffa657">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-31" target="_blank" rel="noopener">BK-31</a><span class="badge">Planning</span></div>
+          <h3>Bugs &amp; Defect Heatmap</h3>
+          <div class="e-meta"><span>13 stories</span><span>21 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-40" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-40</span><span class="mod">TMS-Defect Filing</span></div>
+        <div class="s-title">File a defect from a failing run step</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#d29922" href="https://jira.upexgalaxy.com/browse/BK-41" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-41</span><span class="mod">TMS-Defect List</span></div>
+        <div class="s-title">List and filter defects by module, status, severity</div>
+        <div class="s-foot"><span class="pts">2 pts</span><span class="st" style="color:#d29922">In Test</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-42" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-42</span><span class="mod">TMS-Defect Heatmap</span></div>
+        <div class="s-title">View count and week-over-week trend per module</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#f85149" href="https://jira.upexgalaxy.com/browse/BK-43" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-43</span><span class="mod">TMS-Defect Sync</span></div>
+        <div class="s-title">Sync defects one-way to the external tracker</div>
+        <div class="s-foot"><span class="pts">1 pts</span><span class="st" style="color:#f85149">ABORTED</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-264" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-264</span><span class="mod">TMS-Defect Triage</span></div>
+        <div class="s-title">Assign a defect to a workspace member and update its status</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-337" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-337</span><span class="mod">TMS-Defect Detail</span></div>
+        <div class="s-title">Open a defect and read its full record</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-371" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-371</span><span class="mod">TMS-Defect Sync</span></div>
+        <div class="s-title">Point a project at a Jira destination</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-372" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-372</span><span class="mod">TMS-Defect Sync</span></div>
+        <div class="s-title">Send a newly filed defect to Jira</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-373" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-373</span><span class="mod">TMS-Defect Sync</span></div>
+        <div class="s-title">Recover a failed sync and show its state</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-465" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-465</span><span class="mod">TMS-Defect Filing</span></div>
+        <div class="s-title">Capture expected and actual results at filing</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-555" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-555</span><span class="mod">TMS-Bug Reports</span></div>
+        <div class="s-title">Browse every defect in the workspace from one index</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-594" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-594</span><span class="mod">TMS-Defect Filing</span></div>
+        <div class="s-title">Attach screenshots as evidence when filing a defect</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-718" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-718</span><span class="mod">TMS-Defect Heatmap</span></div>
+        <div class="s-title">See newly filed defects appear without refreshing</div>
+        <div class="s-foot"><span class="pts">1 pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#79c0ff">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-44" target="_blank" rel="noopener">BK-44</a><span class="badge">Planning</span></div>
+          <h3>Coverage &amp; Traceability</h3>
+          <div class="e-meta"><span>7 stories</span><span>32 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-45" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-45</span><span class="mod">TMS-Traceability</span></div>
+        <div class="s-title">Render full US to bug evidence chain in one read</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-46" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-46</span><span class="mod">TMS-Coverage</span></div>
+        <div class="s-title">Surface untested ACs and modules with not-run filter</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-47" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-47</span><span class="mod">TMS-Coverage</span></div>
+        <div class="s-title">Compute time-to-green per user story from run and bug history</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-48" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-48</span><span class="mod">TMS-Traceability</span></div>
+        <div class="s-title">Filter the chain by verdict, module, and date range</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-49" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-49</span><span class="mod">TMS-Activity</span></div>
+        <div class="s-title">Stream a read-side feed over the existing activity log</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-50" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-50</span><span class="mod">TMS-Traceability</span></div>
+        <div class="s-title">Export the assembled chain as a read-only snapshot</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-268" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-268</span><span class="mod">TMS-Activity</span></div>
+        <div class="s-title">Surface ATC edits with the Tests they affect</div>
+        <div class="s-foot"><span class="pts">1 pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#e3b341">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-85" target="_blank" rel="noopener">BK-85</a><span class="badge">Planning</span></div>
+          <h3>Account &amp; Settings</h3>
+          <div class="e-meta"><span>7 stories</span><span>33 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#2ea043" href="https://jira.upexgalaxy.com/browse/BK-86" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-86</span><span class="mod">Account</span></div>
+        <div class="s-title">View my identity, role, and sign out</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#2ea043">Ready For Release</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-87" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-87</span><span class="mod">Settings</span></div>
+        <div class="s-title">Open a settings hub and view my account</div>
+        <div class="s-foot"><span class="pts">2 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-88" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-88</span><span class="mod">Settings</span></div>
+        <div class="s-title">Manage Personal Access Tokens</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-89" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-89</span><span class="mod">TMS-Workspace</span></div>
+        <div class="s-title">View the workspaces I belong to</div>
+        <div class="s-foot"><span class="pts">2 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-90" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-90</span><span class="mod">TMS-Workspace</span></div>
+        <div class="s-title">Leave a workspace</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-508" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-508</span><span class="mod">Settings</span></div>
+        <div class="s-title">Request an export of my workspace data</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-512" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-512</span></div>
+        <div class="s-title">TMS-| Delete a workspace I own</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#a5d6ff">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-201" target="_blank" rel="noopener">BK-201</a><span class="badge">Planning</span></div>
+          <h3>Test Plans &amp; Milestones</h3>
+          <div class="e-meta"><span>6 stories</span><span>16 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-202" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-202</span><span class="mod">TMS-Test Plan</span></div>
+        <div class="s-title">Create a test plan grouping tests for a goal</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-203" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-203</span><span class="mod">TMS-Test Plan</span></div>
+        <div class="s-title">Add and remove tests from a plan</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-204" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-204</span><span class="mod">TMS-Test Plan</span></div>
+        <div class="s-title">Track plan progress from run outcomes</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-205" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-205</span><span class="mod">TMS-Milestone</span></div>
+        <div class="s-title">Create a milestone with a target date</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-206" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-206</span><span class="mod">TMS-Milestone</span></div>
+        <div class="s-title">Assign test plans and track milestone readiness</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-207" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-207</span><span class="mod">TMS-Test Plan</span></div>
+        <div class="s-title">Close a plan with an outcome summary</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#d2a8ff">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-208" target="_blank" rel="noopener">BK-208</a><span class="badge">Planning</span></div>
+          <h3>Notifications Center</h3>
+          <div class="e-meta"><span>5 stories</span><span>34 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-209" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-209</span><span class="mod">Notifications</span></div>
+        <div class="s-title">View an inbox of workspace events</div>
+        <div class="s-foot"><span class="pts">13 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-211" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-211</span><span class="mod">Notifications</span></div>
+        <div class="s-title">Get notified when a run finishes or is aborted</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-212" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-212</span><span class="mod">Notifications</span></div>
+        <div class="s-title">Get notified on bug assignment and status changes</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-213" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-213</span><span class="mod">Notifications</span></div>
+        <div class="s-title">Configure notification preferences per event type</div>
+        <div class="s-foot"><span class="pts">3 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-214" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-214</span><span class="mod">Notifications</span></div>
+        <div class="s-title">Receive an email digest of unread notifications</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#9ecbff">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-210" target="_blank" rel="noopener">BK-210</a><span class="badge">Planning</span></div>
+          <h3>Team Chat</h3>
+          <div class="e-meta"><span>6 stories</span><span>5 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#79c0ff" href="https://jira.upexgalaxy.com/browse/BK-215" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-215</span><span class="mod">Team Chat</span></div>
+        <div class="s-title">Chat with workspace members in a real-time channel</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#79c0ff">Estimation</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-216" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-216</span><span class="mod">Team Chat</span></div>
+        <div class="s-title">Chat in a dedicated per-project channel</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-217" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-217</span><span class="mod">Team Chat</span></div>
+        <div class="s-title">Mention a teammate to get their attention</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-218" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-218</span><span class="mod">Team Chat</span></div>
+        <div class="s-title">Share an ATC, test, or run as a rich link</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#39c5cf" href="https://jira.upexgalaxy.com/browse/BK-219" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-219</span><span class="mod">Team Chat</span></div>
+        <div class="s-title">Edit and delete my own messages</div>
+        <div class="s-foot"><span class="pts">5 pts</span><span class="st" style="color:#39c5cf">Ready For Dev</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-220" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-220</span><span class="mod">Team Chat</span></div>
+        <div class="s-title">Search the message history</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#ffd670">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-221" target="_blank" rel="noopener">BK-221</a><span class="badge">Planning</span></div>
+          <h3>Automation &amp; CI Ingestion</h3>
+          <div class="e-meta"><span>6 stories</span><span>0 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-222" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-222</span><span class="mod">TMS-Automation API</span></div>
+        <div class="s-title">Submit an automated run with step results</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-223" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-223</span><span class="mod">TMS-Automation API</span></div>
+        <div class="s-title">Stream step results during an automated run</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-225" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-225</span><span class="mod">TMS-Run Reporting</span></div>
+        <div class="s-title">Filter runs by manual or automated execution mode</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-226" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-226</span><span class="mod">CI Integration</span></div>
+        <div class="s-title">Upload a CI results file to create a run</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-227" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-227</span><span class="mod">TMS-Test</span></div>
+        <div class="s-title">Track the automation status of a test</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-228" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-228</span><span class="mod">CI Integration</span></div>
+        <div class="s-title">See CI-triggered runs linked to a commit and branch</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#8ddb8c">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-224" target="_blank" rel="noopener">BK-224</a><span class="badge">Planning</span></div>
+          <h3>Billing &amp; Plans</h3>
+          <div class="e-meta"><span>5 stories</span><span>21 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-229" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-229</span><span class="mod">Billing</span></div>
+        <div class="s-title">View my workspace plan, seats, and usage</div>
+        <div class="s-foot"><span class="pts">8 pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-230" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-230</span><span class="mod">Billing</span></div>
+        <div class="s-title">Upgrade to a paid plan</div>
+        <div class="s-foot"><span class="pts">13 pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-231" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-231</span><span class="mod">Billing</span></div>
+        <div class="s-title">Manage billing details and download invoices</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-232" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-232</span><span class="mod">Billing</span></div>
+        <div class="s-title">See plan-limit warnings with an upgrade path</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+          <a class="story" style="--st:#8b949e" href="https://jira.upexgalaxy.com/browse/BK-233" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-233</span><span class="mod">Billing</span></div>
+        <div class="s-title">Downgrade or cancel the subscription</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#8b949e">Backlog</span></div>
+      </a>
+        </div>
+      </section>
+<section class="epic" style="--acc:#ff9bce">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-254" target="_blank" rel="noopener">BK-254</a><span class="badge">Planning</span></div>
+          <h3>Home Dashboard</h3>
+          <div class="e-meta"><span>6 stories</span><span>0 pts</span></div>
+        </header>
+        <div class="stories">
+          <a class="story" style="--st:#d29922" href="https://jira.upexgalaxy.com/browse/BK-255" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-255</span><span class="mod">TMS-Home</span></div>
+        <div class="s-title">Show a personalized welcome banner</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#d29922">In Test</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-256" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-256</span><span class="mod">TMS-Home</span></div>
+        <div class="s-title">Show active test runs summary and table</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-257" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-257</span><span class="mod">TMS-Home</span></div>
+        <div class="s-title">Show recent projects with activity and stats</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-258" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-258</span><span class="mod">TMS-Home</span></div>
+        <div class="s-title">Show open bug count and severity breakdown</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#bc8cff" href="https://jira.upexgalaxy.com/browse/BK-259" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-259</span><span class="mod">TMS-Home</span></div>
+        <div class="s-title">Show workspace test coverage summary</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#bc8cff">Ready For QA</span></div>
+      </a>
+          <a class="story" style="--st:#3fb950" href="https://jira.upexgalaxy.com/browse/BK-260" target="_blank" rel="noopener">
+        <div class="s-top"><span class="key">BK-260</span><span class="mod">TMS-Home</span></div>
+        <div class="s-title">Show a condensed recent activity feed</div>
+        <div class="s-foot"><span class="pts">— pts</span><span class="st" style="color:#3fb950">QA Approved</span></div>
+      </a>
+        </div>
+      </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec-title">
+  <h2>Épicas de proceso QA (trazabilidad de artefactos)</h2>
+  <p>No contienen producto: alojan el repositorio de tests, la gestión de defectos, el master test plan y los artefactos de ejecución.</p>
+</div>
+
+<div class="scroll">
+  <div class="canvas">
+    <div class="tree left">
+      <div class="rootbox"><div class="root qa"><b>QA</b><span>Artefactos y proceso</span></div><div class="stem"></div></div>
+      <div class="wrap">
+        <div class="bus"></div>
+        <div class="row">
+<section class="epic" style="--acc:#7ee787">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-70" target="_blank" rel="noopener">BK-70</a><span class="badge">QA</span></div>
+          <h3>QA Test Repository</h3>
+          <div class="e-meta"><span>0 stories espejadas</span></div>
+        </header>
+        <div class="stories"><div class="empty">El contenido vive bajo cada artefacto, no en .context/PBI/</div></div>
+      </section>
+<section class="epic" style="--acc:#ffa657">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-183" target="_blank" rel="noopener">BK-183</a><span class="badge">QA</span></div>
+          <h3>QA Defect Management</h3>
+          <div class="e-meta"><span>0 stories espejadas</span></div>
+        </header>
+        <div class="stories"><div class="empty">El contenido vive bajo cada artefacto, no en .context/PBI/</div></div>
+      </section>
+<section class="epic" style="--acc:#79c0ff">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-514" target="_blank" rel="noopener">BK-514</a><span class="badge">QA</span></div>
+          <h3>QA Master Test Plan</h3>
+          <div class="e-meta"><span>0 stories espejadas</span></div>
+        </header>
+        <div class="stories"><div class="empty">El contenido vive bajo cada artefacto, no en .context/PBI/</div></div>
+      </section>
+<section class="epic" style="--acc:#e3b341">
+        <header class="e-head">
+          <div class="e-top"><a class="key" href="https://jira.upexgalaxy.com/browse/BK-515" target="_blank" rel="noopener">BK-515</a><span class="badge">QA</span></div>
+          <h3>QA Test Artifacts</h3>
+          <div class="e-meta"><span>0 stories espejadas</span></div>
+        </header>
+        <div class="stories"><div class="empty">El contenido vive bajo cada artefacto, no en .context/PBI/</div></div>
+      </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="notes">
+  <h2>Hallazgos de trazabilidad (5)</h2>
+  <ul>
+    <li><b>Duplicada en Jira</b>: "<b>Create a project inside a workspace</b>" aparece en BK-7/BK-8 y BK-7/BK-509</li>
+    <li><b>Duplicada en Jira</b>: "<b>Export a Project's ATCs to CSV</b>" aparece en BK-13/BK-315 y BK-13/BK-467</li>
+    <li><b>Carpeta local huérfana</b>: <code>BK-101</code> existe como carpeta local (EPIC-BK-85-account-settings) pero no figura en el árbol sincronizado</li>
+    <li><b>Carpeta mal padreada</b>: <code>BK-262</code> tiene carpeta bajo EPIC-BK-1-tenancy-identity y EPIC-BK-183-qa-defect-management</li>
+    <li><b>Épica vacía</b>: <code>BK-29</code> (Bunkai TMS — Credenciales de Acceso para Testing (DB / API / UI)) tiene 0 user stories</li>
+  </ul>
+</section>
+
+<div class="foot">Generado desde .context/PBI/epic-tree.md + qa-artifacts/_index.md · 16 épicas · 125 user stories · 412 pts</div>
+
+</body>
+</html>

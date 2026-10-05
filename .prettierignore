@@ -15,6 +15,8 @@ reports/
 
 # Generated files
 api/types.ts
+# rendered by `bun run hierarchy:build` (scripts/story-hierarchy.ts)
+bk-user-stories-hierarchy.html
 kata-manifest.json
 bun.lock
 package-lock.json

@@ -49,6 +49,8 @@
     "claude": "dotenv -o -e .env -- claude",
     "format:check": "prettier --check '**/*.{json,yml,yaml,css,scss,html}' --ignore-path .prettierignore",
     "format:fix": "prettier --write '**/*.{json,yml,yaml,css,scss,html}' --ignore-path .prettierignore",
+    "hierarchy:build": "bun scripts/story-hierarchy.ts",
+    "hierarchy:refresh": "bun scripts/story-hierarchy.ts --sync",
     "jira:check": "bun scripts/check-jira-setup.ts",
     "jira:sync-fields": "bun scripts/sync-jira-fields.ts",
     "jira:sync-issues": "bun scripts/sync-jira-issues.ts",
