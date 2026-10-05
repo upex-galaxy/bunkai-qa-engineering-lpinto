@@ -74,7 +74,9 @@ jobs:
             echo "Diagram unchanged — nothing to commit."
             exit 0
           fi
-          # --no-verify: the pre-commit hook re-runs checks already executed as
-          # steps above, and depends on a local .env this job does not have.
+          # --no-verify on BOTH sides: the hooks re-run checks already executed as
+          # steps above, depend on a local .env this job does not have, and
+          # skills:registry:check can never pass in CI — the T3/T4 skills it
+          # hashes are installed by `bun run setup`, not by `bun install`.
           git commit --no-verify -m "docs: refresh BK story hierarchy diagram"
-          git push
+          git push --no-verify
