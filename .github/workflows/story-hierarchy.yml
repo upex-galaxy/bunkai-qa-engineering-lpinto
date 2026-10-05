@@ -13,7 +13,9 @@ run-name: ${{ github.actor }} triggered Story Hierarchy Refresh
 
 on:
   schedule:
-    - cron: '0 6 * * *' # Daily at 06:00 UTC (03:00 America/Argentina/Buenos_Aires)
+    # 06:23 UTC (03:23 America/Argentina/Buenos_Aires). Off the :00 mark on
+    # purpose — GitHub documents schedule delays during top-of-hour load.
+    - cron: '23 6 * * *'
   workflow_dispatch:
 
 permissions:
