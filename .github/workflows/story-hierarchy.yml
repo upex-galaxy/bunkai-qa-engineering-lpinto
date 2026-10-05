@@ -1,0 +1,80 @@
+# ============================================
+# BK Story Hierarchy - daily diagram refresh
+# ============================================
+# Purpose: Pull the BK backlog from Jira, rebuild bk-user-stories-hierarchy.html
+# (Epics -> User Stories traceability org chart) and commit it when it changed,
+# so the diagram in the repo tracks Jira once a day.
+#
+# No `push` trigger on purpose: the bot commit below cannot re-trigger this
+# workflow, so there is no commit loop.
+
+name: Story Hierarchy Refresh
+run-name: ${{ github.actor }} triggered Story Hierarchy Refresh
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # Daily at 06:00 UTC (03:00 America/Argentina/Buenos_Aires)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: story-hierarchy
+  cancel-in-progress: false
+
+env:
+  CI: true
+  # Jira credentials for `jira:sync-issues pull` (values never echoed)
+  ATLASSIAN_EMAIL: ${{ secrets.ATLASSIAN_EMAIL }}
+  ATLASSIAN_API_TOKEN: ${{ secrets.ATLASSIAN_API_TOKEN }}
+
+jobs:
+  refresh:
+    name: Pull Jira and rebuild diagram
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: TypeScript Check
+        run: bun run types:check
+
+      - name: ESLint Check
+        run: bun run lint:check
+
+      # Fails loudly when ATLASSIAN_* secrets are missing or stale — the job must
+      # never fall back to a stale cache, and .context/PBI/ is not tracked so a
+      # failed pull leaves nothing to render.
+      - name: Pull backlog from Jira
+        run: bun run jira:sync-issues pull
+
+      # Exits 1 without touching the HTML when the parse yields 0 Épicas / 0 Stories.
+      - name: Rebuild diagram
+        run: bun run hierarchy:build
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bk-user-stories-hierarchy.html
+          if git diff --cached --quiet; then
+            echo "Diagram unchanged — nothing to commit."
+            exit 0
+          fi
+          # --no-verify: the pre-commit hook re-runs checks already executed as
+          # steps above, and depends on a local .env this job does not have.
+          git commit --no-verify -m "docs: refresh BK story hierarchy diagram"
+          git push
