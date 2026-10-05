@@ -28,6 +28,9 @@ yarn.lock
 .vscode/
 *.code-workspace
 
+# Tool session output (untracked, regenerated) — must never gate format:check
+.superpowers/
+
 # OS
 .DS_Store
 Thumbs.db
