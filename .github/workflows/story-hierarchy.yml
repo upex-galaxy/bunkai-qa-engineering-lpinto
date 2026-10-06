@@ -13,9 +13,13 @@ run-name: ${{ github.actor }} triggered Story Hierarchy Refresh
 
 on:
   schedule:
-    # CANARY (temporal): 08:50 UTC — probar si el scheduler de GitHub dispara.
-    # Revertir a `23 6 * * *` tras observar el resultado.
-    - cron: '50 8 * * *'
+    # 06:23 UTC (03:23 America/Argentina/Buenos_Aires). Off the :00 mark —
+    # GitHub documents schedule delays during top-of-hour load.
+    # NOTE: repo-level `schedule` triggers have not fired since 2026-09-22 and
+    # the Actions policy endpoint 403s for non-admins, so the daily trigger is
+    # currently driven locally via scripts/trigger-story-hierarchy.ps1
+    # (Task Scheduler -> `gh workflow run`). Keep this cron as the fallback.
+    - cron: '23 6 * * *'
   workflow_dispatch:
 
 permissions:
