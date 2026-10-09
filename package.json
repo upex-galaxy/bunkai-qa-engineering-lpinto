@@ -34,8 +34,6 @@
   ],
   "scripts": {
     "harness-config": "bun scripts/harness-config.ts",
-    "harness-config-help": "bun scripts/harness-config-help.ts",
-    "harness-config-default": "bun scripts/harness-config-default.ts",
     "agents:setup": "bun scripts/agents-setup.ts",
     "allure:agent": "bunx allure agent -- bun test",
     "allure:generate": "bunx allure generate ./allure-results",

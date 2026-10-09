@@ -531,7 +531,6 @@ async function main(): Promise<void> {
   }
 
   // Interactive only (no args + TTY): also pick the main session model.
-  // The direnv path uses harness-config-default, which never prompts.
   if (process.argv.slice(2).length === 0 && process.stdin.isTTY) {
     const current = resolveSessionModel();
     const picked = await selectMainModel(loadCache(), current);

@@ -6,10 +6,8 @@ import { GO_BACK_CODE, PARENT_ENV } from './harness-nav.ts';
 // harness-config — umbrella entry point for agent-harness configuration.
 //   session -> MCPs + main session model   (gitignored config, regenerated per session)
 //   roles   -> per-subagent QA role models (committed agent files)
-//   help    -> usage
 // The two halves have different lifecycles, so each keeps its own script; this
-// dispatcher only routes. `harness-config-default` (direnv) bypasses it entirely
-// and never prompts.
+// dispatcher only routes.
 
 const REPO_ROOT = join(import.meta.dir, '..');
 
@@ -27,9 +25,6 @@ function printHelp(): void {
   console.log('  bun run harness-config session [perfil] # MCPs + modelo principal (por sesion)');
   console.log('  bun run harness-config roles [flags]    # modelos por subagente (committed)');
   console.log('  bun run harness-config help');
-  console.log('');
-  console.log('Aliases:');
-  console.log('  bun run harness-config-default          # session base, no interactivo (direnv)');
   console.log('');
 }
 
