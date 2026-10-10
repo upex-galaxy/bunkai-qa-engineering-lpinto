@@ -7,6 +7,9 @@
 .selected-harness-model
 .selected-qa-models
 
+# Model catalog cache — fetched/written by harness-manager Re-scan, read-only here
+.models.catalog.json
+
 # harness-config output — per-developer generated configs (regenerable via bun run harness-config)
 .mcp.json
 opencode.jsonc

@@ -5,8 +5,8 @@
  * QA MODEL SELECTOR — Interactive CLI to select AI models per QA role
  * ============================================================================
  *
- * Fetches available models from multiple providers, caches them locally,
- * and lets you interactively assign models to each QA role (qa-plan,
+ * Reads the `.models.catalog.json` cache written by harness-manager's
+ * Re-scan, and lets you interactively assign models to each QA role (qa-plan,
  * qa-code, qa-review, qa-bulk, qa-write, qa-vision).
  *
  * Updates agent markdown files across all harnesses:
@@ -20,16 +20,12 @@
  *   bun run harness-config roles --dry-run                # print changes, do not write
  *   bun run harness-config roles --role qa-plan --model x # set single role
  *   bun run harness-config roles --list                   # list available models
- *   bun run harness-config roles --refresh                # force re-fetch models
+ *   bun run harness-config roles --refresh                # pointer to harness-manager (no fetch)
  *   bun run harness-config roles --help                   # show help
  *
  * ============================================================================
  * ENVIRONMENT VARIABLES
  * ============================================================================
- *
- *   MODELS_CATALOG_URLS    Comma-separated API endpoints for model discovery.
- *                          Default: https://api.opencode.ai/v1/models
- *                          Supports OpenAI-compatible and custom formats.
  *
  *   MODELS_CACHE_TTL       Cache TTL in seconds (default: 86400 = 24h).
  *   MODELS_CACHE_FILE      Cache file path (default: .models.catalog.json).
@@ -37,16 +33,14 @@
  * ============================================================================
  */
 
-import type { ModelCatalog } from './model-catalog.ts';
-import type { ModelEntry, ModelsDevInfo } from './qa-model-parsers.ts';
+import type { ModelEntry } from './model-catalog.ts';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { confirm, select, Separator } from '@inquirer/prompts';
 import { goBackOrExit } from './harness-nav.ts';
 import { colors, err, log, out } from './log.ts';
-import { loadCache, saveCache } from './model-catalog.ts';
+import { detectProvider, inferUnderlyingProvider, loadCache } from './model-catalog.ts';
 import { selectModel } from './model-picker.ts';
-import { detectProvider, inferUnderlyingProvider, parseProvider } from './qa-model-parsers.ts';
 
 // ============================================================================
 // CONSTANTS
@@ -222,14 +216,12 @@ USAGE:
 FLAGS:
   --dry-run            Print changes without writing files.
   --list               List available models and exit.
-  --refresh            Force re-fetch from providers (ignore cache).
+  --refresh            Print where catalog refresh moved (no fetch from here).
   --role <role>        Set model for a single role (non-interactive).
   --model <model>      Model ID to assign (use with --role).
   --help, -h           Show this help.
 
 ENVIRONMENT VARIABLES:
-  MODELS_CATALOG_URLS    Comma-separated API endpoints for model discovery.
-                         Default: https://opencode.ai/zen/v1/models
   MODELS_CACHE_TTL       Cache TTL in seconds (default: 86400).
   MODELS_CACHE_FILE      Cache file path (default: .models.catalog.json).
 
@@ -238,219 +230,6 @@ EXAMPLES:
   bun run harness-config roles --list             # show available models
   bun run harness-config roles --role qa-plan --model opencode-go/glm-5.3
 `);
-}
-
-// ============================================================================
-// MODEL CATALOG — fetch, cache, normalize
-// ============================================================================
-
-function getCatalogUrls(): string[] {
-  const urls = process.env.MODELS_CATALOG_URLS;
-  if (urls) {
-    return urls.split(',').map(u => u.trim()).filter(Boolean);
-  }
-  // Default: OpenCode Zen + Go endpoints (user's connected providers)
-  const defaultUrls = [
-    'https://opencode.ai/zen/v1/models',
-    'https://opencode.ai/zen/go/v1/models',
-  ];
-  // Add Google Gemini API if key is available in .env
-  const googleKey = process.env.GOOGLE_API_KEY;
-  if (googleKey) {
-    // Store base URL without key in cache; key added at fetch time
-    defaultUrls.push('https://generativelanguage.googleapis.com/v1beta/models');
-  }
-  // Add Anthropic API if key is available in .env
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (anthropicKey) {
-    defaultUrls.push('https://api.anthropic.com/v1/models');
-  }
-  // Add OpenAI API if key is available in .env (honors OPENAI_API_BASE proxy)
-  const openaiKey = process.env.OPENAI_API_KEY;
-  if (openaiKey) {
-    const base = process.env.OPENAI_API_BASE?.replace(/\/+$/, '') ?? 'https://api.openai.com/v1';
-    defaultUrls.push(`${base}/models`);
-  }
-  // Add DeepSeek API if key is available in .env
-  const deepseekKey = process.env.DEEPSEEK_API_KEY;
-  if (deepseekKey) {
-    defaultUrls.push('https://api.deepseek.com/models');
-  }
-  // Add Kimi (Moonshot) API if key is available in .env
-  const kimiKey = process.env.KIMI_API_KEY;
-  if (kimiKey) {
-    defaultUrls.push('https://api.moonshot.cn/v1/models');
-  }
-  return defaultUrls;
-}
-
-// models.dev metadata cache — deprecated models are filtered from /models menu
-// and provider info is used for correct assignment
-const MODELS_DEV_URL = 'https://models.dev/api.json';
-
-async function fetchModelsDevMetadata(): Promise<Map<string, ModelsDevInfo>> {
-  const metaMap = new Map<string, ModelsDevInfo>();
-  try {
-    const response = await fetch(MODELS_DEV_URL, {
-      headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!response.ok) {
-      log.warn(`models.dev returned ${response.status}`);
-      return metaMap;
-    }
-    const data = await response.json() as Record<string, unknown>;
-    const oc = data.opencode as Record<string, unknown> | undefined;
-    if (!oc || typeof oc !== 'object') {
-      return metaMap;
-    }
-    const models = oc.models as Record<string, Record<string, unknown>> | undefined;
-    if (!models || typeof models !== 'object') {
-      return metaMap;
-    }
-    for (const [id, model] of Object.entries(models)) {
-      const status = typeof model.status === 'string' ? model.status : 'active';
-      // Use models.dev provider info if available (more accurate than owned_by)
-      const providerInfo = model.provider as Record<string, unknown> | undefined;
-      const npm = typeof providerInfo?.npm === 'string' ? providerInfo.npm : '';
-      let provider = 'opencode';
-      if (npm.includes('google')) {
-        provider = 'google';
-      }
-      else if (npm.includes('anthropic')) {
-        provider = 'anthropic';
-      }
-      else if (npm.includes('openai')) {
-        provider = 'openai';
-      }
-      metaMap.set(id, { status, provider });
-    }
-    log.dim(`  models.dev: ${metaMap.size} model(s) metadata loaded`);
-  }
-  catch (e) {
-    log.warn(`Failed to fetch models.dev metadata: ${(e as Error).message}`);
-  }
-  return metaMap;
-}
-
-function buildAuthHeaders(provider: string): Record<string, string> {
-  const headers: Record<string, string> = { Accept: 'application/json' };
-  const keyMap: Record<string, string | undefined> = {
-    'anthropic': process.env.ANTHROPIC_API_KEY,
-    'openai-direct': process.env.OPENAI_API_KEY,
-    'deepseek': process.env.DEEPSEEK_API_KEY,
-    'kimi': process.env.KIMI_API_KEY,
-  };
-  const key = keyMap[provider];
-  if (!key) { return headers; }
-  if (provider === 'anthropic') {
-    headers['x-api-key'] = key;
-    headers['anthropic-version'] = '2023-06-01';
-  }
-  else {
-    headers.Authorization = `Bearer ${key}`;
-  }
-  return headers;
-}
-
-function buildFetchUrl(provider: string, url: string): string {
-  if (provider === 'google') {
-    const key = process.env.GOOGLE_API_KEY;
-    if (key) { return `${url}?key=${key}`; }
-  }
-  return url;
-}
-
-async function sleep(ms: number): Promise<void> {
-  await new Promise<void>(resolve => setTimeout(resolve, ms));
-}
-
-const FETCH_RETRIES = 2;
-
-async function fetchFromProvider(url: string, metaMap: Map<string, ModelsDevInfo>): Promise<ModelEntry[]> {
-  const provider = detectProvider(url);
-  try {
-    for (let attempt = 0; attempt <= FETCH_RETRIES; attempt++) {
-      const response = await fetch(buildFetchUrl(provider, url), {
-        headers: buildAuthHeaders(provider),
-        signal: AbortSignal.timeout(10000),
-      });
-
-      // Retry on rate-limit (429) and transient server errors (5xx) with backoff.
-      if ((response.status === 429 || response.status >= 500) && attempt < FETCH_RETRIES) {
-        await sleep(500 * 2 ** attempt);
-        continue;
-      }
-      if (!response.ok) {
-        log.warn(`Provider ${provider} returned ${response.status}`);
-        return [];
-      }
-
-      const data = await response.json() as unknown;
-      return parseProvider(provider, data, url, metaMap);
-    }
-    log.warn(`Provider ${provider} exhausted retries`);
-    return [];
-  }
-  catch (e) {
-    log.warn(`Failed to fetch from ${url}: ${(e as Error).message}`);
-    return [];
-  }
-}
-
-async function fetchModels(forceRefresh = false): Promise<ModelCatalog> {
-  if (!forceRefresh) {
-    const cached = loadCache();
-    if (cached) {
-      return cached;
-    }
-  }
-
-  const urls = getCatalogUrls();
-  log.info(`Fetching models from ${urls.length} provider(s)...`);
-
-  // Fetch models.dev metadata to filter deprecated models and get provider info
-  const metaMap = await fetchModelsDevMetadata();
-
-  // Fetch all providers in parallel; each returns [] on failure (never throws).
-  const results = await Promise.all(urls.map(async (url) => {
-    const models = await fetchFromProvider(url, metaMap);
-    log.dim(`  ${detectProvider(url)}: ${models.length} model(s)`);
-    return models;
-  }));
-  const allModels: ModelEntry[] = results.flat();
-
-  // Dedupe by ID
-  const seen = new Set<string>();
-  const deduped: ModelEntry[] = [];
-  let deprecatedCount = 0;
-  for (const m of allModels) {
-    if (seen.has(m.id)) {
-      continue;
-    }
-    // Check models.dev status — filter deprecated models (not in /models menu)
-    const rawId = m.id.replace(/^(?:opencode-go|opencode)\//, '');
-    const meta = metaMap.get(rawId);
-    if (meta?.status === 'deprecated') {
-      deprecatedCount++;
-      continue;
-    }
-    seen.add(m.id);
-    deduped.push(m);
-  }
-
-  if (deprecatedCount > 0) {
-    log.dim(`  filtered ${deprecatedCount} deprecated model(s) via models.dev`);
-  }
-
-  const catalog: ModelCatalog = {
-    models: deduped,
-    fetchedAt: Date.now(),
-    sources: urls,
-  };
-
-  saveCache(catalog);
-  return catalog;
 }
 
 // ============================================================================
@@ -687,6 +466,11 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
+  // --refresh no longer fetches anything — it only points at the new owner.
+  if (flags.refresh) {
+    log.info('Model catalog refresh moved to harness-manager — run a Re-scan there to refresh .models.catalog.json.');
+  }
+
   // Detect active CLI
   const activeCli = detectActiveCli();
   const agentDir = getAgentDirForCli(activeCli);
@@ -694,15 +478,15 @@ async function main(): Promise<void> {
   log.header(`QA Model Selector — ${activeCli}`);
   log.dim(`Agent directory: ${agentDir}\n`);
 
-  // Fetch models
-  const catalog = await fetchModels(flags.refresh);
+  // Read the catalog written by harness-manager (this repo never fetches).
+  const catalog = loadCache();
 
-  if (catalog.models.length === 0) {
-    log.warn('No models fetched. Check your API keys in .env and run --refresh.');
+  if (!catalog || catalog.models.length === 0) {
+    log.warn('No models in .models.catalog.json — run a Re-scan in harness-manager to refresh the catalog.');
   }
 
   // Filter models based on CLI
-  const availableModels = filterModelsForCli(catalog.models, activeCli);
+  const availableModels = filterModelsForCli(catalog?.models ?? [], activeCli);
   log.dim(`${availableModels.length} model(s) compatible with ${activeCli}\n`);
 
   // List mode

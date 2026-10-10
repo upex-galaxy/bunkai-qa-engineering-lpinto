@@ -6,10 +6,10 @@
  * searchable, grouped selection UI instead of two divergent ones.
  */
 
-import type { ModelEntry } from './qa-model-parsers.ts';
+import type { ModelEntry } from './model-catalog.ts';
 import { input, select, Separator } from '@inquirer/prompts';
 import { log } from './log.ts';
-import { detectProvider, inferUnderlyingProvider } from './qa-model-parsers.ts';
+import { detectProvider, inferUnderlyingProvider } from './model-catalog.ts';
 
 export interface SelectModelOptions {
   /** What is being chosen — used in the prompts (a role id, or "session model"). */
