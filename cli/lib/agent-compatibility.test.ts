@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { afterEach, describe, expect, test } from 'bun:test';
 
 import { PERSONALITY_CONTRACT } from '../../.agents/hooks/personality-reinject.mjs';
-import { PersonalityReinject } from '../../.opencode/plugins/personality-reinject.js';
+import PersonalityReinject from '../../.opencode/plugins/personality-reinject.js';
 import {
   CLAUDE_HOOK_COMMAND,
   CODEX_HOOK_COMMAND,
@@ -327,16 +327,30 @@ describe('shared personality hook', () => {
   });
 
   test('OpenCode mutates the system array in place with the same payload', async () => {
-    const plugin = await PersonalityReinject();
-    const transform = plugin['experimental.chat.system.transform'];
-    const output = { system: ['base system'] };
-    const originalArray = output.system;
+    type ContextHook = (input: { system: Array<{ type: 'text', text: string }> }) => void;
+    let contextHook: ContextHook | undefined;
+    const ctx = {
+      session: {
+        hook: (name: string, callback: ContextHook) => {
+          if (name === 'context') { contextHook = callback; }
+        },
+      },
+    };
 
-    await transform({ sessionID: 'test', model: {} }, output);
-    await transform({ sessionID: 'test', model: {} }, output);
+    await PersonalityReinject.setup(ctx as unknown as Parameters<typeof PersonalityReinject.setup>[0]);
+    expect(contextHook).toBeTypeOf('function');
 
-    expect(output.system).toBe(originalArray);
-    expect(output.system).toEqual(['base system', PERSONALITY_CONTRACT]);
+    const event = { system: [{ type: 'text' as const, text: 'base system' }] };
+    const originalArray = event.system;
+
+    contextHook?.(event);
+    contextHook?.(event);
+
+    expect(event.system).toBe(originalArray);
+    expect(event.system).toEqual([
+      { type: 'text', text: 'base system' },
+      { type: 'text', text: PERSONALITY_CONTRACT },
+    ]);
   });
 });
 
