@@ -201,3 +201,10 @@ dbhub.local.toml
 .template/last-apply.json
 .mcp.local.json
 opencode.local.jsonc
+
+# ----- 2026-10-19 -----
+# Local tooling state/caches — never committed.
+.cache/
+.archify/
+.superpowers/
+nul
